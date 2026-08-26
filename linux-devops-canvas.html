@@ -1,0 +1,3928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux DevOps Master Canvas — 30 Pages</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+:root {
+  --bg: #080c10;
+  --surface: #0d1117;
+  --surface2: #161b22;
+  --border: #21262d;
+  --green: #39d353;
+  --green-dim: #196127;
+  --cyan: #58d8ff;
+  --orange: #f0883e;
+  --purple: #bc8cff;
+  --red: #ff6b6b;
+  --yellow: #ffd166;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-muted: #484f58;
+  --accent: #39d353;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* SCANLINE OVERLAY */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.012) 2px, rgba(0,255,65,0.012) 4px);
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* SIDEBAR NAV */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: 260px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 100;
+  padding: 20px 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--green-dim) transparent;
+}
+
+.sidebar-logo {
+  padding: 12px 20px 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 10px;
+}
+
+.sidebar-logo h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.sidebar-logo .version {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-left-color: var(--green);
+}
+
+.nav-item.active {
+  background: rgba(57, 211, 83, 0.08);
+  color: var(--green);
+  border-left-color: var(--green);
+}
+
+.nav-item .num {
+  color: var(--text-muted);
+  font-size: 10px;
+  min-width: 24px;
+}
+
+/* MAIN CONTENT */
+.main {
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+/* PAGE */
+.page {
+  min-height: 100vh;
+  padding: 60px 70px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.page.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* HERO PAGE */
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 80px;
+  background: radial-gradient(ellipse at 20% 50%, rgba(57,211,83,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 20%, rgba(88,216,255,0.04) 0%, transparent 50%);
+}
+
+.hero-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--green);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-tag::before { content: '►'; font-size: 8px; }
+
+.hero h1 {
+  font-size: clamp(48px, 6vw, 88px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -2px;
+  margin-bottom: 24px;
+}
+
+.hero h1 .linux { color: var(--text); }
+.hero h1 .devops { color: var(--green); }
+.hero h1 .master { color: var(--cyan); }
+
+.hero .subtitle {
+  font-size: 18px;
+  color: var(--text-dim);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 50px;
+}
+
+.stat {
+  text-align: left;
+}
+
+.stat .num {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+
+.stat .label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.toc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 900px;
+  width: 100%;
+}
+
+.toc-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.toc-card:hover {
+  border-color: var(--green);
+  background: rgba(57,211,83,0.06);
+  transform: translateY(-2px);
+}
+
+.toc-card .toc-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.toc-card .toc-title {
+  color: var(--text);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* PAGE HEADER */
+.page-header {
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--green);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.page-tag::before { content: '$'; }
+
+.page-title {
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 14px;
+}
+
+.page-desc {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+/* CONTENT BLOCKS */
+.section {
+  margin-bottom: 40px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.explain-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cyan);
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--text-dim);
+}
+
+.explain-box strong { color: var(--text); }
+.explain-box em { color: var(--yellow); font-style: normal; }
+.explain-box .analogy {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--purple);
+}
+.explain-box .analogy::before { content: '💡 Layman: '; font-weight: 700; }
+
+/* CODE BLOCKS */
+.code-block {
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.code-header {
+  background: var(--surface2);
+  padding: 8px 16px;
+  font-size: 10px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 1px;
+}
+
+.code-header .dot { width: 8px; height: 8px; border-radius: 50%; }
+.dot-r { background: #ff5f56; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: #27c93f; }
+
+.code-body {
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+.cmd { color: var(--green); }
+.flag { color: var(--cyan); }
+.comment { color: var(--text-muted); }
+.path { color: var(--orange); }
+.output { color: var(--text-dim); }
+.kw { color: var(--purple); }
+.str { color: var(--yellow); }
+
+/* PROS/CONS */
+.proscons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pros, .cons {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--border);
+}
+
+.pros { border-top: 3px solid var(--green); }
+.cons { border-top: 3px solid var(--red); }
+
+.pros h4 { color: var(--green); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+.cons h4 { color: var(--red); font-size: 12px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+
+.pros li, .cons li {
+  font-size: 13.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+  list-style: none;
+}
+
+.pros li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-size: 11px; top: 1px; }
+.cons li::before { content: '✗'; position: absolute; left: 0; color: var(--red); font-size: 11px; top: 1px; }
+
+/* INFO CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  transition: border-color 0.2s;
+}
+
+.card:hover { border-color: var(--green); }
+
+.card .card-icon { font-size: 22px; margin-bottom: 10px; }
+.card .card-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.card .card-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; }
+
+/* COMMAND TABLE */
+.cmd-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.cmd-table th {
+  text-align: left;
+  padding: 10px 14px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cmd-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.cmd-table tr:last-child td { border-bottom: none; }
+.cmd-table .td-cmd { color: var(--green); font-size: 12.5px; white-space: nowrap; }
+.cmd-table .td-desc { color: var(--text-dim); font-family: 'Syne', sans-serif; font-size: 13px; }
+.cmd-table .td-use { color: var(--purple); font-size: 11.5px; font-family: 'Syne', sans-serif; }
+.cmd-table tr:hover td { background: rgba(57,211,83,0.03); }
+
+/* BADGE */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-right: 6px;
+  margin-bottom: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.badge-green { background: rgba(57,211,83,0.15); color: var(--green); border: 1px solid rgba(57,211,83,0.3); }
+.badge-blue { background: rgba(88,216,255,0.1); color: var(--cyan); border: 1px solid rgba(88,216,255,0.2); }
+.badge-orange { background: rgba(240,136,62,0.1); color: var(--orange); border: 1px solid rgba(240,136,62,0.2); }
+.badge-purple { background: rgba(188,140,255,0.1); color: var(--purple); border: 1px solid rgba(188,140,255,0.2); }
+.badge-red { background: rgba(255,107,107,0.1); color: var(--red); border: 1px solid rgba(255,107,107,0.2); }
+
+/* ALERT BOX */
+.alert {
+  display: flex;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.alert-warn { background: rgba(255,209,102,0.08); border: 1px solid rgba(255,209,102,0.2); }
+.alert-warn .icon { color: var(--yellow); font-size: 18px; flex-shrink: 0; }
+.alert-warn .text { color: var(--text-dim); }
+.alert-danger { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2); }
+.alert-danger .icon { color: var(--red); font-size: 18px; flex-shrink: 0; }
+.alert-danger .text { color: var(--text-dim); }
+.alert-info { background: rgba(88,216,255,0.06); border: 1px solid rgba(88,216,255,0.15); }
+.alert-info .icon { color: var(--cyan); font-size: 18px; flex-shrink: 0; }
+.alert-info .text { color: var(--text-dim); }
+.alert-success { background: rgba(57,211,83,0.06); border: 1px solid rgba(57,211,83,0.2); }
+.alert-success .icon { color: var(--green); font-size: 18px; flex-shrink: 0; }
+.alert-success .text { color: var(--text-dim); }
+
+/* DIAGRAM */
+.diagram {
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  line-height: 1.8;
+  overflow-x: auto;
+}
+
+/* PROGRESS */
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--cyan));
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* BOTTOM NAV */
+.bottom-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 0 0;
+  border-top: 1px solid var(--border);
+  margin-top: 50px;
+}
+
+.nav-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-btn:hover { border-color: var(--green); color: var(--green); }
+.nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.nav-btn:disabled:hover { border-color: var(--border); color: var(--text); }
+
+.page-indicator {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* COLS */
+.cols-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.cols-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+
+/* PERMISSION DISPLAY */
+.perm-display {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: #010409;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.perm-char { display: inline-block; width: 22px; text-align: center; }
+.perm-r { color: var(--green); }
+.perm-w { color: var(--orange); }
+.perm-x { color: var(--cyan); }
+.perm-d { color: var(--yellow); }
+.perm-dash { color: var(--text-muted); }
+
+/* CHECKLIST */
+.checklist { list-style: none; margin-bottom: 20px; }
+.checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.checklist li:last-child { border-bottom: none; }
+.checklist .check { color: var(--green); font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 30px; margin-bottom: 20px; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--border); }
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -26px;
+  top: 5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--green-dim);
+}
+
+.timeline-item .tl-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.timeline-item .tl-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 3px; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .page, .hero { padding: 40px 24px; }
+  .cols-2, .cols-3, .proscons { grid-template-columns: 1fr; }
+  .toc-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Linux DevOps</h1>
+    <div class="version">v3.0 · 30 Pages · Deep Dive</div>
+  </div>
+  <a class="nav-item active" onclick="goTo(0)" href="#">
+    <span class="num">00</span> Home
+  </a>
+  <a class="nav-item" onclick="goTo(1)" href="#">
+    <span class="num">01</span> OS Fundamentals
+  </a>
+  <a class="nav-item" onclick="goTo(2)" href="#">
+    <span class="num">02</span> Kernel & User Space
+  </a>
+  <a class="nav-item" onclick="goTo(3)" href="#">
+    <span class="num">03</span> Processes & Threads
+  </a>
+  <a class="nav-item" onclick="goTo(4)" href="#">
+    <span class="num">04</span> Filesystem Hierarchy
+  </a>
+  <a class="nav-item" onclick="goTo(5)" href="#">
+    <span class="num">05</span> File & Dir Management
+  </a>
+  <a class="nav-item" onclick="goTo(6)" href="#">
+    <span class="num">06</span> File Viewing & Editing
+  </a>
+  <a class="nav-item" onclick="goTo(7)" href="#">
+    <span class="num">07</span> Search & Text Tools
+  </a>
+  <a class="nav-item" onclick="goTo(8)" href="#">
+    <span class="num">08</span> Permissions & Ownership
+  </a>
+  <a class="nav-item" onclick="goTo(9)" href="#">
+    <span class="num">09</span> Users & Groups
+  </a>
+  <a class="nav-item" onclick="goTo(10)" href="#">
+    <span class="num">10</span> Process Monitoring
+  </a>
+  <a class="nav-item" onclick="goTo(11)" href="#">
+    <span class="num">11</span> Memory Monitoring
+  </a>
+  <a class="nav-item" onclick="goTo(12)" href="#">
+    <span class="num">12</span> Disk & Storage
+  </a>
+  <a class="nav-item" onclick="goTo(13)" href="#">
+    <span class="num">13</span> Filesystem & Mounts
+  </a>
+  <a class="nav-item" onclick="goTo(14)" href="#">
+    <span class="num">14</span> Network Debugging
+  </a>
+  <a class="nav-item" onclick="goTo(15)" href="#">
+    <span class="num">15</span> Service Management
+  </a>
+  <a class="nav-item" onclick="goTo(16)" href="#">
+    <span class="num">16</span> Log Management
+  </a>
+  <a class="nav-item" onclick="goTo(17)" href="#">
+    <span class="num">17</span> Disk I/O Performance
+  </a>
+  <a class="nav-item" onclick="goTo(18)" href="#">
+    <span class="num">18</span> Archiving & Compression
+  </a>
+  <a class="nav-item" onclick="goTo(19)" href="#">
+    <span class="num">19</span> Package Management
+  </a>
+  <a class="nav-item" onclick="goTo(20)" href="#">
+    <span class="num">20</span> Environment Variables
+  </a>
+  <a class="nav-item" onclick="goTo(21)" href="#">
+    <span class="num">21</span> Bash Scripting
+  </a>
+  <a class="nav-item" onclick="goTo(22)" href="#">
+    <span class="num">22</span> Cron Jobs
+  </a>
+  <a class="nav-item" onclick="goTo(23)" href="#">
+    <span class="num">23</span> Linux Security
+  </a>
+  <a class="nav-item" onclick="goTo(24)" href="#">
+    <span class="num">24</span> SSH Deep Dive
+  </a>
+  <a class="nav-item" onclick="goTo(25)" href="#">
+    <span class="num">25</span> Firewalls (ufw/iptables)
+  </a>
+  <a class="nav-item" onclick="goTo(26)" href="#">
+    <span class="num">26</span> Monitoring (Prometheus)
+  </a>
+  <a class="nav-item" onclick="goTo(27)" href="#">
+    <span class="num">27</span> Grafana & Dashboards
+  </a>
+  <a class="nav-item" onclick="goTo(28)" href="#">
+    <span class="num">28</span> Troubleshooting Playbook
+  </a>
+  <a class="nav-item" onclick="goTo(29)" href="#">
+    <span class="num">29</span> DevOps Master Checklist
+  </a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- PAGE 0: HERO -->
+<div class="page hero active" id="page-0">
+  <div class="hero-tag">DevOps Master Canvas · 30 Pages</div>
+  <h1>
+    <span class="linux">Linux</span><br>
+    <span class="devops">DevOps</span><br>
+    <span class="master">Mastery</span>
+  </h1>
+  <p class="subtitle">
+    Every command, concept, and tool a DevOps engineer needs — explained in plain English, with real examples, deep context, and production insight.
+  </p>
+  <div class="hero-stats">
+    <div class="stat"><div class="num">30</div><div class="label">Pages</div></div>
+    <div class="stat"><div class="num">21+</div><div class="label">Topics</div></div>
+    <div class="stat"><div class="num">200+</div><div class="label">Commands</div></div>
+    <div class="stat"><div class="num">∞</div><div class="label">Depth</div></div>
+  </div>
+  <div class="toc-grid">
+    <div class="toc-card" onclick="goTo(1)"><div class="toc-num">01–04</div><div class="toc-title">OS Core Concepts</div></div>
+    <div class="toc-card" onclick="goTo(5)"><div class="toc-num">05–06</div><div class="toc-title">File Management</div></div>
+    <div class="toc-card" onclick="goTo(7)"><div class="toc-num">07</div><div class="toc-title">Search & Text Tools</div></div>
+    <div class="toc-card" onclick="goTo(8)"><div class="toc-num">08–09</div><div class="toc-title">Permissions & Users</div></div>
+    <div class="toc-card" onclick="goTo(10)"><div class="toc-num">10–12</div><div class="toc-title">Process & Memory</div></div>
+    <div class="toc-card" onclick="goTo(12)"><div class="toc-num">12–13</div><div class="toc-title">Disk & Storage</div></div>
+    <div class="toc-card" onclick="goTo(14)"><div class="toc-num">14</div><div class="toc-title">Network Debugging</div></div>
+    <div class="toc-card" onclick="goTo(15)"><div class="toc-num">15–17</div><div class="toc-title">Services & Logs</div></div>
+    <div class="toc-card" onclick="goTo(18)"><div class="toc-num">18–22</div><div class="toc-title">Archiving & Automation</div></div>
+    <div class="toc-card" onclick="goTo(23)"><div class="toc-num">23–25</div><div class="toc-title">Security & SSH</div></div>
+    <div class="toc-card" onclick="goTo(26)"><div class="toc-num">26–27</div><div class="toc-title">Monitoring Stack</div></div>
+    <div class="toc-card" onclick="goTo(28)"><div class="toc-num">28–29</div><div class="toc-title">Playbook & Checklist</div></div>
+  </div>
+  <div class="bottom-nav" style="max-width:900px;width:100%">
+    <button class="nav-btn" disabled>← Previous</button>
+    <span class="page-indicator">Page 1 / 30</span>
+    <button class="nav-btn" onclick="goTo(1)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 1: OS FUNDAMENTALS -->
+<div class="page" id="page-1">
+  <div class="progress-bar"><div class="progress-fill" style="width:3%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 01 · OS Fundamentals</div>
+    <h2 class="page-title">What Is an Operating System?</h2>
+    <p class="page-desc">Before you can master Linux, you need to understand what an OS actually does — and why Linux is the backbone of all modern infrastructure.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The Big Picture</div>
+    <div class="explain-box">
+      An <strong>Operating System</strong> is software that sits between your hardware (CPU, RAM, disk) and the programs that run on it. It manages resources so multiple programs can run simultaneously without chaos.
+      <br><br>
+      Linux is an OS <em>kernel</em> — the core engine. When we say "Linux" in DevOps, we usually mean a Linux <strong>distribution</strong> (distro) like Ubuntu, CentOS, or Amazon Linux — which bundles the kernel with tools, package managers, and utilities.
+      <div class="analogy">Think of the OS as the manager of an office building. Programs are workers, the CPU is the staff, RAM is the desks. The OS decides who gets a desk, for how long, and ensures nobody steals someone else's stuff.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The 4 Core Jobs of an OS</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">Process Management</div>
+        <div class="card-desc">Creates, schedules, and kills processes. Ensures the CPU is shared fairly. Handles multitasking via time-slicing.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">💾</div>
+        <div class="card-title">Memory Management</div>
+        <div class="card-desc">Allocates RAM to processes, manages virtual memory, uses swap space when RAM is full, prevents one process from reading another's memory.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📁</div>
+        <div class="card-title">Filesystem Management</div>
+        <div class="card-desc">Organizes data on disk via file systems (ext4, xfs, btrfs). Controls who can read/write/execute what via permissions.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Device Management</div>
+        <div class="card-desc">Talks to hardware via drivers. Manages I/O devices like NICs, disks, and GPUs through a unified API.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Why Linux in DevOps?</div>
+    <div class="proscons">
+      <div class="pros">
+        <h4>✅ Why Linux Wins</h4>
+        <ul>
+          <li>Free and open source — no licensing costs for thousands of servers</li>
+          <li>Highly stable — servers run for years without reboots</li>
+          <li>Extremely customizable — strip it down to bare essentials</li>
+          <li>Dominant in cloud — AWS, GCP, Azure all run Linux VMs</li>
+          <li>Massive ecosystem — Kubernetes, Docker, Ansible — all Linux-native</li>
+          <li>Excellent security model — fine-grained permissions, SELinux, AppArmor</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <h4>⚠️ Challenges</h4>
+        <ul>
+          <li>Steep learning curve for beginners — CLI-first approach</li>
+          <li>No single vendor — distro differences can be confusing (Debian vs RHEL)</li>
+          <li>Some enterprise software still Windows-only</li>
+          <li>GUI tools are less polished (but you rarely use GUIs on servers)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Linux Distributions Compared</div>
+    <table class="cmd-table">
+      <tr><th>Distro</th><th>Package Mgr</th><th>Use Case</th><th>Who Uses It</th></tr>
+      <tr><td class="td-cmd">Ubuntu</td><td class="td-desc">apt</td><td class="td-desc">General purpose, DevOps, containers</td><td class="td-use">Most popular for beginners & cloud</td></tr>
+      <tr><td class="td-cmd">CentOS/RHEL</td><td class="td-desc">yum/dnf</td><td class="td-desc">Enterprise, on-prem servers</td><td class="td-use">Large enterprises, banks</td></tr>
+      <tr><td class="td-cmd">Amazon Linux</td><td class="td-desc">yum/dnf</td><td class="td-desc">AWS optimized</td><td class="td-use">AWS workloads</td></tr>
+      <tr><td class="td-cmd">Alpine</td><td class="td-desc">apk</td><td class="td-desc">Minimal footprint, containers</td><td class="td-use">Docker base images</td></tr>
+      <tr><td class="td-cmd">Debian</td><td class="td-desc">apt</td><td class="td-desc">Stability-first, servers</td><td class="td-use">Hosting providers, Raspberry Pi</td></tr>
+    </table>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="icon">ℹ️</div>
+    <div class="text"><strong>DevOps Reality:</strong> In production you'll encounter Ubuntu and Amazon Linux on cloud instances, CentOS/RHEL on on-prem, and Alpine in Docker images. Learn commands for both Debian-based (apt) and RHEL-based (yum/dnf) systems.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(0)">← Previous</button>
+    <span class="page-indicator">Page 2 / 30</span>
+    <button class="nav-btn" onclick="goTo(2)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 2: KERNEL VS USER SPACE -->
+<div class="page" id="page-2">
+  <div class="progress-bar"><div class="progress-fill" style="width:7%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 02 · Kernel & User Space</div>
+    <h2 class="page-title">Kernel vs User Space</h2>
+    <p class="page-desc">Understanding this boundary is the foundation for debugging, performance tuning, and understanding why programs crash or behave unexpectedly.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The Two Realms</div>
+    <div class="explain-box">
+      Linux runs in two protected rings. <strong>Kernel space</strong> is where the kernel operates — with unrestricted hardware access. <strong>User space</strong> is where every app you run lives — isolated from the hardware.
+      <br><br>
+      When your app needs something from the hardware (read a file, send a network packet), it makes a <em>system call (syscall)</em> — a formal request to the kernel. The kernel does the work, returns the result.
+      <div class="analogy">Kernel space is the bank vault. User space is the customer lobby. You (user app) give instructions to the teller (syscall). The teller goes into the vault (kernel) and comes back with your money (data). You never enter the vault directly.</div>
+    </div>
+
+    <div class="diagram">
+┌─────────────────────────────────────────────────────────────┐
+│                        USER SPACE                           │
+│                                                             │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│   │  nginx   │  │  Python  │  │  MySQL   │  │  Docker  │  │
+│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘  │
+│        │              │              │              │        │
+│        └──────────────┴──────────────┴──────────────┘       │
+│                              │                               │
+│                    System Call Interface                     │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
+│                        KERNEL SPACE                         │
+│                                                             │
+│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│   │ Process  │  │  Memory  │  │   VFS    │  │ Network  │  │
+│   │ Sched.   │  │  Mgmt    │  │ (files)  │  │  Stack   │  │
+│   └──────────┘  └──────────┘  └──────────┘  └──────────┘  │
+│                              │                               │
+│                    Hardware Abstraction                      │
+│  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─  │
+│                         HARDWARE                            │
+│              CPU        RAM        Disk        NIC           │
+└─────────────────────────────────────────────────────────────┘
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">System Calls (Syscalls) Explained</div>
+    <div class="explain-box">
+      Every meaningful action in Linux is a syscall under the hood. When you open a file in Python with <em>open('file.txt')</em>, Python internally calls the <em>open()</em> syscall. You can spy on syscalls with <strong>strace</strong>.
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Common Syscall Tracing</div>
+      <div class="code-body">
+<span class="comment"># Watch every syscall a command makes</span>
+<span class="cmd">strace</span> <span class="flag">ls</span>
+
+<span class="comment"># Watch only file-related syscalls</span>
+<span class="cmd">strace</span> <span class="flag">-e trace=file</span> ls
+
+<span class="comment"># Attach to a running process (PID 1234)</span>
+<span class="cmd">strace</span> <span class="flag">-p 1234</span>
+
+<span class="comment"># Common syscalls you'll see:</span>
+<span class="output">open()    → open a file
+read()    → read data
+write()   → write data
+fork()    → create a child process
+exec()    → run a program
+socket()  → create a network socket</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">init Systems — systemd</div>
+    <div class="explain-box">
+      When Linux boots, the kernel starts exactly <em>one process</em>: <strong>PID 1</strong>. This is the init system. In modern Linux, that's <strong>systemd</strong>. It starts everything else — your network, SSH daemon, web server, database — in the right order.
+      <div class="analogy">systemd is the opening manager of a restaurant. They arrive first, turn on the lights, start the fryers, unlock the doors, and then call in the rest of the staff in the correct order.</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · systemd Init</div>
+      <div class="code-body">
+<span class="comment"># Check PID 1</span>
+<span class="cmd">ps</span> <span class="flag">-p 1</span>
+<span class="output">PID TTY    TIME CMD
+  1 ?    00:00:03 systemd</span>
+
+<span class="comment"># See systemd boot time analysis</span>
+<span class="cmd">systemd-analyze</span>
+<span class="output">Startup finished in 1.2s (kernel) + 3.8s (userspace) = 5.0s</span>
+
+<span class="comment"># What started at boot and in what order</span>
+<span class="cmd">systemd-analyze</span> blame
+      </div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Kernel Space Benefits</h4>
+      <ul>
+        <li>Direct hardware access — maximum performance</li>
+        <li>Isolation from user app bugs — a crashed app can't corrupt the kernel</li>
+        <li>Central resource arbitration — fair CPU/memory allocation</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ The Tradeoffs</h4>
+      <ul>
+        <li>Syscall overhead — every crossing has a small cost (context switch)</li>
+        <li>Kernel bugs are catastrophic — a kernel panic = system crash</li>
+        <li>Kernel modules (drivers) run in kernel space — buggy drivers = panics</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(1)">← Previous</button>
+    <span class="page-indicator">Page 3 / 30</span>
+    <button class="nav-btn" onclick="goTo(3)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 3: PROCESSES & THREADS -->
+<div class="page" id="page-3">
+  <div class="progress-bar"><div class="progress-fill" style="width:10%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 03 · Core Concepts</div>
+    <h2 class="page-title">Processes & Threads</h2>
+    <p class="page-desc">Everything running on your Linux server is a process. Understanding how they're born, run, and die is fundamental to production debugging.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">What Is a Process?</div>
+    <div class="explain-box">
+      A <strong>process</strong> is a running instance of a program. Every process gets its own: PID (unique ID), memory space, file descriptors, and CPU time. Processes are isolated from each other by design.
+      <br><br>
+      A <strong>thread</strong> is a lightweight unit of execution <em>inside</em> a process. Multiple threads share the same memory space, making communication easy — but also risky (race conditions).
+      <div class="analogy">A process is a factory. Threads are workers inside that factory. All workers share the factory floor (memory). If one worker knocks over the chemicals (corrupts memory), it affects everyone. But they can collaborate faster than workers in separate buildings (processes).</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Process Lifecycle</div>
+    <div class="diagram">
+                    fork()
+  Parent Process ──────────► Child Process
+        │                         │
+        │                    exec()  [loads new program]
+        │                         │
+        │                    Running State
+        │                         │
+        └─── wait() ◄─────── exit()   [zombie until parent collects]
+
+Process States:
+  R = Running (on CPU right now)
+  S = Sleeping (waiting for I/O or event)
+  D = Uninterruptible Sleep (waiting for disk I/O — cannot be killed!)
+  Z = Zombie (finished but parent hasn't collected exit code)
+  T = Stopped (paused with Ctrl+Z)
+  I = Idle (kernel threads only)
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Process Commands</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Process Management</div>
+      <div class="code-body">
+<span class="comment"># List ALL processes with details</span>
+<span class="cmd">ps</span> <span class="flag">aux</span>
+<span class="output">USER       PID %CPU %MEM    VSZ   RSS STAT COMMAND
+root         1  0.0  0.1  22440  5216 Ss   /sbin/init
+www-data  1234  2.1  1.4 123456 56789 S    nginx: worker
+mysql     5678  5.3  8.2 890123 330000 Sl  mysqld</span>
+
+<span class="comment"># Process tree — see parent-child relationships</span>
+<span class="cmd">pstree</span> <span class="flag">-p</span>
+
+<span class="comment"># Find process by name</span>
+<span class="cmd">pgrep</span> <span class="flag">-l</span> nginx
+<span class="output">1234 nginx</span>
+
+<span class="comment"># Show process file descriptors (what files it has open)</span>
+<span class="cmd">lsof</span> <span class="flag">-p 1234</span>
+
+<span class="comment"># See process environment variables</span>
+<span class="cmd">cat</span> <span class="path">/proc/1234/environ</span> | tr '\0' '\n'
+
+<span class="comment"># See process memory map</span>
+<span class="cmd">cat</span> <span class="path">/proc/1234/maps</span>
+
+<span class="comment"># Kill signals — the most important ones:</span>
+<span class="cmd">kill</span> <span class="flag">-15 1234</span>   <span class="comment"># SIGTERM — polite shutdown, process can clean up</span>
+<span class="cmd">kill</span> <span class="flag">-9 1234</span>    <span class="comment"># SIGKILL — brutal kill, kernel does it, no cleanup</span>
+<span class="cmd">kill</span> <span class="flag">-1 1234</span>    <span class="comment"># SIGHUP — reload config (many daemons respect this)</span>
+<span class="cmd">kill</span> <span class="flag">-19 1234</span>   <span class="comment"># SIGSTOP — pause process</span>
+<span class="cmd">kill</span> <span class="flag">-18 1234</span>   <span class="comment"># SIGCONT — resume paused process</span>
+
+<span class="comment"># Kill all by name</span>
+<span class="cmd">killall</span> nginx
+<span class="cmd">pkill</span> <span class="flag">-f</span> "python app.py"
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <div class="icon">⚠️</div>
+    <div class="text"><strong>kill -9 is a last resort!</strong> SIGKILL prevents the process from flushing buffers, closing files, or rolling back transactions. Always try SIGTERM first and wait 5–10 seconds before escalating to SIGKILL.</div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Processes (vs threads)</h4>
+      <ul>
+        <li>Complete memory isolation — one crash can't corrupt another</li>
+        <li>Easier to kill and restart individually</li>
+        <li>Better for microservices architecture</li>
+        <li>OS-level resource accounting per process</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Threads (vs processes)</h4>
+      <ul>
+        <li>Shared memory = faster communication but race conditions risk</li>
+        <li>Lower overhead than spawning new processes</li>
+        <li>One thread crashing can kill the whole process</li>
+        <li>Harder to debug concurrency bugs</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(2)">← Previous</button>
+    <span class="page-indicator">Page 4 / 30</span>
+    <button class="nav-btn" onclick="goTo(4)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 4: FILESYSTEM HIERARCHY -->
+<div class="page" id="page-4">
+  <div class="progress-bar"><div class="progress-fill" style="width:13%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 04 · Filesystem</div>
+    <h2 class="page-title">Linux Filesystem Hierarchy</h2>
+    <p class="page-desc">Linux follows the Filesystem Hierarchy Standard (FHS). Every directory has a purpose. Knowing this saves hours of searching.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The Directory Map</div>
+    <div class="diagram">
+/
+├── bin/     → Essential user binaries (ls, cp, mv, bash) — always available even if /usr unmounted
+├── sbin/    → System binaries for root (iptables, fdisk, mount)
+├── boot/    → Bootloader files, kernel images (vmlinuz), initrd
+├── dev/     → Device files (virtual files representing hardware)
+│              /dev/sda = first disk | /dev/null = black hole | /dev/random = random data
+├── etc/     → ⭐ System-wide config files (nginx.conf, /etc/hosts, /etc/passwd)
+├── home/    → User home directories (/home/alice, /home/bob)
+├── lib/     → Shared libraries (.so files) needed by bin and sbin
+├── media/   → Mount points for removable media (USB drives, DVDs)
+├── mnt/     → Temporary mount point for sysadmins
+├── opt/     → Optional/third-party software (rarely used now, mostly legacy)
+├── proc/    → ⭐ Virtual filesystem — kernel exposes process info here
+│              /proc/meminfo | /proc/cpuinfo | /proc/{PID}/status
+├── root/    → Home directory of the root user (not /home/root!)
+├── run/     → Runtime data (PIDs, sockets) — cleared on reboot
+├── srv/     → Data for services served (web files, FTP data)
+├── sys/     → ⭐ Virtual filesystem — hardware and driver info from kernel
+├── tmp/     → Temporary files — cleared on reboot, world-writable
+├── usr/     → ⭐ User programs and libraries
+│   ├── bin/    → Most user commands (python3, git, curl, wget)
+│   ├── lib/    → Libraries for /usr/bin programs
+│   ├── local/  → Manually compiled software goes here
+│   └── share/  → Architecture-independent data (man pages, icons)
+└── var/     → ⭐ Variable data that changes at runtime
+    ├── log/    → System and app log files
+    ├── cache/  → App cache data
+    ├── lib/    → Persistent app data (DB files, package state)
+    ├── spool/  → Print/mail queues
+    └── tmp/    → Temp files preserved between reboots
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The DevOps Critical Directories</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">⚙️</div>
+        <div class="card-title">/etc — The Config Home</div>
+        <div class="card-desc">Every service stores its config here. /etc/nginx/nginx.conf, /etc/ssh/sshd_config, /etc/hosts, /etc/crontab. First place to look when something breaks.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">/var/log — Log Central</div>
+        <div class="card-desc">All system and app logs live here. /var/log/syslog, /var/log/auth.log, /var/log/nginx/access.log. Daily home for DevOps debugging.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔬</div>
+        <div class="card-title">/proc — The Live Kernel Window</div>
+        <div class="card-desc">Not a real disk — it's RAM. The kernel writes live data here. cat /proc/meminfo shows real-time memory. cat /proc/cpuinfo shows your CPU. cat /proc/1/status shows PID 1's state.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔧</div>
+        <div class="card-title">/sys — Hardware Interface</div>
+        <div class="card-desc">Kernel exposes hardware settings here. You can tune kernel parameters, view hardware state, and control devices via simple file writes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Useful /proc Commands</div>
+    <div class="code-body">
+<span class="comment"># CPU info — model, cores, speed</span>
+<span class="cmd">cat</span> <span class="path">/proc/cpuinfo</span>
+
+<span class="comment"># Memory info — total, free, cached</span>
+<span class="cmd">cat</span> <span class="path">/proc/meminfo</span>
+
+<span class="comment"># All kernel boot parameters</span>
+<span class="cmd">cat</span> <span class="path">/proc/cmdline</span>
+
+<span class="comment"># System uptime in seconds</span>
+<span class="cmd">cat</span> <span class="path">/proc/uptime</span>
+
+<span class="comment"># Open file descriptors for a process</span>
+<span class="cmd">ls</span> <span class="flag">-la</span> <span class="path">/proc/1234/fd</span>
+
+<span class="comment"># Kernel tunable parameters (sysctl)</span>
+<span class="cmd">sysctl</span> <span class="flag">-a</span> | grep <span class="str">"net.ipv4"</span>
+<span class="cmd">sysctl</span> vm.swappiness        <span class="comment"># How aggressively to use swap</span>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(3)">← Previous</button>
+    <span class="page-indicator">Page 5 / 30</span>
+    <button class="nav-btn" onclick="goTo(5)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 5: FILE & DIR MANAGEMENT -->
+<div class="page" id="page-5">
+  <div class="progress-bar"><div class="progress-fill" style="width:17%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 05 · Daily Commands</div>
+    <h2 class="page-title">File & Directory Management</h2>
+    <p class="page-desc">These commands are your hands in Linux. You'll use them dozens of times a day. Master them completely — speed and accuracy matter in production.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Navigation Commands</div>
+    <table class="cmd-table">
+      <tr><th>Command</th><th>What It Does</th><th>DevOps Use Case</th></tr>
+      <tr><td class="td-cmd">ls -lah</td><td class="td-desc">List files with human-readable sizes, hidden files, permissions, timestamps</td><td class="td-use">Check configs, log sizes, file dates</td></tr>
+      <tr><td class="td-cmd">ls -lt</td><td class="td-desc">List files sorted by modification time (newest first)</td><td class="td-use">Find recently changed files during incidents</td></tr>
+      <tr><td class="td-cmd">cd /path</td><td class="td-desc">Change to absolute path</td><td class="td-use">Navigate server dirs</td></tr>
+      <tr><td class="td-cmd">cd -</td><td class="td-desc">Go to previous directory</td><td class="td-use">Quick toggle between two dirs</td></tr>
+      <tr><td class="td-cmd">pwd</td><td class="td-desc">Print working directory (where am I?)</td><td class="td-use">Confirm you're in the right place before rm!</td></tr>
+      <tr><td class="td-cmd">tree -L 2</td><td class="td-desc">Show directory tree 2 levels deep</td><td class="td-use">Understand project/config structure at a glance</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Creating & Removing</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Create & Remove</div>
+      <div class="code-body">
+<span class="comment"># Create directory and all parents at once</span>
+<span class="cmd">mkdir</span> <span class="flag">-p</span> <span class="path">/opt/app/logs/2024</span>
+
+<span class="comment"># Create an empty file (or update timestamp)</span>
+<span class="cmd">touch</span> <span class="path">app.log</span>
+
+<span class="comment"># Remove a file</span>
+<span class="cmd">rm</span> oldfile.txt
+
+<span class="comment"># Remove a directory and all contents</span>
+<span class="cmd">rm</span> <span class="flag">-rf</span> <span class="path">/tmp/build</span>
+
+<span class="comment">⚠️  DANGER: rm -rf / will destroy everything. Always double-check path!</span>
+<span class="comment"># Safe practice — always do a dry run first:</span>
+<span class="cmd">ls</span> <span class="path">/path/to/delete</span>   <span class="comment"># confirm what you're deleting</span>
+<span class="cmd">rm</span> <span class="flag">-rf</span> <span class="path">/path/to/delete</span>
+
+<span class="comment"># Remove only files inside a dir, not the dir itself</span>
+<span class="cmd">rm</span> <span class="flag">-rf</span> <span class="path">/var/log/app/*</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Copying & Moving</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Copy & Move</div>
+      <div class="code-body">
+<span class="comment"># Copy file</span>
+<span class="cmd">cp</span> config.yml config.yml.bak   <span class="comment"># ALWAYS backup before editing!</span>
+
+<span class="comment"># Copy directory recursively</span>
+<span class="cmd">cp</span> <span class="flag">-r</span> <span class="path">/app/src</span> <span class="path">/app/src.bak</span>
+
+<span class="comment"># Copy with preserved permissions, timestamps, symlinks</span>
+<span class="cmd">cp</span> <span class="flag">-a</span> <span class="path">/app</span> <span class="path">/backup/app</span>
+
+<span class="comment"># Move (also used for rename)</span>
+<span class="cmd">mv</span> app.log app.log.2024-01-15   <span class="comment"># rename</span>
+<span class="cmd">mv</span> <span class="path">/tmp/deploy.sh</span> <span class="path">/opt/scripts/</span>  <span class="comment"># move to dir</span>
+
+<span class="comment"># Detailed file info (size, inode, blocks, access time)</span>
+<span class="cmd">stat</span> nginx.conf
+<span class="output">  File: nginx.conf
+  Size: 2847        Blocks: 8          IO Block: 4096
+Device: fd00h/64768d  Inode: 1234567   Links: 1
+Access: 2024-01-15 10:23:45
+Modify: 2024-01-14 09:11:22
+Change: 2024-01-14 09:11:22</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="icon">🔥</div>
+    <div class="text"><strong>Production Rule #1:</strong> Always backup before modifying. <code>cp nginx.conf nginx.conf.bak.$(date +%Y%m%d)</code> — creates a dated backup. Never edit production configs without a backup you can roll back to in 30 seconds.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(4)">← Previous</button>
+    <span class="page-indicator">Page 6 / 30</span>
+    <button class="nav-btn" onclick="goTo(6)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 6: FILE VIEWING & EDITING -->
+<div class="page" id="page-6">
+  <div class="progress-bar"><div class="progress-fill" style="width:20%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 06 · File Viewing</div>
+    <h2 class="page-title">File Viewing & Editing</h2>
+    <p class="page-desc">You live in log files and config files as a DevOps engineer. Learn to navigate them at speed — especially real-time log monitoring.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Viewing Commands — When to Use Which</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🐱</div>
+        <div class="card-title">cat — Print Whole File</div>
+        <div class="card-desc">Best for small files. Dumps entire content to terminal. Bad for large logs — use less instead. Also used to chain files: cat file1 file2 > combined.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📄</div>
+        <div class="card-title">less — Page Through Files</div>
+        <div class="card-desc">Best for large files. Opens in a pager: scroll with arrows, search with /, quit with q. Doesn't load entire file into memory — perfect for huge logs.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔝</div>
+        <div class="card-title">head — First N Lines</div>
+        <div class="card-desc">head -n 50 file.log shows first 50 lines. Useful to check file format, headers, or recent log entries in rotated files.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔚</div>
+        <div class="card-title">tail — Last N Lines + LIVE Follow</div>
+        <div class="card-desc">tail -f app.log is your real-time window into a running application. The -f flag follows the file as it grows. Essential for production debugging.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Real-Time Log Monitoring</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Log Monitoring Arsenal</div>
+      <div class="code-body">
+<span class="comment"># Follow a log in real-time</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> <span class="path">/var/log/nginx/access.log</span>
+
+<span class="comment"># Follow AND filter for errors only</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> <span class="path">/var/log/app/app.log</span> | <span class="cmd">grep</span> <span class="flag">--color</span> <span class="str">"ERROR\|WARN"</span>
+
+<span class="comment"># Follow multiple log files at once</span>
+<span class="cmd">tail</span> <span class="flag">-f</span> <span class="path">/var/log/nginx/access.log</span> <span class="path">/var/log/nginx/error.log</span>
+
+<span class="comment"># Show last 100 lines then follow</span>
+<span class="cmd">tail</span> <span class="flag">-n 100 -f</span> <span class="path">app.log</span>
+
+<span class="comment"># Search inside less (once opened)</span>
+<span class="cmd">less</span> <span class="path">/var/log/syslog</span>
+<span class="output">  Press / then type search term → highlights matches
+  Press n → next match
+  Press N → previous match
+  Press G → go to end of file
+  Press g → go to start
+  Press q → quit</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">vim — The Essential Editor</div>
+    <div class="explain-box">
+      <strong>vim</strong> is the standard terminal editor on every Linux server. You might not have nano. You might not have a GUI. But vim will always be there. Learn the basics — it will save you in emergencies.
+      <div class="analogy">vim is like learning to drive manual — harder at first, but once you know it, you can drive any car anywhere. Every server, Docker container, emergency console will have vi or vim.</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>vim · Survival Guide</div>
+      <div class="code-body">
+<span class="comment"># Open a file</span>
+<span class="cmd">vim</span> <span class="path">/etc/nginx/nginx.conf</span>
+
+<span class="output">MODES:
+  Normal mode  → default on open, navigate with h/j/k/l or arrow keys
+  Insert mode  → press 'i' to start editing
+  Visual mode  → press 'v' to select text
+  Command mode → press ':' for commands
+
+ESSENTIAL COMMANDS:
+  i          → enter insert mode (type here)
+  ESC        → return to normal mode
+  :w         → save (write)
+  :q         → quit
+  :wq        → save and quit
+  :q!        → quit WITHOUT saving (emergency exit!)
+  :wq!       → force save and quit
+  /pattern   → search forward
+  n          → next search result
+  dd         → delete entire line
+  yy         → copy (yank) line
+  p          → paste below
+  u          → undo
+  Ctrl+r     → redo
+  :%s/old/new/g  → find and replace ALL occurrences
+  :set number    → show line numbers
+  gg         → go to first line
+  G          → go to last line
+  :42        → go to line 42</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ vim Advantages</h4>
+      <ul>
+        <li>Available on every Linux system including minimal containers</li>
+        <li>Extremely fast once learned — keyboard-only workflow</li>
+        <li>Handles huge files gracefully</li>
+        <li>Extensible with plugins for full IDE-like experience</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ vim Disadvantages</h4>
+      <ul>
+        <li>Steep learning curve — modes confuse beginners</li>
+        <li>Easy to accidentally edit when you meant to navigate</li>
+        <li>nano is simpler for quick edits if available</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(5)">← Previous</button>
+    <span class="page-indicator">Page 7 / 30</span>
+    <button class="nav-btn" onclick="goTo(7)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 7: SEARCH & TEXT PROCESSING -->
+<div class="page" id="page-7">
+  <div class="progress-bar"><div class="progress-fill" style="width:23%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 07 · Power Tools</div>
+    <h2 class="page-title">Search & Text Processing</h2>
+    <p class="page-desc">grep, awk, sed — the holy trinity of Linux text processing. Master these and you can extract any insight from any log or config file in seconds.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">grep — The Search King</div>
+    <div class="explain-box">
+      <strong>grep</strong> (Global Regular Expression Print) searches files for lines matching a pattern. It's the most-used command in log analysis. Pair it with pipes for incredible power.
+      <div class="analogy">grep is the "Ctrl+F" of the terminal — but turbocharged. It can search thousands of files at once, use complex patterns, and filter the output of any command.</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · grep Mastery</div>
+      <div class="code-body">
+<span class="comment"># Basic search</span>
+<span class="cmd">grep</span> <span class="str">"error"</span> <span class="path">app.log</span>
+
+<span class="comment"># Case-insensitive search</span>
+<span class="cmd">grep</span> <span class="flag">-i</span> <span class="str">"error"</span> app.log
+
+<span class="comment"># Show line numbers</span>
+<span class="cmd">grep</span> <span class="flag">-n</span> <span class="str">"error"</span> app.log
+
+<span class="comment"># Show 3 lines BEFORE and AFTER match (context)</span>
+<span class="cmd">grep</span> <span class="flag">-B 3 -A 3</span> <span class="str">"OutOfMemoryError"</span> app.log
+
+<span class="comment"># Recursive search all files in directory</span>
+<span class="cmd">grep</span> <span class="flag">-r</span> <span class="str">"PORT=8080"</span> <span class="path">/etc/</span>
+
+<span class="comment"># Invert match — show lines WITHOUT the pattern</span>
+<span class="cmd">grep</span> <span class="flag">-v</span> <span class="str">"DEBUG"</span> app.log
+
+<span class="comment"># Count matching lines</span>
+<span class="cmd">grep</span> <span class="flag">-c</span> <span class="str">"ERROR"</span> app.log
+
+<span class="comment"># Extended regex — multiple patterns</span>
+<span class="cmd">grep</span> <span class="flag">-E</span> <span class="str">"ERROR|FATAL|CRITICAL"</span> app.log
+
+<span class="comment"># Pipe grep output to another grep (AND logic)</span>
+<span class="cmd">grep</span> <span class="str">"ERROR"</span> app.log | <span class="cmd">grep</span> <span class="str">"database"</span>
+
+<span class="comment"># Count errors per minute from timestamps</span>
+<span class="cmd">grep</span> <span class="str">"ERROR"</span> app.log | <span class="cmd">grep</span> <span class="str">"2024-01-15 10:3"</span> | <span class="cmd">wc</span> <span class="flag">-l</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">awk — The Data Extractor</div>
+    <div class="explain-box">
+      <strong>awk</strong> processes text line by line and splits each line into fields. It's perfect for extracting specific columns from structured text like logs, CSVs, or command output.
+      <div class="analogy">awk is like Excel for the terminal — it sees text as rows and columns. $1 is column 1, $2 is column 2, etc., separated by spaces (or any delimiter you set).</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · awk Essentials</div>
+      <div class="code-body">
+<span class="comment"># Print first column of each line</span>
+<span class="cmd">ps</span> aux | <span class="cmd">awk</span> <span class="str">'{print $1}'</span>
+
+<span class="comment"># Print process name and memory usage</span>
+<span class="cmd">ps</span> aux | <span class="cmd">awk</span> <span class="str">'{print $11, $4"%"}'</span>
+
+<span class="comment"># Extract usernames from /etc/passwd (: delimited)</span>
+<span class="cmd">awk</span> <span class="flag">-F:</span> <span class="str">'{print $1}'</span> <span class="path">/etc/passwd</span>
+
+<span class="comment"># Filter lines where field 3 (UID) >= 1000 (real users)</span>
+<span class="cmd">awk</span> <span class="flag">-F:</span> <span class="str">'$3 >= 1000 {print $1, $3}'</span> <span class="path">/etc/passwd</span>
+
+<span class="comment"># Sum a column (total memory used)</span>
+<span class="cmd">ps</span> aux | <span class="cmd">awk</span> <span class="str">'{sum += $6} END {print sum/1024 "MB total RSS"}'</span>
+
+<span class="comment"># Extract IPs from nginx access log</span>
+<span class="cmd">awk</span> <span class="str">'{print $1}'</span> <span class="path">/var/log/nginx/access.log</span> | <span class="cmd">sort</span> | <span class="cmd">uniq</span> <span class="flag">-c</span> | <span class="cmd">sort</span> <span class="flag">-rn</span> | <span class="cmd">head</span> <span class="flag">-20</span>
+<span class="comment"># ↑ This shows top 20 IPs by request count — great for finding DDoS sources</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">sed — The Stream Editor</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · sed Mastery</div>
+      <div class="code-body">
+<span class="comment"># Find and replace in output (doesn't change file)</span>
+<span class="cmd">sed</span> <span class="str">'s/old_value/new_value/g'</span> config.yml
+
+<span class="comment"># Find and replace IN-PLACE (modifies file!) — always backup first</span>
+<span class="cmd">sed</span> <span class="flag">-i.bak</span> <span class="str">'s/localhost/db.prod.internal/g'</span> app.conf
+<span class="comment"># -i.bak creates app.conf.bak before changing</span>
+
+<span class="comment"># Delete blank lines</span>
+<span class="cmd">sed</span> <span class="str">'/^$/d'</span> file.txt
+
+<span class="comment"># Delete lines matching pattern</span>
+<span class="cmd">sed</span> <span class="str">'/^#/d'</span> config.conf   <span class="comment"># remove comment lines</span>
+
+<span class="comment"># Print only lines 10-20</span>
+<span class="cmd">sed</span> <span class="flag">-n</span> <span class="str">'10,20p'</span> file.txt
+
+<span class="comment"># Change port in config</span>
+<span class="cmd">sed</span> <span class="flag">-i</span> <span class="str">'s/listen 80/listen 8080/'</span> <span class="path">/etc/nginx/nginx.conf</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Power of Pipes</h4>
+      <ul>
+        <li>Chain grep | awk | sed | sort | uniq for complex analysis</li>
+        <li>Process millions of log lines without loading into memory</li>
+        <li>No need for Python scripts for simple data extraction</li>
+        <li>Works on any Linux system — no installs needed</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Gotchas</h4>
+      <ul>
+        <li>awk and sed syntax is cryptic — easy to make mistakes</li>
+        <li>sed -i modifies files in-place — always use -i.bak for safety</li>
+        <li>Regex syntax differs between tools (basic vs extended)</li>
+        <li>For complex processing, Python or jq might be more readable</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(6)">← Previous</button>
+    <span class="page-indicator">Page 8 / 30</span>
+    <button class="nav-btn" onclick="goTo(8)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 8: PERMISSIONS & OWNERSHIP -->
+<div class="page" id="page-8">
+  <div class="progress-bar"><div class="progress-fill" style="width:27%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 08 · Security</div>
+    <h2 class="page-title">Permissions & Ownership</h2>
+    <p class="page-desc">Linux permissions are a security fortress. Misconfigured permissions are one of the top causes of security breaches. Understand them deeply.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Reading Permission Strings</div>
+    <div class="perm-display">
+<span class="perm-d">d</span><span class="perm-r">r</span><span class="perm-w">w</span><span class="perm-x">x</span><span class="perm-r">r</span><span class="perm-dash">-</span><span class="perm-x">x</span><span class="perm-r">r</span><span class="perm-dash">-</span><span class="perm-dash">-</span>   root  root   4096   nginx/
+│<span style="color:var(--cyan)">└──owner──┘</span><span style="color:var(--orange)">└──group──┘</span><span style="color:var(--purple)">└──other──┘</span>
+│
+└─ <span class="perm-d">d</span> = directory | <span style="color:var(--text-dim)">-</span> = regular file | l = symlink | c = char device | b = block device
+
+<span style="color:var(--green)">r</span> = read (4)    <span style="color:var(--orange)">w</span> = write (2)    <span style="color:var(--cyan)">x</span> = execute (1)    <span style="color:var(--text-muted)">-</span> = no permission (0)
+
+Example: <span class="perm-r">r</span><span class="perm-w">w</span><span class="perm-x">x</span> = 4+2+1 = <span style="color:var(--yellow)">7</span>   |   <span class="perm-r">r</span><span class="perm-w">w</span><span class="perm-dash">-</span> = 4+2+0 = <span style="color:var(--yellow)">6</span>   |   <span class="perm-r">r</span><span class="perm-dash">-</span><span class="perm-dash">-</span> = 4+0+0 = <span style="color:var(--yellow)">4</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">chmod — Change Permissions</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · chmod Patterns</div>
+      <div class="code-body">
+<span class="comment"># NUMERIC MODE — most precise</span>
+<span class="cmd">chmod</span> 755 <span class="path">script.sh</span>    <span class="comment"># rwxr-xr-x  owner:rwx group:rx others:rx</span>
+<span class="cmd">chmod</span> 644 <span class="path">config.yml</span>   <span class="comment"># rw-r--r--  owner:rw  group:r  others:r</span>
+<span class="cmd">chmod</span> 600 <span class="path">secrets.env</span>  <span class="comment"># rw-------  owner:rw  group:none others:none</span>
+<span class="cmd">chmod</span> 700 <span class="path">private/</span>     <span class="comment"># rwx------  only owner can enter directory</span>
+<span class="cmd">chmod</span> 777 <span class="path">shared/</span>      <span class="comment"># ⚠️ NEVER in production — everyone can write!</span>
+
+<span class="comment"># SYMBOLIC MODE — readable</span>
+<span class="cmd">chmod</span> <span class="flag">+x</span> deploy.sh      <span class="comment"># add execute for all</span>
+<span class="cmd">chmod</span> <span class="flag">u+x</span> script.sh     <span class="comment"># add execute for owner only</span>
+<span class="cmd">chmod</span> <span class="flag">g-w</span> config.yml    <span class="comment"># remove write from group</span>
+<span class="cmd">chmod</span> <span class="flag">o-r</span> secrets.env   <span class="comment"># remove read from others</span>
+<span class="cmd">chmod</span> <span class="flag">-R</span> 755 /app/      <span class="comment"># recursive — apply to all files in dir</span>
+
+<span class="comment"># COMMON PRODUCTION PATTERNS:</span>
+<span class="comment"># SSH key files MUST be 600 or SSH refuses them</span>
+<span class="cmd">chmod</span> 600 <span class="path">~/.ssh/id_rsa</span>
+<span class="cmd">chmod</span> 700 <span class="path">~/.ssh/</span>
+
+<span class="comment"># Web server files</span>
+<span class="cmd">chmod</span> 644 <span class="path">/var/www/html/*.html</span>   <span class="comment"># nginx reads, others can read</span>
+<span class="cmd">chmod</span> 755 <span class="path">/var/www/html/</span>         <span class="comment"># nginx can list directory</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">chown — Change Ownership</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · chown</div>
+      <div class="code-body">
+<span class="comment"># Change owner</span>
+<span class="cmd">chown</span> alice <span class="path">file.txt</span>
+
+<span class="comment"># Change owner AND group</span>
+<span class="cmd">chown</span> alice:developers <span class="path">project/</span>
+
+<span class="comment"># Recursive — change all files in directory</span>
+<span class="cmd">chown</span> <span class="flag">-R</span> www-data:www-data <span class="path">/var/www/html/</span>
+<span class="comment"># ↑ nginx runs as www-data, needs to own web files</span>
+
+<span class="comment"># Change group only</span>
+<span class="cmd">chgrp</span> developers <span class="path">shared-project/</span>
+
+<span class="comment"># Check effective permissions (who can access what)</span>
+<span class="cmd">ls</span> <span class="flag">-la</span> <span class="path">/etc/nginx/</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Permission Quick Reference</div>
+    <table class="cmd-table">
+      <tr><th>Mode</th><th>Octal</th><th>Meaning</th><th>Typical Use</th></tr>
+      <tr><td class="td-cmd">rw-------</td><td class="td-desc">600</td><td class="td-desc">Only owner can read/write</td><td class="td-use">SSH keys, secret files, .env files</td></tr>
+      <tr><td class="td-cmd">rw-r--r--</td><td class="td-desc">644</td><td class="td-desc">Owner writes, others read</td><td class="td-use">Web files, config files, logs</td></tr>
+      <tr><td class="td-cmd">rwxr-xr-x</td><td class="td-desc">755</td><td class="td-desc">Owner full, others read/execute</td><td class="td-use">Scripts, directories, executables</td></tr>
+      <tr><td class="td-cmd">rwx------</td><td class="td-desc">700</td><td class="td-desc">Only owner has any access</td><td class="td-use">Private directories, ~/.ssh/</td></tr>
+      <tr><td class="td-cmd">rwxrwxr-x</td><td class="td-desc">775</td><td class="td-desc">Owner+group write, others read</td><td class="td-use">Shared team directories</td></tr>
+    </table>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="icon">🔥</div>
+    <div class="text"><strong>Never chmod 777 in production!</strong> World-writable files/directories let any process or user modify them — this includes compromised processes. Use 755 for dirs and 644 for files as your safe defaults.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(7)">← Previous</button>
+    <span class="page-indicator">Page 9 / 30</span>
+    <button class="nav-btn" onclick="goTo(9)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 9: USERS & GROUPS -->
+<div class="page" id="page-9">
+  <div class="progress-bar"><div class="progress-fill" style="width:30%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 09 · Access Control</div>
+    <h2 class="page-title">User & Group Management</h2>
+    <p class="page-desc">Production access control is a security-critical skill. Creating the right users, assigning the right groups, and applying least-privilege principles keeps servers safe.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">User & Group Architecture</div>
+    <div class="explain-box">
+      Every Linux user has a <strong>UID</strong> (User ID — a number). Root is UID 0. System users (nginx, mysql, www-data) have UIDs 1–999. Real humans have UIDs ≥ 1000.
+      <br><br>
+      Every user belongs to a <em>primary group</em> and can be in many <em>supplementary groups</em>. Groups enable shared access — all members of the "docker" group can run Docker without sudo.
+      <div class="analogy">Users are employees. Groups are departments. An employee can be in multiple departments. If a file is owned by the "ops" group with group-write permission, any ops department member can edit it.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">User Management Commands</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · User Management</div>
+      <div class="code-body">
+<span class="comment"># Create a new user</span>
+<span class="cmd">useradd</span> <span class="flag">-m -s /bin/bash</span> devops
+<span class="comment"># -m creates home dir, -s sets shell</span>
+
+<span class="comment"># Set password</span>
+<span class="cmd">passwd</span> devops
+
+<span class="comment"># Add user to sudo group (admin privileges)</span>
+<span class="cmd">usermod</span> <span class="flag">-aG</span> sudo devops      <span class="comment"># Debian/Ubuntu</span>
+<span class="cmd">usermod</span> <span class="flag">-aG</span> wheel devops     <span class="comment"># RHEL/CentOS</span>
+<span class="comment"># -a = append (don't remove from other groups!)</span>
+<span class="comment"># -G = supplementary groups</span>
+
+<span class="comment"># Add to multiple groups at once</span>
+<span class="cmd">usermod</span> <span class="flag">-aG</span> sudo,docker,adm devops
+
+<span class="comment"># Check user's groups</span>
+<span class="cmd">groups</span> devops
+<span class="output">devops : devops sudo docker</span>
+
+<span class="comment"># Detailed user info (UID, GID, groups)</span>
+<span class="cmd">id</span> devops
+<span class="output">uid=1001(devops) gid=1001(devops) groups=1001(devops),27(sudo),999(docker)</span>
+
+<span class="comment"># Delete user (keep their files)</span>
+<span class="cmd">userdel</span> olduser
+
+<span class="comment"># Delete user AND their home directory</span>
+<span class="cmd">userdel</span> <span class="flag">-r</span> olduser
+
+<span class="comment"># Lock a user account (no login allowed)</span>
+<span class="cmd">usermod</span> <span class="flag">-L</span> devops
+
+<span class="comment"># Unlock account</span>
+<span class="cmd">usermod</span> <span class="flag">-U</span> devops
+
+<span class="comment"># Switch to another user</span>
+<span class="cmd">su</span> <span class="flag">-</span> devops     <span class="comment"># full login shell with their environment</span>
+
+<span class="comment"># Run a single command as root</span>
+<span class="cmd">sudo</span> systemctl restart nginx
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Key Files</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · User Database Files</div>
+      <div class="code-body">
+<span class="comment"># /etc/passwd — one line per user</span>
+<span class="cmd">cat</span> <span class="path">/etc/passwd</span>
+<span class="output">root:x:0:0:root:/root:/bin/bash
+devops:x:1001:1001::/home/devops:/bin/bash
+  │    │  │   │      │            └── login shell
+  │    │  │   │      └────────────── home directory
+  │    │  │   └───────────────────── GID (primary group)
+  │    │  └───────────────────────── UID
+  │    └──────────────────────────── x = password in /etc/shadow
+  └───────────────────────────────── username</span>
+
+<span class="comment"># /etc/shadow — encrypted passwords (root only)</span>
+<span class="cmd">sudo</span> cat <span class="path">/etc/shadow</span>
+
+<span class="comment"># /etc/group — group definitions</span>
+<span class="cmd">cat</span> <span class="path">/etc/group</span>
+<span class="output">docker:x:999:devops,alice,bob
+sudo:x:27:devops</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <div class="icon">⚠️</div>
+    <div class="text"><strong>Principle of Least Privilege:</strong> Only give users the permissions they absolutely need. Don't add everyone to the sudo group. Use specific group permissions instead. Create service accounts for applications — never run services as root.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(8)">← Previous</button>
+    <span class="page-indicator">Page 10 / 30</span>
+    <button class="nav-btn" onclick="goTo(10)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 10: PROCESS & CPU MONITORING -->
+<div class="page" id="page-10">
+  <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 10 · Performance</div>
+    <h2 class="page-title">Process & CPU Monitoring</h2>
+    <p class="page-desc">High CPU is one of the most common production incidents. Know how to spot it, trace it to the culprit process, and act decisively.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Monitoring Tools Overview</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">top — The Classic</div>
+        <div class="card-desc">Built-in on every Linux. Shows live CPU/memory per process. Press 1 for per-CPU view, M to sort by memory, P to sort by CPU, k to kill a process. Limited but always available.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎨</div>
+        <div class="card-title">htop — The Modern View</div>
+        <div class="card-desc">Color-coded, scrollable, mouse-support, tree view. Shows CPU bars per core. Filter processes, kill with F9, nice with F7/F8. Install with: apt install htop</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔥</div>
+        <div class="card-title">atop — The Deep Diver</div>
+        <div class="card-desc">Records historical data. Shows disk I/O, network, per-process CPU steal. Stores metrics every 10min by default — you can review what happened during an incident AFTER it occurred.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">uptime — Quick Health Check</div>
+        <div class="card-desc">Shows load average for 1, 5, 15 minutes. A load average above your CPU core count means CPUs are overloaded. Fastest way to assess system stress.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Reading top Output</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>top · Annotated Output</div>
+      <div class="code-body">
+<span class="output">top - 14:32:01 up 42 days, 3:21,  2 users,  load average: 2.15, 1.89, 1.45
+│                │                           │      1min   5min  15min
+│                └── uptime                  └── load averages (vs core count)
+
+Tasks: 234 total,   1 running, 233 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  45.2 us,  8.1 sy,  0.0 ni, 44.1 id,  2.3 wa,  0.0 hi,  0.3 si
+│          │         │                 │          └── I/O wait (high = disk bottleneck)
+│          │         └── kernel/system └── idle
+│          └── user processes (your apps)
+
+MiB Mem :  16384.0 total,   1234.5 free,  12345.6 used,   2803.9 buff/cache
+MiB Swap:   2048.0 total,   1890.2 free,    157.8 used.   3000.0 avail Mem
+
+  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+12345 www-data  20   0  456789  89012  12345 S  98.5   5.4   2:34.56 php-fpm
+ 5678 mysql     20   0 1234567 890123   4567 S  25.3  54.3  45:12.34 mysqld
+│     │                        │               │     │
+│     └── user running it      │               │     └── % of RAM
+└── Process ID                 └── Resident Set Size (actual RAM used)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Diagnosing High CPU</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · CPU Incident Response</div>
+      <div class="code-body">
+<span class="comment"># Step 1: Check load average vs core count</span>
+<span class="cmd">uptime</span>
+<span class="output">load average: 15.23, 12.45, 8.90  ← with 8 cores, this is severely overloaded</span>
+
+<span class="comment"># Step 2: Find the top CPU hogs</span>
+<span class="cmd">ps</span> <span class="flag">aux --sort=-%cpu</span> | <span class="cmd">head</span> <span class="flag">-10</span>
+
+<span class="comment"># Step 3: Watch a specific process</span>
+<span class="cmd">watch</span> <span class="flag">-n 1</span> <span class="str">"ps aux | grep php-fpm | head -20"</span>
+
+<span class="comment"># Step 4: See what the process is doing</span>
+<span class="cmd">strace</span> <span class="flag">-p 12345</span>   <span class="comment"># syscall trace</span>
+<span class="cmd">lsof</span> <span class="flag">-p 12345</span>     <span class="comment"># open files</span>
+
+<span class="comment"># Step 5: Reduce priority first (don't kill immediately)</span>
+<span class="cmd">renice</span> <span class="flag">+10</span> 12345   <span class="comment"># lower priority (19=lowest) — buys time</span>
+
+<span class="comment"># Step 6: Kill gracefully</span>
+<span class="cmd">kill</span> <span class="flag">-15</span> 12345     <span class="comment"># SIGTERM first</span>
+<span class="cmd">sleep</span> 5
+<span class="cmd">kill</span> <span class="flag">-9</span> 12345      <span class="comment"># SIGKILL if it didn't respond</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(9)">← Previous</button>
+    <span class="page-indicator">Page 11 / 30</span>
+    <button class="nav-btn" onclick="goTo(11)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 11: MEMORY MONITORING -->
+<div class="page" id="page-11">
+  <div class="progress-bar"><div class="progress-fill" style="width:37%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 11 · Memory</div>
+    <h2 class="page-title">Memory Monitoring</h2>
+    <p class="page-desc">Out of Memory (OOM) kills are a common production incident. Learn to read memory metrics correctly and prevent surprise process deaths.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Memory Concepts First</div>
+    <div class="explain-box">
+      Linux memory is more complex than it looks. <strong>Total</strong> is your physical RAM. <strong>Used</strong> includes buff/cache — but that's actually GOOD! The kernel uses spare RAM for disk caching to speed up file reads.
+      <br><br>
+      <em>Available</em> is what actually matters — it's what processes can claim right now, including memory the kernel will free from cache if needed.
+      <div class="analogy">Think of RAM like a warehouse. "Used" includes shelves set aside for quick-access items (cache). "Available" is the actual empty floor space you can put new stock on. The warehouse manager (kernel) will clear cached shelves if you need the space.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Memory Commands</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Memory Analysis</div>
+      <div class="code-body">
+<span class="comment"># Human-readable memory summary</span>
+<span class="cmd">free</span> <span class="flag">-h</span>
+<span class="output">              total        used        free      shared  buff/cache   available
+Mem:           15Gi        10Gi       512Mi       234Mi       4.5Gi       4.8Gi
+Swap:         2.0Gi       256Mi       1.7Gi
+
+KEY: available (4.8Gi) is what you care about, not free (512Mi)</span>
+
+<span class="comment"># Detailed memory from kernel (the real source of truth)</span>
+<span class="cmd">cat</span> <span class="path">/proc/meminfo</span>
+<span class="output">MemTotal:       16777216 kB   ← total physical RAM
+MemFree:          524288 kB   ← immediately available
+MemAvailable:    4915200 kB   ← actually available (what matters)
+Buffers:          204800 kB   ← filesystem metadata cache
+Cached:          4194304 kB   ← page cache (file data cache)
+SwapCached:       131072 kB
+SwapTotal:       2097152 kB
+SwapFree:        1835008 kB   ← swap used = 262MB (moderate)</span>
+
+<span class="comment"># Memory per process — RSS = actual RAM used</span>
+<span class="cmd">ps</span> <span class="flag">aux --sort=-%mem</span> | <span class="cmd">head</span> <span class="flag">-10</span>
+
+<span class="comment"># Sum of all process RSS</span>
+<span class="cmd">ps</span> aux | <span class="cmd">awk</span> <span class="str">'{sum+=$6} END {print sum/1024 " MB"}'</span>
+
+<span class="comment"># vmstat — memory + swap + I/O snapshot</span>
+<span class="cmd">vmstat</span> <span class="flag">-s -S M</span>
+<span class="cmd">vmstat</span> 2 5     <span class="comment"># sample every 2s, 5 times</span>
+
+<span class="comment"># Check OOM killer history</span>
+<span class="cmd">dmesg</span> | <span class="cmd">grep</span> <span class="flag">-i</span> <span class="str">"oom\|killed process"</span>
+<span class="output">Out of memory: Killed process 5678 (java) total-vm:4194304kB, anon-rss:2097152kB</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Swap — The Overflow Tank</div>
+    <div class="explain-box">
+      <strong>Swap</strong> is disk space used as overflow when RAM is full. It's MUCH slower than RAM (disk vs memory speed). High swap usage means you need more RAM or have a memory leak.
+      <br><br>
+      <em>Swappiness</em> (0-100) controls how aggressively the kernel moves data to swap. Default is 60. For database servers, set it to 1–10 to prefer RAM.
+      <div class="analogy">Swap is your office's storage room. Your desk (RAM) is where you work fast. When your desk is full, you move documents to the storage room (swap). Getting things from storage is 100x slower — you want to avoid it.</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Swap Management</div>
+      <div class="code-body">
+<span class="comment"># Check current swappiness</span>
+<span class="cmd">sysctl</span> vm.swappiness
+
+<span class="comment"># Reduce swappiness for databases (use RAM more)</span>
+<span class="cmd">sysctl</span> <span class="flag">-w</span> vm.swappiness=10
+<span class="comment"># Make permanent:</span>
+<span class="cmd">echo</span> <span class="str">"vm.swappiness=10"</span> >> <span class="path">/etc/sysctl.conf</span>
+
+<span class="comment"># Clear swap (WARNING: only if RAM has space to absorb it)</span>
+<span class="cmd">swapoff</span> <span class="flag">-a</span> && <span class="cmd">swapon</span> <span class="flag">-a</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(10)">← Previous</button>
+    <span class="page-indicator">Page 12 / 30</span>
+    <button class="nav-btn" onclick="goTo(12)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 12: DISK & STORAGE -->
+<div class="page" id="page-12">
+  <div class="progress-bar"><div class="progress-fill" style="width:40%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 12 · Storage</div>
+    <h2 class="page-title">Disk Usage & Storage Monitoring</h2>
+    <p class="page-desc">"Disk full" is one of the most common production incidents. When disk hits 100%, databases crash, logs stop, deploys fail. Learn to spot it before it happens.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Disk Space Commands</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Disk Space Analysis</div>
+      <div class="code-body">
+<span class="comment"># Human-readable disk usage by filesystem</span>
+<span class="cmd">df</span> <span class="flag">-h</span>
+<span class="output">Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme0n1p1   50G   42G  8.0G  84% /          ← 84% — getting full, time to investigate
+/dev/nvme0n1p2  200G   45G  155G  23% /data
+tmpfs            16G  234M   16G   2% /run</span>
+
+<span class="comment"># More detail — filesystem type, inodes</span>
+<span class="cmd">df</span> <span class="flag">-Th</span>
+
+<span class="comment"># Check INODES (can run out even if disk has space!)</span>
+<span class="cmd">df</span> <span class="flag">-i</span>
+<span class="output">Filesystem      Inodes  IUsed   IFree IUse% Mounted on
+/dev/nvme0n1p1 3276800 3270000   6800   99% /   ← INODE EXHAUSTION! Disk full even with space</span>
+
+<span class="comment"># List block devices and partitions</span>
+<span class="cmd">lsblk</span>
+<span class="output">NAME        MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+nvme0n1     259:0    0  250G  0 disk
+├─nvme0n1p1 259:1    0   50G  0 part /
+└─nvme0n1p2 259:2    0  200G  0 part /data</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Finding What's Eating Disk Space</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Disk Hunt Workflow</div>
+      <div class="code-body">
+<span class="comment"># Step 1: See disk usage by top-level directories</span>
+<span class="cmd">du</span> <span class="flag">-h --max-depth=1</span> / 2>/dev/null | <span class="cmd">sort</span> <span class="flag">-hr</span> | <span class="cmd">head</span> <span class="flag">-15</span>
+<span class="output">42G     /var
+8.5G    /usr
+3.2G    /home
+1.1G    /opt</span>
+
+<span class="comment"># Step 2: Drill into the large directory</span>
+<span class="cmd">du</span> <span class="flag">-h --max-depth=1</span> <span class="path">/var</span> | <span class="cmd">sort</span> <span class="flag">-hr</span>
+<span class="output">39G     /var/log    ← LOGS are eating disk!</span>
+
+<span class="comment"># Step 3: Find largest log files</span>
+<span class="cmd">find</span> <span class="path">/var/log</span> <span class="flag">-name "*.log" -size +1G</span> <span class="flag">-ls</span>
+
+<span class="comment"># Step 4: Find top 20 largest files anywhere</span>
+<span class="cmd">find</span> / <span class="flag">-xdev -type f -size +500M</span> 2>/dev/null | <span class="cmd">xargs</span> <span class="cmd">ls</span> <span class="flag">-lh</span> | <span class="cmd">sort</span> <span class="flag">-k5hr</span>
+
+<span class="comment"># Interactive disk explorer (install: apt install ncdu)</span>
+<span class="cmd">ncdu</span> /
+
+<span class="comment"># Quick wins — clean these first:</span>
+<span class="comment"># Old apt packages</span>
+<span class="cmd">apt</span> autoremove && <span class="cmd">apt</span> clean
+
+<span class="comment"># Docker debris (images, stopped containers, volumes)</span>
+<span class="cmd">docker</span> system prune <span class="flag">-a --volumes</span>
+
+<span class="comment"># Old journal logs (keep last 7 days)</span>
+<span class="cmd">journalctl</span> <span class="flag">--vacuum-time=7d</span>
+
+<span class="comment"># Old kernel versions</span>
+<span class="cmd">apt</span> autoremove <span class="flag">--purge</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <div class="icon">⚠️</div>
+    <div class="text"><strong>Inode Exhaustion is sneaky!</strong> You can have 80% disk space free but 0% inodes free — which means you cannot create ANY new files. This happens with servers running many small temp files. Always check both df -h (space) AND df -i (inodes).</div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Prevention Strategy</h4>
+      <ul>
+        <li>Set up disk usage alerts at 80% threshold</li>
+        <li>Configure logrotate to rotate logs daily</li>
+        <li>Run docker system prune weekly via cron</li>
+        <li>Monitor /var/log growth with Prometheus node exporter</li>
+        <li>Use separate partitions for /var and /home</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Common Culprits</h4>
+      <ul>
+        <li>Application logs without rotation configured</li>
+        <li>Old Docker images and stopped containers</li>
+        <li>Incomplete large file downloads in /tmp</li>
+        <li>Old core dumps in /var/crash</li>
+        <li>Massive MySQL/Postgres WAL or binlog files</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(11)">← Previous</button>
+    <span class="page-indicator">Page 13 / 30</span>
+    <button class="nav-btn" onclick="goTo(13)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 13: FILESYSTEM & MOUNTS -->
+<div class="page" id="page-13">
+  <div class="progress-bar"><div class="progress-fill" style="width:43%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 13 · Filesystems</div>
+    <h2 class="page-title">Filesystem Types & Mounting</h2>
+    <p class="page-desc">Linux can mount many different filesystem types. Understanding mounts lets you manage NFS shares, cloud volumes, USB drives, and more.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Filesystem Types</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">ext4 — The Standard</div>
+        <div class="card-desc">Default Linux filesystem. Journaled (recovers from crashes). Max file size 16TB. Widely supported. Used for most Linux server root partitions.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">⚡</div>
+        <div class="card-title">xfs — High Performance</div>
+        <div class="card-desc">Default on RHEL/CentOS. Excellent for large files and high I/O. Scales well to huge filesystems. Preferred for databases and log storage.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🧊</div>
+        <div class="card-title">btrfs — Modern Features</div>
+        <div class="card-desc">Supports snapshots, compression, RAID. Copy-on-write architecture. Used in some distros (SUSE, Fedora). Great for backups with snapshot rollback.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">NFS/CIFS — Network FS</div>
+        <div class="card-desc">Mount remote directories over the network. NFS for Linux-to-Linux. CIFS/SMB for Windows shares or Samba. Common for shared storage in clusters.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Mounting & /etc/fstab</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Mount Management</div>
+      <div class="code-body">
+<span class="comment"># Show all current mounts</span>
+<span class="cmd">mount</span> | <span class="cmd">column</span> <span class="flag">-t</span>
+
+<span class="comment"># More readable with filesystem types</span>
+<span class="cmd">df</span> <span class="flag">-Th</span>
+
+<span class="comment"># Find UUIDs (use these in fstab, not /dev names!)</span>
+<span class="cmd">blkid</span>
+<span class="output">/dev/nvme0n1p2: UUID="a1b2c3d4-1234-5678-abcd-ef0123456789" TYPE="ext4"</span>
+
+<span class="comment"># Mount a disk temporarily</span>
+<span class="cmd">mount</span> <span class="path">/dev/sdb1</span> <span class="path">/mnt/data</span>
+
+<span class="comment"># Mount with options</span>
+<span class="cmd">mount</span> <span class="flag">-o ro</span> <span class="path">/dev/sdb1</span> <span class="path">/mnt</span>   <span class="comment"># read-only</span>
+
+<span class="comment"># Unmount</span>
+<span class="cmd">umount</span> <span class="path">/mnt/data</span>
+
+<span class="comment"># /etc/fstab — mounts at boot</span>
+<span class="output">UUID=a1b2c3d4-...  /data    ext4  defaults,noatime  0  2
+#    UUID              mountpoint  type  options        dump  pass
+#                                        noatime = don't update access time (performance!)</span>
+
+<span class="comment"># Test fstab entry without rebooting</span>
+<span class="cmd">mount</span> <span class="flag">-a</span>   <span class="comment"># mount everything in fstab</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-info">
+    <div class="icon">ℹ️</div>
+    <div class="text"><strong>Always use UUIDs in /etc/fstab, not device names!</strong> Device names like /dev/sdb can change between reboots (especially with USB drives or when adding/removing disks). UUIDs are stable identifiers that never change for a given partition.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(12)">← Previous</button>
+    <span class="page-indicator">Page 14 / 30</span>
+    <button class="nav-btn" onclick="goTo(14)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 14: NETWORK DEBUGGING -->
+<div class="page" id="page-14">
+  <div class="progress-bar"><div class="progress-fill" style="width:47%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 14 · Networking</div>
+    <h2 class="page-title">Network Monitoring & Debugging</h2>
+    <p class="page-desc">Network issues are invisible until they cause downtime. Master these tools to diagnose connectivity issues, port conflicts, and service reachability in minutes.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Interface & Route Inspection</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Network Interfaces</div>
+      <div class="code-body">
+<span class="comment"># Show all network interfaces and IP addresses</span>
+<span class="cmd">ip</span> <span class="flag">a</span>
+<span class="output">1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt;
+    inet 127.0.0.1/8
+2: eth0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt;
+    inet 10.0.1.45/24 brd 10.0.1.255   ← private IP
+    inet 52.12.34.56/32                  ← public IP (Elastic IP on AWS)</span>
+
+<span class="comment"># Show routing table (how packets get to where)</span>
+<span class="cmd">ip</span> <span class="flag">r</span>
+<span class="output">default via 10.0.1.1 dev eth0    ← default gateway
+10.0.1.0/24 dev eth0             ← local subnet — go direct
+172.17.0.0/16 dev docker0        ← Docker internal network</span>
+
+<span class="comment"># Legacy (still works on older systems)</span>
+<span class="cmd">ifconfig</span>
+<span class="cmd">route</span> <span class="flag">-n</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Port & Socket Inspection</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Ports & Connections</div>
+      <div class="code-body">
+<span class="comment"># Show all listening ports — who's listening where</span>
+<span class="cmd">ss</span> <span class="flag">-tulnp</span>
+<span class="output">Proto  Local Address    PID/Program
+tcp    0.0.0.0:80       1234/nginx     ← nginx on port 80
+tcp    0.0.0.0:3306     5678/mysqld    ← ⚠️ MySQL exposed to internet! Should be 127.0.0.1:3306
+tcp    127.0.0.1:6379   9012/redis     ← redis only on localhost ✓</span>
+
+<span class="comment"># Same with netstat (older, still common)</span>
+<span class="cmd">netstat</span> <span class="flag">-tulnp</span>
+
+<span class="comment"># Show all active connections</span>
+<span class="cmd">ss</span> <span class="flag">-tnp</span>
+
+<span class="comment"># Count connections per state</span>
+<span class="cmd">ss</span> <span class="flag">-s</span>
+<span class="output">Total: 234 (kernel 256)
+TCP:   89 (estab 45, closed 12, orphaned 0, synrecv 0, timewait 12/0)</span>
+
+<span class="comment"># Check if specific port is open on remote host</span>
+<span class="cmd">nc</span> <span class="flag">-zv</span> db.internal 5432     <span class="comment"># test TCP connection to postgres</span>
+<span class="cmd">curl</span> <span class="flag">-v telnet://</span>db.internal:5432
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Connectivity Debugging Toolkit</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Debugging Workflows</div>
+      <div class="code-body">
+<span class="comment"># Layer 3 — can we reach the IP?</span>
+<span class="cmd">ping</span> <span class="flag">-c 4</span> 8.8.8.8
+
+<span class="comment"># Trace the route (which hops does traffic take?)</span>
+<span class="cmd">traceroute</span> google.com
+<span class="cmd">mtr</span> <span class="flag">--report</span> google.com    <span class="comment"># better: real-time trace with stats</span>
+
+<span class="comment"># Layer 7 — test HTTP endpoints</span>
+<span class="cmd">curl</span> <span class="flag">-I</span> https://api.example.com     <span class="comment"># headers only</span>
+<span class="cmd">curl</span> <span class="flag">-v</span> https://api.example.com     <span class="comment"># verbose — see TLS, headers, body</span>
+<span class="cmd">curl</span> <span class="flag">-w "%{http_code} %{time_total}s"</span> https://api.example.com
+<span class="comment"># Shows: 200 0.234s — quick health + latency check</span>
+
+<span class="comment"># DNS debugging</span>
+<span class="cmd">dig</span> example.com          <span class="comment"># full DNS response</span>
+<span class="cmd">dig</span> <span class="flag">@8.8.8.8</span> example.com  <span class="comment"># query specific DNS server</span>
+<span class="cmd">nslookup</span> example.com
+<span class="cmd">host</span> example.com
+
+<span class="comment"># Network bandwidth usage (install: apt install iftop)</span>
+<span class="cmd">iftop</span> <span class="flag">-n -P</span>    <span class="comment"># live bandwidth per connection</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Network Debugging Checklist</div>
+    <ul class="checklist">
+      <li><div class="check">✓</div> Can you ping the host? (Layer 3 IP connectivity)</li>
+      <li><div class="check">✓</div> Is the service listening on the right port? (ss -tulnp)</li>
+      <li><div class="check">✓</div> Is the firewall blocking the port? (ufw status / iptables -L)</li>
+      <li><div class="check">✓</div> Is the service binding to the right address? (0.0.0.0 vs 127.0.0.1)</li>
+      <li><div class="check">✓</div> Does DNS resolve correctly? (dig hostname)</li>
+      <li><div class="check">✓</div> Are there too many connections? (ss -s)</li>
+    </ul>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(13)">← Previous</button>
+    <span class="page-indicator">Page 15 / 30</span>
+    <button class="nav-btn" onclick="goTo(15)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 15: SERVICE MANAGEMENT -->
+<div class="page" id="page-15">
+  <div class="progress-bar"><div class="progress-fill" style="width:50%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 15 · systemd</div>
+    <h2 class="page-title">Service Management with systemd</h2>
+    <p class="page-desc">systemd is how you control every service on modern Linux. Start, stop, restart, enable at boot, view logs — all through systemctl and journalctl.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Core systemctl Commands</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · systemctl Mastery</div>
+      <div class="code-body">
+<span class="comment"># Check service status (most important command)</span>
+<span class="cmd">systemctl</span> status nginx
+<span class="output">● nginx.service - A high performance web server
+     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; ...)
+     Active: active (running) since Mon 2024-01-15 10:30:00 UTC; 2 days ago
+    Process: 1234 ExecStart=/usr/sbin/nginx (code=exited, status=0/SUCCESS)
+   Main PID: 1235 (nginx)
+      Tasks: 5 (limit: 4915)
+     Memory: 12.5M
+        CPU: 3min 24.456s
+     CGroup: /system.slice/nginx.service
+             ├─1235 nginx: master process /usr/sbin/nginx
+             └─1236 nginx: worker process</span>
+
+<span class="comment"># Start / Stop / Restart</span>
+<span class="cmd">systemctl</span> start nginx
+<span class="cmd">systemctl</span> stop nginx
+<span class="cmd">systemctl</span> restart nginx      <span class="comment"># stop then start (causes brief downtime)</span>
+<span class="cmd">systemctl</span> reload nginx       <span class="comment"># reload config WITHOUT stopping (if service supports it)</span>
+
+<span class="comment"># Enable / Disable at boot</span>
+<span class="cmd">systemctl</span> enable nginx       <span class="comment"># start automatically on boot</span>
+<span class="cmd">systemctl</span> disable nginx      <span class="comment"># don't start on boot</span>
+<span class="cmd">systemctl</span> enable <span class="flag">--now</span> nginx  <span class="comment"># enable AND start right now</span>
+
+<span class="comment"># Check if enabled at boot</span>
+<span class="cmd">systemctl</span> is-enabled nginx
+
+<span class="comment"># Mask — prevent it from being started at all (even manually)</span>
+<span class="cmd">systemctl</span> mask bluetooth
+<span class="cmd">systemctl</span> unmask bluetooth
+
+<span class="comment"># List all services and their status</span>
+<span class="cmd">systemctl</span> list-units <span class="flag">--type=service</span>
+
+<span class="comment"># List failed services</span>
+<span class="cmd">systemctl</span> <span class="flag">--failed</span>
+
+<span class="comment"># Reload systemd after adding a new unit file</span>
+<span class="cmd">systemctl</span> daemon-reload
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Writing a Custom systemd Service</div>
+    <div class="explain-box">
+      You can run any script or application as a systemd service — with automatic restart, logging, and boot startup. This is how you deploy custom apps in production.
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div">FILE · /etc/systemd/system/myapp.service</div>
+      <div class="code-body">
+<span class="kw">[Unit]</span>
+<span class="output">Description=My Python Application
+After=network.target      # start AFTER network is up
+Requires=redis.service    # requires redis to be running</span>
+
+<span class="kw">[Service]</span>
+<span class="output">Type=simple
+User=appuser              # don't run as root!
+Group=appuser
+WorkingDirectory=/opt/myapp
+ExecStart=/usr/bin/python3 /opt/myapp/app.py
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure        # auto-restart if it crashes
+RestartSec=5s             # wait 5s before restarting
+StandardOutput=journal    # logs go to journalctl
+StandardError=journal
+Environment=NODE_ENV=production
+Environment=PORT=8080</span>
+
+<span class="kw">[Install]</span>
+<span class="output">WantedBy=multi-user.target   # start in normal multi-user mode</span>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Register & Start</div>
+      <div class="code-body">
+<span class="cmd">systemctl</span> daemon-reload
+<span class="cmd">systemctl</span> enable <span class="flag">--now</span> myapp
+<span class="cmd">systemctl</span> status myapp
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(14)">← Previous</button>
+    <span class="page-indicator">Page 16 / 30</span>
+    <button class="nav-btn" onclick="goTo(16)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 16: LOG MANAGEMENT -->
+<div class="page" id="page-16">
+  <div class="progress-bar"><div class="progress-fill" style="width:53%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 16 · Logs</div>
+    <h2 class="page-title">Log Management</h2>
+    <p class="page-desc">Logs are the black box recorder of your system. Master log reading and rotation or your disk will fill up and your incidents will take hours to debug.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Important Log Files</div>
+    <table class="cmd-table">
+      <tr><th>Log File</th><th>Contains</th><th>When to Check</th></tr>
+      <tr><td class="td-cmd">/var/log/syslog</td><td class="td-desc">General system messages (Ubuntu/Debian)</td><td class="td-use">System-wide issues, kernel messages</td></tr>
+      <tr><td class="td-cmd">/var/log/messages</td><td class="td-desc">General system messages (RHEL/CentOS)</td><td class="td-use">Same as syslog for RHEL systems</td></tr>
+      <tr><td class="td-cmd">/var/log/auth.log</td><td class="td-desc">Authentication events, sudo usage, SSH logins</td><td class="td-use">Security incidents, failed logins, who ran sudo</td></tr>
+      <tr><td class="td-cmd">/var/log/kern.log</td><td class="td-desc">Kernel messages</td><td class="td-use">OOM kills, hardware errors, driver issues</td></tr>
+      <tr><td class="td-cmd">/var/log/nginx/access.log</td><td class="td-desc">All HTTP requests to nginx</td><td class="td-use">Traffic analysis, find abusive IPs, debug 404s</td></tr>
+      <tr><td class="td-cmd">/var/log/nginx/error.log</td><td class="td-desc">nginx errors</td><td class="td-use">When nginx returns 502/504, config errors</td></tr>
+      <tr><td class="td-cmd">/var/log/mysql/error.log</td><td class="td-desc">MySQL startup errors, crashes, slow queries</td><td class="td-use">Database issues</td></tr>
+      <tr><td class="td-cmd">/var/log/dpkg.log</td><td class="td-desc">Package install/remove history</td><td class="td-use">When did that package get installed?</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">journalctl — systemd's Log System</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · journalctl Mastery</div>
+      <div class="code-body">
+<span class="comment"># Follow all system logs in real-time</span>
+<span class="cmd">journalctl</span> <span class="flag">-f</span>
+
+<span class="comment"># Logs for a specific service</span>
+<span class="cmd">journalctl</span> <span class="flag">-u</span> nginx
+
+<span class="comment"># Follow specific service</span>
+<span class="cmd">journalctl</span> <span class="flag">-u nginx -f</span>
+
+<span class="comment"># Last 100 lines</span>
+<span class="cmd">journalctl</span> <span class="flag">-u nginx -n 100</span>
+
+<span class="comment"># Since a specific time</span>
+<span class="cmd">journalctl</span> <span class="flag">-u nginx --since "2024-01-15 10:00" --until "2024-01-15 11:00"</span>
+
+<span class="comment"># Since last boot</span>
+<span class="cmd">journalctl</span> <span class="flag">-b</span>
+
+<span class="comment"># Previous boot (great for crash diagnosis)</span>
+<span class="cmd">journalctl</span> <span class="flag">-b -1</span>
+
+<span class="comment"># Only errors and above</span>
+<span class="cmd">journalctl</span> <span class="flag">-p err</span>
+
+<span class="comment"># Show disk usage of journal logs</span>
+<span class="cmd">journalctl</span> <span class="flag">--disk-usage</span>
+<span class="output">Archived and active journals take up 2.3G in the file system.</span>
+
+<span class="comment"># Clean old logs</span>
+<span class="cmd">journalctl</span> <span class="flag">--vacuum-time=7d</span>     <span class="comment"># keep only last 7 days</span>
+<span class="cmd">journalctl</span> <span class="flag">--vacuum-size=500M</span>   <span class="comment"># keep only 500MB</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">logrotate — Automatic Log Management</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>FILE · /etc/logrotate.d/myapp</div>
+      <div class="code-body">
+<span class="path">/var/log/myapp/*.log</span> {
+    <span class="output">daily          # rotate every day
+    rotate 14      # keep 14 days of logs
+    compress       # gzip old logs
+    delaycompress  # compress the previous rotation (not current)
+    missingok      # don't error if log file is missing
+    notifempty     # don't rotate empty files
+    create 0644 appuser appuser  # recreate log with these perms
+    postrotate
+        # Tell app to reopen log file after rotation
+        systemctl reload myapp
+    endscript</span>
+}
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Test logrotate</div>
+      <div class="code-body">
+<span class="comment"># Test config without actually rotating</span>
+<span class="cmd">logrotate</span> <span class="flag">-d</span> <span class="path">/etc/logrotate.d/myapp</span>
+
+<span class="comment"># Force rotate now (for testing)</span>
+<span class="cmd">logrotate</span> <span class="flag">-f</span> <span class="path">/etc/logrotate.d/myapp</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(15)">← Previous</button>
+    <span class="page-indicator">Page 17 / 30</span>
+    <button class="nav-btn" onclick="goTo(17)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 17: DISK I/O PERFORMANCE -->
+<div class="page" id="page-17">
+  <div class="progress-bar"><div class="progress-fill" style="width:57%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 17 · I/O Performance</div>
+    <h2 class="page-title">Disk I/O & Performance Monitoring</h2>
+    <p class="page-desc">Slow disk I/O silently kills database performance and causes timeouts. Learn to identify I/O bottlenecks before they become outages.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">I/O Monitoring Tools</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · I/O Analysis</div>
+      <div class="code-body">
+<span class="comment"># iostat — disk I/O statistics (install: apt install sysstat)</span>
+<span class="cmd">iostat</span> <span class="flag">-xz 1</span>
+<span class="output">Device    r/s    w/s  rMB/s  wMB/s  await  %util
+nvme0n1  450.2  890.5  22.5  44.3    0.3   45.2%  ← healthy
+sda      120.0  890.0   8.1  89.0  120.5   98.7%  ← ⚠️ SATURATED! High await+util</span>
+<span class="comment"># await = avg milliseconds per I/O operation
+# %util = how busy the disk is (>80% = bottleneck)
+# High await + high %util = disk is the bottleneck</span>
+
+<span class="comment"># iotop — top for disk I/O (install: apt install iotop)</span>
+<span class="cmd">iotop</span> <span class="flag">-ao</span>
+<span class="comment"># -a = accumulated I/O, -o = only show processes with I/O</span>
+<span class="output">  PID  USER      DISK READ  DISK WRITE  COMMAND
+ 5678  mysql        0B    125.45 M/s   mysqld   ← MySQL is hammering disk</span>
+
+<span class="comment"># dstat — combines CPU, memory, disk, network in one view</span>
+<span class="cmd">dstat</span> <span class="flag">-cdngy</span>
+
+<span class="comment"># sar — historical system stats (sysstat package)</span>
+<span class="cmd">sar</span> <span class="flag">-d 1 5</span>    <span class="comment"># disk I/O stats every 1s for 5 samples</span>
+<span class="cmd">sar</span> <span class="flag">-b 1 5</span>    <span class="comment"># I/O and transfer rates</span>
+
+<span class="comment"># View historical I/O from yesterday (sysstat stores logs)</span>
+<span class="cmd">sar</span> <span class="flag">-d -f</span> <span class="path">/var/log/sysstat/sa15</span>   <span class="comment"># sa15 = 15th of month</span>
+
+<span class="comment"># Quick test: how fast is my disk? (raw write speed)</span>
+<span class="cmd">dd</span> <span class="flag">if=/dev/zero of=/tmp/test bs=1G count=1 oflag=sync</span>
+<span class="output">1073741824 bytes (1.1 GB) copied, 2.45 s, 438 MB/s   ← good NVMe speed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Understanding I/O Wait</div>
+    <div class="explain-box">
+      <strong>iowait</strong> in CPU stats (the "wa" column in top) shows percentage of time CPUs are idle waiting for disk I/O. High iowait (>20%) means your application is bottlenecked by disk speed, not CPU.
+      <div class="analogy">iowait is like a chef (CPU) standing idle because they're waiting for ingredients to arrive (disk data). The chef isn't lazy — they're blocked. More chefs (CPUs) won't help. You need faster ingredient delivery (faster disk or read optimization).</div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Fixes for High I/O</h4>
+      <ul>
+        <li>Upgrade to NVMe SSD if still on HDD or SATA SSD</li>
+        <li>Add more RAM to increase OS page cache (fewer disk reads)</li>
+        <li>Use RAID or striping for parallel I/O</li>
+        <li>Move database WAL to separate faster disk</li>
+        <li>Add query caching or application-level cache (Redis)</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Common I/O Causes</h4>
+      <ul>
+        <li>Database without proper indexing (full table scans)</li>
+        <li>Applications logging excessively to disk</li>
+        <li>Antivirus scanning every file write</li>
+        <li>Backup jobs running during peak hours</li>
+        <li>Memory pressure forcing constant swap usage</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(16)">← Previous</button>
+    <span class="page-indicator">Page 18 / 30</span>
+    <button class="nav-btn" onclick="goTo(18)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 18: ARCHIVING & COMPRESSION -->
+<div class="page" id="page-18">
+  <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 18 · Archiving</div>
+    <h2 class="page-title">Archiving & Compression</h2>
+    <p class="page-desc">tar, gzip, and friends are your tools for backups, deployments, and moving large amounts of data efficiently.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">tar — The Archive Swiss Army Knife</div>
+    <div class="explain-box">
+      <strong>tar</strong> (Tape ARchive) bundles multiple files/directories into a single file. Combined with gzip or bzip2 for compression. The flags look cryptic but follow a pattern.
+      <div class="analogy">tar is like packing a suitcase (archiving) and then vacuum-sealing it (compression). You combine many items (files) into one bag (archive), then shrink it (compress) to take less space on the plane (disk/network).</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · tar Complete Guide</div>
+      <div class="code-body">
+<span class="comment"># CREATE an archive (the most common operation)</span>
+<span class="cmd">tar</span> <span class="flag">-czvf</span> backup.tar.gz <span class="path">/data/</span>
+<span class="comment"># c = create | z = gzip compress | v = verbose | f = filename</span>
+
+<span class="comment"># Create without compression (faster, bigger)</span>
+<span class="cmd">tar</span> <span class="flag">-cvf</span> backup.tar <span class="path">/data/</span>
+
+<span class="comment"># Create with bzip2 (smaller, slower)</span>
+<span class="cmd">tar</span> <span class="flag">-cjvf</span> backup.tar.bz2 <span class="path">/data/</span>
+
+<span class="comment"># EXTRACT an archive</span>
+<span class="cmd">tar</span> <span class="flag">-xzvf</span> backup.tar.gz
+<span class="comment"># x = extract | z = gzip | v = verbose | f = filename</span>
+
+<span class="comment"># Extract to specific directory</span>
+<span class="cmd">tar</span> <span class="flag">-xzvf</span> backup.tar.gz <span class="flag">-C</span> <span class="path">/tmp/restore/</span>
+
+<span class="comment"># LIST contents without extracting</span>
+<span class="cmd">tar</span> <span class="flag">-tzvf</span> backup.tar.gz
+<span class="comment"># t = table of contents</span>
+
+<span class="comment"># Extract only specific files</span>
+<span class="cmd">tar</span> <span class="flag">-xzvf</span> backup.tar.gz <span class="path">data/config.yml</span>
+
+<span class="comment"># Create backup with date in filename (production pattern)</span>
+<span class="cmd">tar</span> <span class="flag">-czvf</span> "backup-$(date +%Y%m%d-%H%M).tar.gz" <span class="path">/var/www/html/</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">gzip, bzip2, xz — Standalone Compression</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Compression Tools</div>
+      <div class="code-body">
+<span class="comment"># gzip — fastest, good compression</span>
+<span class="cmd">gzip</span> large_file.log          <span class="comment"># creates large_file.log.gz, deletes original</span>
+<span class="cmd">gzip</span> <span class="flag">-k</span> large_file.log       <span class="comment"># keep original</span>
+<span class="cmd">gunzip</span> large_file.log.gz     <span class="comment"># decompress</span>
+<span class="cmd">zcat</span> large_file.log.gz       <span class="comment"># view compressed file without extracting!</span>
+<span class="cmd">zgrep</span> <span class="str">"ERROR"</span> large_file.log.gz  <span class="comment"># grep inside compressed file!</span>
+
+<span class="comment"># bzip2 — better compression, slower</span>
+<span class="cmd">bzip2</span> file.txt               <span class="comment"># creates file.txt.bz2</span>
+<span class="cmd">bunzip2</span> file.txt.bz2
+
+<span class="comment"># xz — best compression, slowest (good for static archives)</span>
+<span class="cmd">xz</span> <span class="flag">-9</span> large_archive.tar      <span class="comment"># -9 = maximum compression</span>
+<span class="cmd">unxz</span> large_archive.tar.xz
+
+<span class="comment"># Compare compression ratios:</span>
+<span class="output">gzip:  fast, ~60% reduction  ← daily log rotation
+bzip2: medium, ~65% reduction
+xz:    slow,  ~75% reduction ← long-term storage</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Production Best Practices</h4>
+      <ul>
+        <li>Always include date in backup filename for easy identification</li>
+        <li>Use gzip for frequent backups (speed matters)</li>
+        <li>Use xz for long-term cold storage archives</li>
+        <li>Test your backups — extract and verify them regularly</li>
+        <li>zgrep/zcat let you read logs without decompressing first</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Common Mistakes</h4>
+      <ul>
+        <li>Never extract archives as root into /etc without checking contents</li>
+        <li>Large tar operations use significant I/O — run during off-peak hours</li>
+        <li>tar -czf without testing = you might have a corrupt backup</li>
+        <li>gzip destroys original by default — use -k to keep it</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(17)">← Previous</button>
+    <span class="page-indicator">Page 19 / 30</span>
+    <button class="nav-btn" onclick="goTo(19)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 19: PACKAGE MANAGEMENT -->
+<div class="page" id="page-19">
+  <div class="progress-bar"><div class="progress-fill" style="width:63%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 19 · Packages</div>
+    <h2 class="page-title">Package Management</h2>
+    <p class="page-desc">Package managers are how you install, update, and remove software on Linux. Know both the Debian (apt) and RHEL (yum/dnf) families — you'll encounter both.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Debian/Ubuntu — apt</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · apt Complete Reference</div>
+      <div class="code-body">
+<span class="comment"># Update package list (always do this first!)</span>
+<span class="cmd">apt</span> update
+
+<span class="comment"># Install a package</span>
+<span class="cmd">apt</span> install nginx
+
+<span class="comment"># Install multiple packages</span>
+<span class="cmd">apt</span> install nginx curl wget git htop
+
+<span class="comment"># Install without prompts (for scripts)</span>
+<span class="cmd">apt</span> install <span class="flag">-y</span> nginx
+
+<span class="comment"># Upgrade all installed packages</span>
+<span class="cmd">apt</span> upgrade
+<span class="cmd">apt</span> full-upgrade    <span class="comment"># also removes packages if needed for upgrade</span>
+
+<span class="comment"># Remove a package (keep config files)</span>
+<span class="cmd">apt</span> remove nginx
+
+<span class="comment"># Remove package AND its config files</span>
+<span class="cmd">apt</span> purge nginx
+
+<span class="comment"># Remove packages no longer needed</span>
+<span class="cmd">apt</span> autoremove
+
+<span class="comment"># Search for a package</span>
+<span class="cmd">apt</span> search "web server"
+
+<span class="comment"># Show package info</span>
+<span class="cmd">apt</span> show nginx
+
+<span class="comment"># List installed packages</span>
+<span class="cmd">dpkg</span> <span class="flag">-l</span> | grep nginx
+
+<span class="comment"># Find which package owns a file</span>
+<span class="cmd">dpkg</span> <span class="flag">-S</span> <span class="path">/usr/sbin/nginx</span>
+<span class="output">nginx: /usr/sbin/nginx</span>
+
+<span class="comment"># List all files installed by a package</span>
+<span class="cmd">dpkg</span> <span class="flag">-L</span> nginx
+
+<span class="comment"># Download only (don't install) — for offline use</span>
+<span class="cmd">apt</span> download nginx
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">RHEL/CentOS — yum & dnf</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · yum/dnf Reference</div>
+      <div class="code-body">
+<span class="comment"># dnf is the modern replacement for yum (RHEL 8+)</span>
+<span class="comment"># Commands are identical — use dnf on newer systems</span>
+
+<span class="comment"># Install</span>
+<span class="cmd">dnf</span> install nginx
+
+<span class="comment"># Update all packages</span>
+<span class="cmd">dnf</span> update
+
+<span class="comment"># Remove</span>
+<span class="cmd">dnf</span> remove nginx
+
+<span class="comment"># Search</span>
+<span class="cmd">dnf</span> search nginx
+
+<span class="comment"># Show package info</span>
+<span class="cmd">dnf</span> info nginx
+
+<span class="comment"># List installed</span>
+<span class="cmd">dnf</span> list installed | grep nginx
+
+<span class="comment"># Find which package provides a command</span>
+<span class="cmd">dnf</span> provides <span class="path">/usr/bin/nc</span>
+
+<span class="comment"># Install EPEL (Extra Packages for Enterprise Linux)</span>
+<span class="cmd">dnf</span> install epel-release    <span class="comment"># unlocks many packages not in base repos</span>
+
+<span class="comment"># Clean cache</span>
+<span class="cmd">dnf</span> clean all
+      </div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Best Practices</h4>
+      <ul>
+        <li>Always run apt update before installing in scripts</li>
+        <li>Use specific versions in CI/CD: apt install nginx=1.18.0-0ubuntu1</li>
+        <li>Pin critical packages to prevent surprise upgrades</li>
+        <li>Use apt-get in scripts (more stable output) vs apt in interactive use</li>
+        <li>Test package changes in staging before production</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Watch Out</h4>
+      <ul>
+        <li>apt upgrade can upgrade kernel — requires reboot</li>
+        <li>Removing packages can cascade-remove dependent packages</li>
+        <li>Package versions differ between distros — test across envs</li>
+        <li>Third-party repos can introduce security risks</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(18)">← Previous</button>
+    <span class="page-indicator">Page 20 / 30</span>
+    <button class="nav-btn" onclick="goTo(20)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 20: ENVIRONMENT VARIABLES -->
+<div class="page" id="page-20">
+  <div class="progress-bar"><div class="progress-fill" style="width:67%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 20 · Configuration</div>
+    <h2 class="page-title">Environment Variables</h2>
+    <p class="page-desc">Environment variables are how you pass configuration to applications without hardcoding values. Critical for 12-factor app architecture and secure secret management.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Working with Environment Variables</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Environment Variables</div>
+      <div class="code-body">
+<span class="comment"># View all environment variables</span>
+<span class="cmd">env</span>
+<span class="cmd">printenv</span>
+
+<span class="comment"># View a specific variable</span>
+<span class="cmd">echo</span> $PATH
+<span class="cmd">printenv</span> HOME
+
+<span class="comment"># Set a variable (current shell only)</span>
+<span class="output">MY_VAR=hello</span>
+
+<span class="comment"># Export — make it available to child processes</span>
+<span class="cmd">export</span> MY_VAR=hello
+<span class="cmd">export</span> DB_HOST=db.internal
+<span class="cmd">export</span> DB_PORT=5432
+
+<span class="comment"># Set and export on one line</span>
+<span class="cmd">export</span> NODE_ENV=production PORT=8080
+
+<span class="comment"># Use in commands</span>
+<span class="cmd">echo</span> "Connecting to $DB_HOST:$DB_PORT"
+
+<span class="comment"># Run command with temporary env var</span>
+<span class="output">DEBUG=true</span> <span class="cmd">./app.py</span>   <span class="comment"># DEBUG only applies to this command</span>
+
+<span class="comment"># Remove a variable</span>
+<span class="cmd">unset</span> MY_VAR
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Where Variables Are Set (Precedence)</div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="tl-title">/etc/environment — System-wide, all users</div>
+        <div class="tl-desc">Simplest format: KEY=VALUE. No scripts, no export. Applied to ALL users on login. Good for JAVA_HOME, PATH additions.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-title">/etc/profile & /etc/profile.d/*.sh — System login shell</div>
+        <div class="tl-desc">Shell script executed for all users on login shell start. Use for system-wide PATH modifications and ulimits.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-title">~/.bash_profile — User login shell (once per login)</div>
+        <div class="tl-desc">User-specific login setup. Typically sources ~/.bashrc. Good for per-user PATH additions and environment setup.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-title">~/.bashrc — User interactive shell (each terminal)</div>
+        <div class="tl-desc">Runs every time you open a new terminal. Best place for aliases, functions, and user PATH modifications.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-title">Service Environment (systemd) — Application-level</div>
+        <div class="tl-desc">Set in unit file with Environment= or EnvironmentFile= directives. Isolated to that service. Best for app secrets.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The .env File Pattern</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>FILE + BASH · .env Pattern</div>
+      <div class="code-body">
+<span class="comment"># .env file (NEVER commit to git!)</span>
+<span class="output">DB_HOST=db.internal
+DB_PORT=5432
+DB_USER=appuser
+DB_PASS=sup3rs3cur3!
+API_KEY=sk-abc123def456
+NODE_ENV=production</span>
+
+<span class="comment"># Load .env into current shell</span>
+<span class="cmd">source</span> .env
+<span class="comment"># OR</span>
+<span class="cmd">export</span> $(cat .env | grep -v '^#' | xargs)
+
+<span class="comment"># Run app with .env loaded</span>
+<span class="cmd">env</span> $(cat .env | xargs) python3 app.py
+
+<span class="comment"># Always add to .gitignore!</span>
+<span class="cmd">echo</span> ".env" >> .gitignore
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="icon">🔥</div>
+    <div class="text"><strong>Never hardcode secrets!</strong> Passwords, API keys, and tokens should ALWAYS come from environment variables, secrets managers (AWS Secrets Manager, HashiCorp Vault), or encrypted config files — never as plaintext in code or config files committed to version control.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(19)">← Previous</button>
+    <span class="page-indicator">Page 21 / 30</span>
+    <button class="nav-btn" onclick="goTo(21)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 21: BASH SCRIPTING -->
+<div class="page" id="page-21">
+  <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 21 · Automation</div>
+    <h2 class="page-title">Bash Scripting & Automation</h2>
+    <p class="page-desc">Bash scripts are the glue of DevOps. Deploy scripts, backup scripts, health checks, CI/CD hooks — all bash. Learn to write them correctly.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Script Structure & Best Practices</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div">FILE · deploy.sh — Production-Grade Script</div>
+      <div class="code-body">
+<span class="comment">#!/bin/bash
+# ↑ shebang — tells OS to use bash to run this script
+
+# SAFETY FLAGS — add these to every script
+</span><span class="cmd">set</span> <span class="flag">-euo pipefail</span>
+<span class="comment"># -e  = exit immediately on any error
+# -u  = treat unset variables as errors
+# -o pipefail = pipe fails if any command in it fails
+
+# CONSTANTS</span>
+<span class="kw">readonly</span> APP_DIR=<span class="str">"/opt/myapp"</span>
+<span class="kw">readonly</span> LOG_FILE=<span class="str">"/var/log/deploy.log"</span>
+<span class="kw">readonly</span> TIMESTAMP=$(date +<span class="str">"%Y%m%d-%H%M%S"</span>)
+
+<span class="comment"># LOGGING FUNCTION</span>
+<span class="kw">log()</span> {
+    <span class="cmd">echo</span> "[$(date '+%Y-%m-%d %H:%M:%S')] $*" | <span class="cmd">tee</span> <span class="flag">-a</span> $LOG_FILE
+}
+
+<span class="comment"># ERROR HANDLER</span>
+<span class="kw">cleanup()</span> {
+    log <span class="str">"ERROR: Script failed on line $1"</span>
+    <span class="comment"># rollback logic here</span>
+}
+<span class="kw">trap</span> <span class="str">'cleanup $LINENO'</span> ERR
+
+<span class="comment"># CHECK PREREQUISITES</span>
+<span class="kw">if</span> [ ! -d "$APP_DIR" ]; <span class="kw">then</span>
+    log <span class="str">"ERROR: App directory $APP_DIR not found"</span>
+    <span class="cmd">exit</span> 1
+<span class="kw">fi</span>
+
+<span class="comment"># MAIN LOGIC</span>
+log <span class="str">"Starting deployment $TIMESTAMP"</span>
+
+<span class="comment"># Backup current version</span>
+<span class="cmd">cp</span> <span class="flag">-a</span> $APP_DIR ${APP_DIR}.bak.$TIMESTAMP
+log <span class="str">"Backup created"</span>
+
+<span class="comment"># Deploy new code</span>
+<span class="cmd">git</span> <span class="flag">-C</span> $APP_DIR pull origin main
+log <span class="str">"Code updated"</span>
+
+<span class="comment"># Restart service</span>
+<span class="cmd">systemctl</span> restart myapp
+log <span class="str">"Service restarted"</span>
+
+log <span class="str">"Deployment complete!"</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Essential Bash Constructs</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Core Constructs</div>
+      <div class="code-body">
+<span class="comment"># VARIABLES</span>
+NAME=<span class="str">"Alice"</span>
+<span class="cmd">echo</span> <span class="str">"Hello, $NAME"</span>
+<span class="cmd">echo</span> <span class="str">"Hostname: $(hostname)"</span>  <span class="comment"># command substitution</span>
+
+<span class="comment"># CONDITIONALS</span>
+<span class="kw">if</span> [ -f /etc/nginx/nginx.conf ]; <span class="kw">then</span>
+    <span class="cmd">echo</span> <span class="str">"nginx config exists"</span>
+<span class="kw">elif</span> [ -d /etc/nginx ]; <span class="kw">then</span>
+    <span class="cmd">echo</span> <span class="str">"nginx dir exists but no config"</span>
+<span class="kw">else</span>
+    <span class="cmd">echo</span> <span class="str">"nginx not installed"</span>
+<span class="kw">fi</span>
+
+<span class="comment"># TEST OPERATORS: -f=file, -d=dir, -z=empty string, -n=non-empty
+# -eq -ne -lt -gt (numbers) | = != (strings)</span>
+
+<span class="comment"># LOOPS</span>
+<span class="kw">for</span> server <span class="kw">in</span> web1 web2 web3; <span class="kw">do</span>
+    <span class="cmd">echo</span> <span class="str">"Deploying to $server"</span>
+    <span class="cmd">ssh</span> $server <span class="str">"sudo systemctl restart myapp"</span>
+<span class="kw">done</span>
+
+<span class="comment"># Loop over files</span>
+<span class="kw">for</span> f <span class="kw">in</span> /var/log/*.log; <span class="kw">do</span>
+    <span class="cmd">echo</span> <span class="str">"Size of $f: $(du -sh $f | cut -f1)"</span>
+<span class="kw">done</span>
+
+<span class="comment"># While loop</span>
+<span class="kw">while</span> ! <span class="cmd">curl</span> <span class="flag">-s</span> http://localhost/health; <span class="kw">do</span>
+    <span class="cmd">echo</span> <span class="str">"Waiting for app to start..."</span>
+    <span class="cmd">sleep</span> 2
+<span class="kw">done</span>
+
+<span class="comment"># FUNCTIONS</span>
+<span class="kw">check_service()</span> {
+    local service=$1
+    <span class="kw">if</span> systemctl is-active <span class="flag">--quiet</span> $service; <span class="kw">then</span>
+        <span class="cmd">echo</span> <span class="str">"✓ $service is running"</span>
+    <span class="kw">else</span>
+        <span class="cmd">echo</span> <span class="str">"✗ $service is DOWN"</span>
+        <span class="cmd">return</span> 1
+    <span class="kw">fi</span>
+}
+
+check_service nginx
+check_service mysql
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(20)">← Previous</button>
+    <span class="page-indicator">Page 22 / 30</span>
+    <button class="nav-btn" onclick="goTo(22)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 22: CRON JOBS -->
+<div class="page" id="page-22">
+  <div class="progress-bar"><div class="progress-fill" style="width:73%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 22 · Scheduling</div>
+    <h2 class="page-title">Cron Jobs</h2>
+    <p class="page-desc">Cron is the Linux task scheduler. Backups, cleanup jobs, report generation, health checks — if it needs to run on a schedule, cron is your tool.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Cron Syntax</div>
+    <div class="diagram">
+┌──────── minute (0-59)
+│  ┌───── hour (0-23)
+│  │  ┌── day of month (1-31)
+│  │  │  ┌─ month (1-12)
+│  │  │  │  ┌ day of week (0-7, 0&7=Sunday)
+│  │  │  │  │
+*  *  *  *  *  command to run
+
+EXAMPLES:
+0  2  *  *  *   = 02:00 every day
+0  2  *  *  0   = 02:00 every Sunday
+*/5 * *  *  *   = every 5 minutes
+0  */6 * *  *   = every 6 hours
+0  0  1  *  *   = midnight on 1st of each month
+0  0  *  *  1-5 = midnight weekdays only
+30 9  *  *  1   = 09:30 every Monday
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Managing Cron Jobs</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Cron Management</div>
+      <div class="code-body">
+<span class="comment"># Edit your crontab (opens in default editor)</span>
+<span class="cmd">crontab</span> <span class="flag">-e</span>
+
+<span class="comment"># List current crontab</span>
+<span class="cmd">crontab</span> <span class="flag">-l</span>
+
+<span class="comment"># Remove all cron jobs (CAREFUL!)</span>
+<span class="cmd">crontab</span> <span class="flag">-r</span>
+
+<span class="comment"># Edit crontab for another user (as root)</span>
+<span class="cmd">crontab</span> <span class="flag">-u devops -e</span>
+
+<span class="comment"># REAL EXAMPLES:</span>
+<span class="output"># Daily database backup at 2 AM
+0 2 * * * /opt/scripts/db-backup.sh >> /var/log/backup.log 2>&1
+
+# Clean temp files every Sunday at 3 AM
+0 3 * * 0 find /tmp -mtime +7 -delete
+
+# Health check every 5 minutes
+*/5 * * * * curl -f http://localhost/health || systemctl restart myapp
+
+# Docker cleanup every Sunday at 4 AM
+0 4 * * 0 docker system prune -f >> /var/log/docker-cleanup.log 2>&1
+
+# Certificate renewal check daily at noon
+0 12 * * * certbot renew --quiet
+
+# Log rotation if logrotate misses it
+0 0 * * * logrotate /etc/logrotate.conf</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">System-wide Cron Directories</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div">BASH · System Cron</div>
+      <div class="code-body">
+<span class="comment"># Drop scripts into these directories — they run automatically</span>
+<span class="path">/etc/cron.hourly/</span>    <span class="comment"># runs every hour</span>
+<span class="path">/etc/cron.daily/</span>     <span class="comment"># runs daily</span>
+<span class="path">/etc/cron.weekly/</span>    <span class="comment"># runs weekly (Sunday)</span>
+<span class="path">/etc/cron.monthly/</span>   <span class="comment"># runs monthly</span>
+
+<span class="comment"># System crontab (has user field)</span>
+<span class="cmd">cat</span> <span class="path">/etc/crontab</span>
+<span class="output">17 *    * * *   root    cd / && run-parts --report /etc/cron.hourly
+25 6    * * *   root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )</span>
+
+<span class="comment"># Test if a cron script will work</span>
+<span class="cmd">run-parts</span> <span class="flag">--test</span> <span class="path">/etc/cron.daily</span>
+
+<span class="comment"># Check cron logs</span>
+<span class="cmd">grep</span> CRON <span class="path">/var/log/syslog</span>
+<span class="cmd">journalctl</span> <span class="flag">-u cron</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">
+    <div class="icon">⚠️</div>
+    <div class="text"><strong>Cron Gotchas:</strong> Cron has a minimal PATH — always use full paths (/usr/bin/python3, not python3). Always redirect output: command >> /var/log/cron.log 2>&1. Test scripts manually before adding to cron. Use crontab -l to confirm the job was saved.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(21)">← Previous</button>
+    <span class="page-indicator">Page 23 / 30</span>
+    <button class="nav-btn" onclick="goTo(23)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 23: LINUX SECURITY -->
+<div class="page" id="page-23">
+  <div class="progress-bar"><div class="progress-fill" style="width:77%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 23 · Security</div>
+    <h2 class="page-title">Linux Security Essentials</h2>
+    <p class="page-desc">Security is not optional. Every internet-facing server is actively probed. These practices are the baseline for every production Linux server.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Server Hardening Checklist</div>
+    <ul class="checklist">
+      <li><div class="check">✓</div> Disable root SSH login (PermitRootLogin no in /etc/ssh/sshd_config)</li>
+      <li><div class="check">✓</div> Use SSH key authentication only (PasswordAuthentication no)</li>
+      <li><div class="check">✓</div> Change default SSH port from 22 (reduces automated scan noise)</li>
+      <li><div class="check">✓</div> Enable and configure ufw/iptables firewall</li>
+      <li><div class="check">✓</div> Install fail2ban to block brute force attacks</li>
+      <li><div class="check">✓</div> Keep system packages updated (apt update && apt upgrade regularly)</li>
+      <li><div class="check">✓</div> Remove unused services and packages</li>
+      <li><div class="check">✓</div> Use sudo instead of logging in as root</li>
+      <li><div class="check">✓</div> Monitor /var/log/auth.log for suspicious logins</li>
+      <li><div class="check">✓</div> Enable automatic security updates (unattended-upgrades)</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Audit & Detection Commands</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Security Audit</div>
+      <div class="code-body">
+<span class="comment"># Who is logged in RIGHT NOW?</span>
+<span class="cmd">w</span>
+<span class="cmd">who</span>
+<span class="cmd">last</span>     <span class="comment"># login history</span>
+<span class="cmd">lastb</span>    <span class="comment"># failed login attempts</span>
+
+<span class="comment"># Check recent sudo usage</span>
+<span class="cmd">grep</span> sudo <span class="path">/var/log/auth.log</span> | tail <span class="flag">-50</span>
+
+<span class="comment"># Find files with SUID/SGID bit (can be security risk)</span>
+<span class="cmd">find</span> / <span class="flag">-perm /4000</span> 2>/dev/null   <span class="comment"># SUID files</span>
+<span class="cmd">find</span> / <span class="flag">-perm /2000</span> 2>/dev/null   <span class="comment"># SGID files</span>
+
+<span class="comment"># Find world-writable files (security risk)</span>
+<span class="cmd">find</span> / <span class="flag">-perm -o+w -type f</span> 2>/dev/null
+
+<span class="comment"># Check open ports — should be minimal</span>
+<span class="cmd">ss</span> <span class="flag">-tulnp</span>
+
+<span class="comment"># Check for failed SSH logins (brute force detection)</span>
+<span class="cmd">grep</span> <span class="str">"Failed password"</span> <span class="path">/var/log/auth.log</span> | <span class="cmd">awk</span> <span class="str">'{print $11}'</span> | <span class="cmd">sort</span> | <span class="cmd">uniq</span> <span class="flag">-c</span> | <span class="cmd">sort</span> <span class="flag">-rn</span>
+<span class="output">  892 45.123.67.89   ← This IP tried 892 times — block it!</span>
+
+<span class="comment"># Block an IP manually</span>
+<span class="cmd">ufw</span> deny from 45.123.67.89
+
+<span class="comment"># Enable automatic security updates</span>
+<span class="cmd">apt</span> install unattended-upgrades
+<span class="cmd">dpkg-reconfigure</span> unattended-upgrades
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">fail2ban — Automated Brute Force Protection</div>
+    <div class="explain-box">
+      <strong>fail2ban</strong> monitors log files for repeated failed login attempts and automatically bans the offending IP using iptables/ufw. It's a must-have for any internet-facing server.
+      <div class="analogy">fail2ban is like a nightclub bouncer who keeps a tally sheet. If you get rejected at the door 5 times in 10 minutes, you're banned from the queue for the next hour.</div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · fail2ban</div>
+      <div class="code-body">
+<span class="cmd">apt</span> install fail2ban
+
+<span class="comment"># Check current bans</span>
+<span class="cmd">fail2ban-client</span> status sshd
+<span class="output">Status for the jail: sshd
+|- Filter:  Currently failed: 3, Total failed: 1847
+`- Actions: Currently banned: 12, Total banned: 892
+            Banned IP list: 45.123.67.89 189.234.12.56 ...</span>
+
+<span class="comment"># Unban an IP (e.g., if you locked yourself out)</span>
+<span class="cmd">fail2ban-client</span> set sshd unbanip 192.168.1.100
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(22)">← Previous</button>
+    <span class="page-indicator">Page 24 / 30</span>
+    <button class="nav-btn" onclick="goTo(24)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 24: SSH DEEP DIVE -->
+<div class="page" id="page-24">
+  <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 24 · SSH</div>
+    <h2 class="page-title">SSH Deep Dive</h2>
+    <p class="page-desc">SSH is your secure tunnel to every remote server. Mastering its full capabilities — key management, tunneling, agent forwarding — makes you dramatically more productive.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">SSH Key Setup (The Right Way)</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · SSH Keys</div>
+      <div class="code-body">
+<span class="comment"># Generate an Ed25519 key (modern, secure, recommended)</span>
+<span class="cmd">ssh-keygen</span> <span class="flag">-t ed25519 -C "your@email.com"</span>
+<span class="output">Generating public/private ed25519 key pair.
+Enter file: /home/user/.ssh/id_ed25519
+Enter passphrase: [use a strong passphrase!]</span>
+
+<span class="comment"># Copy key to remote server</span>
+<span class="cmd">ssh-copy-id</span> <span class="flag">-i ~/.ssh/id_ed25519.pub</span> user@server.com
+
+<span class="comment"># Manually add to authorized_keys</span>
+<span class="cmd">cat</span> ~/.ssh/id_ed25519.pub | <span class="cmd">ssh</span> user@server <span class="str">"mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"</span>
+
+<span class="comment"># Connect with specific key</span>
+<span class="cmd">ssh</span> <span class="flag">-i ~/.ssh/id_ed25519</span> user@server.com
+
+<span class="comment"># View fingerprint of a key (share this to verify)</span>
+<span class="cmd">ssh-keygen</span> <span class="flag">-l -f ~/.ssh/id_ed25519.pub</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">SSH Config File — Your Quality of Life</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div">FILE · ~/.ssh/config</div>
+      <div class="code-body">
+<span class="comment"># Instead of: ssh -i ~/.ssh/prod-key.pem -p 2222 ubuntu@52.12.34.56
+# Just type: ssh prod-web1</span>
+
+<span class="kw">Host</span> prod-web1
+    <span class="output">HostName 52.12.34.56
+    User ubuntu
+    Port 2222
+    IdentityFile ~/.ssh/prod-key.pem
+    ServerAliveInterval 60</span>
+
+<span class="kw">Host</span> bastion
+    <span class="output">HostName bastion.mycompany.com
+    User ec2-user
+    IdentityFile ~/.ssh/aws-key.pem
+    ForwardAgent yes</span>
+
+<span class="comment"># Jump through bastion to reach private server:</span>
+<span class="kw">Host</span> db-server
+    <span class="output">HostName 10.0.2.15        # private IP, not internet-accessible
+    User ubuntu
+    ProxyJump bastion         # ssh to bastion first, then jump to db
+    IdentityFile ~/.ssh/aws-key.pem</span>
+
+<span class="comment"># Wildcard — apply to all servers</span>
+<span class="kw">Host</span> *.mycompany.com
+    <span class="output">User devops
+    IdentityFile ~/.ssh/company-key.pem
+    ServerAliveInterval 60
+    ServerAliveCountMax 3</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">SSH Tunneling & Port Forwarding</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · SSH Tunneling</div>
+      <div class="code-body">
+<span class="comment"># LOCAL FORWARD — access remote service locally</span>
+<span class="cmd">ssh</span> <span class="flag">-L 5432:localhost:5432</span> user@db-server
+<span class="comment"># Now connect to localhost:5432 to access remote PostgreSQL!</span>
+
+<span class="comment"># Access private DB through bastion</span>
+<span class="cmd">ssh</span> <span class="flag">-L 3306:db.internal:3306</span> user@bastion
+<span class="comment"># → localhost:3306 connects to db.internal:3306 via bastion</span>
+
+<span class="comment"># REMOTE FORWARD — expose local port on remote server</span>
+<span class="cmd">ssh</span> <span class="flag">-R 8080:localhost:3000</span> user@public-server
+<span class="comment"># Remote server's port 8080 → your local port 3000</span>
+
+<span class="comment"># SOCKS PROXY — route all traffic through SSH server</span>
+<span class="cmd">ssh</span> <span class="flag">-D 1080</span> user@proxy-server
+<span class="comment"># Configure your browser to use SOCKS5 proxy localhost:1080</span>
+
+<span class="comment"># Run in background (don't open shell)</span>
+<span class="cmd">ssh</span> <span class="flag">-fNL 5432:localhost:5432</span> user@db-server
+<span class="comment"># -f = background, -N = no command, just tunnel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(23)">← Previous</button>
+    <span class="page-indicator">Page 25 / 30</span>
+    <button class="nav-btn" onclick="goTo(25)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 25: FIREWALLS -->
+<div class="page" id="page-25">
+  <div class="progress-bar"><div class="progress-fill" style="width:83%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 25 · Firewalls</div>
+    <h2 class="page-title">Firewalls: ufw & iptables</h2>
+    <p class="page-desc">A firewall is your server's front door lock. Only open the ports you need. Everything else stays closed. This is non-negotiable in production.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">ufw — The Simple Firewall</div>
+    <div class="explain-box">
+      <strong>ufw</strong> (Uncomplicated Firewall) is a user-friendly frontend for iptables. Use it on Ubuntu/Debian servers. Simple rules, easy to read, hard to mess up.
+    </div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · ufw Complete Guide</div>
+      <div class="code-body">
+<span class="comment"># Check status</span>
+<span class="cmd">ufw</span> status verbose
+
+<span class="comment"># Enable (CAREFUL — make sure SSH is allowed first!)</span>
+<span class="cmd">ufw</span> allow 22/tcp     <span class="comment"># allow SSH FIRST!</span>
+<span class="cmd">ufw</span> enable           <span class="comment"># now enable</span>
+
+<span class="comment"># Common rules</span>
+<span class="cmd">ufw</span> allow 22/tcp     <span class="comment"># SSH</span>
+<span class="cmd">ufw</span> allow 80/tcp     <span class="comment"># HTTP</span>
+<span class="cmd">ufw</span> allow 443/tcp    <span class="comment"># HTTPS</span>
+<span class="cmd">ufw</span> allow 5432/tcp   <span class="comment"># PostgreSQL (from anywhere — BAD!)</span>
+
+<span class="comment"># Better — allow only from specific IP</span>
+<span class="cmd">ufw</span> allow from 10.0.0.0/8 to any port 5432    <span class="comment"># DB only from internal network</span>
+<span class="cmd">ufw</span> allow from 192.168.1.100 to any port 22   <span class="comment"># SSH only from admin IP</span>
+
+<span class="comment"># Allow by service name</span>
+<span class="cmd">ufw</span> allow <span class="str">'Nginx Full'</span>   <span class="comment"># opens both 80 and 443</span>
+
+<span class="comment"># Deny (explicitly block)</span>
+<span class="cmd">ufw</span> deny 3306     <span class="comment"># MySQL — never expose to internet!</span>
+
+<span class="comment"># Delete a rule</span>
+<span class="cmd">ufw</span> status numbered
+<span class="cmd">ufw</span> delete 3       <span class="comment"># delete rule #3</span>
+
+<span class="comment"># Block an attacking IP</span>
+<span class="cmd">ufw</span> deny from 45.123.67.89
+
+<span class="comment"># Rate limiting (prevent brute force)</span>
+<span class="cmd">ufw</span> limit 22/tcp   <span class="comment"># blocks IPs that connect >6 times per 30s</span>
+
+<span class="comment"># Reset to defaults</span>
+<span class="cmd">ufw</span> reset
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">iptables — The Power Tool</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · iptables Basics</div>
+      <div class="code-body">
+<span class="comment"># View current rules</span>
+<span class="cmd">iptables</span> <span class="flag">-L -n -v</span>
+
+<span class="comment"># Allow SSH</span>
+<span class="cmd">iptables</span> <span class="flag">-A INPUT -p tcp --dport 22 -j ACCEPT</span>
+
+<span class="comment"># Allow HTTP/HTTPS</span>
+<span class="cmd">iptables</span> <span class="flag">-A INPUT -p tcp --dport 80 -j ACCEPT</span>
+<span class="cmd">iptables</span> <span class="flag">-A INPUT -p tcp --dport 443 -j ACCEPT</span>
+
+<span class="comment"># Allow established connections (for outbound traffic replies)</span>
+<span class="cmd">iptables</span> <span class="flag">-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT</span>
+
+<span class="comment"># Allow loopback</span>
+<span class="cmd">iptables</span> <span class="flag">-A INPUT -i lo -j ACCEPT</span>
+
+<span class="comment"># Drop everything else (default deny)</span>
+<span class="cmd">iptables</span> <span class="flag">-P INPUT DROP</span>
+
+<span class="comment"># Save rules (persist across reboots)</span>
+<span class="cmd">iptables-save</span> > /etc/iptables/rules.v4
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-danger">
+    <div class="icon">🔥</div>
+    <div class="text"><strong>Lock-out Warning!</strong> When enabling ufw or iptables, always allow SSH FIRST before setting default deny. If you block yourself out, you'll need console access (physical or cloud console) to recover. Test with: ufw allow 22 before ufw enable.</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(24)">← Previous</button>
+    <span class="page-indicator">Page 26 / 30</span>
+    <button class="nav-btn" onclick="goTo(26)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 26: PROMETHEUS -->
+<div class="page" id="page-26">
+  <div class="progress-bar"><div class="progress-fill" style="width:87%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 26 · Monitoring Stack</div>
+    <h2 class="page-title">Prometheus & Node Exporter</h2>
+    <p class="page-desc">The industry-standard monitoring stack for Linux DevOps. Prometheus collects metrics. Node Exporter exposes Linux system metrics. Grafana visualizes them.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">The Monitoring Architecture</div>
+    <div class="diagram">
+Linux Servers                    Prometheus               Grafana
+┌─────────────┐                 ┌──────────┐            ┌─────────┐
+│ Node Exp    │◄──── scrape ────│          │            │         │
+│ :9100       │  (every 15s)    │  Time    │◄── query ──│Dashboard│
+├─────────────┤                 │  Series  │  (PromQL)  │         │
+│ App Metrics │◄──── scrape ────│  Database│            │ Alerts  │
+│ :8080/mets  │                 │          │            └─────────┘
+└─────────────┘                 └──────────┘                 │
+                                      │                      │
+                                      └──────── alerts ──────►
+                                                        AlertManager
+                                                    (PagerDuty, Slack)
+
+FLOW: Linux server → Node Exporter exposes metrics as HTTP endpoint
+      → Prometheus scrapes metrics every 15s → Stores as time series
+      → Grafana queries Prometheus → Displays dashboards
+      → AlertManager fires on threshold violations
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Node Exporter Key Metrics</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🧠</div>
+        <div class="card-title">CPU Metrics</div>
+        <div class="card-desc">node_cpu_seconds_total — CPU time per mode (user, system, iowait). Use rate() to get current usage %.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">💾</div>
+        <div class="card-title">Memory Metrics</div>
+        <div class="card-desc">node_memory_MemTotal_bytes, node_memory_MemAvailable_bytes — calculate used % to alert at 90% usage.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">💿</div>
+        <div class="card-title">Disk Metrics</div>
+        <div class="card-desc">node_filesystem_avail_bytes, node_filesystem_size_bytes — alert when disk is less than 20% free.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌐</div>
+        <div class="card-title">Network Metrics</div>
+        <div class="card-desc">node_network_receive_bytes_total, node_network_transmit_bytes_total — track bandwidth with rate().</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Essential PromQL Queries</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>PromQL · Core Monitoring Queries</div>
+      <div class="code-body">
+<span class="comment"># CPU Usage % (per server)</span>
+<span class="output">100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)</span>
+
+<span class="comment"># Memory Usage %</span>
+<span class="output">100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))</span>
+
+<span class="comment"># Disk Usage %</span>
+<span class="output">100 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100)</span>
+
+<span class="comment"># Disk Read/Write Throughput (MB/s)</span>
+<span class="output">rate(node_disk_read_bytes_total[5m]) / 1024 / 1024</span>
+
+<span class="comment"># Network In/Out (MB/s)</span>
+<span class="output">rate(node_network_receive_bytes_total{device="eth0"}[5m]) / 1024 / 1024</span>
+
+<span class="comment"># ALERT: CPU > 80% for 5 minutes</span>
+<span class="output">ALERT HighCPU
+  IF (cpu_usage > 80)
+  FOR 5m
+  LABELS { severity="warning" }
+  ANNOTATIONS { summary="CPU usage above 80% on {{ $labels.instance }}" }</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="proscons">
+    <div class="pros">
+      <h4>✅ Prometheus Advantages</h4>
+      <ul>
+        <li>Pull-based model — servers don't need to know about monitoring</li>
+        <li>Powerful query language (PromQL) for complex aggregations</li>
+        <li>Huge ecosystem — exporters for everything (MySQL, nginx, Redis)</li>
+        <li>Highly scalable — handles millions of metrics</li>
+      </ul>
+    </div>
+    <div class="cons">
+      <h4>⚠️ Limitations</h4>
+      <ul>
+        <li>Not for logs — use Loki or ELK for log aggregation</li>
+        <li>Not for long-term storage — data compresses but grows; use Thanos for federation</li>
+        <li>Setup complexity — many moving parts</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(25)">← Previous</button>
+    <span class="page-indicator">Page 27 / 30</span>
+    <button class="nav-btn" onclick="goTo(27)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 27: GRAFANA -->
+<div class="page" id="page-27">
+  <div class="progress-bar"><div class="progress-fill" style="width:90%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 27 · Visualization</div>
+    <h2 class="page-title">Grafana Dashboards</h2>
+    <p class="page-desc">Grafana transforms raw Prometheus metrics into beautiful, actionable dashboards. The right dashboard lets you understand your entire infrastructure at a glance.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Grafana Core Concepts</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">📊</div>
+        <div class="card-title">Data Sources</div>
+        <div class="card-desc">Grafana connects to Prometheus, Loki, InfluxDB, Elasticsearch, CloudWatch and more. Each connection is a data source. Most DevOps teams use Prometheus + Loki.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🎛️</div>
+        <div class="card-title">Panels</div>
+        <div class="card-desc">Individual visualizations: Time series charts, Gauge, Bar chart, Stat, Table, Logs. Each panel runs a PromQL query and visualizes the result.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <div class="card-title">Dashboards</div>
+        <div class="card-desc">Collections of panels. Create dashboards per service or team. Import community dashboards from grafana.com/dashboards. Node Exporter Full (ID: 1860) is the go-to Linux dashboard.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔔</div>
+        <div class="card-title">Alerts</div>
+        <div class="card-desc">Grafana can evaluate queries and fire alerts to Slack, PagerDuty, email, OpsGenie when thresholds are exceeded. Integrate with on-call schedules.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Essential Linux Dashboards to Import</div>
+    <table class="cmd-table">
+      <tr><th>Dashboard ID</th><th>Name</th><th>What It Shows</th></tr>
+      <tr><td class="td-cmd">1860</td><td class="td-desc">Node Exporter Full</td><td class="td-use">Complete Linux system: CPU, memory, disk, network per server</td></tr>
+      <tr><td class="td-cmd">3662</td><td class="td-desc">Prometheus 2.0 Overview</td><td class="td-use">Prometheus itself — scrape health, storage usage</td></tr>
+      <tr><td class="td-cmd">9614</td><td class="td-desc">NGINX overview</td><td class="td-use">nginx requests, status codes, connections</td></tr>
+      <tr><td class="td-cmd">7362</td><td class="td-desc">MySQL Overview</td><td class="td-use">MySQL queries, connections, InnoDB metrics</td></tr>
+      <tr><td class="td-cmd">763</td><td class="td-desc">Redis Dashboard</td><td class="td-use">Redis memory, commands/sec, keyspace</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Quick Setup</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Install Monitoring Stack</div>
+      <div class="code-body">
+<span class="comment"># Install Node Exporter (run on each server to monitor)</span>
+<span class="cmd">wget</span> https://github.com/prometheus/node_exporter/releases/download/v1.7.0/node_exporter-1.7.0.linux-amd64.tar.gz
+<span class="cmd">tar</span> <span class="flag">-xzvf</span> node_exporter-*.tar.gz
+<span class="cmd">cp</span> node_exporter-*/node_exporter <span class="path">/usr/local/bin/</span>
+<span class="comment"># Create systemd service → node_exporter listens on :9100</span>
+
+<span class="comment"># Verify Node Exporter is running</span>
+<span class="cmd">curl</span> http://localhost:9100/metrics | <span class="cmd">grep</span> <span class="str">"node_cpu"</span> | <span class="cmd">head</span> <span class="flag">-5</span>
+
+<span class="comment"># Prometheus config to scrape this server</span>
+<span class="output">scrape_configs:
+  - job_name: 'linux-servers'
+    static_configs:
+      - targets: ['web1:9100', 'web2:9100', 'db1:9100']</span>
+
+<span class="comment"># Start Prometheus</span>
+<span class="cmd">./prometheus</span> <span class="flag">--config.file=prometheus.yml</span>
+<span class="comment"># Prometheus UI at http://localhost:9090</span>
+<span class="comment"># Grafana UI at http://localhost:3000 (admin/admin)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(26)">← Previous</button>
+    <span class="page-indicator">Page 28 / 30</span>
+    <button class="nav-btn" onclick="goTo(28)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 28: TROUBLESHOOTING PLAYBOOK -->
+<div class="page" id="page-28">
+  <div class="progress-bar"><div class="progress-fill" style="width:93%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 28 · Incident Response</div>
+    <h2 class="page-title">Production Troubleshooting Playbook</h2>
+    <p class="page-desc">Real incidents require structured thinking. Follow these runbooks for the most common production scenarios. Speed and calm under pressure come from having a plan.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔴 Scenario 1: Server Is Slow / Unresponsive</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Slow Server Runbook</div>
+      <div class="code-body">
+<span class="comment"># 1. Are we even connected?</span>
+<span class="cmd">ssh</span> server.internal    <span class="comment"># if this hangs, network/SSH issue</span>
+
+<span class="comment"># 2. Check load immediately</span>
+<span class="cmd">uptime</span>
+<span class="output">load average: 45.23, 40.12, 35.67  ← disaster on a 4-core server</span>
+
+<span class="comment"># 3. What's consuming CPU?</span>
+<span class="cmd">ps</span> <span class="flag">aux --sort=-%cpu</span> | <span class="cmd">head</span> <span class="flag">-10</span>
+
+<span class="comment"># 4. Is it I/O wait?</span>
+<span class="cmd">top</span>    <span class="comment"># check 'wa' percentage — high = disk is the bottleneck</span>
+<span class="cmd">iotop</span> <span class="flag">-ao</span>   <span class="comment"># what's doing the I/O?</span>
+
+<span class="comment"># 5. Is memory the problem?</span>
+<span class="cmd">free</span> <span class="flag">-h</span>    <span class="comment"># check available memory</span>
+<span class="cmd">dmesg</span> | <span class="cmd">grep</span> <span class="flag">-i oom</span>   <span class="comment"># OOM kills?</span>
+
+<span class="comment"># 6. Any runaway processes?</span>
+<span class="cmd">ps</span> aux | <span class="cmd">awk</span> <span class="str">'$3>50 {print}'</span>   <span class="comment"># processes over 50% CPU</span>
+
+<span class="comment"># 7. Triage — renice or kill</span>
+<span class="cmd">renice</span> <span class="flag">+19</span> 12345    <span class="comment"># deprioritize (buy time)</span>
+<span class="cmd">kill</span> <span class="flag">-15</span> 12345       <span class="comment"># graceful kill</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔴 Scenario 2: Disk Full (100%)</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Disk Full Emergency</div>
+      <div class="code-body">
+<span class="comment"># 1. Confirm which partition</span>
+<span class="cmd">df</span> <span class="flag">-h</span>
+
+<span class="comment"># 2. Find the biggest directories</span>
+<span class="cmd">du</span> <span class="flag">-h --max-depth=1</span> / 2>/dev/null | <span class="cmd">sort</span> <span class="flag">-hr</span> | <span class="cmd">head</span> <span class="flag">-15</span>
+
+<span class="comment"># 3. Find largest files</span>
+<span class="cmd">find</span> / <span class="flag">-xdev -size +500M -ls</span> 2>/dev/null
+
+<span class="comment"># 4. QUICK WINS (do these immediately):</span>
+<span class="cmd">journalctl</span> <span class="flag">--vacuum-time=3d</span>    <span class="comment"># trim systemd logs</span>
+<span class="cmd">docker</span> system prune <span class="flag">-f</span>        <span class="comment"># remove unused Docker layers</span>
+<span class="cmd">apt</span> clean                       <span class="comment"># clear apt cache</span>
+<span class="cmd">find</span> <span class="path">/tmp</span> <span class="flag">-mtime +1 -delete</span>   <span class="comment"># clear old temp files</span>
+
+<span class="comment"># 5. If logs are the culprit</span>
+<span class="cmd">ls</span> <span class="flag">-lhS</span> <span class="path">/var/log/</span>    <span class="comment"># sorted by size, largest first</span>
+<span class="comment"># Truncate a log (careful! don't delete — service might hold file handle)</span>
+> <span class="path">/var/log/app/error.log</span>   <span class="comment"># truncate to zero bytes</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🔴 Scenario 3: Service Down (502/504)</div>
+    <div class="code-block">
+      <div class="code-header"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>BASH · Service Down Runbook</div>
+      <div class="code-body">
+<span class="comment"># 1. Is the service running?</span>
+<span class="cmd">systemctl</span> status myapp
+
+<span class="comment"># 2. Check service logs (last 100 lines)</span>
+<span class="cmd">journalctl</span> <span class="flag">-u myapp -n 100 --no-pager</span>
+
+<span class="comment"># 3. Is it listening on the expected port?</span>
+<span class="cmd">ss</span> <span class="flag">-tulnp</span> | grep <span class="str">":8080"</span>
+
+<span class="comment"># 4. Can nginx reach the backend?</span>
+<span class="cmd">curl</span> <span class="flag">-v</span> http://localhost:8080/health
+
+<span class="comment"># 5. Check nginx error log</span>
+<span class="cmd">tail</span> <span class="flag">-50</span> <span class="path">/var/log/nginx/error.log</span>
+
+<span class="comment"># 6. Restart (if safe to do so)</span>
+<span class="cmd">systemctl</span> restart myapp
+<span class="cmd">systemctl</span> status myapp   <span class="comment"># verify it came back up</span>
+
+<span class="comment"># 7. Check resource limits</span>
+<span class="cmd">free</span> <span class="flag">-h</span>   <span class="comment"># OOM?</span>
+<span class="cmd">df</span> <span class="flag">-h</span>    <span class="comment"># disk full?</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(27)">← Previous</button>
+    <span class="page-indicator">Page 29 / 30</span>
+    <button class="nav-btn" onclick="goTo(29)">Next →</button>
+  </div>
+</div>
+
+<!-- PAGE 29: MASTER CHECKLIST -->
+<div class="page" id="page-29">
+  <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+  <div class="page-header">
+    <div class="page-tag">Chapter 29 · Final Boss</div>
+    <h2 class="page-title">DevOps Master Checklist</h2>
+    <p class="page-desc">You've covered 30 pages of Linux. Here's your definitive self-assessment — can you do all of these without looking anything up?</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🎯 Core Skills Assessment</div>
+    <div class="cols-2">
+      <div>
+        <div class="section-title">Fundamentals</div>
+        <ul class="checklist">
+          <li><div class="check">✓</div> Explain kernel vs user space in simple terms</li>
+          <li><div class="check">✓</div> Name 5 critical /proc files and what they contain</li>
+          <li><div class="check">✓</div> Read a permission string like -rwxr-xr-- and explain it</li>
+          <li><div class="check">✓</div> Calculate chmod octal values (rwx = 7, rw- = 6, r-- = 4)</li>
+          <li><div class="check">✓</div> Navigate the filesystem hierarchy confidently</li>
+          <li><div class="check">✓</div> Create, move, copy, delete files and directories</li>
+        </ul>
+        <div class="section-title" style="margin-top:20px">Process & Resources</div>
+        <ul class="checklist">
+          <li><div class="check">✓</div> Find which process is consuming the most CPU/memory</li>
+          <li><div class="check">✓</div> Kill a runaway process gracefully, then forcefully</li>
+          <li><div class="check">✓</div> Explain load average and what "good" vs "bad" looks like</li>
+          <li><div class="check">✓</div> Read free -h and identify available memory correctly</li>
+          <li><div class="check">✓</div> Check if a system has had OOM kills (dmesg | grep oom)</li>
+          <li><div class="check">✓</div> Find disk full root cause in under 2 minutes</li>
+        </ul>
+      </div>
+      <div>
+        <div class="section-title">Networking & Services</div>
+        <ul class="checklist">
+          <li><div class="check">✓</div> Check what ports are listening and which process owns them</li>
+          <li><div class="check">✓</div> Test connectivity layer by layer (ping → nc → curl)</li>
+          <li><div class="check">✓</div> Start, stop, restart a service and check its status</li>
+          <li><div class="check">✓</div> Read service logs with journalctl and filter by time</li>
+          <li><div class="check">✓</div> Write a basic systemd unit file for a custom app</li>
+          <li><div class="check">✓</div> Configure a firewall and not lock yourself out</li>
+        </ul>
+        <div class="section-title" style="margin-top:20px">Automation & Security</div>
+        <ul class="checklist">
+          <li><div class="check">✓</div> Write a bash script with set -euo pipefail and error handling</li>
+          <li><div class="check">✓</div> Schedule a cron job with correct syntax</li>
+          <li><div class="check">✓</div> Set up SSH key authentication and disable password auth</li>
+          <li><div class="check">✓</div> Check auth.log for suspicious login attempts</li>
+          <li><div class="check">✓</div> Use grep | awk | sed to extract data from logs</li>
+          <li><div class="check">✓</div> Configure logrotate to prevent disk-filling logs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">📚 Your Linux DevOps Journey</div>
+    <div class="cards">
+      <div class="card">
+        <div class="card-icon">🌱</div>
+        <div class="card-title">Beginner — Survive</div>
+        <div class="card-desc">Navigate filesystem, edit files with vim, manage services with systemctl, read basic logs. You can follow documentation and do common tasks.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌿</div>
+        <div class="card-title">Intermediate — Diagnose</div>
+        <div class="card-desc">Debug CPU/memory/disk issues without help. Read logs fluently. Write automation scripts. Set up monitoring. Handle common incidents independently.</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🌳</div>
+        <div class="card-title">Advanced — Architect</div>
+        <div class="card-desc">Design infrastructure. Tune kernel parameters. Build monitoring stacks from scratch. Prevent incidents before they happen. Mentor others effectively.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">🚀 What To Learn Next</div>
+    <div class="cols-2">
+      <div>
+        <span class="badge badge-green">Docker & Containers</span>
+        <span class="badge badge-blue">Kubernetes</span>
+        <span class="badge badge-orange">Ansible (Config Mgmt)</span>
+        <span class="badge badge-purple">Terraform (IaC)</span>
+        <span class="badge badge-green">CI/CD (GitHub Actions)</span>
+        <span class="badge badge-blue">AWS/GCP/Azure</span>
+      </div>
+      <div>
+        <span class="badge badge-orange">ELK Stack (Logging)</span>
+        <span class="badge badge-purple">Vault (Secrets)</span>
+        <span class="badge badge-red">Incident Management</span>
+        <span class="badge badge-green">Service Mesh (Istio)</span>
+        <span class="badge badge-blue">GitOps (ArgoCD)</span>
+        <span class="badge badge-orange">eBPF (Advanced)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert alert-success">
+    <div class="icon">🎉</div>
+    <div class="text"><strong>You finished all 30 pages!</strong> Linux mastery is a journey, not a destination. The commands you've learned here are used by hundreds of thousands of DevOps engineers every single day. Practice them on real servers, set up a home lab, break things on purpose — that's how mastery happens. You've got this. 🐧</div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="nav-btn" onclick="goTo(28)">← Previous</button>
+    <span class="page-indicator">Page 30 / 30 ✓</span>
+    <button class="nav-btn" onclick="goTo(0)">Back to Start ↩</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+let currentPage = 0;
+const totalPages = 30;
+
+function goTo(pageNum) {
+  // Hide current
+  document.getElementById('page-' + currentPage).classList.remove('active');
+  
+  // Update nav items
+  document.querySelectorAll('.nav-item').forEach((item, i) => {
+    item.classList.toggle('active', i === pageNum);
+  });
+  
+  // Show new page
+  currentPage = pageNum;
+  document.getElementById('page-' + currentPage).classList.add('active');
+  
+  // Scroll main to top
+  document.querySelector('.main').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+  
+  // Scroll sidebar nav item into view
+  const navItems = document.querySelectorAll('.nav-item');
+  if (navItems[pageNum]) {
+    navItems[pageNum].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    if (currentPage < totalPages - 1) goTo(currentPage + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    if (currentPage > 0) goTo(currentPage - 1);
+  }
+});
+</script>
+</body>
+</html>

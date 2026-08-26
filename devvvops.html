@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate DevOps Mastery Roadmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Slate & Teal Minimalist. Backgrounds: slate-50 to slate-100. Text: slate-800 to slate-900. Accents: teal-600 to teal-500. -->
+    <!-- Application Structure Plan: The SPA uses a dashboard/learning-path layout. It starts with a high-level visual skill gap analysis (Radar Chart) to immediately ground the user in their current vs. desired state. Below this, a chronological 12-Month Action Plan provides a high-level timeline. Finally, a detailed 'Deep Dive Modules' grid allows interactive exploration of the 8 core phases. This structure prioritizes understanding the 'why' and 'when' before diving into the dense 'what' of the technical topics. -->
+    <!-- Visualization & Content Choices: 
+         - Skill Gap (Current vs Target) -> Goal: Compare -> Radar Chart (Chart.js) -> Hover for specific category scores -> Justification: Best for showing multidimensional skill profiles. Library: Chart.js Canvas. 
+         - 12-Month Plan -> Goal: Organize/Timeline -> Horizontal Step Indicator (Tailwind HTML) -> Click to filter/highlight relevant phases -> Justification: Provides clear chronological progression. Method: HTML/JS.
+         - 8 Phases -> Goal: Inform/Organize -> Interactive Grid of Accordion Cards (Tailwind HTML) -> Click to expand details -> Justification: Prevents information overload by hiding dense lists until requested. Method: HTML/JS.
+         - NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 50vh;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .phase-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .expanded-content {
+            display: none;
+        }
+        .phase-card.active .expanded-content {
+            display: block;
+        }
+        .phase-card.active {
+            border-color: #0d9488;
+            box-shadow: 0 4px 6px -1px rgba(13, 148, 136, 0.1), 0 2px 4px -1px rgba(13, 148, 136, 0.06);
+        }
+        .nav-button.active {
+            background-color: #0d9488;
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <header class="bg-slate-900 text-slate-50 py-12 px-6 shadow-md border-b-4 border-teal-500">
+        <div class="max-w-6xl mx-auto">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">🚀 Ultimate DevOps Mastery Roadmap</h1>
+            <p class="text-xl text-slate-300 max-w-3xl leading-relaxed">
+                Transitioning from an intermediate engineer operating tools to a <strong>Senior SRE / DevOps Master</strong> architecting systems, writing automation code, and securing environments.
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-12 space-y-20">
+
+        <section id="overview-section" class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl font-bold mb-6 text-slate-900 border-b-2 border-teal-500 inline-block pb-2">Skill Evolution Analysis</h2>
+                <p class="text-lg text-slate-600 mb-6 leading-relaxed">
+                    This section visualizes your transformational journey. Based on your current 1-year experience profile, you have a solid foundation in observability and core Kubernetes. The chart highlights the critical gaps you need to close—specifically in Programming, Cloud Networking, and DevSecOps—to achieve mastery.
+                </p>
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h3 class="text-xl font-semibold mb-3 text-slate-800">Key Paradigm Shift</h3>
+                    <ul class="space-y-3 text-slate-600">
+                        <li class="flex items-start"><span class="text-teal-600 mr-2 font-bold">»</span> <span>From configuring YAML to writing programmatic automation.</span></li>
+                        <li class="flex items-start"><span class="text-teal-600 mr-2 font-bold">»</span> <span>From basic cloud VMs to advanced networking and IAM.</span></li>
+                        <li class="flex items-start"><span class="text-teal-600 mr-2 font-bold">»</span> <span>From manual deployments to robust, secure GitOps pipelines.</span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+                <div class="chart-container">
+                    <canvas id="skillRadarChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="action-plan-section">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold mb-4 text-slate-900 border-b-2 border-teal-500 inline-block pb-2">12-Month Action Plan</h2>
+                <p class="text-lg text-slate-600 leading-relaxed max-w-4xl">
+                    This interactive timeline breaks down the mastery roadmap into actionable quarters. Click on a quarter to see the primary objectives and filter the deep-dive modules below to focus on your immediate learning goals.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="timeline-container">
+            </div>
+        </section>
+
+        <section id="phases-section">
+            <div class="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end border-b border-slate-300 pb-4">
+                <div>
+                    <h2 class="text-3xl font-bold mb-2 text-slate-900">Deep Dive Modules</h2>
+                    <p class="text-lg text-slate-600">Explore the 8 core phases of architectural and engineering mastery. Click to expand.</p>
+                </div>
+                <button id="reset-filter-btn" class="mt-4 md:mt-0 px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md font-medium transition-colors">
+                    Show All Modules
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="phases-grid">
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 text-center mt-12">
+        <p class="mb-2">Based on the Ultimate DevOps Mastery Roadmap Source Report.</p>
+        <p class="text-sm">Interactive Architecture Design</p>
+    </footer>
+
+    <script>
+        const roadmapData = {
+            phases: [
+                {
+                    id: "phase-1",
+                    title: "Phase 1: Programming & Advanced Scripting",
+                    icon: "💻",
+                    quarter: "q1",
+                    description: "The Missing Link. Move beyond basic Bash and YAML to build automation tools and interact with APIs.",
+                    masteryList: [
+                        "Python: Automate AWS/Azure tasks using libraries like boto3.",
+                        "Go (Golang): The language of Cloud Native (K8s, Terraform, Docker). Write Operators or providers.",
+                        "Advanced Bash: Awk, Sed, advanced piping, robust error-handling."
+                    ],
+                    topics: [
+                        "Interacting with REST and gRPC APIs (GET/POST/PUT/DELETE).",
+                        "Parsing JSON (using jq) and YAML programmatically.",
+                        "Writing custom CLI tools for developers."
+                    ],
+                    resources: [
+                        { name: "Python for DevOps (Coursera)", url: "https://www.coursera.org/learn/python-for-applied-data-science-ai" },
+                        { name: "Go Tour (Official)", url: "https://go.dev/tour/welcome/1" }
+                    ]
+                },
+                {
+                    id: "phase-2",
+                    title: "Phase 2: Mastering Infrastructure as Code",
+                    icon: "🏗️",
+                    quarter: "q1",
+                    description: "Treat infrastructure exactly like application software with testing, modules, and state management.",
+                    masteryList: [
+                        "Terraform State Management: Remote backends, locking, state manipulation.",
+                        "Terraform Modularity: Writing reusable, DRY modules from scratch.",
+                        "Workspaces & Terragrunt: Managing multiple environments safely.",
+                        "Advanced Ansible: Custom Roles, Dynamic Inventories, Ansible Vault."
+                    ],
+                    topics: [
+                        "Remote backends (S3 + DynamoDB locking).",
+                        "Pulling server lists directly from AWS/Azure APIs.",
+                        "Encrypting sensitive data within playbooks."
+                    ],
+                    resources: [
+                        { name: "HashiCorp Advanced Terraform Tutorials", url: "https://developer.hashicorp.com/terraform/tutorials" },
+                        { name: "Terraform Best Practices", url: "https://www.terraform-best-practices.com/" }
+                    ]
+                },
+                {
+                    id: "phase-3",
+                    title: "Phase 3: Cloud Provider Deep Dive",
+                    icon: "☁️",
+                    quarter: "q2",
+                    description: "Understand the underlying networking and security architectures, not just the UI.",
+                    masteryList: [
+                        "Cloud Networking (VPC/VNet): Subnets, NAT/Transit Gateways, Route Tables, Peering.",
+                        "IAM: Roles, Policies, OIDC, assuming roles (STS), Principle of Least Privilege.",
+                        "Managed Kubernetes (EKS/AKS): Networking (CNI), IRSA, managed node groups."
+                    ],
+                    topics: [
+                        "If you don't master networking, you cannot secure a cloud.",
+                        "Deep dive into how EKS/AKS networking works."
+                    ],
+                    resources: [
+                        { name: "AWS Skill Builder", url: "https://explore.skillbuilder.aws/" },
+                        { name: "EKS Best Practices Guide", url: "https://aws.github.io/aws-eks-best-practices/" }
+                    ]
+                },
+                {
+                    id: "phase-4",
+                    title: "Phase 4: Advanced K8s & Cloud-Native Ecosystem",
+                    icon: "☸️",
+                    quarter: "q2",
+                    description: "Take your self-managed Kubernetes skills to the enterprise architectural level.",
+                    masteryList: [
+                        "Service Mesh: Istio/Linkerd, mTLS, traffic shifting, circuit breaking.",
+                        "Policy & Security: OPA Gatekeeper or Kyverno. Prevent root pods, enforce limits.",
+                        "Storage & CNI: Deep understanding of CSI and CNI dynamically attaching.",
+                        "Helm Mastery: Author complex Helm charts from scratch."
+                    ],
+                    topics: [
+                        "Canary deployments and automated rollouts.",
+                        "Global enforcement of resource limits."
+                    ],
+                    resources: [
+                        { name: "Istio Official Documentation", url: "https://istio.io/latest/docs/" },
+                        { name: "KodeKloud Advanced Courses", url: "https://kodekloud.com/" }
+                    ]
+                },
+                {
+                    id: "phase-5",
+                    title: "Phase 5: CI/CD Evolution & GitOps Mastery",
+                    icon: "🔄",
+                    quarter: "q3",
+                    description: "Move from legacy Jenkins to scalable GitOps and modern CI pipelines.",
+                    masteryList: [
+                        "Modern CI: GitHub Actions/GitLab CI. Reusable workflows, caching.",
+                        "Advanced GitOps (ArgoCD): ApplicationSets, Argo Rollouts (Blue/Green, Canary).",
+                        "Artifact Management: OCI-compliant registries, image signing (Cosign)."
+                    ],
+                    topics: [
+                        "Deploying to 100s of clusters dynamically.",
+                        "Implementing automated deployments using Prometheus metrics."
+                    ],
+                    resources: [
+                        { name: "Argo Rollouts Documentation", url: "https://argoproj.github.io/rollouts/" },
+                        { name: "GitHub Actions Guide", url: "https://docs.github.com/en/actions" }
+                    ]
+                },
+                {
+                    id: "phase-6",
+                    title: "Phase 6: DevSecOps (Security Everywhere)",
+                    icon: "🛡️",
+                    quarter: "q3",
+                    description: "Build security into the pipeline from day one.",
+                    masteryList: [
+                        "Secrets Management: HashiCorp Vault. Dynamic secrets, K8s integration.",
+                        "Container & Code Security: Trivy (CVE scanning), SonarQube (SAST).",
+                        "Network Security: K8s Network Policies, advanced WAF rules."
+                    ],
+                    topics: [
+                        "Restricting pod-to-pod communication.",
+                        "Scanning Docker images in the CI pipeline."
+                    ],
+                    resources: [
+                        { name: "HashiCorp Vault Tutorials", url: "https://developer.hashicorp.com/vault/tutorials" },
+                        { name: "Aqua Trivy Documentation", url: "https://aquasecurity.github.io/trivy/" }
+                    ]
+                },
+                {
+                    id: "phase-7",
+                    title: "Phase 7: Databases & System Architecture",
+                    icon: "🗄️",
+                    quarter: "q4",
+                    description: "Understand how to scale, backup, and maintain stateful applications.",
+                    masteryList: [
+                        "Database Admin & HA: High Availability for MySQL/PostgreSQL.",
+                        "Caching & NoSQL: Redis, MongoDB/Cassandra scaling.",
+                        "Backup Strategies: Automated, tested disaster recovery plans."
+                    ],
+                    topics: [
+                        "Replication, failover, and clustering.",
+                        "Understanding NoSQL scaling vs Relational."
+                    ],
+                    resources: []
+                },
+                {
+                    id: "phase-8",
+                    title: "Phase 8: Site Reliability Engineering (SRE)",
+                    icon: "📊",
+                    quarter: "q4",
+                    description: "Use your observability tools to drive business decisions and reliability.",
+                    masteryList: [
+                        "SLIs, SLOs, and SLAs: Indicators, Objectives, and Agreements.",
+                        "The Four Golden Signals: Latency, Traffic, Errors, Saturation.",
+                        "OpenTelemetry (OTel): Modern standard for logs, metrics, and traces."
+                    ],
+                    topics: [
+                        "Monitor the Four Golden Signals for every application.",
+                        "Move away from vendor-specific agents to OTel Collectors."
+                    ],
+                    resources: [
+                        { name: "Google SRE Book", url: "https://sre.google/sre-book/table-of-contents/" },
+                        { name: "OpenTelemetry Docs", url: "https://opentelemetry.io/docs/" }
+                    ]
+                }
+            ],
+            timeline: [
+                { id: "q1", title: "Months 1-3", focus: "Programming & IaC", desc: "Learn Python. Upgrade Terraform. Provision cloud architecture." },
+                { id: "q2", title: "Months 4-6", focus: "Cloud & K8s Architecture", desc: "AWS/Azure networking. Deploy EKS/AKS. Implement Kyverno." },
+                { id: "q3", title: "Months 7-9", focus: "CI/CD & DevSecOps", desc: "GitHub Actions to Trivy to JFrog to ArgoCD ApplicationSets." },
+                { id: "q4", title: "Months 10-12", focus: "SRE & DB Mastery", desc: "Golden Signals in Grafana. Database replication and HA setups." }
+            ]
+        };
+
+        function initRadarChart() {
+            const ctx = document.getElementById('skillRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Programming', 'IaC', 'Cloud Arch', 'Kubernetes', 'CI/CD GitOps', 'Security', 'Databases', 'SRE / Obs'],
+                    datasets: [
+                        {
+                            label: 'Current Foundation (1yr)',
+                            data: [30, 40, 30, 70, 60, 10, 30, 60],
+                            backgroundColor: 'rgba(148, 163, 184, 0.3)',
+                            borderColor: 'rgba(100, 116, 139, 1)',
+                            pointBackgroundColor: 'rgba(100, 116, 139, 1)',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'Mastery Target',
+                            data: [90, 90, 90, 100, 95, 85, 80, 95],
+                            backgroundColor: 'rgba(13, 148, 136, 0.4)',
+                            borderColor: 'rgba(13, 148, 136, 1)',
+                            pointBackgroundColor: 'rgba(13, 148, 136, 1)',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(203, 213, 225, 0.5)' },
+                            grid: { color: 'rgba(203, 213, 225, 0.5)' },
+                            pointLabels: {
+                                font: { size: 12, family: 'sans-serif', weight: 'bold' },
+                                color: '#334155'
+                            },
+                            ticks: { display: false, min: 0, max: 100 }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { size: 14 } } },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timeline-container');
+            roadmapData.timeline.forEach((q, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white border border-slate-200 p-5 rounded-xl shadow-sm cursor-pointer hover:shadow-md hover:border-teal-400 transition-all timeline-btn';
+                card.dataset.quarter = q.id;
+                card.innerHTML = `
+                    <div class="text-sm font-bold text-teal-600 mb-1 uppercase tracking-wide">Quarter ${index + 1}</div>
+                    <div class="text-xl font-bold text-slate-800 mb-2">${q.title}</div>
+                    <div class="font-semibold text-slate-700 mb-2">${q.focus}</div>
+                    <p class="text-sm text-slate-500">${q.desc}</p>
+                `;
+                card.addEventListener('click', () => filterPhases(q.id, card));
+                container.appendChild(card);
+            });
+        }
+
+        function renderPhases(filterQuarter = null) {
+            const container = document.getElementById('phases-grid');
+            container.innerHTML = '';
+
+            const filteredPhases = filterQuarter 
+                ? roadmapData.phases.filter(p => p.quarter === filterQuarter)
+                : roadmapData.phases;
+
+            filteredPhases.forEach(phase => {
+                const card = document.createElement('div');
+                card.className = 'phase-card bg-white border border-slate-200 rounded-xl overflow-hidden';
+                
+                let resourcesHtml = '';
+                if(phase.resources.length > 0) {
+                    const links = phase.resources.map(r => `<a href="${r.url}" target="_blank" class="text-teal-600 hover:text-teal-800 hover:underline block mb-1">↳ ${r.name}</a>`).join('');
+                    resourcesHtml = `<div class="mt-4 pt-4 border-t border-slate-100"><h5 class="text-sm font-bold text-slate-500 uppercase tracking-wide mb-2">Resources</h5>${links}</div>`;
+                }
+
+                card.innerHTML = `
+                    <div class="p-6 cursor-pointer flex justify-between items-center phase-header bg-slate-50 hover:bg-slate-100 transition-colors">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-3xl">${phase.icon}</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-800">${phase.title}</h3>
+                                <p class="text-sm text-slate-500 mt-1">${phase.description}</p>
+                            </div>
+                        </div>
+                        <span class="text-teal-600 font-bold text-xl toggle-icon">+</span>
+                    </div>
+                    <div class="expanded-content p-6 bg-white border-t border-slate-100">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-3 border-b border-slate-200 pb-1">What to Master</h4>
+                                <ul class="space-y-2">
+                                    ${phase.masteryList.map(item => `<li class="text-sm text-slate-600 flex items-start"><span class="text-teal-500 mr-2">▪</span><span>${item}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 mb-3 border-b border-slate-200 pb-1">Deep Dive Topics</h4>
+                                <ul class="space-y-2">
+                                    ${phase.topics.map(item => `<li class="text-sm text-slate-600 flex items-start"><span class="text-teal-500 mr-2">▪</span><span>${item}</span></li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                        ${resourcesHtml}
+                    </div>
+                `;
+
+                const header = card.querySelector('.phase-header');
+                header.addEventListener('click', () => {
+                    const isActive = card.classList.contains('active');
+                    document.querySelectorAll('.phase-card').forEach(c => {
+                        c.classList.remove('active');
+                        c.querySelector('.toggle-icon').textContent = '+';
+                    });
+                    if (!isActive) {
+                        card.classList.add('active');
+                        card.querySelector('.toggle-icon').textContent = '−';
+                    }
+                });
+
+                container.appendChild(card);
+            });
+        }
+
+        function filterPhases(quarterId, activeCard) {
+            document.querySelectorAll('.timeline-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-teal-500', 'bg-teal-50');
+            });
+            activeCard.classList.add('ring-2', 'ring-teal-500', 'bg-teal-50');
+            
+            renderPhases(quarterId);
+            document.getElementById('phases-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        document.getElementById('reset-filter-btn').addEventListener('click', () => {
+            document.querySelectorAll('.timeline-btn').forEach(btn => {
+                btn.classList.remove('ring-2', 'ring-teal-500', 'bg-teal-50');
+            });
+            renderPhases();
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initRadarChart();
+            renderTimeline();
+            renderPhases();
+        });
+    </script>
+</body>
+</html>

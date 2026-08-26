@@ -1,0 +1,1411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker & Git — Deep Learning Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:wght@400;700&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #1e1e2e;
+    --docker-blue: #0db7ed;
+    --docker-dark: #0875a4;
+    --git-orange: #f05033;
+    --git-dark: #b83623;
+    --accent-green: #00ffaa;
+    --accent-yellow: #ffd166;
+    --accent-purple: #bd93f9;
+    --text-primary: #e8e8f0;
+    --text-secondary: #8888aa;
+    --text-muted: #44445a;
+    --pro: #00ffaa;
+    --con: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: 'Manrope', sans-serif;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+    background: rgba(10,10,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.1rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .nav-logo span { color: var(--docker-blue); }
+  .nav-pills {
+    display: flex; gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+  .nav-pill {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .nav-pill:hover, .nav-pill.active { background: var(--docker-blue); color: #000; border-color: var(--docker-blue); }
+  .nav-pill.git:hover, .nav-pill.git.active { background: var(--git-orange); border-color: var(--git-orange); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 80px 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 20% 50%, rgba(13,183,237,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 50% at 80% 50%, rgba(240,80,51,0.07) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero-title .docker { color: var(--docker-blue); }
+  .hero-title .sep { color: var(--text-muted); }
+  .hero-title .git { color: var(--git-orange); }
+  .hero-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-cta-row {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .cta-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    padding: 0.85rem 2rem;
+    border-radius: 6px;
+    cursor: pointer; border: none;
+    text-decoration: none;
+    transition: all 0.2s;
+    display: inline-block;
+  }
+  .cta-btn.docker { background: var(--docker-blue); color: #000; }
+  .cta-btn.docker:hover { background: #1dcfff; transform: translateY(-2px); }
+  .cta-btn.git { background: var(--git-orange); color: #fff; }
+  .cta-btn.git:hover { background: #ff6a50; transform: translateY(-2px); }
+  .hero-grid {
+    display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem;
+    margin-top: 4rem;
+    max-width: 700px; width: 100%;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .hero-stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-align: left;
+  }
+  .hero-stat .num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 800;
+    color: var(--docker-blue);
+  }
+  .hero-stat .num.g { color: var(--git-orange); }
+  .hero-stat .lbl {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 0.2rem;
+  }
+
+  /* SECTIONS */
+  .section {
+    padding: 5rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-header {
+    margin-bottom: 3rem;
+  }
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--docker-blue);
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .section-tag.git { color: var(--git-orange); }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .section-desc {
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0;
+  }
+
+  /* CANVAS CARDS */
+  .canvas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+  .canvas-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .canvas-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--docker-blue);
+  }
+  .canvas-card.git::before { background: var(--git-orange); }
+  .canvas-card:hover { border-color: rgba(13,183,237,0.4); transform: translateY(-3px); }
+  .canvas-card.git:hover { border-color: rgba(240,80,51,0.4); }
+  .card-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .card-layman {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: rgba(255,255,255,0.03);
+    border-radius: 8px;
+    border-left: 2px solid var(--accent-yellow);
+  }
+  .card-layman::before {
+    content: '💡 Layman: ';
+    color: var(--accent-yellow);
+    font-weight: 600;
+    font-size: 0.75rem;
+    font-family: 'Space Mono', monospace;
+  }
+  .card-detail {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 1rem;
+  }
+  .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  .pros, .cons {
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.75rem;
+    line-height: 1.6;
+  }
+  .pros {
+    background: rgba(0,255,170,0.06);
+    border: 1px solid rgba(0,255,170,0.15);
+  }
+  .cons {
+    background: rgba(255,107,107,0.06);
+    border: 1px solid rgba(255,107,107,0.15);
+  }
+  .pros-title {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--pro);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .cons-title {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    color: var(--con);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .pros ul, .cons ul {
+    list-style: none;
+    color: var(--text-secondary);
+  }
+  .pros ul li::before { content: '✓ '; color: var(--pro); }
+  .cons ul li::before { content: '✗ '; color: var(--con); }
+
+  /* CODE BLOCKS */
+  .code-block {
+    background: #0d0d15;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--docker-blue);
+    margin-top: 0.75rem;
+    overflow-x: auto;
+    line-height: 1.8;
+  }
+  .code-block .cmd { color: var(--accent-green); }
+  .code-block .comment { color: var(--text-muted); }
+  .code-block .flag { color: var(--accent-yellow); }
+  .code-block .string { color: var(--accent-purple); }
+
+  /* COMPARISON TABLE */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    font-size: 0.82rem;
+  }
+  .compare-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+  .compare-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .compare-table .label { color: var(--text-primary); font-weight: 600; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .badge.hot { background: rgba(255,100,100,0.15); color: #ff6464; border: 1px solid rgba(255,100,100,0.3); }
+  .badge.core { background: rgba(13,183,237,0.1); color: var(--docker-blue); border: 1px solid rgba(13,183,237,0.2); }
+  .badge.adv { background: rgba(189,147,249,0.1); color: var(--accent-purple); border: 1px solid rgba(189,147,249,0.2); }
+
+  /* FLOW DIAGRAM */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+  }
+  .flow-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.4rem 0.75rem;
+    color: var(--text-secondary);
+  }
+  .flow-arrow { color: var(--text-muted); }
+
+  /* BIG FEATURE CARD */
+  .big-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .big-card .bg-glyph {
+    position: absolute;
+    right: -1rem; top: -1rem;
+    font-size: 10rem;
+    opacity: 0.04;
+    pointer-events: none;
+    line-height: 1;
+  }
+  .big-card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+  }
+
+  /* TAGS ROW */
+  .tags-row {
+    display: flex; flex-wrap: wrap; gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+  }
+
+  /* TIMELINE */
+  .timeline { margin: 1.5rem 0; }
+  .tl-item {
+    display: flex; gap: 1rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+  .tl-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--docker-blue);
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .tl-dot.git { background: var(--git-orange); }
+  .tl-content .tl-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+  }
+  .tl-content .tl-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* FULLWIDTH BANNER */
+  .banner {
+    background: linear-gradient(135deg, rgba(13,183,237,0.1) 0%, rgba(13,183,237,0.03) 100%);
+    border: 1px solid rgba(13,183,237,0.2);
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    display: flex; gap: 1.5rem; align-items: flex-start;
+  }
+  .banner.git { background: linear-gradient(135deg, rgba(240,80,51,0.1) 0%, rgba(240,80,51,0.03) 100%); border-color: rgba(240,80,51,0.2); }
+  .banner-icon { font-size: 2.5rem; flex-shrink: 0; }
+  .banner-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .banner-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* CHECKLIST */
+  .checklist { list-style: none; margin-top: 0.75rem; }
+  .checklist li {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    padding: 0.4rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    line-height: 1.5;
+  }
+  .checklist li::before { content: '▸'; color: var(--docker-blue); flex-shrink: 0; }
+  .checklist.git li::before { color: var(--git-orange); }
+
+  /* INSTRUCTION TABLE */
+  .inst-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.78rem; }
+  .inst-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  .inst-table td {
+    padding: 0.55rem 0.8rem;
+    border-bottom: 1px solid rgba(30,30,46,0.5);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  .inst-table td:first-child {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent-green);
+    white-space: nowrap;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  @media (max-width: 600px) {
+    .hero-grid { grid-template-columns: 1fr 1fr; }
+    .nav-pills { display: none; }
+    .pros-cons { grid-template-columns: 1fr; }
+    .banner { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">🐳 Docker <span>&</span> 🌿 Git</div>
+  <div class="nav-pills">
+    <a href="#docker-what" class="nav-pill">What is Docker</a>
+    <a href="#containers" class="nav-pill">Containers</a>
+    <a href="#dockerfile" class="nav-pill">Dockerfile</a>
+    <a href="#networking" class="nav-pill">Networking</a>
+    <a href="#volumes" class="nav-pill">Volumes</a>
+    <a href="#compose" class="nav-pill">Compose</a>
+    <a href="#git-what" class="nav-pill git">What is Git</a>
+    <a href="#branching" class="nav-pill git">Branching</a>
+    <a href="#workflows" class="nav-pill git">Workflows</a>
+    <a href="#recovery" class="nav-pill git">Recovery</a>
+    <a href="#cicd" class="nav-pill git">CI/CD</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-eyebrow">Deep Learning Canvas — DevOps Fundamentals</div>
+  <h1 class="hero-title">
+    <span class="docker">Docker</span><span class="sep"> & </span><span class="git">Git</span><br>Mastery Guide
+  </h1>
+  <p class="hero-subtitle">From zero to interview-ready. Plain English explanations, real examples, and honest pros &amp; cons for every core concept.</p>
+  <div class="hero-cta-row">
+    <a href="#docker-what" class="cta-btn docker">🐳 Start Docker</a>
+    <a href="#git-what" class="cta-btn git">🌿 Start Git</a>
+  </div>
+  <div class="hero-grid">
+    <div class="hero-stat"><div class="num">12</div><div class="lbl">Docker Topics</div></div>
+    <div class="hero-stat"><div class="num g">13</div><div class="lbl">Git Topics</div></div>
+    <div class="hero-stat"><div class="num">100%</div><div class="lbl">Interview Ready</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================= DOCKER SECTION ============================= -->
+
+<!-- WHAT IS DOCKER -->
+<section class="section" id="docker-what">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 1</span>
+    <h2 class="section-title">What is Docker?</h2>
+    <p class="section-desc">The tool that makes "it works on my machine" a problem of the past.</p>
+  </div>
+
+  <div class="big-card reveal">
+    <div class="bg-glyph">🐳</div>
+    <div class="badge core">Foundation</div>
+    <div class="big-card-title">Containerization at a Glance</div>
+    <div class="card-layman">Imagine you're shipping a pizza. Instead of just sending the recipe and hoping the other person has the same oven, ingredients, and kitchen — Docker lets you ship the entire kitchen, ingredients, and pizza already made, in a box. No surprises on the other end.</div>
+    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.7;margin-top:1rem;">Docker packages your application <strong style="color:var(--text-primary)">together with everything it needs to run</strong> — libraries, config, runtime, OS layer — into a single, portable unit called a <strong style="color:var(--docker-blue)">container</strong>. This container runs identically on any machine that has Docker installed: your laptop, a server, or the cloud.</p>
+    <div class="flow" style="margin-top:1.5rem;">
+      <div class="flow-step">Your Code</div><div class="flow-arrow">→</div>
+      <div class="flow-step">+ Dependencies</div><div class="flow-arrow">→</div>
+      <div class="flow-step">Docker Image</div><div class="flow-arrow">→</div>
+      <div class="flow-step">Container</div><div class="flow-arrow">→</div>
+      <div class="flow-step">Runs Anywhere 🚀</div>
+    </div>
+    <div class="pros-cons">
+      <div class="pros"><div class="pros-title">✅ Pros</div><ul><li>Same environment everywhere</li><li>Fast startup vs VMs</li><li>Isolated processes</li><li>Easy to share & deploy</li></ul></div>
+      <div class="cons"><div class="cons-title">❌ Cons</div><ul><li>Learning curve initially</li><li>Linux-native; Mac/Win needs VM underneath</li><li>Adds complexity for tiny projects</li></ul></div>
+    </div>
+  </div>
+
+  <!-- Containers vs VMs -->
+  <div class="canvas-grid reveal" style="margin-top:1.5rem;">
+    <div class="canvas-card">
+      <div class="badge core">Containers vs VMs</div>
+      <div class="card-title">Why Not Just Use a VM?</div>
+      <div class="card-layman">A VM is like renting a whole apartment (full OS). A container is like renting just a room in an apartment — shared building, your own private space. Rooms spin up in seconds; finding a new apartment takes 10+ minutes.</div>
+      <table class="compare-table">
+        <thead><tr><th>Aspect</th><th>Container</th><th>VM</th></tr></thead>
+        <tbody>
+          <tr><td class="label">Startup</td><td>Seconds</td><td>Minutes</td></tr>
+          <tr><td class="label">Size</td><td>MBs</td><td>GBs</td></tr>
+          <tr><td class="label">OS</td><td>Shared kernel</td><td>Full OS per VM</td></tr>
+          <tr><td class="label">Isolation</td><td>Process-level</td><td>Hardware-level</td></tr>
+          <tr><td class="label">Portability</td><td>Very high</td><td>Less portable</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="canvas-card">
+      <div class="badge adv">Linux Internals</div>
+      <div class="card-title">Namespaces & cgroups</div>
+      <div class="card-layman">Namespaces are like privacy screens — each container thinks it's the only one on the machine. cgroups are like a strict parent — they limit how much CPU, memory, and disk any single container can hog.</div>
+      <ul class="checklist">
+        <li><strong>PID namespace</strong> — Container has its own process IDs</li>
+        <li><strong>NET namespace</strong> — Container has its own network stack</li>
+        <li><strong>MNT namespace</strong> — Container has its own filesystem view</li>
+        <li><strong>cgroups</strong> — Limits CPU, memory, I/O per container</li>
+        <li><strong>Union FS</strong> — Layered read-only + thin writable layer on top</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DOCKER ARCHITECTURE -->
+<section class="section" id="architecture">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 2</span>
+    <h2 class="section-title">Docker Architecture</h2>
+    <p class="section-desc">Understanding the engine under the hood.</p>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card reveal">
+      <div class="card-icon">🖥️</div>
+      <div class="card-title">Docker Client</div>
+      <div class="card-layman">This is you. When you type <code style="color:var(--docker-blue)">docker run</code>, you're talking to the Docker Client — it takes your commands and sends them to the daemon.</div>
+      <div class="card-detail">The CLI tool that humans (and scripts) interact with. It communicates with the Docker Daemon via REST API calls over a Unix socket or TCP.</div>
+      <div class="code-block"><span class="cmd">docker</span> run -d -p 80:80 nginx<br><span class="comment"># You typed this ↑ (Client)</span></div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="card-icon">⚙️</div>
+      <div class="card-title">Docker Daemon (dockerd)</div>
+      <div class="card-layman">The daemon is like a restaurant manager. You (client) place an order, and the manager handles the kitchen — pulling images, starting containers, managing networks, etc.</div>
+      <div class="card-detail">A background service that does all the heavy lifting: building images, running containers, managing networks and volumes. Listens for Docker API requests.</div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Strengths</div><ul><li>Handles all container lifecycle</li><li>Background process</li></ul></div>
+        <div class="cons"><div class="cons-title">Watch Out</div><ul><li>Runs as root by default</li><li>Single point of failure</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Docker REST API</div>
+      <div class="card-layman">The language that the client and daemon use to talk to each other — like a waiter translating your order into kitchen language. You can even call it directly with curl!</div>
+      <div class="card-detail">The Docker API exposes endpoints for all Docker operations. Third-party tools, CI systems, and container orchestrators use this API to manage Docker programmatically.</div>
+      <div class="code-block"><span class="comment"># Direct API call example:</span><br>curl --unix-socket /var/run/docker.sock \<br>&nbsp;&nbsp;<span class="string">http://localhost/containers/json</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DOCKER IMAGES -->
+<section class="section" id="containers">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 3</span>
+    <h2 class="section-title">Images & Containers</h2>
+    <p class="section-desc">The blueprint vs the building. One produces, the other runs.</p>
+  </div>
+  <div class="banner reveal">
+    <div class="banner-icon">📦</div>
+    <div>
+      <div class="banner-title">Images = Blueprint. Containers = Running Instance.</div>
+      <div class="banner-text">An image is a read-only snapshot of your application. A container is a live, running process spawned from that image. You can run 10 containers from 1 image simultaneously. Kill a container — the image is untouched.</div>
+    </div>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card reveal">
+      <div class="badge core">Images</div>
+      <div class="card-title">Docker Images — Deep Dive</div>
+      <div class="card-layman">An image is like a frozen meal in a box — everything's prepared, sealed, and ready. You (the container) just open it and eat. The box doesn't change no matter how many meals you make from it.</div>
+      <div class="card-detail">Images are built in <strong style="color:var(--text-primary)">layers</strong>. Each Dockerfile instruction adds a layer. Layers are cached and reused — so changing one line doesn't rebuild everything from scratch.</div>
+      <div class="code-block">
+        <span class="cmd">docker pull</span> nginx:latest<br>
+        <span class="cmd">docker build</span> <span class="flag">-t</span> myapp:v1 .<br>
+        <span class="cmd">docker images</span><br>
+        <span class="cmd">docker tag</span> myapp:v1 myrepo/myapp:latest<br>
+        <span class="cmd">docker push</span> myrepo/myapp:latest
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Immutable & versioned</li><li>Layer caching speeds builds</li><li>Shareable via registry</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Large images waste bandwidth</li><li>Stale layers = security risks</li><li>No state — data is lost on delete</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="badge core">Containers</div>
+      <div class="card-title">Running Containers — Commands</div>
+      <div class="card-layman">A container is a running instance of your image — like turning on your frozen meal in the microwave. It's alive, doing work, and can be stopped at any time. The meal stays frozen (the image); you just re-heat a new one.</div>
+      <div class="card-detail">Containers are <strong style="color:var(--text-primary)">ephemeral by default</strong> — when stopped, any data written inside is lost unless you use volumes. They are stateless, portable, and replaceable.</div>
+      <div class="code-block">
+        <span class="cmd">docker run</span> <span class="flag">-d -p 8080:80</span> nginx<br>
+        <span class="cmd">docker ps</span>           <span class="comment"># List running</span><br>
+        <span class="cmd">docker exec</span> <span class="flag">-it</span> &lt;id&gt; bash<br>
+        <span class="cmd">docker logs</span> &lt;id&gt;<br>
+        <span class="cmd">docker stop</span> &lt;id&gt;<br>
+        <span class="cmd">docker rm</span> &lt;id&gt;
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Instant startup</li><li>Process-level isolation</li><li>Easy to replicate</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Ephemeral — data lost on removal</li><li>Debugging can be tricky</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DOCKERFILE -->
+<section class="section" id="dockerfile">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 4 (MUST MASTER)</span>
+    <h2 class="section-title">Dockerfile</h2>
+    <p class="section-desc">Your recipe card for building Docker images. Every line is a layer.</p>
+  </div>
+
+  <div class="big-card reveal">
+    <div class="bg-glyph">📄</div>
+    <div class="badge hot">Interview Hot</div>
+    <div class="big-card-title">Complete Dockerfile Breakdown</div>
+    <div class="card-layman">A Dockerfile is a recipe. Just like baking — you start with base ingredients (FROM), prep things (RUN, COPY), set the oven (ENV, WORKDIR), then say what to serve (CMD/ENTRYPOINT). Docker reads this recipe and bakes your app into an image.</div>
+    <table class="inst-table">
+      <thead><tr><th>Instruction</th><th>Purpose</th><th>Layman Meaning</th></tr></thead>
+      <tbody>
+        <tr><td>FROM</td><td>Set base image</td><td>Choose your starting ingredient (e.g., Ubuntu, Node, Python)</td></tr>
+        <tr><td>RUN</td><td>Execute a command during build</td><td>Do this while setting up the kitchen (install packages, compile)</td></tr>
+        <tr><td>COPY</td><td>Copy files from host to image</td><td>Bring your recipe/code into the kitchen</td></tr>
+        <tr><td>ADD</td><td>Like COPY + extracts archives + URLs</td><td>COPY but with superpowers (use COPY unless you need extras)</td></tr>
+        <tr><td>CMD</td><td>Default command at runtime</td><td>What the container does when you start it (can be overridden)</td></tr>
+        <tr><td>ENTRYPOINT</td><td>Fixed main process</td><td>The main chef — always runs, CMD becomes its arguments</td></tr>
+        <tr><td>EXPOSE</td><td>Document which port to use</td><td>Put a sign saying "knock here" (doesn't actually open the port)</td></tr>
+        <tr><td>ENV</td><td>Set environment variables</td><td>Write sticky notes for the app to read at runtime</td></tr>
+        <tr><td>WORKDIR</td><td>Set working directory</td><td>Go to this folder before doing anything else</td></tr>
+        <tr><td>ARG</td><td>Build-time variable</td><td>Temporary variable only available while building, not at runtime</td></tr>
+      </tbody>
+    </table>
+    <div class="code-block" style="margin-top:1.5rem;">
+<span class="comment"># Multi-stage Dockerfile example (Best Practice)</span><br>
+<span class="flag">FROM</span> node:18-alpine <span class="flag">AS</span> builder<br>
+<span class="flag">WORKDIR</span> /app<br>
+<span class="flag">COPY</span> package*.json ./<br>
+<span class="flag">RUN</span> npm ci --only=production<br>
+<span class="flag">COPY</span> . .<br>
+<span class="flag">RUN</span> npm run build<br><br>
+<span class="comment"># --- Production stage (tiny!) ---</span><br>
+<span class="flag">FROM</span> node:18-alpine<br>
+<span class="flag">WORKDIR</span> /app<br>
+<span class="flag">COPY</span> --from=builder /app/dist ./dist<br>
+<span class="flag">RUN</span> adduser <span class="flag">-D</span> appuser &amp;&amp; chown -R appuser /app<br>
+<span class="flag">USER</span> appuser<br>
+<span class="flag">EXPOSE</span> 3000<br>
+<span class="flag">CMD</span> [<span class="string">"node"</span>, <span class="string">"dist/server.js"</span>]
+    </div>
+  </div>
+
+  <div class="canvas-grid reveal">
+    <div class="canvas-card">
+      <div class="badge core">Best Practice</div>
+      <div class="card-title">Multi-Stage Builds</div>
+      <div class="card-layman">Build your app in one container (with all dev tools), then copy only the finished product into a tiny clean container. Like baking a cake in a big messy kitchen, but only serving the cake — not the flour bags and dirty bowls.</div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Massively smaller images</li><li>No dev tools in prod</li><li>Better security surface</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Slightly more complex Dockerfile</li><li>Must explicitly copy needed artifacts</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card">
+      <div class="badge core">Best Practice</div>
+      <div class="card-title">Layer Caching</div>
+      <div class="card-layman">Docker remembers previous steps. If step 3 didn't change, it skips re-doing it. So put slow things (installing packages) early, and fast-changing things (your code) last — this keeps builds lightning fast.</div>
+      <ul class="checklist">
+        <li>Copy package.json FIRST, then run npm install</li>
+        <li>Only then COPY your actual source code</li>
+        <li>Changing your code won't re-trigger npm install</li>
+        <li>Use .dockerignore to exclude node_modules, .git</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- NETWORKING -->
+<section class="section" id="networking">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 5</span>
+    <h2 class="section-title">Docker Networking</h2>
+    <p class="section-desc">How containers talk to each other and the outside world.</p>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card reveal">
+      <div class="card-icon">🌉</div>
+      <div class="card-title">Bridge Network (Default)</div>
+      <div class="card-layman">Containers are isolated islands. The bridge network is like a private town — all containers in the same bridge can talk to each other by name. The outside world can only get in through specific doors (port mapping).</div>
+      <div class="card-detail">Docker creates a virtual network. Containers on the same bridge discover each other via built-in DNS. Use <code style="color:var(--docker-blue)">-p host:container</code> to expose ports.</div>
+      <div class="code-block">
+        <span class="cmd">docker network create</span> mynet<br>
+        <span class="cmd">docker run</span> <span class="flag">--network</span> mynet <span class="flag">--name</span> db postgres<br>
+        <span class="cmd">docker run</span> <span class="flag">--network</span> mynet <span class="flag">--name</span> app myapp<br>
+        <span class="comment"># app can reach db via hostname "db"</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Default & easy to use</li><li>Container DNS works out of box</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Not suitable for multi-host</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="card-icon">🏠</div>
+      <div class="card-title">Host Network</div>
+      <div class="card-layman">No private town — the container uses your actual machine's network directly. No translation layer. Fast, but no isolation. Like removing a door from your house — great access, no privacy.</div>
+      <div class="card-detail">Container shares the host machine's network namespace. Port 80 in the container IS port 80 on your laptop. Useful for performance-sensitive apps.</div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Best network performance</li><li>No port mapping needed</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>No network isolation</li><li>Port conflicts possible</li><li>Linux-only feature</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="card-icon">🌐</div>
+      <div class="card-title">Overlay Network</div>
+      <div class="card-layman">For when you have multiple machines. Overlay networks create a virtual network spanning several physical machines — containers on Machine A can talk to containers on Machine B as if they were neighbors. Used in Swarm and Kubernetes.</div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Multi-host container communication</li><li>Encrypted traffic option</li><li>Essential for orchestration</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Requires Swarm/K8s mode</li><li>More complex setup</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- VOLUMES -->
+<section class="section" id="volumes">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 6</span>
+    <h2 class="section-title">Volumes & Storage</h2>
+    <p class="section-desc">Containers are temporary. Your data shouldn't be.</p>
+  </div>
+  <div class="banner reveal">
+    <div class="banner-icon">💾</div>
+    <div>
+      <div class="banner-title">Why Do Volumes Exist?</div>
+      <div class="banner-text">Containers are ephemeral — when a container dies, all data written inside it dies too. Volumes solve this by storing data <em>outside</em> the container's lifecycle, on the host machine. Your PostgreSQL data, uploads, logs — all safe even when you restart or replace containers.</div>
+    </div>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card reveal">
+      <div class="badge core">Recommended</div>
+      <div class="card-title">Named Volumes</div>
+      <div class="card-layman">Docker manages a special folder on your computer. You just give it a name and point your container to it. Docker handles where on disk it actually lives. Best for databases and persistent app data.</div>
+      <div class="code-block">
+        <span class="cmd">docker volume create</span> pgdata<br>
+        <span class="cmd">docker run</span> <span class="flag">-v</span> pgdata:/var/lib/postgresql/data postgres<br>
+        <span class="cmd">docker volume ls</span><br>
+        <span class="cmd">docker volume inspect</span> pgdata
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Docker-managed, easy backup</li><li>Portable across hosts</li><li>Works on all platforms</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Harder to browse directly</li><li>No specific host path</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="card-title">Bind Mounts</div>
+      <div class="card-layman">You tell Docker "use exactly this folder on my laptop." Changes you make on your laptop instantly appear in the container — great for development. But tied to your specific machine's folder structure.</div>
+      <div class="code-block">
+        <span class="cmd">docker run</span> <span class="flag">-v</span> /home/user/app:/app myapp<br>
+        <span class="comment"># Host path : Container path</span><br>
+        <span class="comment"># Hot-reload dev: edit on host, runs in container</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Perfect for local development</li><li>Direct file access from host</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Not portable (absolute path)</li><li>Less secure — host exposed</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="card-title">tmpfs Mounts</div>
+      <div class="card-layman">Data lives only in RAM. Super fast, but disappears the moment the container stops. Use for sensitive temporary data like secrets or session tokens that you absolutely don't want written to disk.</div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Extremely fast</li><li>Data never hits disk</li><li>Perfect for secrets/tokens</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Data lost on container stop</li><li>Linux-only</li><li>Limited by RAM</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DOCKER COMPOSE -->
+<section class="section" id="compose">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 7</span>
+    <h2 class="section-title">Docker Compose</h2>
+    <p class="section-desc">Orchestrate multiple containers with one YAML file.</p>
+  </div>
+  <div class="big-card reveal">
+    <div class="bg-glyph">📋</div>
+    <div class="badge core">Multi-Container Apps</div>
+    <div class="big-card-title">One File to Rule Them All</div>
+    <div class="card-layman">Running a modern app usually needs multiple services: web server, database, cache, queue. Normally you'd run 10 docker commands. Docker Compose lets you write one YAML file describing everything, then one command to start it all: <code style="color:var(--docker-blue)">docker compose up</code>. Shutdown? <code style="color:var(--docker-blue)">docker compose down</code>.</div>
+    <div class="code-block" style="margin-top:1.5rem;">
+<span class="comment"># docker-compose.yml</span><br>
+<span class="flag">version:</span> <span class="string">'3.9'</span><br>
+<br>
+<span class="flag">services:</span><br>
+&nbsp;&nbsp;<span class="cmd">web:</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;build: .<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ports:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- <span class="string">"8080:3000"</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- DATABASE_URL=postgres://db:5432/mydb<br>
+&nbsp;&nbsp;&nbsp;&nbsp;depends_on:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db<br>
+&nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./src:/app/src   <span class="comment"># hot reload</span><br>
+<br>
+&nbsp;&nbsp;<span class="cmd">db:</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;image: postgres:15-alpine<br>
+&nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- pgdata:/var/lib/postgresql/data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;environment:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- POSTGRES_DB=mydb<br>
+<br>
+&nbsp;&nbsp;<span class="cmd">redis:</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;image: redis:7-alpine<br>
+<br>
+<span class="flag">volumes:</span><br>
+&nbsp;&nbsp;pgdata:
+    </div>
+    <div class="pros-cons" style="margin-top:1.5rem;">
+      <div class="pros"><div class="pros-title">Pros</div><ul><li>One command to start everything</li><li>Networks auto-created between services</li><li>Perfect for dev & testing</li><li>Readable, version-controllable config</li></ul></div>
+      <div class="cons"><div class="cons-title">Cons</div><ul><li>Single-host only (no multi-node)</li><li>Not production-grade orchestration (use K8s)</li><li>Startup order is best-effort</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- DOCKER SECURITY -->
+<section class="section" id="docker-security">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker — Page 8 (Interview Hot 🔥)</span>
+    <h2 class="section-title">Docker Security</h2>
+    <p class="section-desc">Containers aren't secure by default. Here's what to know.</p>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card reveal">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">Non-Root User</div>
+      <div class="card-layman">By default, Docker containers run as root (superuser). If your container is hacked, the attacker has root inside it. Running as a non-root user is like locking your house — even if someone gets in, they can't touch the main systems.</div>
+      <div class="code-block"><span class="comment"># In Dockerfile:</span><br><span class="flag">RUN</span> adduser -D appuser<br><span class="flag">USER</span> appuser</div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">Image Scanning</div>
+      <div class="card-layman">Your base image (like Ubuntu) might have known security holes. Image scanning tools scan your image like antivirus software — they check every layer against databases of known vulnerabilities.</div>
+      <div class="code-block"><span class="cmd">docker scout</span> cves myimage:latest<br><span class="comment"># or: trivy image myimage:latest</span></div>
+    </div>
+    <div class="canvas-card reveal">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">Secrets Management</div>
+      <div class="card-layman">Never bake passwords into your Dockerfile — they'll be visible to anyone with image access. Use environment variables for dev, Docker Secrets or Vault for production. Think: don't tattoo your PIN on your wrist.</div>
+      <ul class="checklist">
+        <li>Never use ARG for passwords (shows in build history)</li>
+        <li>Use Docker Secrets in Swarm mode</li>
+        <li>Use .env files (add to .dockerignore)</li>
+        <li>Consider HashiCorp Vault or AWS Secrets Manager</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================= GIT SECTION ============================= -->
+
+<!-- WHAT IS GIT -->
+<section class="section" id="git-what">
+  <div class="section-header reveal">
+    <span class="section-tag git">Git — Page 1</span>
+    <h2 class="section-title" style="color:var(--git-orange)">What is Git?</h2>
+    <p class="section-desc">The time machine for your code. Distributed, fast, and industry-standard.</p>
+  </div>
+  <div class="big-card reveal">
+    <div class="bg-glyph">🌿</div>
+    <div class="badge" style="background:rgba(240,80,51,0.1);color:var(--git-orange);border:1px solid rgba(240,80,51,0.2);">Foundation</div>
+    <div class="big-card-title">Git in Plain English</div>
+    <div class="card-layman">Git is like Google Docs version history, but for code — and it works offline. You can save checkpoints (commits), create parallel universes of your code (branches), merge them, and travel back in time if you mess up. Every developer has the full history on their own machine.</div>
+    <p style="color:var(--text-secondary);font-size:0.85rem;line-height:1.7;margin-top:1rem;">Git is a <strong style="color:var(--text-primary)">distributed version control system</strong>. "Distributed" means every developer has a complete copy of the entire project history. No server needed to work offline. Every clone is a full backup.</p>
+    <div class="flow" style="margin-top:1.5rem;">
+      <div class="flow-step">Working Dir</div><div class="flow-arrow">→</div>
+      <div class="flow-step">git add (Stage)</div><div class="flow-arrow">→</div>
+      <div class="flow-step">git commit (Local)</div><div class="flow-arrow">→</div>
+      <div class="flow-step">git push (Remote)</div>
+    </div>
+    <div class="pros-cons" style="margin-top:1.5rem;">
+      <div class="pros"><div class="pros-title">Pros</div><ul><li>Full offline capability</li><li>Complete history on every clone</li><li>Blazing fast branching</li><li>Industry standard everywhere</li></ul></div>
+      <div class="cons"><div class="cons-title">Cons</div><ul><li>Steep learning curve (rebase, reflog...)</li><li>Merge conflicts can be messy</li><li>History rewriting can cause chaos in teams</li></ul></div>
+    </div>
+  </div>
+
+  <!-- Git architecture -->
+  <div class="canvas-grid reveal" style="margin-top:1.5rem;">
+    <div class="canvas-card git">
+      <div class="card-title">The 4 Areas of Git</div>
+      <div class="card-layman">Git has 4 "places" where your files can live — each one a step closer to being saved permanently.</div>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot git"></div><div class="tl-content"><div class="tl-title">Working Directory</div><div class="tl-desc">Where you edit files. Like your desk — messy, untracked changes live here.</div></div></div>
+        <div class="tl-item"><div class="tl-dot git"></div><div class="tl-content"><div class="tl-title">Staging Area (Index)</div><div class="tl-desc">Files you've <code style="color:var(--git-orange)">git add</code>ed. Like a shopping cart — chosen but not paid yet.</div></div></div>
+        <div class="tl-item"><div class="tl-dot git"></div><div class="tl-content"><div class="tl-title">Local Repository</div><div class="tl-desc">After <code style="color:var(--git-orange)">git commit</code> — saved to your machine's history. Like a receipt in your drawer.</div></div></div>
+        <div class="tl-item"><div class="tl-dot git"></div><div class="tl-content"><div class="tl-title">Remote Repository</div><div class="tl-desc">After <code style="color:var(--git-orange)">git push</code> — shared with the team on GitHub/GitLab. Like publishing your receipt to a shared drive.</div></div></div>
+      </div>
+    </div>
+    <div class="canvas-card git">
+      <div class="badge adv">Advanced Internals</div>
+      <div class="card-title">Git Objects (Senior Level)</div>
+      <div class="card-layman">Under the hood, Git stores everything as objects in a database. Understanding this = senior-level Git knowledge that impresses interviewers.</div>
+      <ul class="checklist git">
+        <li><strong>Blob</strong> — Stores file content. Just the data, no filename.</li>
+        <li><strong>Tree</strong> — Stores directory structure. Points to blobs and other trees.</li>
+        <li><strong>Commit</strong> — Points to a tree + parent commit + author + message. The checkpoint.</li>
+        <li><strong>Tag</strong> — A pointer to a specific commit with a label (e.g., v1.0.0).</li>
+      </ul>
+      <div class="code-block"><span class="cmd">git cat-file</span> <span class="flag">-t</span> HEAD   <span class="comment"># Type of HEAD object</span><br><span class="cmd">git cat-file</span> <span class="flag">-p</span> HEAD   <span class="comment"># Content of HEAD</span></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- BRANCHING -->
+<section class="section" id="branching">
+  <div class="section-header reveal">
+    <span class="section-tag git">Git — Page 2 (Critical)</span>
+    <h2 class="section-title">Branching & Merging</h2>
+    <p class="section-desc">Git's killer feature. Create parallel universes of your code for free.</p>
+  </div>
+  <div class="banner git reveal">
+    <div class="banner-icon">🌿</div>
+    <div>
+      <div class="banner-title">A Branch is Just a Pointer to a Commit</div>
+      <div class="banner-text">That's all it is. Not a copy of your entire codebase — just a lightweight pointer. Creating a branch in Git is essentially free and instant. This is why Git branching is so much more powerful than older VCS systems.</div>
+    </div>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card git reveal">
+      <div class="card-icon">🔀</div>
+      <div class="card-title">Merge</div>
+      <div class="card-layman">Merging is like combining two timelines back into one. Git weaves together changes from both branches and creates a "merge commit" as a record that two paths joined. History stays intact — you can always see that the feature branch existed.</div>
+      <div class="code-block">
+        <span class="cmd">git checkout</span> main<br>
+        <span class="cmd">git merge</span> feature/login<br>
+        <span class="comment"># Creates a merge commit</span><br>
+        <span class="comment"># Preserves both branch histories</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Preserves full history</li><li>Non-destructive</li><li>Safe for shared branches</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Creates extra merge commits</li><li>History can look messy</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="card-icon">🔁</div>
+      <div class="card-title">Rebase</div>
+      <div class="card-layman">Rebase is like pretending your feature branch started today on the latest code, not 3 days ago when you branched off. It replays your commits on top of the latest main. Result: a clean, straight-line history. But: it rewrites history — dangerous on shared branches.</div>
+      <div class="code-block">
+        <span class="cmd">git checkout</span> feature/login<br>
+        <span class="cmd">git rebase</span> main<br>
+        <span class="comment"># Replays your commits on top of main</span><br>
+        <span class="comment"># ⚠️  Never rebase shared/public branches</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Clean linear history</li><li>No extra merge commits</li><li>Easier to read log</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Rewrites commit history</li><li>Dangerous on shared branches</li><li>Can break teammates' work</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="card-icon">🌲</div>
+      <div class="card-title">Branch Commands</div>
+      <div class="code-block">
+        <span class="cmd">git branch</span>            <span class="comment"># List branches</span><br>
+        <span class="cmd">git branch</span> feature/x   <span class="comment"># Create branch</span><br>
+        <span class="cmd">git checkout</span> feature/x  <span class="comment"># Switch to it</span><br>
+        <span class="cmd">git switch</span> feature/x    <span class="comment"># Modern way</span><br>
+        <span class="cmd">git switch</span> <span class="flag">-c</span> feature/y  <span class="comment"># Create + switch</span><br>
+        <span class="cmd">git branch</span> <span class="flag">-d</span> feature/x  <span class="comment"># Delete branch</span><br>
+        <span class="cmd">git log</span> <span class="flag">--oneline --graph --all</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Merge vs Rebase comparison table -->
+  <div class="big-card reveal" style="margin-top:1.5rem;">
+    <div class="big-card-title">Merge vs Rebase — The Ultimate Comparison</div>
+    <table class="compare-table">
+      <thead><tr><th>Aspect</th><th>Merge</th><th>Rebase</th></tr></thead>
+      <tbody>
+        <tr><td class="label">History</td><td>Preserves all history with merge commits</td><td>Rewrites history — linear, clean</td></tr>
+        <tr><td class="label">When to Use</td><td>Shared branches, feature → main</td><td>Private branches, keeping up with main</td></tr>
+        <tr><td class="label">Safety</td><td>100% safe on shared branches</td><td>⚠️ Never on shared/public branches</td></tr>
+        <tr><td class="label">Appearance</td><td>Messy graph with lots of lines</td><td>Clean straight line</td></tr>
+        <tr><td class="label">Recovery</td><td>Easy — history intact</td><td>Harder — commits have new hashes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- GIT WORKFLOWS -->
+<section class="section" id="workflows">
+  <div class="section-header reveal">
+    <span class="section-tag git">Git — Page 3</span>
+    <h2 class="section-title">Git Workflow Models</h2>
+    <p class="section-desc">How teams organize their branches in practice.</p>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card git reveal">
+      <div class="badge hot">Classic</div>
+      <div class="card-title">Git Flow</div>
+      <div class="card-layman">Git Flow is like a formal company with many departments. You have permanent branches: main (production), develop (integration), and temporary branches: feature, release, hotfix. Very structured — great for versioned software releases.</div>
+      <div class="flow">
+        <div class="flow-step">feature/*</div><div class="flow-arrow">→</div>
+        <div class="flow-step">develop</div><div class="flow-arrow">→</div>
+        <div class="flow-step">release/*</div><div class="flow-arrow">→</div>
+        <div class="flow-step">main</div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Clear structure</li><li>Good for release schedules</li><li>Parallel feature development</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Complex for small teams</li><li>Slow — many branches to manage</li><li>Not ideal for CI/CD</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="badge core">Simple</div>
+      <div class="card-title">GitHub Flow</div>
+      <div class="card-layman">Simpler version: only one main branch. You create a feature branch, open a Pull Request, get reviewed, and merge. That's it. Like a startup — move fast, keep it simple. Used by most web teams today.</div>
+      <div class="flow">
+        <div class="flow-step">feature/*</div><div class="flow-arrow">→</div>
+        <div class="flow-step">PR Review</div><div class="flow-arrow">→</div>
+        <div class="flow-step">main</div><div class="flow-arrow">→</div>
+        <div class="flow-step">🚀 Deploy</div>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Simple & fast</li><li>Great for continuous delivery</li><li>Small learning curve</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>No explicit release branches</li><li>Needs feature flags for big features</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="badge adv">Modern</div>
+      <div class="card-title">Trunk-Based Development</div>
+      <div class="card-layman">Everyone commits to main (trunk) multiple times a day. Features are hidden behind feature flags if incomplete. Used by Google, Facebook — requires strong CI/CD and discipline. The fastest possible integration style.</div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Fastest CI/CD</li><li>No long-lived branches</li><li>Catches integration bugs early</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Requires mature CI/CD pipeline</li><li>Needs feature flags discipline</li><li>High team coordination needed</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- GIT RECOVERY -->
+<section class="section" id="recovery">
+  <div class="section-header reveal">
+    <span class="section-tag git">Git — Page 4 (Life Saver 🦸)</span>
+    <h2 class="section-title">Git Undo & Recovery</h2>
+    <p class="section-desc">When things go wrong — and they will — here's how to fix it.</p>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card git reveal">
+      <div class="badge hot">Know This</div>
+      <div class="card-title">git reset</div>
+      <div class="card-layman">Reset moves your branch pointer backwards to a previous commit — like pressing Ctrl+Z on your commits. Three modes: soft (keep changes staged), mixed (keep changes unstaged), hard (throw everything away — dangerous!).</div>
+      <div class="code-block">
+        <span class="cmd">git reset</span> <span class="flag">--soft</span> HEAD~1    <span class="comment"># Undo commit, keep staged</span><br>
+        <span class="cmd">git reset</span> <span class="flag">--mixed</span> HEAD~1   <span class="comment"># Undo commit, keep unstaged</span><br>
+        <span class="cmd">git reset</span> <span class="flag">--hard</span> HEAD~1    <span class="comment"># ⚠️ Undo + delete changes</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Use For</div><ul><li>Undoing unpushed commits</li><li>Cleaning up local history</li></ul></div>
+        <div class="cons"><div class="cons-title">Warning</div><ul><li>--hard deletes work permanently</li><li>Never reset pushed commits</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="badge core">Safe Option</div>
+      <div class="card-title">git revert</div>
+      <div class="card-layman">Revert doesn't delete history — it creates a NEW commit that undoes the changes of a previous commit. Like officially acknowledging a mistake in a ledger rather than erasing it. Safe to use on shared branches.</div>
+      <div class="code-block">
+        <span class="cmd">git revert</span> abc1234   <span class="comment"># Creates undo-commit</span><br>
+        <span class="comment"># Safe for public/shared branches</span><br>
+        <span class="comment"># History preserved, audit trail intact</span>
+      </div>
+      <div class="pros-cons">
+        <div class="pros"><div class="pros-title">Pros</div><ul><li>Safe on shared branches</li><li>Preserves history</li><li>Easily reversible</li></ul></div>
+        <div class="cons"><div class="cons-title">Cons</div><ul><li>Adds an extra commit</li><li>Complex for multi-commit reverts</li></ul></div>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="badge hot">Superpower 🦸</div>
+      <div class="card-title">git reflog</div>
+      <div class="card-layman">Reflog is Git's secret diary — it records every single thing that happened to your branches, even commits you "deleted" with reset. If you nuke your work by accident, reflog can bring it back. Every Git user should know this.</div>
+      <div class="code-block">
+        <span class="cmd">git reflog</span>                     <span class="comment"># Show all recent actions</span><br>
+        <span class="comment"># Find the commit hash you lost</span><br>
+        <span class="cmd">git checkout</span> abc1234         <span class="comment"># Go back to it</span><br>
+        <span class="comment"># or:</span><br>
+        <span class="cmd">git reset</span> <span class="flag">--hard</span> abc1234  <span class="comment"># Restore fully</span>
+      </div>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="card-title">git stash</div>
+      <div class="card-layman">Stash is a temporary drawer. You're in the middle of work, need to switch branches urgently, but don't want to commit messy code. Stash hides your changes, lets you switch, then you pop them back out.</div>
+      <div class="code-block">
+        <span class="cmd">git stash</span>           <span class="comment"># Hide current changes</span><br>
+        <span class="cmd">git stash list</span>      <span class="comment"># See all stashes</span><br>
+        <span class="cmd">git stash pop</span>       <span class="comment"># Restore latest stash</span><br>
+        <span class="cmd">git stash apply</span> stash@{1}  <span class="comment"># Specific stash</span><br>
+        <span class="cmd">git stash drop</span>      <span class="comment"># Delete stash</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- GIT SECURITY -->
+<section class="section" id="git-security">
+  <div class="section-header reveal">
+    <span class="section-tag git">Git — Page 5</span>
+    <h2 class="section-title">Git Security & Best Practices</h2>
+    <p class="section-desc">Protecting your code, secrets, and team workflows.</p>
+  </div>
+  <div class="canvas-grid">
+    <div class="canvas-card git reveal">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">Never Commit Secrets</div>
+      <div class="card-layman">Once a secret (API key, password) is committed and pushed, it's in the public history forever — even if you delete the file in the next commit. Use .gitignore, environment variables, and tools like git-secrets to prevent this.</div>
+      <ul class="checklist git">
+        <li>Add .env to .gitignore immediately</li>
+        <li>Use git-secrets or pre-commit hooks to scan</li>
+        <li>If leaked: rotate the key, don't just delete the file</li>
+        <li>Use git filter-repo to surgically remove history if needed</li>
+      </ul>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="badge core">Best Practice</div>
+      <div class="card-title">Branch Protection Rules</div>
+      <div class="card-layman">On GitHub/GitLab, you can lock your main branch so nobody (not even you) can push directly to it. All changes must go through a Pull Request with review. Like requiring 2 signatures to open a safe.</div>
+      <ul class="checklist git">
+        <li>Require PR reviews before merging</li>
+        <li>Require passing CI checks</li>
+        <li>Disallow force-pushes to main</li>
+        <li>Require signed commits for verified authorship</li>
+      </ul>
+    </div>
+    <div class="canvas-card git reveal">
+      <div class="card-title">Signed Commits</div>
+      <div class="card-layman">Git lets you fake a commit as anyone — "Bob from finance" could be anyone. GPG signing proves the commit actually came from you, verified by your personal cryptographic key. GitHub shows a "Verified" badge on signed commits.</div>
+      <div class="code-block">
+        <span class="cmd">git config</span> <span class="flag">--global</span> user.signingkey &lt;KEYID&gt;<br>
+        <span class="cmd">git commit</span> <span class="flag">-S</span> -m <span class="string">"feat: verified commit"</span><br>
+        <span class="comment"># Shows "Verified" badge on GitHub</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CI/CD FINAL -->
+<section class="section" id="cicd">
+  <div class="section-header reveal">
+    <span class="section-tag">Docker + Git — Final Page</span>
+    <h2 class="section-title">Docker & Git in CI/CD</h2>
+    <p class="section-desc">How everything ties together in a real DevOps pipeline.</p>
+  </div>
+  <div class="big-card reveal">
+    <div class="bg-glyph">🚀</div>
+    <div class="badge core">Full Pipeline</div>
+    <div class="big-card-title">The Complete DevOps Flow</div>
+    <div class="card-layman">In a real team, you write code → push to Git → CI server detects the push → runs tests automatically → builds a Docker image → pushes it to a registry → Kubernetes/cloud pulls that image and deploys it. The whole pipeline can take minutes. You never manually deploy.</div>
+    <div class="flow" style="margin-top:1.5rem;flex-wrap:wrap;">
+      <div class="flow-step" style="border-color:rgba(240,80,51,0.4);color:var(--git-orange)">git commit</div><div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:rgba(240,80,51,0.4);color:var(--git-orange)">git push → PR</div><div class="flow-arrow">→</div>
+      <div class="flow-step">CI runs tests</div><div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:rgba(13,183,237,0.4);color:var(--docker-blue)">docker build</div><div class="flow-arrow">→</div>
+      <div class="flow-step" style="border-color:rgba(13,183,237,0.4);color:var(--docker-blue)">docker push</div><div class="flow-arrow">→</div>
+      <div class="flow-step" style="background:rgba(0,255,170,0.05);border-color:rgba(0,255,170,0.3);color:var(--accent-green)">Deploy 🚀</div>
+    </div>
+    <div class="canvas-grid" style="margin-top:2rem;">
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1.25rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--git-orange);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Git's Role</div>
+        <ul class="checklist git">
+          <li>Triggers the CI pipeline on push/PR</li>
+          <li>PR review gates quality before merge</li>
+          <li>Tags create release artifacts</li>
+          <li>Branch strategies define deployment environments</li>
+        </ul>
+      </div>
+      <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:1.25rem;">
+        <div style="font-family:'Space Mono',monospace;font-size:0.65rem;color:var(--docker-blue);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.5rem;">Docker's Role</div>
+        <ul class="checklist">
+          <li>Builds consistent images in CI environment</li>
+          <li>Tagged images map to git tags/commits</li>
+          <li>Pushed to registry as the deployment artifact</li>
+          <li>Kubernetes pulls and runs these images</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- MASTER CHECKLIST -->
+  <div class="big-card reveal" style="margin-top:1.5rem;border-color:rgba(0,255,170,0.15);">
+    <div class="big-card-title">🎯 Interview Mastery Checklist</div>
+    <div class="canvas-grid" style="margin-top:1rem;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;color:var(--docker-blue);font-size:0.7rem;text-transform:uppercase;margin-bottom:0.75rem;">🐳 Docker — You Must Know:</div>
+        <ul class="checklist">
+          <li>Write an optimized multi-stage Dockerfile</li>
+          <li>Debug a running container with exec & logs</li>
+          <li>Configure bridge/host/overlay networks</li>
+          <li>Use volumes for database persistence</li>
+          <li>Build a docker-compose.yml for multi-service app</li>
+          <li>Run containers as non-root, scan for vulnerabilities</li>
+          <li>Explain image layers and layer caching</li>
+          <li>Push images to Docker Hub / ECR</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Space Mono',monospace;color:var(--git-orange);font-size:0.7rem;text-transform:uppercase;margin-bottom:0.75rem;">🌿 Git — You Must Know:</div>
+        <ul class="checklist git">
+          <li>Explain Blob, Tree, Commit, Tag objects</li>
+          <li>Resolve a merge conflict manually</li>
+          <li>Use rebase correctly on a private branch</li>
+          <li>Recover lost commits with git reflog</li>
+          <li>Design a branching strategy for a team</li>
+          <li>Explain merge vs rebase trade-offs</li>
+          <li>Use stash, reset, revert appropriately</li>
+          <li>Secure repos: signed commits, branch protection</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  DOCKER & GIT DEEP LEARNING CANVAS &nbsp;·&nbsp; Built for DevOps Mastery &nbsp;·&nbsp; 2026
+</footer>
+
+<script>
+  // Intersection Observer for reveal animations
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => observer.observe(el));
+
+  // Active nav pill highlighting
+  const sections = document.querySelectorAll('section[id]');
+  const pills = document.querySelectorAll('.nav-pill');
+  const scrollObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        pills.forEach(p => p.classList.remove('active'));
+        const active = document.querySelector(`.nav-pill[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  sections.forEach(s => scrollObs.observe(s));
+</script>
+</body>
+</html>

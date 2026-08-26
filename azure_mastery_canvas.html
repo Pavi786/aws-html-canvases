@@ -1,0 +1,339 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gap:10px;--r:8px;--rl:12px}
+body{font-family:var(--font-sans)}
+.canvas{padding:16px;max-width:1200px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
+.logo{display:flex;align-items:center;gap:10px}
+.azure-badge{background:#0078d4;color:#fff;font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;letter-spacing:.5px}
+.tagline{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.level-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lvl{font-size:11px;padding:3px 10px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;color:var(--color-text-secondary);transition:all .15s}
+.lvl.active,.lvl:hover{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.section-label{font-size:10px;font-weight:500;letter-spacing:.8px;color:var(--color-text-secondary);text-transform:uppercase;margin-bottom:8px;margin-top:16px;display:flex;align-items:center;gap:6px}
+.section-label::after{content:'';flex:1;height:0.5px;background:var(--color-border-tertiary)}
+.grid{display:grid;gap:var(--gap)}
+.g2{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.g3{grid-template-columns:repeat(auto-fill,minmax(108px,1fr))}
+.tile{border:0.5px solid var(--color-border-tertiary);border-radius:var(--r);padding:10px 10px 8px;cursor:pointer;transition:all .15s;background:var(--color-background-primary);position:relative;overflow:hidden}
+.tile:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary);transform:translateY(-1px)}
+.tile:active{transform:scale(.98)}
+.tile-icon{font-size:18px;margin-bottom:5px}
+.tile-name{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
+.tile-desc{font-size:10px;color:var(--color-text-secondary);margin-top:3px;line-height:1.4}
+.tile-badge{position:absolute;top:6px;right:6px;font-size:9px;padding:1px 5px;border-radius:10px;font-weight:500}
+.b-core{background:#e8f4fd;color:#0078d4}
+.b-sec{background:#fce8f3;color:#b4009e}
+.b-k8s{background:#e8f9e8;color:#107c10}
+.b-net{background:#fff4e5;color:#d83b01}
+.b-data{background:#f0f0f0;color:#605e5c}
+.b-obs{background:#f3f0ff;color:#5c2d91}
+.b-ai{background:#e8faf0;color:#00b294}
+.arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--gap)}
+.arch-card{border:0.5px solid var(--color-border-tertiary);border-radius:var(--rl);padding:14px;cursor:pointer;transition:all .15s;background:var(--color-background-primary)}
+.arch-card:hover{background:var(--color-background-secondary);border-color:var(--color-border-secondary)}
+.arch-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.arch-sub{font-size:11px;color:var(--color-text-secondary);line-height:1.5}
+.cert-strip{display:flex;gap:var(--gap);margin-top:4px;flex-wrap:wrap}
+.cert{border:0.5px solid var(--color-border-tertiary);border-radius:var(--r);padding:10px 14px;flex:1;min-width:140px;cursor:pointer;transition:all .15s;background:var(--color-background-primary)}
+.cert:hover{background:var(--color-background-secondary)}
+.cert-title{font-size:12px;font-weight:500;color:var(--color-text-primary)}
+.cert-sub{font-size:10px;color:var(--color-text-secondary);margin-top:3px}
+.cert-badge{font-size:10px;padding:2px 7px;border-radius:10px;margin-top:6px;display:inline-block;font-weight:500}
+.search-bar{display:flex;align-items:center;gap:8px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--r);padding:7px 12px;margin-bottom:14px;background:var(--color-background-primary)}
+.search-bar i{color:var(--color-text-secondary);font-size:14px}
+.search-bar input{border:none;background:transparent;outline:none;font-size:13px;color:var(--color-text-primary);flex:1;font-family:var(--font-sans)}
+.roadmap{display:flex;gap:0;overflow-x:auto;padding-bottom:4px;margin-bottom:4px}
+.roadmap-step{flex:0 0 auto;display:flex;align-items:center}
+.rs-box{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--r);padding:8px 14px;font-size:11px;font-weight:500;color:var(--color-text-primary);white-space:nowrap;cursor:pointer;transition:all .15s}
+.rs-box:hover{border-color:var(--color-border-secondary)}
+.rs-box.l1{border-left:3px solid #107c10}
+.rs-box.l2{border-left:3px solid #0078d4}
+.rs-box.l3{border-left:3px solid #b4009e}
+.rs-box.l4{border-left:3px solid #d83b01}
+.rs-arrow{color:var(--color-text-secondary);padding:0 6px;font-size:12px}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap);margin-bottom:16px}
+.stat{background:var(--color-background-secondary);border-radius:var(--r);padding:10px 14px}
+.stat-n{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px}
+.tab{font-size:11px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);cursor:pointer;color:var(--color-text-secondary);transition:all .15s;font-weight:500}
+.tab.active,.tab:hover{background:var(--color-text-primary);color:var(--color-background-primary)}
+</style>
+<h2 class="sr-only">Azure Mastery Canvas — interactive learning hub covering all Azure services, architectures, and certification paths</h2>
+<div class="canvas">
+
+<div class="header">
+  <div class="logo">
+    <div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="azure-badge">AZURE MASTERY</span>
+        <span style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Platform Engineer Canvas</span>
+      </div>
+      <div class="tagline">DevOps · AKS · Security · Networking · AI · Enterprise Arch</div>
+    </div>
+  </div>
+  <div class="level-bar">
+    <span style="font-size:11px;color:var(--color-text-secondary)">Level:</span>
+    <div class="lvl active" onclick="setLevel(this,'beginner')">Beginner</div>
+    <div class="lvl" onclick="setLevel(this,'intermediate')">Intermediate</div>
+    <div class="lvl" onclick="setLevel(this,'advanced')">Advanced</div>
+    <div class="lvl" onclick="setLevel(this,'architect')">Enterprise Architect</div>
+  </div>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n">60+</div><div class="stat-l">Azure services covered</div></div>
+  <div class="stat"><div class="stat-n">12</div><div class="stat-l">Architecture patterns</div></div>
+  <div class="stat"><div class="stat-n">3</div><div class="stat-l">Certification paths</div></div>
+  <div class="stat"><div class="stat-n">∞</div><div class="stat-l">Production depth</div></div>
+</div>
+
+<div class="search-bar">
+  <i class="ti ti-search" aria-hidden="true"></i>
+  <input type="text" placeholder="Search any Azure service, pattern, or concept..." id="svc-search" oninput="filterTiles(this.value)">
+  <span style="font-size:11px;color:var(--color-text-secondary)" id="search-count"></span>
+</div>
+
+<div class="roadmap">
+  <div class="roadmap-step"><div class="rs-box l1" onclick="sendPrompt('Teach me Azure beginner foundations: subscriptions, resource groups, regions, availability zones, ARM, portal navigation, and basic VM setup with hands-on lab')">Foundations<br><span style="font-size:10px;font-weight:400;color:var(--color-text-secondary)">Sub · RG · Regions · ARM</span></div><div class="rs-arrow">→</div></div>
+  <div class="roadmap-step"><div class="rs-box l2" onclick="sendPrompt('Teach me Azure core compute and networking: VMs, VMSS, VNet, NSG, Load Balancer, Application Gateway with production architecture deep dive and Terraform')">Core Infra<br><span style="font-size:10px;font-weight:400;color:var(--color-text-secondary)">VM · VNet · LB · NSG</span></div><div class="rs-arrow">→</div></div>
+  <div class="roadmap-step"><div class="rs-box l2" onclick="sendPrompt('Deep dive Azure identity and security: Entra ID, RBAC, Managed Identity, Key Vault, Defender for Cloud, Zero Trust architecture with real production examples')">Identity & Security<br><span style="font-size:10px;font-weight:400;color:var(--color-text-secondary)">Entra · RBAC · KeyVault</span></div><div class="rs-arrow">→</div></div>
+  <div class="roadmap-step"><div class="rs-box l3" onclick="sendPrompt('Deep dive AKS production platform: cluster architecture, Azure CNI vs Kubenet, AGIC ingress, KEDA autoscaling, Dapr, workload identity, node pools, private clusters, GitOps with ArgoCD, full Terraform IaC')">AKS Platform<br><span style="font-size:10px;font-weight:400;color:var(--color-text-secondary)">AKS · CNI · AGIC · KEDA</span></div><div class="rs-arrow">→</div></div>
+  <div class="roadmap-step"><div class="rs-box l3" onclick="sendPrompt('Build secure Azure DevOps CI/CD pipeline and GitHub Actions workflows with OIDC, Terraform, Bicep, container builds, AKS deployments, ArgoCD GitOps, security scanning, and DevSecOps patterns')">DevOps & GitOps<br><span style="font-size:10px;font-weight:400;color:var(--color-text-secondary)">ADO · GHA · Terraform</span></div><div class="rs-arrow">→</div></div>
+  <div class="roadmap-step"><div class="rs-box l4" onclick="sendPrompt('Design enterprise Azure landing zone: management group hierarchy, hub-spoke networking, multi-subscription strategy, Policy at scale, budgets, private link everywhere, express route, hybrid connectivity, and governance framework')">Enterprise Arch<br><span style="font-size:10px;font-weight:400;color:var(--color-text-secondary)">Landing Zone · Hub-Spoke</span></div></div>
+</div>
+
+<div class="tabs" id="category-tabs">
+  <div class="tab active" onclick="filterCategory(this,'all')">All services</div>
+  <div class="tab" onclick="filterCategory(this,'compute')">Compute</div>
+  <div class="tab" onclick="filterCategory(this,'network')">Networking</div>
+  <div class="tab" onclick="filterCategory(this,'storage')">Storage & DB</div>
+  <div class="tab" onclick="filterCategory(this,'identity')">Identity & Security</div>
+  <div class="tab" onclick="filterCategory(this,'kubernetes')">Kubernetes & DevOps</div>
+  <div class="tab" onclick="filterCategory(this,'messaging')">Messaging & Events</div>
+  <div class="tab" onclick="filterCategory(this,'observability')">Observability</div>
+  <div class="tab" onclick="filterCategory(this,'ai')">AI & Data</div>
+</div>
+
+<div id="tiles-container"></div>
+
+<div class="section-label">Architecture patterns</div>
+<div class="arch-grid">
+  <div class="arch-card" onclick="sendPrompt('Draw and explain the full Azure Hub-Spoke network architecture: hub VNet, spoke VNets, peering, Azure Firewall in hub, forced tunneling, DNS private resolver, on-premise connectivity via VPN/ExpressRoute, routing tables, and Terraform code to deploy it')">
+    <div class="arch-title"><i class="ti ti-topology-star-3" aria-hidden="true"></i> Hub-spoke network</div>
+    <div class="arch-sub">Central hub VNet · Firewall · DNS · ExpressRoute · Spoke peering</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Design a production AKS platform architecture: private cluster, Azure CNI, AGIC with App Gateway, workload identity, Key Vault CSI driver, KEDA, Dapr sidecar, Prometheus + Grafana observability, ArgoCD GitOps, node pool design, cluster autoscaler, and full Terraform IaC')">
+    <div class="arch-title"><i class="ti ti-brand-docker" aria-hidden="true"></i> AKS production platform</div>
+    <div class="arch-sub">Private cluster · AGIC · KEDA · Dapr · ArgoCD · Observability</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Design an enterprise Azure landing zone from scratch: management group hierarchy (Root > Platform > Landing Zones > Sandboxes), subscription vending, hub-spoke per environment, Policy assignments at MG level, RBAC delegation, Azure DevOps for platform team, cost management, and complete governance framework')">
+    <div class="arch-title"><i class="ti ti-building-skyscraper" aria-hidden="true"></i> Enterprise landing zone</div>
+    <div class="arch-sub">Management groups · Subscription vending · Policy · Governance</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Design Azure Zero Trust architecture: no implicit trust, verify explicitly everywhere, Entra ID conditional access, private endpoints for all PaaS, network segmentation with NSG and Azure Firewall, Defender for Cloud, Sentinel SIEM, managed identity only no service principals, mTLS between services, full implementation guide')">
+    <div class="arch-title"><i class="ti ti-shield-lock" aria-hidden="true"></i> Zero Trust architecture</div>
+    <div class="arch-sub">Conditional access · Private endpoints · Defender · Sentinel</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Design Azure multi-region active-active architecture: Azure Front Door global LB, Traffic Manager, paired regions, geo-redundant storage, Cosmos DB multi-master, SQL geo-replication, AKS in 2 regions, RTO/RPO targets, failover runbooks, chaos engineering with Azure Chaos Studio, and DR testing strategy')">
+    <div class="arch-title"><i class="ti ti-world" aria-hidden="true"></i> Multi-region failover</div>
+    <div class="arch-sub">Front Door · Active-active · Cosmos multi-master · RTO/RPO</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Build a complete Azure DevSecOps pipeline: GitHub Actions with OIDC workload identity, container image build and push to ACR, Trivy vulnerability scanning, Checkov IaC scanning, SAST with CodeQL, secret scanning, OPA policy gates, ArgoCD GitOps deploy to AKS, runtime security with Defender for Containers, full workflow YAML')">
+    <div class="arch-title"><i class="ti ti-lock-code" aria-hidden="true"></i> DevSecOps pipeline</div>
+    <div class="arch-sub">OIDC · Trivy · Checkov · OPA gates · Runtime defense</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Design Azure hybrid cloud architecture: ExpressRoute circuit setup, BGP routing, VPN as backup, Azure Arc for on-prem servers and Kubernetes, Private Link for PaaS, DNS private resolver, Azure Monitor hybrid, unified RBAC across on-prem and cloud, migration wave strategy')">
+    <div class="arch-title"><i class="ti ti-cloud-network" aria-hidden="true"></i> Hybrid cloud design</div>
+    <div class="arch-sub">ExpressRoute · Azure Arc · Private Link · Hybrid DNS</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Design multi-subscription Azure strategy: Platform subscriptions (Identity, Management, Connectivity), Application landing zone subscriptions, Sandbox subscriptions, inter-subscription private connectivity, cross-subscription RBAC, cost allocation, Azure DevOps multi-subscription Terraform pipelines, and governance at scale')">
+    <div class="arch-title"><i class="ti ti-layers-intersect" aria-hidden="true"></i> Multi-subscription strategy</div>
+    <div class="arch-sub">Platform · App zones · Sandbox · Cross-sub networking</div>
+  </div>
+</div>
+
+<div class="section-label">Certification paths</div>
+<div class="cert-strip">
+  <div class="cert" onclick="sendPrompt('Create a complete AZ-104 Azure Administrator study plan: all exam domains with weightings, key topics per domain, hands-on labs, practice questions, common exam traps, and a 8-week study schedule. Include the most tested topics in 2025.')">
+    <div class="cert-title">AZ-104 — Azure Administrator</div>
+    <div class="cert-sub">Identity · VMs · Storage · Networking · Monitoring</div>
+    <div class="cert-badge" style="background:#e8f4fd;color:#0078d4">Associate · ~180min</div>
+  </div>
+  <div class="cert" onclick="sendPrompt('Create a complete AZ-400 DevOps Engineer Expert study plan: all exam domains, CI/CD pipelines, Azure DevOps, GitHub Actions, IaC with Terraform and Bicep, SRE practices, security in pipelines, monitoring. Include hands-on labs and 8-week study schedule.')">
+    <div class="cert-title">AZ-400 — DevOps Engineer Expert</div>
+    <div class="cert-sub">CI/CD · IaC · DevSecOps · SRE · GitHub · ADO</div>
+    <div class="cert-badge" style="background:#e8f9e8;color:#107c10">Expert · ~180min</div>
+  </div>
+  <div class="cert" onclick="sendPrompt('Create a complete AZ-305 Azure Solutions Architect study plan: identity and governance, data storage solutions, business continuity, infrastructure, application architecture patterns. Include case studies, architecture decision frameworks, and exam strategy for 2025.')">
+    <div class="cert-title">AZ-305 — Solutions Architect Expert</div>
+    <div class="cert-sub">Architecture · HA/DR · Cost · Governance · Migration</div>
+    <div class="cert-badge" style="background:#fce8f3;color:#b4009e">Expert · ~180min</div>
+  </div>
+</div>
+
+<div class="section-label">Interview preparation & incident scenarios</div>
+<div class="arch-grid">
+  <div class="arch-card" onclick="sendPrompt('Give me top 30 Azure DevOps and AKS architect interview questions with detailed expert answers, covering: AKS architecture decisions, networking choices (CNI vs Kubenet), GitOps patterns, scaling strategies, security hardening, CI/CD design, troubleshooting methodology, and system design scenarios')">
+    <div class="arch-title"><i class="ti ti-school" aria-hidden="true"></i> Interview prep</div>
+    <div class="arch-sub">30 expert Q&A · AKS · DevOps · Architecture · Security</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Walk me through 5 real Azure production incidents with full root cause analysis: AKS node pressure OOMKilled pods, NSG misconfiguration causing connectivity loss, Key Vault throttling breaking deployments, Cosmos DB RU exhaustion, Storage account firewall blocking traffic. Include detection, diagnosis, remediation, and prevention')">
+    <div class="arch-title"><i class="ti ti-alert-triangle" aria-hidden="true"></i> Production incidents</div>
+    <div class="arch-sub">OOMKill · NSG lock · KV throttle · Cosmos RU · Storage firewall</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Create a 30-day Azure mastery practice schedule: daily hands-on tasks from beginner to advanced, covering VMs day 1-5, Networking day 6-10, AKS day 11-18, DevOps pipelines day 19-24, Security and governance day 25-30. Each day: objective, Azure CLI commands, Terraform snippet, validation steps')">
+    <div class="arch-title"><i class="ti ti-calendar-event" aria-hidden="true"></i> 30-day practice plan</div>
+    <div class="arch-sub">Daily tasks · CLI · Terraform · Labs · Progressive depth</div>
+  </div>
+  <div class="arch-card" onclick="sendPrompt('Teach me Azure cost optimization: VM right-sizing, Reserved Instances vs Savings Plans, Spot VMs for AKS node pools, Azure Advisor recommendations, Cost Management budgets and alerts, storage lifecycle policies, AKS cost monitoring with Kubecost, architecture decisions that reduce cost, and real optimization case studies')">
+    <div class="arch-title"><i class="ti ti-coin" aria-hidden="true"></i> Cost optimization</div>
+    <div class="arch-sub">RI · Savings Plans · Spot · Advisor · Kubecost · Lifecycle</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+const services=[
+  {n:'Virtual Machines',d:'IaaS compute',icon:'ti-server',cat:'compute',badge:'b-core',prompt:'Deep dive Azure Virtual Machines: internal architecture, VM types/sizes, managed disks, availability sets vs zones, VM extensions, custom script extension, run command, boot diagnostics, serial console, snapshot and backup, Terraform azurerm_linux_virtual_machine, Azure CLI examples, performance tuning, common failures and troubleshooting, production use cases, cost optimization with right-sizing and Reserved Instances'},
+  {n:'VM Scale Sets',d:'Auto-scaling groups',icon:'ti-copy',cat:'compute',badge:'b-core',prompt:'Deep dive Azure VM Scale Sets: flexible vs uniform orchestration, scaling policies (manual/auto/scheduled), custom autoscale metrics, VMSS with Load Balancer and App Gateway, rolling upgrades, instance protection, spot instance mix, Terraform code, production use cases, zero-downtime deployment patterns, common issues'},
+  {n:'App Service',d:'PaaS web hosting',icon:'ti-world-www',cat:'compute',badge:'b-core',prompt:'Deep dive Azure App Service: plans and tiers, deployment slots and blue-green, VNet integration, private endpoints, custom domains and SSL, authentication with Entra ID easy auth, autoscaling, deployment methods (ZIP, container, Git), App Service Environment v3, Terraform, production patterns, troubleshooting slow response and memory leaks'},
+  {n:'Azure Functions',d:'Serverless compute',icon:'ti-bolt',cat:'compute',badge:'b-core',prompt:'Deep dive Azure Functions: hosting plans (consumption vs premium vs dedicated), triggers and bindings (HTTP, Timer, Service Bus, Event Hub, Blob, Cosmos), Durable Functions orchestration patterns (fan-out, chaining, human interaction), cold start mitigation, VNet integration, Managed Identity, KEDA-based scaling, Terraform deployment, production event-driven architecture patterns'},
+  {n:'Container Apps',d:'Serverless containers',icon:'ti-package',cat:'compute',badge:'b-core',prompt:'Deep dive Azure Container Apps: Dapr integration, KEDA autoscaling built-in, ingress and traffic splitting, managed environments, jobs, private networking, secrets from Key Vault, GitHub Actions deployment, comparison with AKS for when to choose each, Terraform, production microservices architecture'},
+  {n:'Azure VNet',d:'Private cloud network',icon:'ti-network',cat:'network',badge:'b-net',prompt:'Deep dive Azure Virtual Network: architecture, address spaces and subnets, service endpoints vs private endpoints, DNS resolution, VNet peering (local and global), VNet-to-VNet gateway, routing (UDR and BGP), forced tunneling, DDoS protection, VNet flow logs, Terraform azurerm_virtual_network, production hub-spoke design, common misconfigurations and troubleshooting'},
+  {n:'NSG',d:'L4 traffic filtering',icon:'ti-shield',cat:'network',badge:'b-net',prompt:'Deep dive Azure Network Security Groups: inbound/outbound rules, priority processing, service tags, application security groups (ASG), effective security rules, NSG flow logs with Traffic Analytics, NSG on subnet vs NIC, augmented security rules, Terraform, production zero-trust micro-segmentation patterns, troubleshooting connectivity with Network Watcher, common misconfigurations'},
+  {n:'Azure Firewall',d:'L7 stateful NGFW',icon:'ti-firewall',cat:'network',badge:'b-net',prompt:'Deep dive Azure Firewall: Standard vs Premium vs Basic, network rules vs application rules vs NAT rules, IDPS (Premium), TLS inspection, Firewall Policy and hierarchical policies, forced tunneling, SNAT, Azure Firewall Manager, integration with route tables for hub-spoke, Terraform, production secure hub architecture, logging to Log Analytics, cost optimization'},
+  {n:'Load Balancer',d:'L4 regional LB',icon:'ti-arrows-split-2',cat:'network',badge:'b-net',prompt:'Deep dive Azure Load Balancer: Standard vs Basic, frontend IP, backend pool, health probes, load balancing rules, inbound NAT rules, outbound rules and SNAT, HA ports for NVA, cross-zone LB, internal vs external, integration with VMSS, Terraform, production high-availability patterns, troubleshooting asymmetric routing and SNAT exhaustion'},
+  {n:'Application Gateway',d:'L7 WAF & LB',icon:'ti-traffic-cone',cat:'network',badge:'b-net',prompt:'Deep dive Azure Application Gateway: v2 SKU, WAF policy (OWASP ruleset, custom rules, exclusions), listeners (basic vs multi-site), routing rules, backend pools (VMs, VMSS, App Service, AKS), URL path-based routing, cookie affinity, SSL termination and end-to-end SSL, autoscaling, AGIC (Application Gateway Ingress Controller) for AKS, Terraform, production patterns, troubleshooting 502 errors'},
+  {n:'Front Door',d:'Global CDN + WAF',icon:'ti-antenna',cat:'network',badge:'b-net',prompt:'Deep dive Azure Front Door Standard/Premium: global anycast routing, origins and origin groups, routes, WAF at edge, caching and cache purge, Private Link to origins, health probes, traffic acceleration, custom domains and managed SSL, Rules Engine, comparison with Traffic Manager and CDN, Terraform, production global application delivery architecture, multi-region failover patterns'},
+  {n:'DNS',d:'Azure DNS zones',icon:'ti-direction',cat:'network',badge:'b-net',prompt:'Deep dive Azure DNS: public zones and record sets, private DNS zones, auto-registration with VNet links, Private DNS Resolver for hybrid (inbound/outbound endpoints), split-horizon DNS, delegation, CNAME for App Service and Front Door verification, DNS security (DNSSEC), Terraform, production hybrid DNS architecture, common resolution failures and troubleshooting'},
+  {n:'VNet Peering',d:'Cross-VNet connectivity',icon:'ti-git-merge',cat:'network',badge:'b-net',prompt:'Deep dive Azure VNet Peering: local vs global peering, transitive routing limitation and solution (NVA/Firewall), gateway transit, use forwarded traffic, peering vs VPN vs ExpressRoute comparison, hub-spoke peering design, peering limits, route advertisement, troubleshooting peering failures, Terraform azurerm_virtual_network_peering, and when to use Azure Virtual WAN instead'},
+  {n:'VPN Gateway',d:'Site-to-site & P2S',icon:'ti-key',cat:'network',badge:'b-net',prompt:'Deep dive Azure VPN Gateway: SKUs and performance, site-to-site (IKEv2/IKEv1), point-to-site (OpenVPN, IKEv2, SSTP), BGP dynamic routing, active-active configuration, gateway transit for peered VNets, custom IPsec policies, VPN monitoring and diagnostics, Terraform deployment, production hybrid connectivity, comparison with ExpressRoute, common connection failures'},
+  {n:'ExpressRoute',d:'Dedicated private link',icon:'ti-plug-connected',cat:'network',badge:'b-net',prompt:'Deep dive Azure ExpressRoute: circuit vs connection, peering types (private, Microsoft, public deprecated), ExpressRoute Direct, FastPath, Global Reach, BGP communities and route filtering, QoS, coexistence with VPN for HA, ExpressRoute Gateway SKUs, monitoring with Network Performance Monitor, Terraform, production enterprise connectivity design, failover patterns'},
+  {n:'Private Link',d:'Private PaaS access',icon:'ti-lock',cat:'network',badge:'b-net',prompt:'Deep dive Azure Private Link and Private Endpoints: how private endpoints work internally, DNS integration (private zone auto-creation), private endpoint for Storage, SQL, Key Vault, ACR, AKS API server, Service Bus, private link service for custom services, network policies on subnet, private endpoint connection approval, Terraform, production private-by-default architecture'},
+  {n:'NAT Gateway',d:'Managed outbound NAT',icon:'ti-arrows-right-left',cat:'network',badge:'b-net',prompt:'Deep dive Azure NAT Gateway: purpose, how it differs from SNAT in Load Balancer, static outbound public IPs, SNAT port allocation (64K per IP), integration with subnets, AKS egress via NAT Gateway, monitoring SNAT exhaustion, Terraform, production secure egress patterns, comparison with Azure Firewall for outbound traffic control'},
+  {n:'Blob Storage',d:'Object store at scale',icon:'ti-database',cat:'storage',badge:'b-core',prompt:'Deep dive Azure Blob Storage: tiers (Hot/Cool/Cold/Archive), lifecycle management policies, containers and access levels, SAS tokens (account/service/user delegation), stored access policies, versioning and soft delete, static website hosting, Azure CDN integration, object replication, change feed, event-based triggers, Terraform, production data lake architecture, performance at scale, troubleshooting 403 and 409 errors'},
+  {n:'Azure Files',d:'SMB/NFS cloud shares',icon:'ti-folder',cat:'storage',badge:'b-core',prompt:'Deep dive Azure Files: SMB vs NFS shares, Premium vs Standard, Azure File Sync for hybrid (cloud tiering, sync groups), mounting in Azure VMs and AKS (PVC with Azure Files CSI driver), identity-based auth (AD DS, Entra ID Kerberos), snapshots and backup, large file share support, private endpoint, Terraform, production use cases for lift-and-shift and containerized workloads'},
+  {n:'Managed Disks',d:'VM block storage',icon:'ti-device-floppy',cat:'storage',badge:'b-core',prompt:'Deep dive Azure Managed Disks: types (Ultra, Premium SSD v2, Premium SSD, Standard SSD, Standard HDD), performance tiers and bursting, shared disks for clustering, disk encryption (PME, CMK, DES), snapshots and incremental snapshots, disk backup, disk access with private endpoint, Terraform, production storage architecture for databases and AKS stateful workloads'},
+  {n:'Azure SQL',d:'Managed SQL Server',icon:'ti-table',cat:'storage',badge:'b-core',prompt:'Deep dive Azure SQL Database: deployment models (single vs elastic pool vs managed instance), service tiers (GP, BC, Hyperscale), serverless tier, Always-On availability groups in MI, geo-replication and failover groups, auto-tuning, Query Performance Insight, Intelligent Performance, private endpoint, Entra ID auth, Row Level Security, TDE, Terraform, production HA/DR patterns, connection pooling, troubleshooting slow queries'},
+  {n:'Cosmos DB',d:'Multi-model global DB',icon:'ti-planet',cat:'storage',badge:'b-core',prompt:'Deep dive Azure Cosmos DB: consistency levels (strong to eventual), partition design and hot partition avoidance, RU capacity model vs serverless vs autoscale, multi-region writes (multi-master), change feed, APIs (Core SQL, MongoDB, Cassandra, Gremlin, Table), TTL, integrated cache, Synapse Link for analytics, Terraform, production multi-region active-active patterns, troubleshooting RU exhaustion and high latency'},
+  {n:'Service Bus',d:'Enterprise messaging',icon:'ti-message-circle',cat:'messaging',badge:'b-core',prompt:'Deep dive Azure Service Bus: queues vs topics/subscriptions, sessions for ordered delivery, dead-letter queue, message deferral, scheduled delivery, duplicate detection, transactions across queues, Premium vs Standard tier, private endpoint, geo-disaster recovery (GeoDR), Managed Identity auth, .NET SDK patterns, Terraform, production event-driven architecture, integration with Azure Functions and Logic Apps'},
+  {n:'Event Grid',d:'Event routing',icon:'ti-arrows-shuffle',cat:'messaging',badge:'b-core',prompt:'Deep dive Azure Event Grid: system topics (Azure sources), custom topics, event subscriptions, push delivery to webhooks/Functions/Service Bus/Storage, filtering (event types, subject prefix), dead-lettering, retry policy, CloudEvents schema, partner topics, Event Grid on Kubernetes, Managed Identity delivery, Terraform, production event-driven microservices architecture, comparison with Event Hub and Service Bus'},
+  {n:'Event Hub',d:'Streaming ingestion',icon:'ti-wave-sine',cat:'messaging',badge:'b-core',prompt:'Deep dive Azure Event Hub: partitions and consumer groups, throughput units vs processing units (Premium/Dedicated), capture to ADLS/Blob, Kafka-compatible surface, schema registry, geo-disaster recovery, Managed Identity auth, EventProcessorClient checkpointing, Event Hub trigger in Azure Functions, Terraform, production IoT and telemetry ingestion architecture, throughput planning, comparison with Kafka on AKS'},
+  {n:'Logic Apps',d:'Low-code integration',icon:'ti-logic-buffer',cat:'messaging',badge:'b-core',prompt:'Deep dive Azure Logic Apps Standard vs Consumption: connectors (500+ built-in), workflows as code, built-in Service Bus and HTTP connectors, hybrid connections, ISE (Integration Service Environment), managed connectors vs built-in, authentication, error handling and retry policies, monitoring with App Insights, Terraform, production enterprise integration patterns, comparison with Functions for integration use cases'},
+  {n:'Entra ID',d:'Cloud identity platform',icon:'ti-users',cat:'identity',badge:'b-sec',prompt:'Deep dive Microsoft Entra ID (Azure AD): directory structure, users/groups/service principals/managed identities, app registrations vs enterprise apps, OAuth2 and OIDC flows, token anatomy (access/ID/refresh), Conditional Access policies, Identity Protection risk signals, PIM (Privileged Identity Management) for JIT access, B2B federation, B2C for customers, Entra ID domain services, production zero-trust identity architecture'},
+  {n:'RBAC',d:'Role-based access',icon:'ti-id-badge',cat:'identity',badge:'b-sec',prompt:'Deep dive Azure RBAC: role definition structure (actions, notActions, dataActions), built-in roles (Owner, Contributor, Reader, and service-specific), custom role creation, assignment scopes (management group to resource), deny assignments, attribute-based access control (ABAC), Managed Identity + RBAC patterns, least privilege design, Terraform azurerm_role_assignment, production multi-team RBAC model, auditing with activity logs'},
+  {n:'Managed Identity',d:'Secretless auth',icon:'ti-fingerprint',cat:'identity',badge:'b-sec',prompt:'Deep dive Azure Managed Identity: system-assigned vs user-assigned, how it works internally (IMDS endpoint, token acquisition), using MI with Key Vault, Storage, SQL, Service Bus, ACR, Kubernetes workload identity (AAD Pod Identity deprecated → Workload Identity with OIDC), federated credentials, Terraform, production patterns for eliminating all service principal secrets, AKS workload identity complete setup'},
+  {n:'Key Vault',d:'Secrets & crypto HSM',icon:'ti-key-off',cat:'identity',badge:'b-sec',prompt:'Deep dive Azure Key Vault: secrets, keys, and certificates management, access policies vs RBAC (prefer RBAC), Key Vault Firewall and private endpoint, soft delete and purge protection, versioning and secret rotation, Key Vault references in App Service and Functions, CSI driver for AKS (SecretProviderClass), HSM-backed keys, certificate auto-renewal, Terraform, production secrets management architecture, throttling and HA design'},
+  {n:'Defender for Cloud',d:'CSPM + workload protection',icon:'ti-shield-check',cat:'identity',badge:'b-sec',prompt:'Deep dive Microsoft Defender for Cloud: CSPM (Secure Score, recommendations, regulatory compliance), Defender plans (Servers, Containers, SQL, Storage, Key Vault, App Service, DNS), just-in-time VM access, adaptive application controls, file integrity monitoring, Defender for Containers (AKS runtime protection), Defender for DevOps (GitHub/ADO integration), integration with Sentinel, Terraform, production security posture management'},
+  {n:'Sentinel',d:'Cloud-native SIEM',icon:'ti-eye',cat:'identity',badge:'b-sec',prompt:'Deep dive Microsoft Sentinel: workspace design, data connectors (Entra ID, Azure Activity, Office 365, Defender, 3rd party), analytics rules (scheduled, NRT, fusion), UEBA, threat hunting with KQL, SOAR automation with playbooks (Logic Apps), watchlists, threat intelligence, incidents and investigation graph, Sentinel workbooks, cost optimization (tiers, commitment), Terraform, production SOC architecture'},
+  {n:'Azure Policy',d:'Governance at scale',icon:'ti-checklist',cat:'identity',badge:'b-sec',prompt:'Deep dive Azure Policy: policy definitions vs initiatives vs assignments, effects (Deny, Audit, Append, Modify, DeployIfNotExists, AuditIfNotExists), built-in policies vs custom, policy conditions and aliases, remediation tasks, compliance dashboard, policy inheritance at management group, exemptions, Terraform azurerm_policy_definition, production landing zone policy framework: tag enforcement, allowed locations, required diagnostics, mandatory security controls'},
+  {n:'AKS',d:'Managed Kubernetes',icon:'ti-hexagon-letter-k',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive AKS from beginner to architect: cluster architecture (control plane managed by Azure, node pools), node pool types (system vs user, spot), availability zones, cluster autoscaler, KEDA, kubelet identity vs workload identity, private cluster with private API server, managed Prometheus + Grafana, Azure CNI Overlay vs Kubenet vs Azure CNI, Terraform azurerm_kubernetes_cluster, production AKS architecture design decisions, upgrade strategy, node image upgrades'},
+  {n:'AKS Networking',d:'CNI, ingress, egress',icon:'ti-topology-full',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive AKS networking: Azure CNI (each pod gets VNet IP) vs Azure CNI Overlay (pods get private CIDR) vs Kubenet (NAT), network policies (Calico/Azure), ingress controllers (NGINX, AGIC, Traefik), AGIC full setup with App Gateway, egress via NAT Gateway or Azure Firewall, internal load balancer service, external-dns, cert-manager with Let\'s Encrypt, DNS resolution in cluster, production multi-ingress architecture'},
+  {n:'Azure CNI vs Kubenet',d:'Pod networking models',icon:'ti-circuit-ground',cat:'kubernetes',badge:'b-k8s',prompt:'Compare Azure CNI vs Azure CNI Overlay vs Kubenet in depth: IP allocation strategy, VNet IP exhaustion problem, routing behavior, network policy support, performance characteristics, Windows node support, private cluster compatibility, when to choose each, migration path, real production considerations, IP planning for large clusters, and the new Azure CNI Overlay with Cilium network policy'},
+  {n:'AGIC',d:'App GW Ingress Ctrl',icon:'ti-router',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive AGIC (Application Gateway Ingress Controller): architecture (watches K8s ingress resources, programs App GW), deployment modes (add-on vs Helm), shared App GW vs dedicated, annotations for WAF policy, SSL, cookie affinity, health probes, multi-cluster scenarios, AGIC + Workload Identity for auth, Terraform setup, production AKS ingress architecture, troubleshooting AGIC sync failures and 502 errors'},
+  {n:'KEDA',d:'Event-driven autoscale',icon:'ti-chart-arrows-vertical',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive KEDA on AKS: how it works (ScaledObject, ScaledJob, TriggerAuthentication), scalers (Azure Service Bus, Event Hub, Storage Queue, Prometheus, HTTP, Cron, CPU/memory), TriggerAuthentication with workload identity, scaling to zero and from zero, KEDA metrics server, integration with HPA, Terraform/Helm deployment, production event-driven microservices architecture on AKS, common KEDA troubleshooting'},
+  {n:'Dapr',d:'Distributed app runtime',icon:'ti-circuit-motor',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive Dapr on AKS: building blocks (service invocation, pub/sub, state management, bindings, secrets, actors, distributed tracing), Dapr sidecar injection, components YAML (Azure Service Bus pub/sub, Cosmos DB state store, Key Vault secrets), mTLS between services, observability with OpenTelemetry, Dapr dashboard, AKS Dapr extension, Terraform, production microservices architecture with Dapr, comparison with service mesh (Istio/Linkerd)'},
+  {n:'Helm',d:'K8s package manager',icon:'ti-package-export',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive Helm for AKS: chart structure (Chart.yaml, values.yaml, templates), template functions and conditionals, named templates, library charts, dependencies, helm install/upgrade/rollback, hooks (pre-install, post-upgrade), OCI registry in ACR, Helmfile for multi-chart management, Helm with GitOps (ArgoCD + Helm), secrets management (helm-secrets with SOPS), Terraform helm_release provider, production Helm chart patterns and versioning strategy'},
+  {n:'ArgoCD',d:'GitOps for K8s',icon:'ti-git-branch',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive ArgoCD GitOps on AKS: architecture (API server, repo server, application controller, dex), Application and ApplicationSet (cluster generator, git generator), App of Apps pattern, project RBAC, sync policies (auto-sync, self-heal, prune), resource hooks, sync waves, health checks, notifications, SSO with Entra ID, multi-cluster management, Terraform ArgoCD bootstrap, production GitOps workflow with GitHub Actions + ArgoCD, secrets with Sealed Secrets or External Secrets Operator'},
+  {n:'Azure DevOps',d:'ALM + CI/CD platform',icon:'ti-brand-azure',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive Azure DevOps: organization and project structure, Repos (Git, branch policies, PR reviews), Pipelines (YAML multi-stage, templates, reusable library), Artifacts (feed management, upstream sources), service connections with workload identity federation (OIDC), variable groups and Key Vault integration, environments and deployment gates, Azure DevOps agent pools (self-hosted in AKS), Terraform pipeline patterns, production enterprise ADO architecture'},
+  {n:'GitHub Actions',d:'GHA CI/CD workflows',icon:'ti-brand-github',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive GitHub Actions for Azure: OIDC with Azure (no secrets needed), azure/login action, workflow triggers, matrix builds, reusable workflows and composite actions, environments with protection rules, secrets and variables, GitHub-hosted vs self-hosted runners (AKS runner pods), GitHub Container Registry vs ACR, complete AKS deployment workflow: build → push → Trivy scan → Helm deploy → Argo sync, production GitHub + Azure patterns'},
+  {n:'Terraform',d:'IaC at scale',icon:'ti-code',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive Terraform for Azure: AzureRM provider, state management (remote in Azure Storage with locking via Blob leases), module design patterns (reusable modules, module composition), workspaces vs separate state files, Terraform Cloud vs Azure DevOps pipelines, atlantis for PR-based plans, testing with Terratest, drift detection, import existing resources, resource lifecycle rules, production enterprise Terraform repository structure, monorepo vs polyrepo, large-scale refactoring safely'},
+  {n:'Bicep',d:'ARM-native IaC',icon:'ti-code-asterisk',cat:'kubernetes',badge:'b-k8s',prompt:'Deep dive Azure Bicep: syntax vs ARM JSON, modules, parameters and parameter files, conditions and loops, resource dependencies, deployment modes (incremental vs complete), template specs, what-if deployments, Bicep + Azure DevOps pipeline patterns, Bicep vs Terraform comparison and when to choose each, converting ARM to Bicep, testing with PSRule and Pester, production landing zone in Bicep, Azure Verified Modules'},
+  {n:'Azure Monitor',d:'Platform telemetry',icon:'ti-activity',cat:'observability',badge:'b-obs',prompt:'Deep dive Azure Monitor: data pillars (metrics, logs, traces, changes), metric types and custom metrics, diagnostic settings to Log Analytics workspace, action groups and alert rules (metric, log, activity log, smart detection), autoscale with custom metrics, Azure Monitor workbooks, dashboards, cross-workspace queries, Monitor for VMs (dependency map), Monitor for Containers (AKS), Monitor for Networks, Terraform, production monitoring strategy, alert fatigue reduction'},
+  {n:'Log Analytics',d:'Centralized log store',icon:'ti-logs',cat:'observability',badge:'b-obs',prompt:'Deep dive Log Analytics Workspace: KQL query language deep dive (parse, project, summarize, join, mv-expand, let, functions), workspace design (centralized vs distributed), commitment tiers for cost, table management and retention policies, workspace transformation rules, cross-workspace queries, Azure Monitor Agent vs legacy agents, diagnostic settings, security with workspace-level RBAC and table-level RBAC, Terraform, production enterprise log management strategy'},
+  {n:'App Insights',d:'APM for apps',icon:'ti-chart-pie',cat:'observability',badge:'b-obs',prompt:'Deep dive Application Insights: workspace-based vs classic, auto-instrumentation vs SDK, distributed tracing with correlation IDs and operation IDs, Live Metrics, Snapshot Debugger, Profiler, Smart Detection (anomaly detection), custom events and metrics, user behavior analytics (users/sessions/funnels/retention), availability tests (URL ping, multi-step), integration with AKS via OpenTelemetry, Terraform, production APM strategy for microservices'},
+  {n:'Prometheus',d:'Metrics collection',icon:'ti-chart-dots',cat:'observability',badge:'b-obs',prompt:'Deep dive Prometheus on AKS: Azure Managed Prometheus (Azure Monitor workspace), kube-state-metrics, node-exporter, ServiceMonitor and PodMonitor CRDs, relabeling rules, recording rules and alerting rules, KEDA Prometheus scaler, federation, remote write to Azure Monitor, Thanos for long-term storage, Terraform azurerm_monitor_workspace, production AKS observability stack, PromQL deep dive: rate(), irate(), histogram_quantile(), recording rules for SLO tracking'},
+  {n:'Grafana',d:'Metrics visualization',icon:'ti-chart-bar',cat:'observability',badge:'b-obs',prompt:'Deep dive Azure Managed Grafana: workspace setup, data sources (Azure Monitor, Managed Prometheus, Log Analytics, Cosmos, SQL), dashboard as code with Grafonnet or JSON model, alerts and notification channels, Entra ID SSO integration, API for programmatic dashboard management, Terraform azurerm_dashboard_grafana, production AKS golden signals dashboards (latency/traffic/errors/saturation), SLO/SLI dashboards, cost monitoring dashboards'},
+  {n:'OpenTelemetry',d:'Unified observability',icon:'ti-telescope',cat:'observability',badge:'b-obs',prompt:'Deep dive OpenTelemetry on Azure: OTel collector architecture (receivers, processors, exporters), auto-instrumentation for .NET, Java, Python, Node.js, traces + metrics + logs correlation, exporting to Azure Monitor via OTLP, AKS DaemonSet deployment of OTel collector, sampling strategies (tail-based with Jaeger, head-based), B3/W3C trace context propagation, OpenTelemetry Operator for K8s auto-instrumentation, production distributed tracing architecture'},
+  {n:'Azure OpenAI',d:'GPT & embeddings',icon:'ti-brain',cat:'ai',badge:'b-ai',prompt:'Deep dive Azure OpenAI: model deployments (GPT-4o, GPT-4, text-embedding-3), PTU vs standard vs batch deployments, API compatibility, system prompts and prompt engineering, RAG architecture with Azure AI Search, function calling and tools, assistants API, content filtering, private endpoint, Managed Identity auth, load balancing across deployments, Terraform deployment, production AI application architecture, cost management with TPM/RPM limits'},
+  {n:'Machine Learning',d:'ML platform',icon:'ti-cpu',cat:'ai',badge:'b-ai',prompt:'Deep dive Azure Machine Learning: workspace components (compute clusters, compute instances, datastores, environments), pipelines for training automation, MLflow integration, model registry, endpoints (real-time managed, batch, online), responsible AI dashboard, AutoML, prompt flow for LLM applications, AKS inference, integration with DevOps for MLOps, Terraform, production MLOps architecture with CI/CD for model retraining and deployment'},
+  {n:'Databricks',d:'Lakehouse platform',icon:'ti-brand-databricks',cat:'ai',badge:'b-ai',prompt:'Deep dive Azure Databricks: workspace architecture, Unity Catalog for data governance, Delta Lake (ACID transactions, time travel, schema evolution), cluster types (all-purpose, job, SQL warehouse), autoscaling and spot instances, VNet injection for private deployment, Azure storage integration (ADLS Gen2 via service principal or managed identity), notebooks and jobs orchestration, Terraform, production data lakehouse architecture with Delta architecture pattern'},
+  {n:'Synapse Analytics',d:'Unified analytics',icon:'ti-analyze',cat:'ai',badge:'b-ai',prompt:'Deep dive Azure Synapse Analytics: dedicated SQL pools vs serverless SQL, Apache Spark pools, Synapse Link for Cosmos DB and Dataverse, managed private endpoints, integration pipelines (Copy activity, Data Flow), Synapse Studio, RBAC model, monitoring and query optimization, when to choose Synapse vs Databricks vs Azure SQL, Terraform, production data warehouse architecture, ELT patterns, cost optimization'},
+  {n:'Data Factory',d:'ETL/ELT pipelines',icon:'ti-transform',cat:'ai',badge:'b-ai',prompt:'Deep dive Azure Data Factory: integration runtimes (Azure, self-hosted, SSIS), activities (Copy, Data Flow, Lookup, ForEach, If Condition, Web, Wait), linked services and datasets, triggers (schedule, tumbling window, event-based, storage events), ADF monitoring, parameterized pipelines, CI/CD for ADF (ARM export, ADO integration), Managed Identity auth, private endpoints, Terraform, production data integration patterns, error handling and retry strategies'},
+];
+
+const cats={
+  compute:{label:'Compute',tiles:[]},
+  network:{label:'Networking',tiles:[]},
+  storage:{label:'Storage & Databases',tiles:[]},
+  messaging:{label:'Messaging & Events',tiles:[]},
+  identity:{label:'Identity & Security',tiles:[]},
+  kubernetes:{label:'Kubernetes & DevOps',tiles:[]},
+  observability:{label:'Observability',tiles:[]},
+  ai:{label:'AI & Data',tiles:[]},
+};
+
+services.forEach(s=>{if(cats[s.cat])cats[s.cat].tiles.push(s)});
+
+let currentCat='all', searchVal='';
+
+function renderTiles(){
+  const c=document.getElementById('tiles-container');
+  c.innerHTML='';
+  let filtered=services.filter(s=>{
+    const matchCat=currentCat==='all'||s.cat===currentCat;
+    const matchSearch=!searchVal||s.n.toLowerCase().includes(searchVal.toLowerCase())||s.d.toLowerCase().includes(searchVal.toLowerCase());
+    return matchCat&&matchSearch;
+  });
+  document.getElementById('search-count').textContent=searchVal?`${filtered.length} results`:'';
+  if(currentCat==='all'&&!searchVal){
+    Object.entries(cats).forEach(([k,v])=>{
+      const sec=document.createElement('div');
+      sec.innerHTML=`<div class="section-label">${v.label}</div>`;
+      const g=document.createElement('div');
+      g.className='grid g3';
+      v.tiles.forEach(s=>{g.appendChild(mkTile(s))});
+      sec.appendChild(g);
+      c.appendChild(sec);
+    });
+  } else {
+    const g=document.createElement('div');
+    g.className='grid g3';
+    filtered.forEach(s=>{g.appendChild(mkTile(s))});
+    c.appendChild(g);
+  }
+}
+
+function mkTile(s){
+  const d=document.createElement('div');
+  d.className='tile';
+  d.innerHTML=`<div class="tile-icon"><i class="ti ${s.icon}" aria-hidden="true" style="font-size:20px;color:var(--color-text-secondary)"></i></div><div class="tile-name">${s.n}</div><div class="tile-desc">${s.d}</div><div class="tile-badge ${s.badge}">${s.badge.replace('b-','').toUpperCase()}</div>`;
+  d.onclick=()=>sendPrompt(s.prompt);
+  return d;
+}
+
+function filterCategory(el,cat){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  currentCat=cat;
+  renderTiles();
+}
+
+function filterTiles(val){
+  searchVal=val;
+  if(val){
+    currentCat='all';
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelector('.tab').classList.add('active');
+  }
+  renderTiles();
+}
+
+function setLevel(el,level){
+  document.querySelectorAll('.lvl').forEach(l=>l.classList.remove('active'));
+  el.classList.add('active');
+  const msgs={
+    beginner:'Teach me Azure at beginner level: start with the big picture — what is Azure, how subscriptions and resource groups work, Azure regions and availability zones, the Azure portal navigation, Azure CLI setup, and create my first resource group, VNet, and VM with step-by-step hands-on labs and CLI commands',
+    intermediate:'Teach me Azure at intermediate level: focus on production-grade deployments — VM Scale Sets with autoscaling, multi-tier networking with Hub-Spoke, Application Gateway with WAF, Azure SQL with geo-replication, AKS basic cluster with Azure CNI, Azure DevOps pipelines, Key Vault integration, and Terraform for all resources',
+    advanced:'Teach me Azure at advanced level: AKS production hardening (private cluster, workload identity, KEDA, Dapr, AGIC), Terraform modules at scale, GitOps with ArgoCD, Defender for Cloud and Sentinel SIEM, Private Link everywhere, ExpressRoute design, multi-region active-active architecture, and custom Azure Policy framework',
+    architect:'Teach me Azure at enterprise architect level: design a complete enterprise landing zone from scratch — management group hierarchy, subscription vending machine, Policy-driven governance, hub-spoke networking with Azure Firewall and ExpressRoute, multi-subscription Terraform pipeline, Zero Trust security model, platform engineering team operating model, and a complete architectural decision record (ADR) framework'
+  };
+  sendPrompt(msgs[level]);
+}
+
+renderTiles();
+</script>

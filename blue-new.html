@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Networking Mastery Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Pro Dark Theme Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        .chart-container {
+            position: relative; width: 100%; max-width: 600px;
+            height: 300px; max-height: 400px; margin-left: auto; margin-right: auto;
+        }
+
+        /* Terminal typing effect cursor */
+        .cursor-blink { animation: blink 1s step-end infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Animations */
+        .fade-in-up { animation: fadeInUp 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+
+        /* Active navigation state */
+        .nav-item.active {
+            background-color: rgba(14, 165, 233, 0.1); 
+            border-right: 4px solid #38bdf8;
+            color: #f8fafc;
+        }
+
+        /* Toast */
+        #toast {
+            visibility: hidden; min-width: 250px; background-color: #10b981; color: #fff;
+            text-align: center; border-radius: 8px; padding: 12px; position: fixed; z-index: 50;
+            left: 50%; bottom: 30px; transform: translateX(-50%); font-size: 14px; box-shadow: 0 4px 15px rgba(16,185,129,0.4);
+            transition: visibility 0.3s, bottom 0.3s, opacity 0.3s; opacity: 0;
+        }
+        #toast.show { visibility: visible; bottom: 50px; opacity: 1; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-300 font-sans h-screen flex flex-col overflow-hidden selection:bg-sky-500/30">
+
+    <!-- Toast Notification -->
+    <div id="toast">Command Copied!</div>
+
+    <!-- Header (Glassmorphism) -->
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 shadow-lg z-20 flex-none h-16 flex items-center justify-between px-4 lg:px-8">
+        <div class="flex items-center gap-3">
+            <div class="h-8 w-8 bg-gradient-to-br from-sky-400 to-blue-600 rounded flex items-center justify-center text-white font-bold text-lg shadow-[0_0_10px_rgba(56,189,248,0.5)]">N</div>
+            <h1 class="text-xl font-bold text-slate-100 hidden md:block tracking-wide">DevOps <span class="text-sky-400">NetMastery</span></h1>
+            <h1 class="text-xl font-bold text-slate-100 md:hidden"><span class="text-sky-400">Net</span>Mastery</h1>
+        </div>
+        
+        <div class="flex items-center gap-4 flex-1 justify-end max-w-2xl">
+            <!-- Search Bar -->
+            <div class="relative w-full max-w-md hidden sm:block">
+                <svg class="w-4 h-4 absolute left-3 top-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="searchInput" placeholder="Search 200+ mastery commands..." 
+                    class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 pl-10 transition-all placeholder-slate-500"
+                >
+            </div>
+            
+            <!-- Level Filter Dropdown -->
+            <select id="levelFilter" class="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 outline-none hover:border-slate-600 transition-colors">
+                <option value="all">All Difficulty Levels</option>
+                <option value="1">L1: The Observer</option>
+                <option value="2">L2: The Surgeon</option>
+                <option value="3">L3: The Builder</option>
+                <option value="4">L4: The Tuner</option>
+                <option value="5">L5: The Ghost</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex-col hidden lg:flex overflow-y-auto z-10" id="sidebar">
+            <div class="p-4">
+                <h3 class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3 pl-1">Knowledge Domains</h3>
+                <nav class="space-y-1" id="navContainer"></nav>
+            </div>
+            
+            <div class="mt-auto p-4 bg-slate-900/50 border-t border-slate-800 backdrop-blur-sm">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Progress</h4>
+                    <button onclick="resetProgress()" class="text-[10px] text-red-400 hover:text-red-300 transition-colors" title="Reset all progress">Reset</button>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-2 mb-2 overflow-hidden shadow-inner">
+                    <div id="sidebarProgressBar" class="bg-gradient-to-r from-sky-500 to-emerald-400 h-2 rounded-full transition-all duration-500 shadow-[0_0_8px_rgba(52,211,153,0.6)]" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-slate-500 flex justify-between font-mono">
+                    <span id="progressText">0% Mastered</span>
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-hidden relative bg-slate-950">
+            <!-- Mobile Nav Toggle -->
+            <div class="lg:hidden p-2 bg-slate-900 border-b border-slate-800 flex overflow-x-auto whitespace-nowrap gap-2 scrollbar-hide" id="mobileNav"></div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth" id="mainContent"></div>
+        </main>
+
+        <!-- Right Panel: Interactive Context (Layman Terminal) -->
+        <aside class="w-96 bg-black border-l border-slate-800 flex-none hidden xl:flex flex-col text-slate-300 relative shadow-2xl z-10">
+            <div class="p-3 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="flex gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
+                    </div>
+                    <h3 class="font-mono text-xs font-bold text-slate-400 ml-2">root@devops-box:~</h3>
+                </div>
+                <button id="copyBtn" class="text-slate-500 hover:text-sky-400 transition-colors hidden p-1" onclick="copyCurrentCmd()" title="Copy Command">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                </button>
+            </div>
+            <div class="flex-1 p-6 font-mono text-sm overflow-y-auto bg-slate-950" id="terminalOutput">
+                <div class="mb-4 text-slate-600 italic">
+                    // Click any command code or the "Explain" button to see a simple, real-world translation here.
+                </div>
+                <div class="text-emerald-500">
+                    $ <span class="cursor-blink">_</span>
+                </div>
+            </div>
+            <!-- Decorative gradient line at bottom -->
+            <div class="h-1 w-full bg-gradient-to-r from-emerald-500 via-sky-500 to-purple-500"></div>
+        </aside>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- Massive Data Source (Preserved & Enhanced) ---
+        const appData = {
+            domains: [
+                {
+                    id: "dashboard",
+                    title: "Executive Overview",
+                    icon: "📊",
+                    description: "Your mastery metrics across the 11 networking layers.",
+                    content: "overview" 
+                },
+                {
+                    id: "interface",
+                    title: "1. Interface & IP",
+                    icon: "🏗️",
+                    level: 1,
+                    description: "Managing physical and virtual 'plugs' and 'addresses'.",
+                    commands: [
+                        { cmd: "ip addr show", desc: "List all IP addresses.", level: 1, detailed: "Checking the ID cards for every door (interface) in your building. It tells you who lives where." },
+                        { cmd: "ip link set eth0 up", desc: "Enable a specific interface.", level: 1, detailed: "Flipping the power switch 'ON' for a specific network plug." },
+                        { cmd: "ip -br addr", desc: "Concise IP summary.", level: 1, detailed: "A 'cheat sheet' version of your address list. No fluff, just names and numbers." },
+                        { cmd: "ethtool eth0", desc: "Check hardware/cable status.", level: 2, detailed: "Like a mechanic checking your car's engine. Tells you if the cable is plugged in and how fast it can go." },
+                        { cmd: "iwconfig", desc: "Manage wireless interfaces.", level: 2, detailed: "The remote control for your Wi-Fi card to tune into specific radio frequencies." },
+                        { cmd: "ip link set eth0 mtu 9000", desc: "Enable Jumbo Frames.", level: 4, detailed: "Changing the size of the shipping boxes. Sending massive crates instead of small envelopes to move more data." },
+                        { cmd: "nmcli device status", desc: "NetworkManager status.", level: 1, detailed: "A dashboard showing which network devices are currently 'at work' or 'on break'." },
+                        { cmd: "ip addr add 10.0.0.5/24 dev eth1", desc: "Add a second IP.", level: 3, detailed: "Giving your house a second mailing address so you can receive mail from two different neighborhoods." },
+                        { cmd: "ip link add link eth0 name vlan10 type vlan id 10", desc: "Create a VLAN interface.", level: 3, detailed: "Splitting one physical pipe into multiple virtual pipes. Keeps Guest and Staff traffic from mixing." },
+                        { cmd: "hostname -I", desc: "Show all local IPs fast.", level: 1, detailed: "Shouting 'What are all my addresses?!' and getting a quick list back." },
+                        { cmd: "macchanger -r eth0", desc: "Randomize MAC address.", level: 3, detailed: "Putting on a fake mustache. You are changing your network card's physical fingerprint." },
+                        { cmd: "ip neigh show", desc: "Show ARP cache.", level: 2, detailed: "Looking at your personal phonebook that maps 'Names' (IPs) to 'Physical Faces' (MAC addresses) in your local office." },
+                        { cmd: "ip neigh flush all", desc: "Clear ARP cache.", level: 3, detailed: "Burning your local phonebook and forcing your computer to re-learn everyone's physical face (MAC)." },
+                        { cmd: "ip maddr show", desc: "Show multicast addresses.", level: 4, detailed: "Seeing which 'Radio Station Subscriptions' your network card is currently tuned into." },
+                        { cmd: "ifconfig eth0 promisc", desc: "Enable promiscuous mode.", level: 2, detailed: "Telling your network card to eavesdrop on EVERY conversation passing by, not just the ones addressed to it." },
+                        { cmd: "nmcli connection reload", desc: "Reload network profiles.", level: 2, detailed: "Telling the network manager to re-read the rulebook after you made changes to the config files." },
+                        { cmd: "ip tunnel add mytun mode ipip", desc: "Create an IP tunnel.", level: 4, detailed: "Building a secret underground pipe between two buildings so you can send private data securely." }
+                    ]
+                },
+                {
+                    id: "routing",
+                    title: "2. Routing & Flow",
+                    icon: "🛣️",
+                    level: 3,
+                    description: "Defining the maps and paths packets take.",
+                    commands: [
+                        { cmd: "ip route show", desc: "Display the routing table.", level: 1, detailed: "The GPS map for your server. It says: 'If going to Google, take this exit; if going to Printer, take that one.'" },
+                        { cmd: "ip route add default via 192.168.1.1", desc: "Set the main exit gateway.", level: 3, detailed: "Defining the 'Front Door'. If the server doesn't know where a packet goes, it sends it here." },
+                        { cmd: "ip route get 8.8.8.8", desc: "Predict path to destination.", level: 2, detailed: "Asking the GPS: 'If I leave right now for this address, exactly which road will I take?'" },
+                        { cmd: "ip rule show", desc: "List routing policies.", level: 4, detailed: "The 'Security Guard' at the intersection. Decides who gets the VIP lane based on who they are." },
+                        { cmd: "ip route add 10.0.0.0/8 dev eth1", desc: "Static route to specific network.", level: 3, detailed: "A permanent 'Detour' sign. 'Ignore the GPS for this city; always take the bridge on eth1.'" },
+                        { cmd: "route -n", desc: "Classic routing table view.", level: 1, detailed: "The old-school, paper map version of your routing table. Simple and numerical." },
+                        { cmd: "mtr -r 1.1.1.1", desc: "Report path performance.", level: 2, detailed: "A scout that runs ahead and reports back on which intersections are currently jammed with traffic." },
+                        { cmd: "ip route add blackhole 10.10.10.10", desc: "Silently drop traffic to IP.", level: 4, detailed: "Building a trap door. Any mail addressed to this specific person falls into an abyss and disappears." },
+                        { cmd: "ip route flush cache", desc: "Clear routing cache.", level: 4, detailed: "Forcing the GPS to recalculate all routes from scratch instead of relying on memory." },
+                        { cmd: "ip route replace default via 1.1.1.1", desc: "Swap default gateway.", level: 3, detailed: "Moving the 'Front Door' of your building from the South side to the North side." },
+                        { cmd: "tracepath 8.8.8.8", desc: "Trace path and MTU.", level: 2, detailed: "Walking the path to a destination to see where it goes AND measuring how wide the doorways (MTU) are along the way." },
+                        { cmd: "traceroute -T -p 443 google.com", desc: "TCP Traceroute.", level: 3, detailed: "Sneaking past security guards who block standard pings by disguising your scout as normal web traffic (TCP 443)." },
+                        { cmd: "ip rule add from 192.168.1.50 table 100", desc: "Policy Based Route (Source).", level: 5, detailed: "VIP Routing: 'If the mail comes from the CEO (192.168.1.50), use a completely different, faster GPS map (table 100).'" },
+                        { cmd: "ip route show table local", desc: "Show local routing table.", level: 4, detailed: "Looking at the map the server uses just to talk to itself (loopback and local interfaces)." },
+                        { cmd: "ip route add 10.20.0.0/24 metric 100", desc: "Add route with priority.", level: 3, detailed: "Adding a backup road to the map, but marking it 'Metric 100' so people only use it if the main road is broken." }
+                    ]
+                },
+                {
+                    id: "diagnostics",
+                    title: "3. Diagnostics",
+                    icon: "🔎",
+                    level: 1,
+                    description: "Investigating reachability and open ports.",
+                    commands: [
+                        { cmd: "ping -c 4 google.com", desc: "Check if a host is awake.", level: 1, detailed: "Knocking on a door 4 times and waiting for someone to shout 'I'm here!'. Measures how long the shout took." },
+                        { cmd: "ss -tulpn", desc: "Show open 'listening' doors.", level: 1, detailed: "Checking all windows and doors in your house to see which apps are sitting there waiting to talk to people." },
+                        { cmd: "traceroute example.com", desc: "List all stops along the way.", level: 2, detailed: "Recording every post office your letter passes through before reaching the destination. Helps find where it got stuck." },
+                        { cmd: "nc -zv 127.0.0.1 80", desc: "Quickly test a specific port.", level: 2, detailed: "Testing if the doorbell (port 80) actually works without actually walking inside the house." },
+                        { cmd: "lsof -i :22", desc: "Who is using port 22?", level: 2, detailed: "Peeking through the keyhole of door 22 to see exactly which person (program) is sitting in that room." },
+                        { cmd: "arp -a", desc: "Show local device hardware map.", level: 1, detailed: "A list of everyone in your immediate office building and their physical fingerprint (MAC address)." },
+                        { cmd: "dig example.com +trace", desc: "Deep DNS investigation.", level: 3, detailed: "Following the chain of command in a phonebook company (Root servers -> TLD -> Authoritative) to see who verified a number." },
+                        { cmd: "hping3 -S -p 80 target.com", desc: "Advanced TCP ping.", level: 4, detailed: "Sending a custom-crafted 'Hello' packet (SYN) to test if a web server is alive, even if it ignores regular pings." },
+                        { cmd: "arping -I eth0 192.168.1.1", desc: "Ping using ARP.", level: 3, detailed: "Shouting 'Who has this IP?!' on the local network. Bypasses firewalls because it uses Layer 2 (MAC) instead of Layer 3 (IP)." },
+                        { cmd: "netstat -s", desc: "Network statistics summary.", level: 2, detailed: "The accountant's ledger of your network. Shows total packets sent, received, dropped, and errors since boot." },
+                        { cmd: "tcping target.com 443", desc: "Ping over TCP.", level: 2, detailed: "Like regular ping, but specifically checks if a particular service (like a secure website) is responding, not just the server itself." },
+                        { cmd: "nmap -p 1-1000 target", desc: "Scan first 1000 ports.", level: 3, detailed: "Walking down a hotel hallway and turning the doorknob on the first 1000 rooms to see which ones are unlocked." },
+                        { cmd: "nslookup -type=mx domain.com", desc: "Find mail servers.", level: 1, detailed: "Opening the phonebook specifically looking for the 'Mail Delivery Hub' for a specific company." },
+                        { cmd: "fping -a -g 192.168.1.0/24", desc: "Fast sweep ping.", level: 3, detailed: "Using a megaphone to shout at an entire neighborhood at once, and writing down the addresses of everyone who yells back." }
+                    ]
+                },
+                {
+                    id: "tools",
+                    title: "4. Swiss Army Knives",
+                    icon: "🔌",
+                    level: 2,
+                    description: "Tools for testing, downloading, and moving data.",
+                    commands: [
+                        { cmd: "curl -I https://google.com", desc: "Get website headers only.", level: 2, detailed: "Asking a waiter for the menu (headers) without actually ordering any food (body content)." },
+                        { cmd: "wget --mirror website.com", desc: "Download an entire site.", level: 2, detailed: "Photocopying every single page in a book so you can read it later without the internet." },
+                        { cmd: "nmap -sn 192.168.1.0/24", desc: "Ping sweep a whole network.", level: 3, detailed: "Walking down a hotel hallway and knocking on every single door to see who is inside." },
+                        { cmd: "ncat -l 8080 > file.txt", desc: "Receive a file over network.", level: 3, detailed: "Setting up a bucket and waiting for someone to pour water (data) into it from across the room." },
+                        { cmd: "curl -X POST -d 'data' url", desc: "Send data to a server.", level: 2, detailed: "Handing a filled-out form to a clerk at a desk instead of just asking them a question." },
+                        { cmd: "socat TCP-LISTEN:80,fork TCP:10.0.0.2:80", desc: "Port forwarder.", level: 4, detailed: "Hiring an assistant who stands at Door A, takes any packages given to them, and immediately runs them over to Door B." },
+                        { cmd: "iperf3 -c server_ip", desc: "Test network bandwidth.", level: 3, detailed: "Pushing a massive boulder down a pipe as fast as possible to see exactly what the maximum speed limit of the pipe is." },
+                        { cmd: "rsync -avz local/ user@host:/remote/", desc: "Sync files over network.", level: 2, detailed: "A smart mover who checks the new house first, and only moves the furniture (files) that are missing or have changed." },
+                        { cmd: "proxychains nmap target", desc: "Force tool through proxy.", level: 4, detailed: "Forcing your scanner to walk through a maze of hidden tunnels (proxies) before popping out to look at the target." },
+                        { cmd: "ssh -D 8080 user@host", desc: "Create SOCKS proxy via SSH.", level: 4, detailed: "Digging a secure, encrypted tunnel to a remote server and using it as a disguise to browse the web." },
+                        { cmd: "openssl s_client -connect host:443", desc: "Test SSL/TLS connection.", level: 3, detailed: "Acting as a secure web browser to inspect the target's 'Security Certificate' and handshake process manually." },
+                        { cmd: "aria2c -x 16 url", desc: "Multi-threaded download.", level: 2, detailed: "Hiring 16 delivery drivers to bring different pieces of a large package at the exact same time." },
+                        { cmd: "ssh-copy-id user@host", desc: "Install SSH key.", level: 1, detailed: "Giving the remote server a copy of your personal 'House Key' so you never have to type a password again." }
+                    ]
+                },
+                {
+                    id: "capture",
+                    title: "5. Packet Capture",
+                    icon: "📈",
+                    level: 2,
+                    description: "Analyzing the raw bits flowing over the wire.",
+                    commands: [
+                        { cmd: "tcpdump -i eth0", desc: "Listen to all traffic on eth0.", level: 2, detailed: "Eavesdropping on every single conversation happening in a specific room. It gets noisy very fast!" },
+                        { cmd: "tcpdump port 80", desc: "Capture only web traffic.", level: 2, detailed: "Wearing special headphones that only let you hear people talking about 'Websites' (Port 80)." },
+                        { cmd: "tcpdump -w trace.pcap", desc: "Save capture to a file.", level: 3, detailed: "Using a tape recorder to save a conversation so you can listen to it carefully later with a tool like Wireshark." },
+                        { cmd: "tcpdump -nS", desc: "No DNS, show raw numbers.", level: 4, detailed: "Recording exactly what was said without translating names. Like writing down raw phone numbers instead of 'Mom' or 'Dad'." },
+                        { cmd: "tshark -i eth0 -Y 'http'", desc: "CLI Wireshark (HTTP only).", level: 4, detailed: "A highly advanced wiretap that can perfectly understand specific languages (like HTTP) on the fly." },
+                        { cmd: "tcpdump src 192.168.1.5", desc: "Capture from specific IP.", level: 2, detailed: "Only listening to conversations started by one specific person in the room." },
+                        { cmd: "tcpdump 'tcp[tcpflags] == tcp-syn'", desc: "Capture only SYN packets.", level: 5, detailed: "Filtering out all the noise and ONLY listening for the exact moment someone says 'Hello, I'd like to start a conversation'." },
+                        { cmd: "ngrep -W byline 'login' port 80", desc: "Network grep.", level: 4, detailed: "Reading every passing postcard in the mail system and pulling out only the ones that contain the word 'login'." },
+                        { cmd: "tcpreplay -i eth0 file.pcap", desc: "Replay a capture file.", level: 4, detailed: "Taking a recorded tape of a conversation and playing it back onto the network exactly as it happened." },
+                        { cmd: "termshark -i eth0", desc: "Terminal UI for tshark.", level: 3, detailed: "Running a graphical Wireshark-like interface entirely inside a text-only terminal window." },
+                        { cmd: "tcpdump -A -s 0 'tcp port 80'", desc: "Show full payload in ASCII.", level: 3, detailed: "Opening up unencrypted packages (like HTTP) and reading the actual text letters inside them directly on your screen." },
+                        { cmd: "tcpflow -i eth0 -c", desc: "Reconstruct TCP streams.", level: 4, detailed: "Taking thousands of out-of-order puzzle pieces (packets) and stitching them back together into the original files being sent." }
+                    ]
+                },
+                {
+                    id: "firewalls",
+                    title: "6. Security/Firewall",
+                    icon: "🧱",
+                    level: 3,
+                    description: "Deciding what gets in and what gets blocked.",
+                    commands: [
+                        { cmd: "iptables -L -n -v", desc: "List firewall rules + counters.", level: 2, detailed: "Reading the Bouncer's rulebook, plus seeing exactly how many people he has blocked or allowed tonight." },
+                        { cmd: "ufw enable", desc: "Turn on the simple firewall.", level: 1, detailed: "Hiring a security guard who has a very simple, standard set of rules to keep the bad guys out." },
+                        { cmd: "firewall-cmd --list-all", desc: "CentOS/RHEL firewall status.", level: 2, detailed: "Checking the security dashboard for a complex building with different 'zones' (like Lobby vs. Vault)." },
+                        { cmd: "iptables -A INPUT -s 1.2.3.4 -j DROP", desc: "Block a specific bully IP.", level: 3, detailed: "Telling the bouncer: 'If you see this specific person (IP), do not even talk to them. Just drop them.'" },
+                        { cmd: "nft list ruleset", desc: "View nftables rules.", level: 3, detailed: "Looking at the modern, upgraded version of the Bouncer's rulebook (nftables replaces iptables)." },
+                        { cmd: "iptables -t nat -L", desc: "View NAT translation rules.", level: 4, detailed: "Looking at the 'Mailroom Translator' rules that change the names on packages before sending them out (used heavily by Docker)." },
+                        { cmd: "fail2ban-client status", desc: "Check auto-ban status.", level: 3, detailed: "Asking the robot security guard how many people it automatically banned today for guessing passwords wrong too many times." },
+                        { cmd: "ipset list", desc: "View high-performance IP sets.", level: 4, detailed: "Looking at massive, optimized lists of thousands of banned IPs that the firewall can check in a split second." },
+                        { cmd: "ufw allow 22/tcp", desc: "Open SSH port in UFW.", level: 1, detailed: "Telling the security guard: 'It's okay to let people in through Door 22, but only if they speak TCP.'" },
+                        { cmd: "iptables -F", desc: "Flush all rules (DANGER).", level: 3, detailed: "Firing all the bouncers and throwing away the rulebook. Every door is now wide open." },
+                        { cmd: "nmap -sV -O target", desc: "Scan for versions and OS.", level: 4, detailed: "A spy probing a building to see exactly what brand of locks are on the doors and what operating system the security system uses." },
+                        { cmd: "iptables-save > rules.txt", desc: "Backup firewall rules.", level: 2, detailed: "Making a photocopy of the Bouncer's rulebook so you can restore it if he forgets." }
+                    ]
+                },
+                {
+                    id: "infra",
+                    title: "7. Infrastructure",
+                    icon: "🏗️",
+                    level: 3,
+                    description: "Bridges, Namespaces, and container plumbing.",
+                    commands: [
+                        { cmd: "ip netns list", desc: "Show network namespaces.", level: 3, detailed: "A list of 'Parallel Universes' on your server. Apps in one universe can't see the network in another. This is how Docker isolates things." },
+                        { cmd: "brctl show", desc: "Show network bridges.", level: 3, detailed: "Checking the virtual 'Power Strip' that multiple virtual machines are plugged into to share one wall outlet." },
+                        { cmd: "ip link add type veth", desc: "Create a veth pair.", level: 4, detailed: "Creating a magic 'Wormhole' cable. Whatever you put in one end instantly comes out the other end, even if it's in a different universe (namespace)." },
+                        { cmd: "docker network ls", desc: "List Docker networks.", level: 2, detailed: "Looking at the blueprint of all the isolated mini-networks Docker has built for your containers." },
+                        { cmd: "ip link add vxlan0 type vxlan", desc: "Create a VXLAN.", level: 5, detailed: "Building a massive, invisible bridge over the internet that connects two different data centers as if they were in the same room." },
+                        { cmd: "ip link set eth0 master br0", desc: "Attach interface to bridge.", level: 3, detailed: "Taking a physical cable and plugging it directly into the virtual 'Power Strip' (bridge)." },
+                        { cmd: "tunctl -t tap0", desc: "Create a TAP interface.", level: 4, detailed: "Creating a fake network card for a Virtual Machine to use, simulating a real physical cable connection." },
+                        { cmd: "ip link add link eth0 macvlan", desc: "Create a MACVLAN.", level: 4, detailed: "Cloning your network card so a container can have its very own physical MAC address on the network." },
+                        { cmd: "wireguard show", desc: "Check WireGuard VPN status.", level: 3, detailed: "Checking the status of the ultra-fast, encrypted tunnel you've built to a remote network." },
+                        { cmd: "ip netns exec blue bash", desc: "Enter a namespace.", level: 4, detailed: "Putting on a virtual reality headset and physically stepping inside one of the 'Parallel Universes' to run commands from within." }
+                    ]
+                },
+                {
+                    id: "dns",
+                    title: "8. DNS/Names",
+                    icon: "🌍",
+                    level: 1,
+                    description: "Translating human names to machine numbers.",
+                    commands: [
+                        { cmd: "resolvectl query google.com", desc: "Modern DNS lookup.", level: 1, detailed: "Asking the system's official 'Information Desk' (systemd-resolved) for the phone number of a specific company." },
+                        { cmd: "cat /etc/resolv.conf", desc: "Check DNS server config.", level: 1, detailed: "Reading the sticky note that tells your server which Phonebook Company (like 8.8.8.8) it should call." },
+                        { cmd: "dig +short example.com", desc: "Get only the IP address.", level: 1, detailed: "Asking for a phone number and saying 'Just give me the numbers, no extra fluff or pleasantries.'" },
+                        { cmd: "dig -x 8.8.8.8", desc: "Reverse DNS lookup.", level: 2, detailed: "Having a phone number and looking it up in a reverse-phonebook to figure out who owns it." },
+                        { cmd: "whois domain.com", desc: "Domain registration info.", level: 1, detailed: "Looking up the public registry to see exactly who bought a domain name, when it expires, and where they live." },
+                        { cmd: "getent hosts google.com", desc: "Check system resolver.", level: 2, detailed: "Asking the server exactly how it resolves a name, checking both local files (/etc/hosts) and external DNS servers." },
+                        { cmd: "resolvectl flush-caches", desc: "Clear local DNS cache.", level: 2, detailed: "Erasing the server's memory of recent phone numbers so it is forced to call the Phonebook Company again." },
+                        { cmd: "rndc status", desc: "Check BIND DNS server.", level: 4, detailed: "If you ARE the Phonebook Company, this checks if your massive phonebook server is running smoothly." },
+                        { cmd: "nscd -i hosts", desc: "Invalidate nscd cache.", level: 3, detailed: "Clearing out the older Name Service Cache Daemon's memory of domain names." }
+                    ]
+                },
+                {
+                    id: "tuning",
+                    title: "9. Tuning",
+                    icon: "🏎️",
+                    level: 4,
+                    description: "Making the network fast under heavy load.",
+                    commands: [
+                        { cmd: "sysctl -a | grep net", desc: "List all network tunables.", level: 4, detailed: "Opening the 'Advanced Settings' menu of your server to see every tiny dial and switch you can adjust." },
+                        { cmd: "sysctl -w net.ipv4.ip_forward=1", desc: "Enable packet forwarding.", level: 4, detailed: "Turning your server into a 'Traffic Cop' that allows cars to pass through its intersection to other roads (makes it a router)." },
+                        { cmd: "sysctl net.core.somaxconn=4096", desc: "Increase socket backlog.", level: 5, detailed: "Expanding the 'Waiting Room' size for your web server so it can handle 4096 people waiting in line instead of the default 128." },
+                        { cmd: "sysctl net.ipv4.tcp_tw_reuse=1", desc: "Reuse TIME_WAIT sockets.", level: 5, detailed: "Telling the server to immediately recycle old connections that just closed, essential for high-traffic load balancers." },
+                        { cmd: "tc qdisc add dev eth0 root fq", desc: "Enable Fair Queuing.", level: 5, detailed: "Telling the traffic cop to make sure NO single car hogs the road, ensuring everyone gets a fair share of the bandwidth." },
+                        { cmd: "sysctl net.ipv4.tcp_fastopen=3", desc: "Enable TCP Fast Open.", level: 5, detailed: "Allowing returning visitors to skip the 'Hello' handshake and immediately start sending data to speed up page loads." },
+                        { cmd: "ethtool -G eth0 rx 4096 tx 4096", desc: "Increase NIC ring buffers.", level: 5, detailed: "Giving the physical network card a much bigger 'Inbox' and 'Outbox' so it drops fewer letters during a massive storm of mail." },
+                        { cmd: "sysctl -p", desc: "Reload sysctl config.", level: 4, detailed: "Telling the server to read the /etc/sysctl.conf file and apply all your custom tuning dials permanently." },
+                        { cmd: "ethtool -K eth0 gro on", desc: "Enable Receive Offload.", level: 5, detailed: "Telling the network card to bundle up lots of small packages into one big one before handing it to the CPU to save processing power." }
+                    ]
+                },
+                {
+                    id: "monitoring",
+                    title: "10. Monitoring",
+                    icon: "📊",
+                    level: 1,
+                    description: "Observing bandwidth and usage over time.",
+                    commands: [
+                        { cmd: "iftop -i eth0", desc: "Top for network bandwidth.", level: 1, detailed: "A live, updating scoreboard showing exactly which IP addresses are currently hogging the internet speed." },
+                        { cmd: "nload eth0", desc: "Visual bandwidth traffic graph.", level: 1, detailed: "A digital speedometer that shows a graph of your current download and upload speeds." },
+                        { cmd: "vnstat -l", desc: "Live traffic monitoring.", level: 2, detailed: "A lightweight counter that keeps track of exactly how many Gigabytes you've used today, this week, or this month." },
+                        { cmd: "nethogs eth0", desc: "Bandwidth per process.", level: 3, detailed: "Instead of showing IPs, this scoreboard shows exactly WHICH APP (like Chrome or Docker) is eating your bandwidth." },
+                        { cmd: "iptraf-ng", desc: "Interactive network monitor.", level: 2, detailed: "A colorful, old-school text-based dashboard showing TCP connections, UDP traffic, and interface stats." },
+                        { cmd: "sar -n DEV 1", desc: "Historical network stats.", level: 4, detailed: "The system's 'Flight Data Recorder'. It records network usage every few minutes so you can see what happened at 3 AM last night." },
+                        { cmd: "bmon", desc: "Bandwidth monitor & rate.", level: 2, detailed: "A beautifully structured terminal graph showing packet rates and error rates across all interfaces at once." },
+                        { cmd: "tcptrack -i eth0", desc: "Track TCP connections.", level: 3, detailed: "A monitor specifically designed to show you every single TCP connection's state (ESTABLISHED, CLOSING) and its speed." },
+                        { cmd: "slurm -s -i eth0", desc: "Simple network load monitor.", level: 1, detailed: "A very minimalist ASCII graph that draws your network speed using simple text characters." }
+                    ]
+                },
+                {
+                    id: "advanced",
+                    title: "11. Advanced/BPF",
+                    icon: "⚡",
+                    level: 5,
+                    description: "Kernel-level magic and traffic shaping.",
+                    commands: [
+                        { cmd: "tc qdisc add dev eth0 root netem delay 100ms", desc: "Simulate network latency.", level: 5, detailed: "Purposefully sabotaging your own network to add a 100 millisecond delay. Used by developers to see how apps act on bad Wi-Fi." },
+                        { cmd: "tc qdisc add dev eth0 root netem loss 5%", desc: "Simulate packet loss.", level: 5, detailed: "Telling the network card to randomly throw away 5 out of every 100 packages to test application resilience." },
+                        { cmd: "bpftrace -e 'kprobe:tcp_v4_connect { printf(\"%d\\n\", pid); }'", desc: "Trace TCP connections.", level: 5, detailed: "Using eBPF to insert an invisible sensor directly into the computer's brain (kernel) to alert you the microsecond any app tries to connect out." },
+                        { cmd: "tcpdrop", desc: "Trace kernel packet drops.", level: 5, detailed: "An advanced bcc-tool that watches the kernel and tells you EXACTLY why the computer decided to drop a packet (e.g., firewall, full buffer)." },
+                        { cmd: "tcplife", desc: "Trace TCP session lifespans.", level: 5, detailed: "A tool that records exactly when a connection started, when it ended, and how much data was sent, without the heavy overhead of tcpdump." },
+                        { cmd: "tcpretrans", desc: "Trace TCP retransmits.", level: 5, detailed: "Monitoring the network for moments when the server has to say 'I didn't get that, please send it again'. High numbers mean bad network health." },
+                        { cmd: "execsnoop", desc: "Trace new processes.", level: 4, detailed: "Watching the system to see every single command that gets executed, often used to catch malicious scripts trying to make network calls." },
+                        { cmd: "strace -e trace=network ping 8.8.8.8", desc: "Trace app network calls.", level: 5, detailed: "Strapping a body-cam onto the 'ping' program to watch exactly how it talks to the operating system to send its network requests." }
+                    ]
+                }
+            ]
+        };
+
+        // --- State Management ---
+        let state = {
+            currentDomain: "dashboard",
+            masteredCommands: new Set(),
+            searchQuery: "",
+            levelFilter: "all",
+            currentTerminalCmd: ""
+        };
+
+        // --- Core Application Logic ---
+
+        function renderNav() {
+            const navContainer = document.getElementById('navContainer');
+            const mobileNav = document.getElementById('mobileNav');
+            navContainer.innerHTML = '';
+            mobileNav.innerHTML = '';
+
+            appData.domains.forEach(domain => {
+                const btn = document.createElement('button');
+                btn.className = `nav-item w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3 ${state.currentDomain === domain.id ? 'active' : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'}`;
+                btn.innerHTML = `<span class="text-lg">${domain.icon}</span> <span class="truncate">${domain.title}</span>`;
+                btn.onclick = () => switchDomain(domain.id);
+                navContainer.appendChild(btn);
+
+                const pill = document.createElement('button');
+                pill.className = `flex-none px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border ${state.currentDomain === domain.id ? 'bg-sky-500/20 text-sky-400 border-sky-500/50' : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'}`;
+                pill.innerText = `${domain.icon} ${domain.id === 'dashboard' ? 'Overview' : domain.id.split('-')[0]}`;
+                pill.onclick = () => switchDomain(domain.id);
+                mobileNav.appendChild(pill);
+            });
+        }
+
+        function switchDomain(domainId) {
+            state.currentDomain = domainId;
+            renderNav();
+            renderContent();
+            window.scrollTo(0,0);
+        }
+
+        function renderContent() {
+            const container = document.getElementById('mainContent');
+            const domain = appData.domains.find(d => d.id === state.currentDomain);
+            if (!domain) return;
+            container.innerHTML = '';
+
+            const header = document.createElement('div');
+            header.className = "mb-8 bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-xl fade-in-up relative overflow-hidden";
+            header.innerHTML = `
+                <div class="absolute top-0 right-0 w-32 h-32 bg-sky-500/5 rounded-full blur-3xl"></div>
+                <div class="flex items-center gap-4 mb-3 relative z-10">
+                    <span class="text-4xl p-4 bg-slate-800 rounded-xl shadow-inner border border-slate-700">${domain.icon}</span>
+                    <div>
+                        <h2 class="text-3xl font-bold text-slate-100 mb-1 tracking-tight">${domain.title}</h2>
+                        ${domain.level ? `<span class="inline-block px-2.5 py-0.5 rounded-full bg-slate-800 text-sky-400 text-[10px] font-bold uppercase tracking-widest border border-slate-700">Difficulty: Level ${domain.level}</span>` : ''}
+                    </div>
+                </div>
+                <p class="text-slate-400 max-w-3xl relative z-10 ml-2 border-l-2 border-slate-700 pl-4">${domain.description}</p>
+            `;
+            container.appendChild(header);
+
+            if (state.currentDomain === 'dashboard') renderDashboard(container);
+            else renderDomainCommands(container, domain);
+        }
+
+        function renderDashboard(container) {
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6 fade-in-up";
+            grid.style.animationDelay = "0.1s";
+
+            const progressCard = document.createElement('div');
+            progressCard.className = "bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg relative overflow-hidden";
+            progressCard.innerHTML = `
+                <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-sky-500/10 rounded-full blur-3xl"></div>
+                <h3 class="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Skill Mastery</h3>
+                <div class="chart-container"><canvas id="progressChart"></canvas></div>
+            `;
+            grid.appendChild(progressCard);
+
+            const distCard = document.createElement('div');
+            distCard.className = "bg-slate-900 p-6 rounded-2xl border border-slate-800 shadow-lg relative overflow-hidden";
+            distCard.innerHTML = `
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl"></div>
+                <h3 class="text-xl font-bold text-slate-200 mb-6 flex items-center gap-2"><svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg> Category Density</h3>
+                <div class="chart-container"><canvas id="distChart"></canvas></div>
+            `;
+            grid.appendChild(distCard);
+
+            container.appendChild(grid);
+            setTimeout(initCharts, 0);
+        }
+
+        function renderDomainCommands(container, domain) {
+            const list = document.createElement('div');
+            list.className = "grid grid-cols-1 gap-4";
+
+            const filtered = domain.commands.filter(cmd => {
+                const matchesSearch = cmd.cmd.toLowerCase().includes(state.searchQuery.toLowerCase()) || 
+                                      cmd.desc.toLowerCase().includes(state.searchQuery.toLowerCase());
+                const matchesLevel = state.levelFilter === "all" || cmd.level.toString() === state.levelFilter;
+                return matchesSearch && matchesLevel;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="p-12 text-center text-slate-500 bg-slate-900 rounded-2xl border border-dashed border-slate-700 fade-in-up">No tools found matching your search.</div>`;
+            } else {
+                filtered.forEach((cmd, idx) => {
+                    const isMastered = state.masteredCommands.has(cmd.cmd);
+                    const card = document.createElement('div');
+                    card.className = `fade-in-up bg-slate-900 rounded-xl border p-5 transition-all duration-300 flex items-start gap-5 group hover:shadow-[0_0_20px_rgba(0,0,0,0.3)] ${isMastered ? 'border-emerald-500/50 bg-emerald-900/10' : 'border-slate-800 hover:border-sky-500/50'}`;
+                    card.style.animationDelay = `${idx * 0.05}s`;
+                    
+                    const check = document.createElement('button');
+                    check.className = `mt-1 w-7 h-7 flex-none rounded-lg border flex items-center justify-center transition-all duration-300 ${isMastered ? 'bg-emerald-500 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.4)]' : 'bg-slate-800 border-slate-600 text-transparent hover:border-sky-400 group-hover:border-sky-500/50'}`;
+                    check.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>`;
+                    check.onclick = (e) => { e.stopPropagation(); toggleMastery(cmd.cmd); };
+
+                    const info = document.createElement('div');
+                    info.className = "flex-1 cursor-pointer";
+                    info.onclick = () => showTerminalDetail(cmd);
+                    info.innerHTML = `
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <code class="font-mono text-sky-400 font-bold text-sm md:text-base tracking-wide bg-slate-950 px-2 py-1 rounded border border-slate-800">${cmd.cmd}</code>
+                            <span class="text-[10px] px-2.5 py-1 rounded-md bg-slate-800 text-slate-400 font-bold uppercase tracking-widest border border-slate-700">Level ${cmd.level}</span>
+                        </div>
+                        <p class="text-slate-400 text-sm">${cmd.desc}</p>
+                    `;
+
+                    card.appendChild(check);
+                    card.appendChild(info);
+                    list.appendChild(card);
+                });
+            }
+
+            container.appendChild(list);
+        }
+
+        function toggleMastery(cmdId) {
+            if (state.masteredCommands.has(cmdId)) {
+                state.masteredCommands.delete(cmdId);
+            } else {
+                state.masteredCommands.add(cmdId);
+                showToast("Command Mastered!");
+            }
+            renderContent();
+            renderNav();
+            saveState();
+        }
+
+        function showTerminalDetail(cmdObj) {
+            state.currentTerminalCmd = cmdObj.cmd;
+            const terminal = document.getElementById('terminalOutput');
+            const copyBtn = document.getElementById('copyBtn');
+            const now = new Date().toLocaleTimeString('en-US', { hour12: false });
+            
+            terminal.innerHTML = ''; 
+            copyBtn.classList.remove('hidden');
+
+            const head = document.createElement('div');
+            head.className = "mb-5 pb-3 border-b border-slate-800 break-all";
+            head.innerHTML = `<span class="text-sky-500 font-bold">EXEC:</span> <span class="text-slate-200 bg-slate-800 px-2 py-1 rounded">${cmdObj.cmd}</span>`;
+
+            const layman = document.createElement('div');
+            layman.className = "mb-5 p-5 bg-slate-900 rounded-xl border-l-4 border-emerald-500 shadow-inner relative overflow-hidden fade-in-up";
+            layman.innerHTML = `
+                <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
+                <div class="text-[10px] uppercase font-bold text-emerald-500 mb-2 tracking-widest flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Layman Translation
+                </div>
+                <div class="text-slate-300 italic leading-relaxed text-sm">"${cmdObj.detailed}"</div>
+            `;
+
+            const meta = document.createElement('div');
+            meta.className = "text-[10px] text-slate-500 mt-8 font-sans bg-slate-900/50 inline-block px-3 py-1 rounded-full fade-in-up";
+            meta.style.animationDelay = "0.1s";
+            meta.innerHTML = `[${now}] PID: ${Math.floor(Math.random()*9000)+1000} | L${cmdObj.level} Logic`;
+
+            terminal.appendChild(head);
+            terminal.appendChild(layman);
+            terminal.appendChild(meta);
+            
+            const cursor = document.createElement('div');
+            cursor.className = "text-emerald-500 mt-6 font-bold fade-in-up";
+            cursor.style.animationDelay = "0.2s";
+            cursor.innerHTML = `$ <span class="cursor-blink">_</span>`;
+            terminal.appendChild(cursor);
+        }
+
+        function copyCurrentCmd() {
+            if(!state.currentTerminalCmd) return;
+            navigator.clipboard.writeText(state.currentTerminalCmd).then(() => {
+                showToast("Command Copied!");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById("toast");
+            toast.innerText = msg;
+            toast.className = "show";
+            setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 2500);
+        }
+
+        function resetProgress() {
+            if(confirm("Are you sure you want to reset all your mastered progress?")) {
+                state.masteredCommands.clear();
+                saveState();
+                renderContent();
+                renderNav();
+                showToast("Progress Reset");
+            }
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                if(state.currentDomain === 'dashboard') switchDomain('interface');
+                else renderContent();
+            });
+
+            document.getElementById('levelFilter').addEventListener('change', (e) => {
+                state.levelFilter = e.target.value;
+                if(state.currentDomain === 'dashboard') switchDomain('interface');
+                else renderContent();
+            });
+        }
+
+        // Setup Chart.js global defaults for Dark Mode
+        Chart.defaults.color = '#94a3b8'; // slate-400
+        Chart.defaults.font.family = 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+
+        function initCharts() {
+            const total = appData.domains.reduce((acc, d) => acc + (d.commands ? d.commands.length : 0), 0);
+            const mastered = state.masteredCommands.size;
+            
+            const pb = document.getElementById('sidebarProgressBar');
+            if(pb) pb.style.width = `${(mastered/total)*100}%`;
+            const pt = document.getElementById('progressText');
+            if(pt) pt.innerText = `${Math.round((mastered/total)*100)}% Mastered (${mastered}/${total})`;
+
+            const ctx1 = document.getElementById('progressChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Mastered', 'Remaining'],
+                        datasets: [{ 
+                            data: [mastered, total - mastered], 
+                            backgroundColor: ['#10b981', '#1e293b'], // emerald-500, slate-800
+                            borderColor: ['#047857', '#0f172a'],
+                            borderWidth: 2,
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, cutout: '75%', 
+                        plugins: { legend: { position: 'bottom', labels: { padding: 20 } } },
+                        animation: { animateScale: true, animateRotate: true }
+                    }
+                });
+            }
+
+            const ctx2 = document.getElementById('distChart');
+            if (ctx2) {
+                const filtered = appData.domains.filter(d => d.commands);
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: filtered.map(d => d.title.split('.')[0].trim()),
+                        datasets: [{ 
+                            label: 'Commands', 
+                            data: filtered.map(d => d.commands.length), 
+                            backgroundColor: '#38bdf8', // sky-400
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, 
+                        scales: { 
+                            y: { beginAtZero: true, grid: { color: '#1e293b', drawBorder: false } }, 
+                            x: { grid: { display: false, drawBorder: false } } 
+                        },
+                        plugins: { legend: { display: false } },
+                        animation: {
+                            y: { duration: 1000, easing: 'easeOutQuart' }
+                        }
+                    }
+                });
+            }
+        }
+
+        function saveState() { localStorage.setItem('netMastery_mastered_v2', JSON.stringify([...state.masteredCommands])); }
+        function loadState() {
+            const saved = localStorage.getItem('netMastery_mastered_v2');
+            if (saved) state.masteredCommands = new Set(JSON.parse(saved));
+            renderNav();
+        }
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            renderContent();
+            setupEventListeners();
+            loadState();
+        });
+
+    </script>
+</body>
+</html>

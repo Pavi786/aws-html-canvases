@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes CKA Master Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        
+        /* Chart Container Styling per requirements */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Custom Scrollbar for content panels */
+        .custom-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+
+        /* Interactive Component Styles */
+        .k8s-component {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .k8s-component:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .k8s-component.active {
+            ring-width: 2px;
+            ring-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        
+        /* Smooth fade transition */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+    <!-- Chosen Palette: "Warm Neutral & Tech Blue" - Slate background (#f3f4f6) for calmness, White content areas, Blue (#3b82f6) for primary interactions/Control Plane, Emerald (#10b981) for Worker Nodes, Amber (#f59e0b) for Storage, Rose (#f43f5e) for Security. -->
+    
+    <!-- Application Structure Plan: 
+         The app is designed as a "Cluster Architecture Dashboard".
+         1. Top Navigation: Tabs corresponding to the 5 main sections of the guide (Architecture, Objects, Storage, Security, Networking).
+         2. Main Layout: Split screen. Left/Top side displays the Interactive Visualizer (Diagrams/Charts). Right/Bottom side displays the Contextual Information (Layman vs Deep Dive).
+         3. Interaction Flow: Users select a domain -> interact with visual elements (click nodes, simulate scheduling, toggle switches) -> Content panel updates dynamically.
+         4. Rationale: K8s is a system of moving parts. A static text dump is hard to visualize. By separating "Visual Structure" from "Deep Explanations", users can build a mental model of *where* things fit before diving into *how* they work.
+    -->
+    
+    <!-- Visualization & Content Choices:
+         1. Architecture: HTML Grid layout representing the Cluster. GOAL: Show relationships. METHOD: Clickable Divs. JUSTIFICATION: No SVG allowed, CSS Grid is perfect for block diagrams.
+         2. Scheduler: Chart.js Bar Chart. GOAL: Explain "Filtering & Scoring". METHOD: Interactive simulation updates chart data. JUSTIFICATION: Visualizing the scoring algorithm makes the concept concrete.
+         3. Objects: Card Grid with filtering. GOAL: Organize the "Zoo" of objects. METHOD: Filterable HTML list.
+         4. Storage: Flow diagram (HTML/CSS). GOAL: Explain PVC/PV binding. METHOD: CSS transition animation.
+         5. Security: Interactive Checklist. GOAL: Highlight best practices. METHOD: Toggles updating text.
+         CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-slate-900 text-white shadow-lg z-10 shrink-0">
+        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold tracking-tight">Kubernetes CKA Master Control</h1>
+                <p class="text-slate-400 text-sm">Interactive Architecture & Operations Guide</p>
+            </div>
+            <div class="mt-4 md:mt-0">
+                <span class="bg-blue-600 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">Exam Mode: On</span>
+            </div>
+        </div>
+        <!-- Navigation -->
+        <nav class="bg-slate-800 mt-2">
+            <div class="container mx-auto px-4 overflow-x-auto">
+                <div class="flex space-x-1" id="nav-tabs">
+                    <!-- Nav items generated by JS -->
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 container mx-auto px-4 py-6 overflow-hidden flex flex-col lg:flex-row gap-6 relative">
+        
+        <!-- Left Column: Visualizer / Interactive Area -->
+        <section class="w-full lg:w-3/5 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-full">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 flex justify-between items-center shrink-0">
+                <h2 id="visual-title" class="font-bold text-lg text-slate-700">System Visualizer</h2>
+                <div id="visual-controls" class="flex gap-2"></div>
+            </div>
+            
+            <div id="visual-container" class="p-6 overflow-y-auto custom-scroll flex-1 relative bg-slate-50/50">
+                <!-- Dynamic Content Loaded Here -->
+                <div class="flex items-center justify-center h-full text-slate-400">Select a module to begin</div>
+            </div>
+        </section>
+
+        <!-- Right Column: Info / Context / Deep Dive -->
+        <section class="w-full lg:w-2/5 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden h-full">
+            <div class="bg-slate-50 px-6 py-4 border-b border-slate-200 shrink-0">
+                <h2 class="font-bold text-lg text-slate-700">Knowledge Base</h2>
+            </div>
+            
+            <div id="info-panel" class="p-6 overflow-y-auto custom-scroll flex-1">
+                <div class="prose prose-slate max-w-none">
+                    <p class="text-slate-500 italic">Select a component in the visualizer to see deep dive details here.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- Data Store ---
+        const appData = {
+            modules: [
+                { id: 'arch', label: '1. Architecture', color: 'blue' },
+                { id: 'objects', label: '2. Core Objects', color: 'indigo' },
+                { id: 'storage', label: '3. Storage', color: 'amber' },
+                { id: 'security', label: '4. Security', color: 'rose' },
+                { id: 'network', label: '5. Networking', color: 'emerald' }
+            ],
+            content: {
+                arch: {
+                    title: "Kubernetes Architecture Map",
+                    intro: "Kubernetes is like a massive high-end restaurant. The Control Plane manages the orders, while the Worker Nodes do the heavy lifting (cooking). Click on the components in the diagram below to understand their specific roles.",
+                    components: {
+                        'api-server': {
+                            title: "API Server (kube-apiserver)",
+                            role: "The Front Desk Receptionist",
+                            details: `
+                                <h3 class="text-lg font-bold text-blue-600 mb-2">Layman Concept</h3>
+                                <p class="mb-4">The receptionist. <strong>Nobody</strong> talks to the kitchen or the manager directly. Everyone speaks to the receptionist first.</p>
+                                <h3 class="text-lg font-bold text-slate-700 mb-2">Deep Dive (CKA)</h3>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>The <strong>only</strong> component that talks to <code>etcd</code>.</li>
+                                    <li>The <strong>only</strong> component exposed to the outside world.</li>
+                                    <li>Authenticates, validates, and mutates every request.</li>
+                                    <li>If Scheduler or Kubelet need to update status, they call the API Server.</li>
+                                </ul>`
+                        },
+                        'etcd': {
+                            title: "etcd",
+                            role: "The Indestructible Ledger",
+                            details: `
+                                <h3 class="text-lg font-bold text-blue-600 mb-2">Layman Concept</h3>
+                                <p class="mb-4">The master record book. It stores every single detail about the restaurant. If this burns down, the restaurant forgets it exists.</p>
+                                <h3 class="text-lg font-bold text-slate-700 mb-2">Deep Dive (CKA)</h3>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>Distributed key-value store.</li>
+                                    <li>Stores the entire <strong>cluster state</strong> (What is vs. What should be).</li>
+                                    <li>Critical backup target: <code>ETCDCTL_API=3 etcdctl snapshot save</code>.</li>
+                                </ul>`
+                        },
+                        'scheduler': {
+                            title: "Scheduler (kube-scheduler)",
+                            role: "The Seating Host",
+                            details: `
+                                <h3 class="text-lg font-bold text-blue-600 mb-2">Layman Concept</h3>
+                                <p class="mb-4">Decides which table (node) a customer (pod) should sit at based on availability and special requests.</p>
+                                <h3 class="text-lg font-bold text-slate-700 mb-2">Deep Dive (CKA)</h3>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>Does NOT run pods. Only assigns a <code>nodeName</code> property to the Pod spec.</li>
+                                    <li><strong>Step 1: Filtering (Predicates):</strong> Drops nodes that don't fit (Taints, Resources).</li>
+                                    <li><strong>Step 2: Scoring (Priorities):</strong> Ranks remaining nodes (e.g., Image locality, resource spread).</li>
+                                </ul>`
+                        },
+                        'controller': {
+                            title: "Controller Manager",
+                            role: "The Obsessive Manager",
+                            details: `
+                                <h3 class="text-lg font-bold text-blue-600 mb-2">Layman Concept</h3>
+                                <p class="mb-4">Walks around constantly checking if reality matches the plan. "We need 3 salads!" *Counts 2*. "Make another salad!"</p>
+                                <h3 class="text-lg font-bold text-slate-700 mb-2">Deep Dive (CKA)</h3>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>Runs the <strong>Reconciliation Loop</strong>.</li>
+                                    <li>Watches API Server for drift between <code>spec</code> (desired) and <code>status</code> (actual).</li>
+                                    <li>Includes Node Controller, ReplicaSet Controller, Endpoint Controller.</li>
+                                </ul>`
+                        },
+                        'kubelet': {
+                            title: "Kubelet",
+                            role: "The Head Chef",
+                            details: `
+                                <h3 class="text-lg font-bold text-green-600 mb-2">Layman Concept</h3>
+                                <p class="mb-4">The boss of a specific kitchen (Node). Takes orders from the main desk and ensures the food is cooking.</p>
+                                <h3 class="text-lg font-bold text-slate-700 mb-2">Deep Dive (CKA)</h3>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>Agent running on <strong>every</strong> worker node.</li>
+                                    <li>Registers node with API Server.</li>
+                                    <li>Talks to CRI (Container Runtime) to start containers.</li>
+                                    <li>Supports <strong>Static Pods</strong> via <code>/etc/kubernetes/manifests</code>.</li>
+                                </ul>`
+                        },
+                        'proxy': {
+                            title: "Kube-proxy",
+                            role: "The Traffic Cop",
+                            details: `
+                                <h3 class="text-lg font-bold text-green-600 mb-2">Layman Concept</h3>
+                                <p class="mb-4">Ensures the waiter knows exactly which table serves the "Special" dish. Manages internal networking rules.</p>
+                                <h3 class="text-lg font-bold text-slate-700 mb-2">Deep Dive (CKA)</h3>
+                                <ul class="list-disc pl-5 space-y-2">
+                                    <li>Maintains network rules (iptables/IPVS) on the host.</li>
+                                    <li>Handles <strong>Service</strong> abstraction.</li>
+                                    <li>Ensures traffic to a Service IP gets routed to a healthy Pod IP.</li>
+                                </ul>`
+                        }
+                    }
+                },
+                objects: {
+                    title: "Core Objects Gallery",
+                    intro: "These are the building blocks you must be able to create manually from YAML. Understand their lifecycles and relationships.",
+                    items: [
+                        { id: 'pod', type: 'Workload', name: 'Pod', desc: 'The Atomic Unit. A single instance of a running process.', icon: '📦' },
+                        { id: 'deployment', type: 'Controller', name: 'Deployment', desc: 'Manages updates and replicas for stateless apps.', icon: '🚀' },
+                        { id: 'statefulset', type: 'Controller', name: 'StatefulSet', desc: 'For databases. Sticky identities (db-0, db-1).', icon: '💾' },
+                        { id: 'daemonset', type: 'Controller', name: 'DaemonSet', desc: 'Runs one pod on EVERY node (logs, monitoring).', icon: '👻' },
+                        { id: 'service', type: 'Network', name: 'Service', desc: 'Stable IP for dynamic pods. ClusterIP, NodePort, LB.', icon: '🌐' },
+                        { id: 'ingress', type: 'Network', name: 'Ingress', desc: 'L7 Routing (HTTP/HTTPS) + TLS Termination.', icon: '🚪' }
+                    ],
+                    details: {
+                        'pod': "<strong>Lifecycle:</strong> Pending -> ContainerCreating -> Running.<br><strong>Patterns:</strong><br>- <em>InitContainer:</em> Runs before main app (DB check).<br>- <em>Sidecar:</em> Helper container (Log shipper).",
+                        'deployment': "<strong>Rolling Updates:</strong><br>- <em>MaxUnavailable:</em> Max pods down during update.<br>- <em>MaxSurge:</em> Extra pods allowed during update.<br>Manages ReplicaSets automatically.",
+                        'statefulset': "<strong>Headless Service:</strong> Required for DNS identity.<br><strong>Order:</strong> 0 -> 1 -> 2 start. 2 -> 1 -> 0 termination.<br>Persists storage even if pod moves.",
+                        'daemonset': "Use cases: Fluentd (logging), Prometheus Node Exporter, Calico/Flannel (networking).",
+                        'service': "<strong>ClusterIP:</strong> Internal only (default).<br><strong>NodePort:</strong> Open port 30000+ on all nodes.<br><strong>LoadBalancer:</strong> Talks to AWS/GCP LB.",
+                        'ingress': "Routes based on <strong>Host</strong> (api.app.com) or <strong>Path</strong> (/api).<br>Requires an Ingress Controller (e.g., NGINX) to function."
+                    }
+                },
+                storage: {
+                    title: "Storage & Persistence Flow",
+                    intro: "Containers are ephemeral. Storage is permanent. Understand how to decouple storage from the pod using the PV/PVC handshake.",
+                    steps: [
+                        { id: 'sc', label: '1. Admin defines StorageClass', text: 'Defines the "Driver" (e.g., AWS EBS, Azure Disk). Enables Dynamic Provisioning.' },
+                        { id: 'pvc', label: '2. Dev creates PVC', text: 'PersistentVolumeClaim: "I need 10GB ReadWriteOnce". The "Ticket".' },
+                        { id: 'binding', label: '3. Binding', text: 'K8s finds or creates a PV that matches the PVC. They get bound together.' },
+                        { id: 'pod', label: '4. Pod Mounts PVC', text: 'The Pod spec references the PVC name. The Volume is mounted into the container.' }
+                    ]
+                },
+                security: {
+                    title: "Security & RBAC Policies",
+                    intro: "DevSecOps level knowledge. Separate beginner from expert by locking down the cluster. Explore the deep dives below for core YAML structures.",
+                    checklist: [
+                        { id: 'rbac', label: 'RBAC (Least Privilege)', status: false, risk: "User has full admin access!", fix: "Use Role & RoleBinding for Namespace restriction." },
+                        { id: 'user', label: 'RunAsUser (Not Root)', status: false, risk: "Container running as Root (UID 0)!", fix: "Set securityContext.runAsUser: 1000" },
+                        { id: 'fs', label: 'Read-Only Filesystem', status: false, risk: "Hacker can download malware!", fix: "Set readOnlyRootFilesystem: true" },
+                        { id: 'netpol', label: 'Network Policies', status: false, risk: "All pods can talk to all pods!", fix: "Default Deny-All, then whitelist Ingress/Egress." }
+                    ],
+                    deepDives: {
+                        'rbac': {
+                            title: "RBAC Deep Dive & YAMLs",
+                            icon: "🔐",
+                            description: "<strong>Role-Based Access Control (RBAC)</strong> defines WHO can do WHAT to WHICH resources. Always follow the Principle of Least Privilege.",
+                            yamls: `
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-bold text-slate-700 mb-1">1. Role (Namespace Scoped)</h4>
+                                        <p class="text-xs text-slate-500 mb-2">Defines permissions within a specific namespace. Here, the ability to get/list pods.</p>
+                                        <pre class="bg-slate-800 text-green-400 p-3 rounded-md text-xs overflow-x-auto font-mono"><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: pod-reader
+rules:
+- apiGroups: [""] # Core API
+  resources: ["pods"]
+  verbs: ["get", "watch", "list"]</code></pre>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-700 mb-1">2. RoleBinding</h4>
+                                        <p class="text-xs text-slate-500 mb-2">Binds the Role to a User (or ServiceAccount/Group) in that namespace.</p>
+                                        <pre class="bg-slate-800 text-green-400 p-3 rounded-md text-xs overflow-x-auto font-mono"><code>apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: read-pods
+  namespace: default
+subjects:
+- kind: User
+  name: jane
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: pod-reader
+  apiGroup: rbac.authorization.k8s.io</code></pre>
+                                    </div>
+                                    <div class="p-3 bg-indigo-50 border-l-4 border-indigo-500 text-indigo-800 text-xs rounded">
+                                        <strong>Pro Tip:</strong> Use <code>ClusterRole</code> and <code>ClusterRoleBinding</code> if you need cluster-wide permissions (like viewing Nodes or PVs).
+                                    </div>
+                                </div>`
+                        },
+                        'netpol': {
+                            title: "Network Policies Deep Dive & YAMLs",
+                            icon: "🧱",
+                            description: "<strong>Network Policies</strong> are the firewall rules of Kubernetes. By default, K8s allows all Pod-to-Pod communication (a huge risk).",
+                            yamls: `
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-bold text-slate-700 mb-1">1. Default Deny-All (Crucial First Step)</h4>
+                                        <p class="text-xs text-slate-500 mb-2">Apply this to every namespace to block all incoming and outgoing traffic by default.</p>
+                                        <pre class="bg-slate-800 text-green-400 p-3 rounded-md text-xs overflow-x-auto font-mono"><code>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-all
+  namespace: secure-ns
+spec:
+  podSelector: {} # Empty means ALL pods
+  policyTypes:
+  - Ingress
+  - Egress</code></pre>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-700 mb-1">2. Allow Specific Ingress Traffic</h4>
+                                        <p class="text-xs text-slate-500 mb-2">Opens traffic ONLY from pods labeled <code>frontend</code> to pods labeled <code>backend</code> on port 8080.</p>
+                                        <pre class="bg-slate-800 text-green-400 p-3 rounded-md text-xs overflow-x-auto font-mono"><code>apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-allow
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: frontend
+    ports:
+    - protocol: TCP
+      port: 8080</code></pre>
+                                    </div>
+                                </div>`
+                        }
+                    }
+                },
+                network: {
+                    title: "Networking & CNI",
+                    intro: "The Golden Rule: Every Pod gets an IP. Pods talk without NAT. Understand how CNI plugins make this happen via Overlay Networks.",
+                    concepts: [
+                        { title: "CNI Plugins", desc: "<strong>Flannel:</strong> Simple overlay.<br><strong>Calico:</strong> Policies + BGP.<br><strong>Cilium:</strong> eBPF speed." },
+                        { title: "Overlay (VXLAN)", desc: "Wraps pod packet (Layer 3) inside Node packet (Layer 3) to cross the cloud network." },
+                        { title: "DNS (CoreDNS)", desc: "Resolves <code>mydb.default.svc.cluster.local</code> to the Service ClusterIP." }
+                    ]
+                }
+            }
+        };
+
+        // --- State Management ---
+        let state = {
+            currentTab: 'arch',
+            charts: {}
+        };
+
+        // --- DOM Elements ---
+        const navContainer = document.getElementById('nav-tabs');
+        const visualContainer = document.getElementById('visual-container');
+        const visualTitle = document.getElementById('visual-title');
+        const visualControls = document.getElementById('visual-controls');
+        const infoPanel = document.getElementById('info-panel');
+
+        // --- Initialization ---
+        function init() {
+            renderNav();
+            loadTab('arch');
+        }
+
+        // --- Render Navigation ---
+        function renderNav() {
+            navContainer.innerHTML = appData.modules.map(mod => `
+                <button 
+                    onclick="loadTab('${mod.id}')"
+                    class="px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap border-b-2 ${state.currentTab === mod.id ? `border-${mod.color}-500 text-${mod.color}-600 bg-slate-800` : 'border-transparent text-slate-400 hover:text-white'}"
+                    id="nav-${mod.id}"
+                >
+                    ${mod.label}
+                </button>
+            `).join('');
+        }
+
+        // --- Load Tab Logic ---
+        function loadTab(tabId) {
+            state.currentTab = tabId;
+            renderNav(); // Update active state styling
+            
+            // Update Title
+            visualTitle.innerText = appData.content[tabId].title;
+            
+            // Reset Info Panel with Intro
+            infoPanel.innerHTML = `
+                <div class="prose prose-slate max-w-none fade-in">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">Overview</h3>
+                    <p>${appData.content[tabId].intro}</p>
+                    <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-700 text-sm">
+                        <p class="font-bold">Interact with the visualizer on the left to learn more.</p>
+                    </div>
+                </div>
+            `;
+
+            // Clear Controls
+            visualControls.innerHTML = '';
+
+            // Render Specific Content
+            visualContainer.innerHTML = '';
+            
+            if (tabId === 'arch') renderArchitecture();
+            else if (tabId === 'objects') renderObjects();
+            else if (tabId === 'storage') renderStorage();
+            else if (tabId === 'security') renderSecurity();
+            else if (tabId === 'network') renderNetwork();
+        }
+
+        // --- 1. Architecture Visualizer ---
+        function renderArchitecture() {
+            const html = `
+                <div class="flex flex-col gap-6 h-full fade-in">
+                    <!-- Control Plane -->
+                    <div class="border-2 border-dashed border-blue-200 rounded-xl p-4 bg-blue-50/30">
+                        <div class="text-xs font-bold text-blue-500 uppercase tracking-wider mb-3">Control Plane (Master Node)</div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div onclick="showArchDetail('api-server')" class="k8s-component col-span-2 bg-blue-600 text-white p-4 rounded-lg text-center font-bold shadow-md">
+                                API Server
+                                <div class="text-[10px] opacity-80 font-normal">The Brain (Hub)</div>
+                            </div>
+                            <div onclick="showArchDetail('etcd')" class="k8s-component bg-slate-700 text-white p-3 rounded-lg text-center font-semibold text-sm">
+                                etcd
+                                <div class="text-[10px] opacity-70 font-normal">State Store</div>
+                            </div>
+                            <div class="grid grid-rows-2 gap-2">
+                                <div onclick="showArchDetail('scheduler')" class="k8s-component bg-blue-100 text-blue-800 border border-blue-200 p-2 rounded text-center text-xs font-bold">
+                                    Scheduler
+                                </div>
+                                <div onclick="showArchDetail('controller')" class="k8s-component bg-blue-100 text-blue-800 border border-blue-200 p-2 rounded text-center text-xs font-bold">
+                                    Controller Mgr
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Connection Lines (Visual Only) -->
+                    <div class="flex justify-center -my-4 z-0">
+                        <div class="h-8 w-0.5 bg-slate-300"></div>
+                    </div>
+
+                    <!-- Worker Node -->
+                    <div class="border-2 border-dashed border-emerald-200 rounded-xl p-4 bg-emerald-50/30 flex-1">
+                        <div class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3">Worker Node</div>
+                        <div class="flex gap-4 h-full">
+                            <div class="w-1/3 flex flex-col gap-2">
+                                <div onclick="showArchDetail('kubelet')" class="k8s-component bg-emerald-600 text-white p-3 rounded-lg text-center font-bold text-sm shadow-md">
+                                    Kubelet
+                                    <div class="text-[10px] opacity-80 font-normal">The Agent</div>
+                                </div>
+                                <div onclick="showArchDetail('proxy')" class="k8s-component bg-emerald-100 text-emerald-800 border border-emerald-200 p-2 rounded text-center text-xs font-bold">
+                                    Kube-Proxy
+                                </div>
+                            </div>
+                            <div class="w-2/3 bg-white border border-slate-200 rounded-lg p-3 flex flex-wrap gap-2 content-start">
+                                <div class="w-full text-[10px] text-slate-400 uppercase text-center mb-1">Container Runtime (CRI)</div>
+                                <div class="bg-slate-100 border border-slate-300 rounded p-2 text-xs flex items-center gap-2 w-full">
+                                    <span class="text-xl">📦</span> Pod A
+                                </div>
+                                <div class="bg-slate-100 border border-slate-300 rounded p-2 text-xs flex items-center gap-2 w-full">
+                                    <span class="text-xl">📦</span> Pod B
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            visualContainer.innerHTML = html;
+            
+            // Add Scheduler Simulation Button
+            visualControls.innerHTML = `<button onclick="simulateScheduler()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded shadow transition">Simulate Schedule</button>`;
+        }
+
+        function showArchDetail(key) {
+            const data = appData.content.arch.components[key];
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-blue-100 p-2 rounded-lg text-2xl">🏗️</div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">${data.title}</h2>
+                            <p class="text-sm text-slate-500 font-medium">${data.role}</p>
+                        </div>
+                    </div>
+                    <div class="prose prose-sm prose-slate max-w-none">
+                        ${data.details}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Scheduler Simulation (Chart.js) ---
+        function simulateScheduler() {
+            visualContainer.innerHTML = `
+                <div class="flex flex-col h-full fade-in">
+                    <div class="text-sm text-slate-600 mb-2">Scheduler Scoring Simulation: <span class="font-bold">Pod Requires 2GB RAM</span></div>
+                    <div class="chart-container flex-1">
+                        <canvas id="schedulerChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-slate-100 rounded text-xs text-slate-600">
+                        Algorithm: 1. Filter (Node C removed - Taint). 2. Score (Node A has more free RAM than Node B).
+                    </div>
+                    <button onclick="renderArchitecture()" class="mt-2 text-blue-600 text-sm hover:underline self-start">← Back to Map</button>
+                </div>
+            `;
+
+            const ctx = document.getElementById('schedulerChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Node A (8GB Free)', 'Node B (3GB Free)', 'Node C (Tainted)'],
+                    datasets: [{
+                        label: 'Scheduler Score (0-100)',
+                        data: [95, 40, 0],
+                        backgroundColor: ['#10b981', '#fbbf24', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if(context.raw === 0) return "Filtered Out (Taint)";
+                                    if(context.raw === 95) return "Winner (Best Fit)";
+                                    return "Valid but Lower Score";
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">How Scheduling Works</h3>
+                    <p class="text-sm text-slate-600 mb-4">The scheduler doesn't just pick a random node. It's a 2-step process.</p>
+                    <ol class="list-decimal pl-5 space-y-3 text-sm text-slate-700">
+                        <li><strong>Filtering:</strong> Node C is red (0) because it has a "Taint" that the Pod doesn't tolerate. It is immediately dropped.</li>
+                        <li><strong>Scoring:</strong> Between Node A and Node B, Node A has more free RAM, so the "LeastRequestedPriority" function gives it a higher score.</li>
+                        <li><strong>Binding:</strong> The Scheduler sets <code>nodeName: Node A</code> on the Pod spec.</li>
+                    </ol>
+                </div>
+            `;
+        }
+
+        // --- 2. Objects Visualizer ---
+        function renderObjects() {
+            const items = appData.content.objects.items;
+            const html = `
+                <div class="grid grid-cols-2 lg:grid-cols-2 gap-4 fade-in">
+                    ${items.map(item => `
+                        <div onclick="showObjectDetail('${item.id}')" class="k8s-component bg-white border border-slate-200 rounded-lg p-4 hover:border-indigo-400 group">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-2xl">${item.icon}</span>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded">${item.type}</span>
+                            </div>
+                            <h3 class="font-bold text-slate-700 group-hover:text-indigo-600">${item.name}</h3>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">${item.desc}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            visualContainer.innerHTML = html;
+        }
+
+        function showObjectDetail(id) {
+            const item = appData.content.objects.items.find(i => i.id === id);
+            const detailText = appData.content.objects.details[id];
+            
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-indigo-100 p-2 rounded-lg text-2xl">${item.icon}</div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">${item.name}</h2>
+                            <p class="text-sm text-indigo-600 font-medium">${item.type}</p>
+                        </div>
+                    </div>
+                    <div class="bg-indigo-50 border-l-4 border-indigo-500 p-4 mb-4">
+                        <p class="text-sm text-indigo-900">${item.desc}</p>
+                    </div>
+                    <div class="prose prose-sm prose-slate max-w-none">
+                        <h4 class="font-bold text-slate-700">CKA Essentials:</h4>
+                        <div class="text-slate-600 text-sm space-y-2">
+                            ${detailText}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- 3. Storage Visualizer ---
+        function renderStorage() {
+            const steps = appData.content.storage.steps;
+            const html = `
+                <div class="flex flex-col h-full justify-between fade-in relative">
+                     <!-- PV / PVC Animation Container -->
+                     <div class="flex-1 flex flex-col items-center justify-center gap-4 relative">
+                        <div class="w-full max-w-sm border-l-2 border-amber-300 pl-6 space-y-6">
+                            ${steps.map(step => `
+                                <div onclick="showStorageDetail('${step.id}')" class="k8s-component relative">
+                                    <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full bg-amber-400 border-2 border-white ring-2 ring-amber-100"></div>
+                                    <h4 class="font-bold text-slate-700 text-sm">${step.label}</h4>
+                                    <p class="text-xs text-slate-500 mt-1 truncate">${step.text}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                     </div>
+                     <div class="mt-4 p-3 bg-amber-50 rounded border border-amber-200 text-xs text-amber-800">
+                        <strong>Access Modes Rule:</strong> 
+                        <br>EBS (Block) = ReadWriteOnce (One Node). 
+                        <br>EFS/NFS (File) = ReadWriteMany (Many Nodes).
+                     </div>
+                </div>
+            `;
+            visualContainer.innerHTML = html;
+        }
+
+        function showStorageDetail(stepId) {
+            const step = appData.content.storage.steps.find(s => s.id === stepId);
+            let extraContent = "";
+            if (stepId === 'sc') extraContent = "<p class='text-xs mt-2 text-slate-500'>Without StorageClass, Admins must manually create PVs for every claim. StorageClass automates this (Dynamic Provisioning).</p>";
+            if (stepId === 'pvc') extraContent = "<p class='text-xs mt-2 text-slate-500'>A PVC is a <strong>Claim</strong> (Request). It is NOT the actual storage.</p>";
+            
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                     <div class="bg-amber-100 p-2 rounded-lg text-2xl w-min mb-3">💾</div>
+                     <h3 class="text-lg font-bold text-slate-800 mb-2">${step.label}</h3>
+                     <p class="text-slate-700 mb-4">${step.text}</p>
+                     ${extraContent}
+                     
+                     <div class="mt-6 border-t pt-4">
+                        <h4 class="font-bold text-sm text-slate-700 mb-2">Volume Types</h4>
+                        <ul class="text-xs space-y-2 text-slate-600">
+                            <li><strong>emptyDir:</strong> Temporary (Cache). Dies with Pod.</li>
+                            <li><strong>hostPath:</strong> DANGEROUS. Ties pod to specific node.</li>
+                            <li><strong>ConfigMap/Secret:</strong> Inject configs/passwords.</li>
+                        </ul>
+                     </div>
+                </div>
+            `;
+        }
+
+        // --- 4. Security Visualizer ---
+        function renderSecurity() {
+            const list = appData.content.security.checklist;
+            const html = `
+                <div class="fade-in h-full flex flex-col">
+                    <div class="bg-rose-50 border border-rose-200 rounded-lg p-4 mb-4">
+                        <h3 class="font-bold text-rose-700 text-sm mb-1">⚠️ Security Lockdown Dashboard</h3>
+                        <p class="text-xs text-rose-600">Toggle switches to secure the cluster.</p>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        ${list.map(item => `
+                            <div class="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-lg shadow-sm">
+                                <div>
+                                    <div class="font-bold text-slate-700 text-sm">${item.label}</div>
+                                    <div class="text-[10px] text-slate-400" id="status-text-${item.id}">Currently: ${item.status ? 'SECURE' : 'VULNERABLE'}</div>
+                                </div>
+                                <button onclick="toggleSecurity('${item.id}')" 
+                                    class="w-12 h-6 rounded-full p-1 transition-colors duration-300 focus:outline-none ${item.status ? 'bg-emerald-500' : 'bg-slate-300'}"
+                                >
+                                    <div class="bg-white w-4 h-4 rounded-full shadow-md transform duration-300 ${item.status ? 'translate-x-6' : ''}"></div>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- Core Deep Dives -->
+                    <div class="mt-auto border-t border-slate-200 pt-4">
+                        <h3 class="font-bold text-slate-700 text-sm mb-3">Core Deep Dives (Explore YAMLs)</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div onclick="showSecurityDeepDive('rbac')" class="k8s-component bg-indigo-50 border border-indigo-200 p-3 rounded-lg text-center hover:bg-indigo-100 transition shadow-sm">
+                                <div class="text-2xl mb-1">🔐</div>
+                                <div class="font-bold text-indigo-900 text-xs uppercase tracking-wide">RBAC Patterns</div>
+                            </div>
+                            <div onclick="showSecurityDeepDive('netpol')" class="k8s-component bg-emerald-50 border border-emerald-200 p-3 rounded-lg text-center hover:bg-emerald-100 transition shadow-sm">
+                                <div class="text-2xl mb-1">🧱</div>
+                                <div class="font-bold text-emerald-900 text-xs uppercase tracking-wide">Network Policies</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            visualContainer.innerHTML = html;
+        }
+
+        function showSecurityDeepDive(key) {
+            const data = appData.content.security.deepDives[key];
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="bg-white border border-slate-200 shadow-sm p-2 rounded-lg text-2xl">${data.icon}</div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">${data.title}</h2>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded text-sm text-blue-900">
+                        ${data.description}
+                    </div>
+                    <div class="prose prose-sm max-w-none">
+                        ${data.yamls}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleSecurity(id) {
+            const item = appData.content.security.checklist.find(i => i.id === id);
+            item.status = !item.status;
+            
+            // Re-render visual to show toggle state
+            renderSecurity();
+            
+            // Show Context
+            const statusColor = item.status ? 'text-emerald-600' : 'text-rose-600';
+            const statusTitle = item.status ? '✅ SECURED' : '❌ RISK DETECTED';
+            
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="text-sm font-bold ${statusColor}">${statusTitle}</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">${item.label}</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-rose-50 p-3 rounded border border-rose-100">
+                            <h4 class="text-xs font-bold text-rose-800 uppercase mb-1">The Risk</h4>
+                            <p class="text-sm text-rose-700">${item.risk}</p>
+                        </div>
+                        
+                        <div class="bg-emerald-50 p-3 rounded border border-emerald-100">
+                            <h4 class="text-xs font-bold text-emerald-800 uppercase mb-1">The Fix (CKA)</h4>
+                            <p class="text-sm text-emerald-700 font-mono">${item.fix}</p>
+                        </div>
+                    </div>
+
+                    ${id === 'rbac' ? `<p class="mt-4 text-xs text-slate-500">Tip: Always bind specific verbs (get, list) to specific resources (pods) in a specific namespace.</p>` : ''}
+                    ${id === 'user' ? `<p class="mt-4 text-xs text-slate-500">Tip: Container user ID 0 is Root. Use <code>runAsUser: 1000</code> or higher.</p>` : ''}
+                </div>
+            `;
+        }
+
+        // --- 5. Network Visualizer ---
+        function renderNetwork() {
+            visualContainer.innerHTML = `
+                <div class="flex flex-col gap-4 h-full fade-in">
+                    <!-- Concept Cards -->
+                    <div class="grid grid-cols-1 gap-3">
+                        <div onclick="showNetDetail('cni')" class="k8s-component bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center gap-3">
+                            <div class="bg-emerald-200 p-2 rounded text-lg">🔌</div>
+                            <div>
+                                <h4 class="font-bold text-emerald-900 text-sm">CNI (The Plugin)</h4>
+                                <p class="text-[10px] text-emerald-700">Flannel, Calico, Cilium</p>
+                            </div>
+                        </div>
+                        <div onclick="showNetDetail('overlay')" class="k8s-component bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center gap-3">
+                            <div class="bg-emerald-200 p-2 rounded text-lg">📦</div>
+                            <div>
+                                <h4 class="font-bold text-emerald-900 text-sm">Overlay (VXLAN)</h4>
+                                <p class="text-[10px] text-emerald-700">Pod Packet inside Node Packet</p>
+                            </div>
+                        </div>
+                        <div onclick="showNetDetail('dns')" class="k8s-component bg-emerald-50 border border-emerald-200 p-3 rounded-lg flex items-center gap-3">
+                            <div class="bg-emerald-200 p-2 rounded text-lg">🌍</div>
+                            <div>
+                                <h4 class="font-bold text-emerald-900 text-sm">CoreDNS & Services</h4>
+                                <p class="text-[10px] text-emerald-700">Service Discovery</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Diagram of Overlay -->
+                    <div class="flex-1 bg-slate-900 rounded-lg p-4 relative overflow-hidden flex flex-col justify-center items-center">
+                        <div class="text-white text-xs mb-4 font-mono opacity-60">Packet Journey (Node A -> Node B)</div>
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 h-16 bg-blue-500 rounded flex items-center justify-center text-white text-xs text-center p-1">Pod A<br>192.168.1.5</div>
+                            <div class="text-white">→</div>
+                            <div class="w-20 h-20 border-2 border-dashed border-emerald-500 rounded flex flex-col items-center justify-center text-white text-[10px] text-center p-1">
+                                <div>Node A (CNI)</div>
+                                <div class="bg-emerald-700 px-1 rounded mt-1">Encapsulate</div>
+                            </div>
+                            <div class="h-0.5 w-10 bg-white opacity-20"></div>
+                            <div class="w-20 h-20 border-2 border-dashed border-emerald-500 rounded flex flex-col items-center justify-center text-white text-[10px] text-center p-1">
+                                <div>Node B (CNI)</div>
+                                <div class="bg-emerald-700 px-1 rounded mt-1">Decapsulate</div>
+                            </div>
+                            <div class="text-white">→</div>
+                            <div class="w-16 h-16 bg-blue-500 rounded flex items-center justify-center text-white text-xs text-center p-1">Pod B<br>192.168.2.5</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showNetDetail(key) {
+            const content = {
+                cni: { title: "CNI (Container Network Interface)", text: "K8s doesn't do networking. It outsources it. <br><strong>Calico:</strong> Standard, supports Network Policies (BGP).<br><strong>Cilium:</strong> Modern, uses eBPF (Kernel sandboxing) for speed." },
+                overlay: { title: "Overlay Networks (VXLAN)", text: "<strong>The Problem:</strong> AWS routers don't know Pod IPs.<br><strong>The Solution:</strong> The CNI wraps the Pod packet inside a Node packet. It travels over the AWS network as normal traffic, then gets unwrapped at the destination." },
+                dns: { title: "Service Networking", text: "<strong>CoreDNS:</strong> Resolves names like <code>db-service</code> to a ClusterIP.<br><strong>Kube-Proxy:</strong> Uses iptables to route that ClusterIP to a real Pod IP." }
+            };
+            const data = content[key];
+            
+            infoPanel.innerHTML = `
+                <div class="fade-in">
+                    <h3 class="text-lg font-bold text-slate-800 mb-2">${data.title}</h3>
+                    <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 mb-4">
+                        <p class="text-sm text-emerald-900">${data.text}</p>
+                    </div>
+                    <p class="text-xs text-slate-500"><strong>Golden Rule:</strong> Pods must be able to communicate across nodes without NAT.</p>
+                </div>
+            `;
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>

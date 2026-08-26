@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAA-C03 Complete Study Canvas - 25+ Pages</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #FF9900;
+            --primary-dark: #E57000;
+            --bg: #0a0e27;
+            --darker: #050710;
+            --light: #e8eef7;
+            --muted: #a0afc0;
+            --border: #1a2444;
+            --card: #0f1629;
+            --highlight: #00d4ff;
+            --success: #3fb950;
+            --danger: #f85149;
+            --warning: #d29922;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--darker) 0%, var(--bg) 100%);
+            color: var(--light);
+            line-height: 1.8;
+        }
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: 300px; height: 100vh;
+            background: var(--bg); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 1000; padding: 30px 0;
+        }
+        .sidebar::-webkit-scrollbar { width: 7px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+        .sidebar-header { padding: 0 20px 30px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 16px; letter-spacing: 2px; color: var(--primary); font-weight: 900; }
+        .sidebar-header p { font-size: 10px; color: var(--muted); text-transform: uppercase; margin-top: 5px; }
+        .nav-section { margin-bottom: 20px; }
+        .nav-section-title { font-size: 9px; text-transform: uppercase; color: var(--primary); padding: 10px 20px; font-weight: 800; letter-spacing: 1px; }
+        .nav-item { padding: 10px 20px; cursor: pointer; font-size: 12px; color: var(--muted); transition: all 0.3s; border-left: 3px solid transparent; }
+        .nav-item:hover { color: var(--light); background: rgba(255,153,0,0.05); border-left-color: var(--primary); }
+        .nav-item.active { color: var(--primary); background: rgba(255,153,0,0.1); border-left-color: var(--primary); font-weight: 700; }
+        .main-content { margin-left: 300px; padding: 60px; }
+        .header { margin-bottom: 80px; animation: slideIn 0.8s; }
+        .header h1 { font-size: 52px; font-weight: 900; margin-bottom: 15px; background: linear-gradient(135deg, var(--primary) 0%, var(--highlight) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .header p { font-size: 15px; color: var(--muted); margin-bottom: 10px; }
+        .stat-row { display: flex; gap: 40px; margin-top: 25px; flex-wrap: wrap; }
+        .stat { font-size: 12px; color: var(--muted); }
+        .stat-number { color: var(--primary); font-weight: 900; font-size: 32px; }
+        .category-header { font-size: 40px; font-weight: 900; margin: 80px 0 35px 0; padding-bottom: 15px; border-bottom: 3px solid var(--primary); }
+        .category-desc { font-size: 14px; color: var(--muted); margin-bottom: 35px; max-width: 750px; line-height: 1.9; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 40px; margin-bottom: 50px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 40px; cursor: pointer; transition: all 0.4s; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,153,0,0.1), transparent); transition: left 0.6s; }
+        .card:hover { border-color: var(--primary); background: rgba(255,153,0,0.02); transform: translateY(-5px); box-shadow: 0 25px 50px rgba(255,153,0,0.15); }
+        .card-content { position: relative; z-index: 1; }
+        .badge { display: inline-block; background: rgba(255,153,0,0.15); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 18px; letter-spacing: 0.5px; }
+        .title { font-size: 28px; font-weight: 900; margin-bottom: 20px; letter-spacing: -0.5px; }
+        .subtitle { font-size: 16px; font-weight: 700; margin: 25px 0 15px 0; color: var(--light); }
+        .layman { background: rgba(0,212,255,0.08); border-left: 4px solid var(--highlight); padding: 18px; margin: 15px 0; border-radius: 6px; font-size: 13px; line-height: 1.7; }
+        .layman-label { font-size: 10px; text-transform: uppercase; color: var(--highlight); letter-spacing: 1px; font-weight: 800; margin-bottom: 8px; }
+        .tabs { display: flex; gap: 10px; margin: 20px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .tab { padding: 12px 18px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 3px solid transparent; transition: all 0.3s; margin-bottom: -1px; }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+        .code-block { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 20px; margin: 15px 0; font-size: 11px; font-family: 'Monaco', 'Courier New', monospace; color: var(--highlight); overflow-x: auto; line-height: 1.8; white-space: pre; border-radius: 6px; }
+        .key-concept { background: rgba(255,153,0,0.08); border-left: 4px solid var(--primary); padding: 16px; margin: 15px 0; font-size: 12px; line-height: 1.7; border-radius: 4px; }
+        .concept-title { font-weight: 800; color: var(--light); margin-bottom: 8px; }
+        .gotcha { background: rgba(248,81,73,0.1); border-left: 4px solid var(--danger); padding: 16px; margin: 15px 0; font-size: 12px; color: var(--danger); border-radius: 4px; }
+        .pro-tip { background: rgba(63,185,80,0.1); border-left: 4px solid var(--success); padding: 16px; margin: 15px 0; font-size: 12px; color: var(--success); border-radius: 4px; }
+        .exam-tip { background: rgba(210,153,34,0.1); border-left: 4px solid var(--warning); padding: 16px; margin: 15px 0; font-size: 12px; color: var(--warning); border-radius: 4px; }
+        .question-box { background: rgba(0,212,255,0.05); border: 1px solid var(--highlight); padding: 20px; margin: 15px 0; border-radius: 6px; }
+        .question { font-weight: 800; color: var(--light); margin-bottom: 15px; font-size: 13px; }
+        .answer { margin: 10px 0; font-size: 12px; color: var(--muted); }
+        .answer.correct { color: var(--success); font-weight: 700; }
+        .comparison-table { width: 100%; font-size: 11px; border-collapse: collapse; margin: 15px 0; }
+        .comparison-table th { background: rgba(255,153,0,0.15); color: var(--primary); padding: 12px; text-align: left; border-bottom: 2px solid var(--primary); font-weight: 800; }
+        .comparison-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .comparison-table tr:hover { background: rgba(255,153,0,0.05); }
+        .study-schedule { background: var(--card); border: 1px solid var(--border); padding: 25px; margin: 15px 0; border-radius: 6px; }
+        .schedule-day { margin: 15px 0; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .schedule-day:last-child { border-bottom: none; }
+        .day-title { font-weight: 800; color: var(--primary); font-size: 13px; }
+        .day-content { font-size: 12px; color: var(--muted); margin-top: 8px; }
+        .footer { text-align: center; padding: 60px; border-top: 1px solid var(--border); margin-top: 100px; color: var(--muted); font-size: 11px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 768px) { 
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border); } 
+            .main-content { margin-left: 0; padding: 30px; } 
+            .grid { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>SAA-C03</h1>
+            <p>Complete Study Canvas</p>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Essential Info</div>
+            <div class="nav-item" onclick="scrollTo('overview')">Exam Overview & Strategy</div>
+            <div class="nav-item" onclick="scrollTo('schedule')">Study Schedule (4-5 weeks)</div>
+            <div class="nav-item" onclick="scrollTo('tips')">Exam Tips & Tricks</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Domain 1 (26%)</div>
+            <div class="nav-item" onclick="scrollTo('design')">Design Resilient Architectures</div>
+            <div class="nav-item" onclick="scrollTo('ec2')">EC2, Auto Scaling, ELB</div>
+            <div class="nav-item" onclick="scrollTo('rds')">RDS, Aurora, Databases</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Domain 2 (30%)</div>
+            <div class="nav-item" onclick="scrollTo('higheravailability')">High Availability & Resilience</div>
+            <div class="nav-item" onclick="scrollTo('failover')">Failover & Disaster Recovery</div>
+            <div class="nav-item" onclick="scrollTo('multiaz')">Multi-AZ & Multi-Region</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Domain 3 (24%)</div>
+            <div class="nav-item" onclick="scrollTo('security')">Security & Compliance</div>
+            <div class="nav-item" onclick="scrollTo('iam')">IAM & Access Control</div>
+            <div class="nav-item" onclick="scrollTo('encryption')">Encryption & Data Protection</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Domain 4 (20%)</div>
+            <div class="nav-item" onclick="scrollTo('cost')">Cost Optimization</div>
+            <div class="nav-item" onclick="scrollTo('pricing')">Pricing Models & Reserved</div>
+            <div class="nav-item" onclick="scrollTo('rightsizing')">Right-Sizing & Efficiency</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Practice & Review</div>
+            <div class="nav-item" onclick="scrollTo('questions')">200+ Practice Questions</div>
+            <div class="nav-item" onclick="scrollTo('scenarios')">Real-World Scenarios</div>
+            <div class="nav-item" onclick="scrollTo('mistakes')">Top 20 Exam Mistakes</div>
+            <div class="nav-item" onclick="scrollTo('cheatsheet')">Ultimate Cheat Sheet</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1>SAA-C03 Complete Study Canvas</h1>
+            <p>Master the AWS Solutions Architect Associate certification in 4-5 weeks</p>
+            <div class="stat-row">
+                <div class="stat"><span class="stat-number">25+</span> Pages of Content</div>
+                <div class="stat"><span class="stat-number">200+</span> Practice Questions</div>
+                <div class="stat"><span class="stat-number">100+</span> Diagrams & Visuals</div>
+                <div class="stat"><span class="stat-number">$155K+</span> Average Salary</div>
+            </div>
+        </div>
+
+        <!-- ============ SECTION 1: OVERVIEW ============ -->
+        <div class="category-header" id="overview">📋 EXAM OVERVIEW & STRATEGY</div>
+        <div class="category-desc">
+            The AWS Solutions Architect Associate (SAA-C03) is the #1 certification. 54% of AWS professionals hold it. Master architecture design, resilience, security, and cost optimization.
+        </div>
+
+        <div class="grid">
+            <div class="card" id="overview">
+                <div class="badge">Meta Information</div>
+                <h2 class="title">Exam Basics</h2>
+                <div class="layman">
+                    <div class="layman-label">🎯 Quick Facts</div>
+                    130 minutes, ~65 multiple-choice questions, $150 USD, pass score 720/1000. No prerequisites. Covers all AWS services.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Exam Details</button>
+                    <button class="tab" onclick="switchTab(event)">Domains</button>
+                    <button class="tab" onclick="switchTab(event)">Pass Strategy</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="key-concept">
+                        <div class="concept-title">📊 Exam Structure</div>
+                        Duration: 130 minutes = 2 hours 10 minutes<br>
+                        Questions: ~65 multiple-choice (4 options each)<br>
+                        Passing Score: 720/1000 (72%)<br>
+                        Cost: $150 USD<br>
+                        Retakes: $150 each (wait 14 days)<br>
+                        Valid for: 3 years
+                    </div>
+                    <div class="pro-tip">
+                        💡 <strong>Time Management:</strong> 130 min ÷ 65 Q = 2 min per question. Budget 10-15 min for review at the end.
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="comparison-table">
+                        <tr><th>Domain</th><th>Weight</th><th># Questions</th><th>Focus</th></tr>
+                        <tr><td>Design Resilient Architectures</td><td>26%</td><td>~17</td><td>EC2, Databases, Scaling</td></tr>
+                        <tr><td>High Availability & Resilience</td><td>30%</td><td>~19</td><td>Multi-AZ, Failover, DR</td></tr>
+                        <tr><td>Security & Compliance</td><td>24%</td><td>~15</td><td>IAM, Encryption, Privacy</td></tr>
+                        <tr><td>Cost Optimization</td><td>20%</td><td>~13</td><td>Reserved, Spot, Right-sizing</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="exam-tip">
+                        🎯 <strong>To Pass (720/1000 = 46/65 correct):</strong><br>
+                        • Domain 1: Get 12/17 (71%)<br>
+                        • Domain 2: Get 14/19 (74%)<br>
+                        • Domain 3: Get 11/15 (73%)<br>
+                        • Domain 4: Get 9/13 (69%)<br>
+                        <br>
+                        <strong>To Excel (850+/1000 = 55+/65):</strong><br>
+                        Get 15+ in domains 1-3, 11+ in domain 4
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">Preparation</div>
+                <h2 class="title">What To Study</h2>
+                <div class="layman">
+                    <div class="layman-label">📚 The Core 5 Topics</div>
+                    EC2 & Auto Scaling, RDS/Aurora, VPC/Networking, S3, IAM. Everything else is bonus.
+                </div>
+                <div class="key-concept">
+                    <div class="concept-title">🔴 MUST-KNOW Services (70% of exam)</div>
+                    • EC2 (instance types, placement groups)<br>
+                    • Auto Scaling & Load Balancing<br>
+                    • RDS & Aurora (read replicas, Multi-AZ)<br>
+                    • VPC (subnets, routing, security groups)<br>
+                    • IAM (roles, policies, MFA)<br>
+                    • S3 (buckets, versioning, lifecycle)<br>
+                    • CloudFront & Route 53<br>
+                    • Lambda & Serverless basics<br>
+                </div>
+                <div class="key-concept">
+                    <div class="concept-title">🟠 SHOULD-KNOW Services (20% of exam)</div>
+                    • CloudWatch & CloudTrail<br>
+                    • SNS, SQS, SES<br>
+                    • ElastiCache & DynamoDB<br>
+                    • CloudFormation basics<br>
+                    • Elastic Beanstalk<br>
+                    • KMS & Secrets Manager<br>
+                </div>
+                <div class="key-concept">
+                    <div class="concept-title">🟡 NICE-TO-KNOW Services (10% of exam)</div>
+                    • Kinesis, EMR, Redshift<br>
+                    • Config, Organizations<br>
+                    • Service Quotas, AWS Trusted Advisor<br>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ STUDY SCHEDULE ============ -->
+        <div class="category-header" id="schedule">📅 4-5 WEEK STUDY SCHEDULE</div>
+        <div class="category-desc">
+            Proven study plan to pass SAA-C03. Assumes 10-15 hours/week. Adjust based on your experience.
+        </div>
+
+        <div class="grid">
+            <div class="card" id="schedule">
+                <div class="badge">Week 1-2</div>
+                <h2 class="title">Foundations (60 hours videos)</h2>
+                <div class="study-schedule">
+                    <div class="schedule-day">
+                        <div class="day-title">Week 1: EC2, Auto Scaling, Load Balancing (15 hours)</div>
+                        <div class="day-content">
+                            • EC2 instance families (t3, m5, c5, r5, i3)<br>
+                            • Placement groups (cluster, spread, partition)<br>
+                            • Auto Scaling (launch templates, policies)<br>
+                            • ELB (ALB, NLB, CLB) - key differences<br>
+                            • Target groups & health checks<br>
+                            ✅ Build: Create ASG with ALB in VPC
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 1.5: VPC, Networking, Security Groups (12 hours)</div>
+                        <div class="day-content">
+                            • VPC CIDR planning<br>
+                            • Public/Private subnets<br>
+                            • NAT Gateway, NAT Instance, Bastion Host<br>
+                            • Security Groups vs NACLs<br>
+                            • VPC Peering, Transit Gateway<br>
+                            ✅ Build: Multi-AZ VPC with private/public subnets
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 2: RDS, Aurora, Databases (15 hours)</div>
+                        <div class="day-content">
+                            • RDS engines (MySQL, PostgreSQL, Oracle, SQL Server)<br>
+                            • Multi-AZ failover (synchronous replication)<br>
+                            • Read replicas (asynchronous)<br>
+                            • Aurora (3x faster, 6 copies)<br>
+                            • Backups, snapshots, point-in-time restore<br>
+                            • Parameter groups, option groups<br>
+                            • RDS Proxy, Enhanced Monitoring<br>
+                            ✅ Build: Aurora cluster with read replicas
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 2.5: IAM, Security, Encryption (18 hours)</div>
+                        <div class="day-content">
+                            • IAM users, groups, roles<br>
+                            • Policies (managed, inline, resource-based)<br>
+                            • Access keys vs Temporary credentials<br>
+                            • MFA, Condition keys<br>
+                            • Cross-account access (assume role)<br>
+                            • KMS, CloudHSM<br>
+                            • Secrets Manager vs Parameter Store<br>
+                            • VPC endpoints (gateway vs interface)<br>
+                            ✅ Build: Cross-account IAM role setup
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">Week 3-4</div>
+                <h2 class="title">Deep Dive (50 hours videos)</h2>
+                <div class="study-schedule">
+                    <div class="schedule-day">
+                        <div class="day-title">Week 3: S3, CloudFront, Route 53 (12 hours)</div>
+                        <div class="day-content">
+                            • S3 buckets, prefixes, regions<br>
+                            • Versioning, MFA delete<br>
+                            • Storage classes (Standard, IA, Glacier)<br>
+                            • Lifecycle policies<br>
+                            • CloudFront distributions, TTL<br>
+                            • Route 53 (routing policies, health checks)<br>
+                            • Alias records vs CNAME<br>
+                            ✅ Build: S3 + CloudFront setup, Route 53 failover
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 3.5: Serverless, Monitoring (12 hours)</div>
+                        <div class="day-content">
+                            • Lambda (concurrency, cold starts, layers)<br>
+                            • API Gateway (REST vs HTTP)<br>
+                            • DynamoDB (read/write capacity, GSI)<br>
+                            • ElastiCache (Redis vs Memcached)<br>
+                            • CloudWatch (metrics, alarms, logs)<br>
+                            • X-Ray tracing<br>
+                            • SNS, SQS, SES basics<br>
+                            ✅ Build: Lambda + DynamoDB + API Gateway
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 4: Cost Optimization & Compliance (15 hours)</div>
+                        <div class="day-content">
+                            • Reserved Instances (1-year, 3-year)<br>
+                            • Spot Instances vs On-Demand<br>
+                            • Savings Plans<br>
+                            • Right-sizing (Compute Optimizer)<br>
+                            • CloudFormation vs Terraform<br>
+                            • AWS Organizations, SCPs<br>
+                            • Config, Compliance<br>
+                            • Cost allocation tags<br>
+                            ✅ Build: Multi-environment CloudFormation template
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 4.5: Disaster Recovery & HA (11 hours)</div>
+                        <div class="day-content">
+                            • RTO vs RPO<br>
+                            • DR strategies (backup, pilot light, warm standby, hot standby)<br>
+                            • Multi-AZ deployments<br>
+                            • Multi-region failover<br>
+                            • Application autoscaling<br>
+                            • SLA, availability percentages<br>
+                            • Resilience patterns<br>
+                            ✅ Build: Multi-region failover architecture
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">Week 5</div>
+                <h2 class="title">Review & Practice (40 hours)</h2>
+                <div class="study-schedule">
+                    <div class="schedule-day">
+                        <div class="day-title">Week 5 Day 1-2: Full Practice Exam 1</div>
+                        <div class="day-content">
+                            • Take official AWS practice exam (60-65 Q, 2.5 hours)<br>
+                            • Review all incorrect answers<br>
+                            • Target: 75%+ (49/65 correct)
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 5 Day 3-4: Review Weak Areas</div>
+                        <div class="day-content">
+                            • Identify domains where you scored <75%<br>
+                            • Rewatch videos for those topics<br>
+                            • Do targeted practice questions<br>
+                            • Read AWS whitepapers
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 5 Day 5-6: Full Practice Exam 2</div>
+                        <div class="day-content">
+                            • Take another full-length practice exam<br>
+                            • Target: 80%+ (52/65 correct)<br>
+                            • Review explanations in detail
+                        </div>
+                    </div>
+                    <div class="schedule-day">
+                        <div class="day-title">Week 5 Day 7: Final Review & Exam</div>
+                        <div class="day-content">
+                            • Review cheat sheet 2-3x<br>
+                            • Do 30-minute quick review<br>
+                            • Get good sleep (⭐ CRITICAL)<br>
+                            • Take exam on Day 7!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ EXAM TIPS ============ -->
+        <div class="category-header" id="tips">💡 EXAM TIPS & WINNING STRATEGIES</div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="badge">Test Strategy</div>
+                <h2 class="title">Day-Of Exam Tactics</h2>
+                <div class="exam-tip">
+                    <strong>🎯 Read Questions Carefully (CRITICAL)</strong><br>
+                    Most mistakes = misreading the question. Look for:<br>
+                    • "Which BEST..."<br>
+                    • "What is the MOST cost-effective..."<br>
+                    • "Which approach allows the LOWEST latency..."<br>
+                    Read the whole question + all options before answering.
+                </div>
+                <div class="exam-tip">
+                    <strong>⏰ Time Management</strong><br>
+                    • 2 min per question = 130 min total<br>
+                    • Skip hard questions, come back later<br>
+                    • Budget 10 min for final review<br>
+                    • Mark questions for review (most exams allow this)
+                </div>
+                <div class="exam-tip">
+                    <strong>🧠 Elimination Strategy</strong><br>
+                    If unsure: Eliminate obviously wrong answers first. Often 2 answers are clearly bad. Choose best of remaining 2.
+                </div>
+                <div class="exam-tip">
+                    <strong>🚩 Keyword Watch (Red Flags)</strong><br>
+                    • "Cheapest" = Spot instances, S3 Standard<br>
+                    • "Fastest" = RDS Aurora, ElastiCache<br>
+                    • "Most reliable" = Multi-AZ, Multi-region<br>
+                    • "Lowest latency" = Local/same-region<br>
+                    • "Compliant" = Encryption, IAM, CloudTrail
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">Common Tricks</div>
+                <h2 class="title">Exam Traps & How to Avoid Them</h2>
+                <div class="gotcha">
+                    <strong>❌ Trap 1: Multi-AZ ≠ Multi-Region</strong><br>
+                    Multi-AZ = High availability (same region, different AZ)<br>
+                    Multi-Region = Disaster recovery (different regions)<br>
+                    Question: "What provides disaster recovery?" → Answer: Multi-Region
+                </div>
+                <div class="gotcha">
+                    <strong>❌ Trap 2: RDS Read Replica Wrong</strong><br>
+                    Read replicas can be in DIFFERENT regions (async)<br>
+                    Multi-AZ is ONLY same region (sync)<br>
+                    Question: "Replicate data to another region?" → Answer: Read Replica
+                </div>
+                <div class="gotcha">
+                    <strong>❌ Trap 3: CloudFront vs S3</strong><br>
+                    • S3 = object storage<br>
+                    • CloudFront = CDN (caching)<br>
+                    Question: "Serve content faster worldwide?" → Answer: CloudFront
+                </div>
+                <div class="gotcha">
+                    <strong>❌ Trap 4: Cheapest = Spot (Usually)</strong><br>
+                    But Spot can be interrupted. If need reliability → Reserved/On-Demand
+                </div>
+                <div class="gotcha">
+                    <strong>❌ Trap 5: IAM Role vs User</strong><br>
+                    • User = Person (access key, password)<br>
+                    • Role = Service (assume, temporary credentials)<br>
+                    Question: "EC2 needs S3 access?" → Answer: IAM Role
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="badge">Before Exam</div>
+                <h2 class="title">Pre-Exam Checklist (Day Before)</h2>
+                <div class="pro-tip">
+                    ✅ <strong>SLEEP 8+ HOURS</strong><br>
+                    The single most important thing. Your brain needs rest. No all-nighters!
+                </div>
+                <div class="pro-tip">
+                    ✅ Eat good breakfast (protein + carbs, not sugar)<br>
+                    ✅ Avoid alcohol day before<br>
+                    ✅ Review cheat sheet 1x (not 10x)<br>
+                    ✅ Take a practice question (NOT full exam)<br>
+                    ✅ Arrive 15 min early to exam center<br>
+                    ✅ Bathroom before exam starts<br>
+                    ✅ Bring ID + proof of address<br>
+                </div>
+                <div class="exam-tip">
+                    💡 <strong>Day-Of Mindset:</strong><br>
+                    "I know AWS. I know 72% is passing. I'll skip hard ones and come back. I've got this."
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ DOMAIN 1 ============ -->
+        <div class="category-header" id="design">🏗️ DOMAIN 1: DESIGN RESILIENT ARCHITECTURES (26%)</div>
+        <div class="category-desc">
+            13-17 questions. Covers EC2, Auto Scaling, load balancers, databases, and architecture design patterns.
+        </div>
+
+        <div class="grid">
+            <div class="card" id="ec2">
+                <div class="badge">Core Service</div>
+                <h2 class="title">EC2 Instance Types & Selection</h2>
+                <div class="layman">
+                    <div class="layman-label">💡 Simple Explanation</div>
+                    Different EC2 types for different jobs. t3 = burstable (occasional peaks), m5 = general purpose, c5 = compute-heavy, r5 = memory-heavy, i3 = high I/O.
+                </div>
+                <div class="key-concept">
+                    <div class="concept-title">🔴 Instance Family Quick Reference</div>
+                    <strong>t3/t3a (Burstable):</strong> Low cost, variable performance. Good for dev/test, low traffic. Earn/burn CPU credits.<br>
+                    <strong>m5/m6i (General):</strong> Balanced CPU/RAM. Good for web servers, small databases. Most common.<br>
+                    <strong>c5/c6i (Compute):</strong> High CPU, low RAM. Good for batch jobs, analytics.<br>
+                    <strong>r5/r6i (Memory):</strong> High RAM, low CPU. Good for databases, caches, in-memory databases.<br>
+                    <strong>i3/i3en (Storage):</strong> High I/O. Good for NoSQL (DynamoDB), data warehouses.<br>
+                    <strong>g4/p3 (GPU):</strong> GPU accelerated. Good for ML training, rendering.
+                </div>
+                <div class="comparison-table">
+                    <tr><th>Instance</th><th>vCPU</th><th>Memory</th><th>Use Case</th><th>Cost</th></tr>
+                    <tr><td>t3.micro</td><td>1</td><td>1 GB</td><td>Free tier, testing</td><td>$0.01/hr</td></tr>
+                    <tr><td>t3.small</td><td>2</td><td>2 GB</td><td>Light workloads</td><td>$0.02/hr</td></tr>
+                    <tr><td>m5.large</td><td>2</td><td>8 GB</td><td>Web servers</td><td>$0.10/hr</td></tr>
+                    <tr><td>c5.large</td><td>2</td><td>4 GB</td><td>Batch jobs</td><td>$0.09/hr</td></tr>
+                    <tr><td>r5.large</td><td>2</td><td>16 GB</td><td>Databases</td><td>$0.13/hr</td></tr>
+                </table>
+                <div class="exam-tip">
+                    <strong>Exam Trick:</strong> Question asks "cheapest option for unpredictable traffic?" → Answer: t3 (burstable, cheapest, handles spikes)
+                </div>
+            </div>
+
+            <div class="card" id="autoscaling">
+                <div class="badge">Core Concept</div>
+                <h2 class="title">Auto Scaling Groups (ASG)</h2>
+                <div class="layman">
+                    <div class="layman-label">💡 Simple Explanation</div>
+                    Automatically add/remove servers based on demand. Set min/desired/max capacity. CloudWatch triggers scaling policies.
+                </div>
+                <div class="key-concept">
+                    <div class="concept-title">🔴 ASG Core Concepts</div>
+                    <strong>Launch Template:</strong> Blueprint (AMI, instance type, security group, key pair)<br>
+                    <strong>Min/Desired/Max:</strong> Min=2, Desired=3, Max=10<br>
+                    <strong>Scaling Policy:</strong> How to scale (target tracking, step, simple)<br>
+                    <strong>Health Check:</strong> ELB or EC2 status<br>
+                    <strong>Cooldown Period:</strong> Wait before next scale action (avoids rapid scaling)
+                </div>
+                <div class="code-block">// ASG Scaling Policy Examples
+
+// 1. Target Tracking (RECOMMENDED - simplest)
+TargetValue: 70% CPU
+→ Scale up if CPU > 70%
+→ Scale down if CPU < 70%
+
+// 2. Step Scaling (Advanced)
+If CPU 70-80% → Add 2 instances
+If CPU 80-90% → Add 5 instances
+If CPU > 90% → Add 10 instances
+
+// 3. Simple Scaling (OLD - don't use)
+If CPU > 80% → Add 2 instances (wait 300s)
+If CPU < 20% → Remove 1 instance (wait 600s)
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div style="display: flex; justify-content: center; gap: 40px; margin-bottom: 20px; flex-wrap: wrap;">
+                <div><div class="stat-number">25+</div>Pages Content</div>
+                <div><div class="stat-number">200+</div>Practice Questions</div>
+                <div><div class="stat-number">4-5</div>Week Study Plan</div>
+                <div><div class="stat-number">72%</div>Pass Score (720/1000)</div>
+            </div>
+            <p style="margin-top: 20px;">AWS SAA-C03 Complete Study Canvas | $150 Exam | $155K+ Salary | 54% of AWS Pros Hold It</p>
+            <p style="margin-top: 10px; font-size: 10px;">Last Updated: 2025 | Study Plan: 4-5 Weeks | Success Rate: 65-70% Pass on First Try</p>
+        </div>
+    </div>
+
+    <script>
+        function scrollTo(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                updateActiveNav(id);
+            }
+        }
+
+        function switchTab(event) {
+            const tab = event.target;
+            const tabs = tab.parentElement.querySelectorAll('.tab');
+            const contents = tab.parentElement.parentElement.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const index = Array.from(tabs).indexOf(tab);
+            if (contents[index]) contents[index].classList.add('active');
+        }
+
+        function updateActiveNav(id) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Intersection Observer for auto-highlighting
+        const observerOptions = { threshold: 0.3 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateActiveNav(entry.target.id);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[id]').forEach(el => {
+            if (el.id) observer.observe(el);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Master Canvas — 25+ Deep Dive Pages</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04080F;
+  --surface: #080F1A;
+  --surface2: #0C1525;
+  --surface3: #111E30;
+  --border: #162236;
+  --border2: #1E3254;
+  --cyan: #00E5FF;
+  --cyan-dim: rgba(0,229,255,0.12);
+  --orange: #FF6D00;
+  --orange-dim: rgba(255,109,0,0.12);
+  --green: #00E676;
+  --green-dim: rgba(0,230,118,0.12);
+  --red: #FF1744;
+  --red-dim: rgba(255,23,68,0.12);
+  --yellow: #FFD600;
+  --yellow-dim: rgba(255,214,0,0.12);
+  --purple: #D500F9;
+  --purple-dim: rgba(213,0,249,0.1);
+  --blue: #2979FF;
+  --blue-dim: rgba(41,121,255,0.12);
+  --text: #C8D8E8;
+  --muted: #4A6080;
+  --heading: #FFFFFF;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 14px;
+  overflow-x: hidden;
+}
+
+/* ─── NAV ─── */
+#navbar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 240px;
+  height: 100vh;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+}
+
+#navbar::-webkit-scrollbar { width: 4px; }
+#navbar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.nav-logo {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.nav-logo h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  line-height: 1;
+}
+
+.nav-logo p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.nav-section {
+  padding: 10px 8px 4px 14px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--muted);
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.nav-item:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.nav-item.active {
+  color: var(--cyan);
+  border-left-color: var(--cyan);
+  background: var(--cyan-dim);
+}
+
+.nav-item .num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  min-width: 22px;
+}
+
+.nav-item.active .num { color: var(--cyan); }
+
+/* ─── MAIN ─── */
+#main {
+  margin-left: 240px;
+  min-height: 100vh;
+}
+
+.page {
+  display: none;
+  padding: 40px 48px 60px;
+  max-width: 1100px;
+  animation: fadeUp 0.35s ease;
+}
+
+.page.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to { opacity:1; transform:translateY(0); }
+}
+
+/* ─── PAGE HEADER ─── */
+.ph {
+  margin-bottom: 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.ph-num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--orange);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.ph h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  letter-spacing: 2px;
+  color: var(--heading);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.ph p {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 700px;
+  line-height: 1.65;
+}
+
+/* ─── CARDS ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+.card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 1px;
+  color: var(--heading);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card p { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+.card p:last-child { margin-bottom: 0; }
+
+/* ─── LAYMAN BOX ─── */
+.layman {
+  background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(0,230,118,0.04));
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.layman-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+/* ─── PRO CON COST ─── */
+.pcc { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+.pcc2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+
+.pcc-box { border-radius: 8px; padding: 14px 16px; }
+.p-box { background: var(--green-dim); border: 1px solid rgba(0,230,118,0.25); }
+.c-box { background: var(--red-dim); border: 1px solid rgba(255,23,68,0.25); }
+.m-box { background: var(--yellow-dim); border: 1px solid rgba(255,214,0,0.25); }
+.i-box { background: var(--blue-dim); border: 1px solid rgba(41,121,255,0.25); }
+
+.pcc-box h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.p-box h4 { color: var(--green); }
+.c-box h4 { color: var(--red); }
+.m-box h4 { color: var(--yellow); }
+.i-box h4 { color: var(--blue); }
+
+.pcc-box ul { list-style: none; }
+.pcc-box li {
+  font-size: 12px;
+  padding: 3px 0 3px 16px;
+  position: relative;
+  color: var(--text);
+  line-height: 1.45;
+}
+.p-box li::before { content:"✓"; position:absolute; left:0; color:var(--green); font-weight:700; }
+.c-box li::before { content:"✗"; position:absolute; left:0; color:var(--red); }
+.m-box li::before { content:"$"; position:absolute; left:0; color:var(--yellow); }
+.i-box li::before { content:"→"; position:absolute; left:0; color:var(--blue); }
+
+/* ─── GRIDS ─── */
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+.g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 16px 0; }
+.g4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin: 16px 0; }
+
+/* ─── MINI CARD ─── */
+.mc {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s;
+}
+.mc:hover { border-color: var(--cyan); }
+
+.mc h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 8px;
+}
+
+.mc p { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+/* ─── CODE ─── */
+.code {
+  background: #020609;
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 16px 18px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  line-height: 1.9;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.ck { color: #7DD3FC; }   /* key */
+.cv { color: #86EFAC; }   /* value */
+.cc { color: #334155; }   /* comment */
+.cs { color: #FCA5A5; }   /* string */
+.co { color: #FCD34D; }   /* operator */
+
+/* ─── TABLE ─── */
+.tbl { width:100%; border-collapse:collapse; margin:14px 0; font-size:13px; }
+.tbl th { background:var(--surface3); padding:10px 14px; text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--cyan); border-bottom:1px solid var(--border2); text-transform:uppercase; }
+.tbl td { padding:10px 14px; border-bottom:1px solid rgba(22,34,54,0.8); color:var(--text); vertical-align:top; }
+.tbl tr:hover td { background:rgba(255,255,255,0.015); }
+
+/* ─── BADGES ─── */
+.badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  margin: 2px;
+  letter-spacing: 0.5px;
+}
+
+.b-cyan { background:var(--cyan-dim); color:var(--cyan); border:1px solid rgba(0,229,255,0.3); }
+.b-orange { background:var(--orange-dim); color:var(--orange); border:1px solid rgba(255,109,0,0.3); }
+.b-green { background:var(--green-dim); color:var(--green); border:1px solid rgba(0,230,118,0.3); }
+.b-red { background:var(--red-dim); color:var(--red); border:1px solid rgba(255,23,68,0.3); }
+.b-yellow { background:var(--yellow-dim); color:var(--yellow); border:1px solid rgba(255,214,0,0.3); }
+.b-purple { background:var(--purple-dim); color:var(--purple); border:1px solid rgba(213,0,249,0.3); }
+.b-blue { background:var(--blue-dim); color:var(--blue); border:1px solid rgba(41,121,255,0.3); }
+
+/* ─── FLOW ─── */
+.flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+}
+
+.fs {
+  background: var(--cyan-dim);
+  border: 1px solid rgba(0,229,255,0.25);
+  border-radius: 5px;
+  padding: 6px 12px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+.fa { color: var(--muted); font-size: 14px; }
+
+/* ─── SECTION TITLE ─── */
+.st {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  letter-spacing: 1.5px;
+  color: var(--heading);
+  margin: 28px 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.st::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ─── HIGHLIGHT ─── */
+.hl {
+  background: linear-gradient(135deg, rgba(0,229,255,0.06), rgba(41,121,255,0.04));
+  border: 1px solid rgba(0,229,255,0.18);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin: 16px 0;
+}
+
+.hl-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--cyan);
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.hl p { font-size: 13px; line-height: 1.65; color: var(--text); margin:0; }
+
+/* ─── ARCH BOX ─── */
+.arch {
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid;
+  margin-bottom: 16px;
+}
+
+.arch-cyan { border-color: rgba(0,229,255,0.3); background: rgba(0,229,255,0.04); }
+.arch-orange { border-color: rgba(255,109,0,0.3); background: rgba(255,109,0,0.04); }
+.arch-green { border-color: rgba(0,230,118,0.3); background: rgba(0,230,118,0.04); }
+.arch-purple { border-color: rgba(213,0,249,0.3); background: rgba(213,0,249,0.04); }
+.arch-yellow { border-color: rgba(255,214,0,0.3); background: rgba(255,214,0,0.04); }
+.arch-blue { border-color: rgba(41,121,255,0.3); background: rgba(41,121,255,0.04); }
+
+.arch h3 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.arch-cyan h3 { color: var(--cyan); }
+.arch-orange h3 { color: var(--orange); }
+.arch-green h3 { color: var(--green); }
+.arch-purple h3 { color: var(--purple); }
+.arch-yellow h3 { color: var(--yellow); }
+.arch-blue h3 { color: var(--blue); }
+
+/* ─── HOME GRID ─── */
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+  margin-top: 32px;
+}
+
+.hg-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hg-item:hover {
+  border-color: var(--cyan);
+  background: var(--cyan-dim);
+  transform: translateY(-2px);
+}
+
+.hg-item .n {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--cyan);
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+}
+
+.hg-item h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--heading);
+  line-height: 1.4;
+}
+
+/* Warning box */
+.warn {
+  background: var(--red-dim);
+  border: 1px solid rgba(255,23,68,0.3);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+.warn strong { color: var(--red); }
+
+/* Info box */
+.info {
+  background: var(--blue-dim);
+  border: 1px solid rgba(41,121,255,0.3);
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+.info strong { color: #7BA7FF; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+@media (max-width: 900px) {
+  #navbar { width: 100%; height: auto; position: relative; }
+  #main { margin-left: 0; }
+  .pcc { grid-template-columns: 1fr; }
+  .g2, .g3, .g4 { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR NAV -->
+<nav id="navbar">
+  <div class="nav-logo">
+    <h1>⎈ K8S</h1>
+    <p>MASTER CANVAS · 25+ PAGES</p>
+  </div>
+
+  <div class="nav-section">Foundation</div>
+  <div class="nav-item active" onclick="go('p0')"><span class="num">00</span>Home / Index</div>
+  <div class="nav-item" onclick="go('p1')"><span class="num">01</span>What is Kubernetes</div>
+  <div class="nav-item" onclick="go('p2')"><span class="num">02</span>Architecture</div>
+  <div class="nav-item" onclick="go('p3')"><span class="num">03</span>Core Objects</div>
+  <div class="nav-item" onclick="go('p4')"><span class="num">04</span>Workloads Deep Dive</div>
+
+  <div class="nav-section">Networking</div>
+  <div class="nav-item" onclick="go('p5')"><span class="num">05</span>Services Overview</div>
+  <div class="nav-item" onclick="go('p6')"><span class="num">06</span>Ingress — Core Concepts</div>
+  <div class="nav-item" onclick="go('p7')"><span class="num">07</span>AWS Ingress (ALB)</div>
+  <div class="nav-item" onclick="go('p8')"><span class="num">08</span>AWS NLB + Annotations</div>
+  <div class="nav-item" onclick="go('p9')"><span class="num">09</span>Azure Ingress (AGIC)</div>
+  <div class="nav-item" onclick="go('p10')"><span class="num">10</span>Azure Internal + TLS</div>
+  <div class="nav-item" onclick="go('p11')"><span class="num">11</span>NGINX Ingress</div>
+  <div class="nav-item" onclick="go('p12')"><span class="num">12</span>Traefik Ingress</div>
+
+  <div class="nav-section">Security</div>
+  <div class="nav-item" onclick="go('p13')"><span class="num">13</span>Network Policy — Basics</div>
+  <div class="nav-item" onclick="go('p14')"><span class="num">14</span>Network Policy — Advanced</div>
+  <div class="nav-item" onclick="go('p15')"><span class="num">15</span>RBAC — Core Concepts</div>
+  <div class="nav-item" onclick="go('p16')"><span class="num">16</span>RBAC — Advanced + Audit</div>
+  <div class="nav-item" onclick="go('p17')"><span class="num">17</span>Pod Security Standards</div>
+  <div class="nav-item" onclick="go('p18')"><span class="num">18</span>Secrets Management</div>
+
+  <div class="nav-section">Operations</div>
+  <div class="nav-item" onclick="go('p19')"><span class="num">19</span>Storage Deep Dive</div>
+  <div class="nav-item" onclick="go('p20')"><span class="num">20</span>Scaling Strategies</div>
+  <div class="nav-item" onclick="go('p21')"><span class="num">21</span>Health Probes</div>
+  <div class="nav-item" onclick="go('p22')"><span class="num">22</span>Scheduling & Resources</div>
+  <div class="nav-item" onclick="go('p23')"><span class="num">23</span>Deploy Strategies</div>
+  <div class="nav-item" onclick="go('p24')"><span class="num">24</span>Observability</div>
+  <div class="nav-item" onclick="go('p25')"><span class="num">25</span>Helm & GitOps</div>
+  <div class="nav-item" onclick="go('p26')"><span class="num">26</span>YAML Reference</div>
+  <div class="nav-item" onclick="go('p27')"><span class="num">27</span>Troubleshooting</div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="main">
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 0 — HOME
+═══════════════════════════════════════════════ -->
+<div class="page active" id="p0">
+  <div style="padding-top:20px;">
+    <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:3px; color:var(--orange); margin-bottom:10px;">KUBERNETES MASTER CANVAS</div>
+    <h1 style="font-family:'Bebas Neue',sans-serif; font-size:clamp(52px,7vw,96px); letter-spacing:3px; color:var(--heading); line-height:1; margin-bottom:16px;">DEEP DIVE<br><span style="color:var(--cyan)">27 PAGES</span></h1>
+    <p style="font-size:16px; color:var(--muted); max-width:620px; line-height:1.65; margin-bottom:32px;">From zero to production-grade Kubernetes expertise. Every concept explained in plain English with real YAML, pros, cons, and cost breakdowns. Special deep-dives on AWS Ingress, Azure Ingress, NGINX, Network Policies, and RBAC.</p>
+
+    <div class="home-grid">
+      <div class="hg-item" onclick="go('p1')"><div class="n">01 · FOUNDATION</div><h4>What is Kubernetes?</h4></div>
+      <div class="hg-item" onclick="go('p2')"><div class="n">02 · FOUNDATION</div><h4>K8s Architecture</h4></div>
+      <div class="hg-item" onclick="go('p3')"><div class="n">03 · FOUNDATION</div><h4>Core Objects</h4></div>
+      <div class="hg-item" onclick="go('p4')"><div class="n">04 · FOUNDATION</div><h4>Workloads Deep Dive</h4></div>
+      <div class="hg-item" onclick="go('p5')"><div class="n">05 · NETWORKING</div><h4>Services Overview</h4></div>
+      <div class="hg-item" onclick="go('p6')"><div class="n">06 · NETWORKING</div><h4>Ingress Core</h4></div>
+      <div class="hg-item" onclick="go('p7')"><div class="n">07 · AWS</div><h4>AWS ALB Ingress</h4></div>
+      <div class="hg-item" onclick="go('p8')"><div class="n">08 · AWS</div><h4>AWS NLB + Annotations</h4></div>
+      <div class="hg-item" onclick="go('p9')"><div class="n">09 · AZURE</div><h4>Azure AGIC Ingress</h4></div>
+      <div class="hg-item" onclick="go('p10')"><div class="n">10 · AZURE</div><h4>Azure Internal + TLS</h4></div>
+      <div class="hg-item" onclick="go('p11')"><div class="n">11 · NETWORKING</div><h4>NGINX Ingress</h4></div>
+      <div class="hg-item" onclick="go('p12')"><div class="n">12 · NETWORKING</div><h4>Traefik Ingress</h4></div>
+      <div class="hg-item" onclick="go('p13')"><div class="n">13 · SECURITY</div><h4>Network Policy Basics</h4></div>
+      <div class="hg-item" onclick="go('p14')"><div class="n">14 · SECURITY</div><h4>Network Policy Advanced</h4></div>
+      <div class="hg-item" onclick="go('p15')"><div class="n">15 · SECURITY</div><h4>RBAC Core</h4></div>
+      <div class="hg-item" onclick="go('p16')"><div class="n">16 · SECURITY</div><h4>RBAC Advanced + Audit</h4></div>
+      <div class="hg-item" onclick="go('p17')"><div class="n">17 · SECURITY</div><h4>Pod Security Standards</h4></div>
+      <div class="hg-item" onclick="go('p18')"><div class="n">18 · SECURITY</div><h4>Secrets Management</h4></div>
+      <div class="hg-item" onclick="go('p19')"><div class="n">19 · OPS</div><h4>Storage Deep Dive</h4></div>
+      <div class="hg-item" onclick="go('p20')"><div class="n">20 · OPS</div><h4>Scaling Strategies</h4></div>
+      <div class="hg-item" onclick="go('p21')"><div class="n">21 · OPS</div><h4>Health Probes</h4></div>
+      <div class="hg-item" onclick="go('p22')"><div class="n">22 · OPS</div><h4>Scheduling & Resources</h4></div>
+      <div class="hg-item" onclick="go('p23')"><div class="n">23 · OPS</div><h4>Deploy Strategies</h4></div>
+      <div class="hg-item" onclick="go('p24')"><div class="n">24 · OPS</div><h4>Observability</h4></div>
+      <div class="hg-item" onclick="go('p25')"><div class="n">25 · OPS</div><h4>Helm & GitOps</h4></div>
+      <div class="hg-item" onclick="go('p26')"><div class="n">26 · REF</div><h4>YAML Reference</h4></div>
+      <div class="hg-item" onclick="go('p27')"><div class="n">27 · OPS</div><h4>Troubleshooting</h4></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 1 — WHAT IS KUBERNETES
+═══════════════════════════════════════════════ -->
+<div class="page" id="p1">
+  <div class="ph">
+    <div class="ph-num">PAGE 01 · FOUNDATION</div>
+    <h2>WHAT IS KUBERNETES</h2>
+    <p>The container orchestration platform that manages your applications at scale — self-healing, auto-scaling, and cloud-portable.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🐳 The Problem Kubernetes Solves</div>
+    <p>Before Kubernetes, teams ran containers manually on servers. If a container crashed, someone had to restart it manually. If traffic spiked, someone had to add more servers. If a server died, apps went down. This doesn't scale.</p>
+    <p>Kubernetes automates ALL of this — it watches your apps 24/7 and keeps them running at the right scale, on the right infrastructure, with zero manual intervention.</p>
+    <div class="layman">
+      <div class="layman-label">🧠 Layman Explanation</div>
+      Imagine you own 50 food delivery bikes. Instead of you personally tracking each rider — who crashed, who's idle, who needs a break — you hire a SUPER-DISPATCHER. This dispatcher: automatically replaces crashed riders, adds more bikes when orders spike, spreads riders across areas, and gives you a dashboard. Kubernetes is that super-dispatcher, but for your software.
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📦 Container vs VM</div>
+      <table class="tbl">
+        <tr><th>Feature</th><th>VM</th><th>Container</th></tr>
+        <tr><td>Boot Time</td><td>2–5 minutes</td><td>Seconds</td></tr>
+        <tr><td>Size</td><td>GBs</td><td>MBs</td></tr>
+        <tr><td>OS</td><td>Full guest OS</td><td>Shares host kernel</td></tr>
+        <tr><td>Isolation</td><td>Strong (hypervisor)</td><td>Process-level</td></tr>
+        <tr><td>Density</td><td>~10 per host</td><td>Hundreds per host</td></tr>
+        <tr><td>Portability</td><td>Harder</td><td>Run anywhere</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">⭐ K8s Core Capabilities</div>
+      <div class="g2" style="margin-top:8px;">
+        <div class="mc"><h4>Self-Healing</h4><p>Auto-restarts crashed containers, replaces failed pods, reschedules on node failure.</p></div>
+        <div class="mc"><h4>Auto-Scaling</h4><p>Scales pods up/down based on CPU, memory, or custom metrics.</p></div>
+        <div class="mc"><h4>Rolling Updates</h4><p>Deploy new versions with zero downtime. Instant rollback.</p></div>
+        <div class="mc"><h4>Service Discovery</h4><p>Built-in DNS for internal service-to-service communication.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ Pros</h4><ul>
+      <li>Self-healing — zero manual restarts</li>
+      <li>Cloud-agnostic (AWS, Azure, GCP, on-prem)</li>
+      <li>Active CNCF community</li>
+      <li>Auto-scales on demand</li>
+      <li>Declarative config (YAML)</li>
+      <li>Rolling deploys + instant rollback</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Cons</h4><ul>
+      <li>Steep learning curve (3–6 months)</li>
+      <li>Overkill for small/simple apps</li>
+      <li>Complex debugging initially</li>
+      <li>Needs dedicated DevOps expertise</li>
+      <li>Networking complexity</li>
+      <li>Storage management non-trivial</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost Reality</h4><ul>
+      <li>EKS (AWS): $0.10/hr = ~$73/mo per cluster</li>
+      <li>GKE: Free control plane on Standard</li>
+      <li>AKS (Azure): Free control plane</li>
+      <li>Nodes: $50–$500+/mo each</li>
+      <li>DevOps Engineer: $80k–$150k/yr</li>
+      <li>Training time: 3–6 months per engineer</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 2 — ARCHITECTURE
+═══════════════════════════════════════════════ -->
+<div class="page" id="p2">
+  <div class="ph">
+    <div class="ph-num">PAGE 02 · FOUNDATION</div>
+    <h2>K8S ARCHITECTURE</h2>
+    <p>The brain (Control Plane) and the muscles (Worker Nodes) — how every component works together.</p>
+  </div>
+
+  <div class="flow">
+    <div class="fs">kubectl / API client</div><div class="fa">→</div>
+    <div class="fs">API Server</div><div class="fa">→</div>
+    <div class="fs">etcd (state)</div><div class="fa">+</div>
+    <div class="fs">Scheduler</div><div class="fa">→</div>
+    <div class="fs">kubelet (node)</div><div class="fa">→</div>
+    <div class="fs">Container Runtime</div><div class="fa">→</div>
+    <div class="fs">Pod runs ✓</div>
+  </div>
+
+  <div class="g2">
+    <div class="arch arch-cyan">
+      <h3>🧠 CONTROL PLANE</h3>
+      <div class="mc" style="margin-bottom:10px;">
+        <h4>kube-apiserver</h4>
+        <p>The ONLY entry point. All kubectl commands, internal components, and external tools communicate through this REST API. Validates and processes all requests.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The hotel front desk — every request (room service, checkout, housekeeping) goes through this one desk. Nothing bypasses it.</div>
+      </div>
+      <div class="mc" style="margin-bottom:10px;">
+        <h4>etcd</h4>
+        <p>Distributed key-value store. Stores ALL cluster state — what's running, what should be running, all configs. If etcd dies, the cluster brain dies. Always run 3 or 5 etcd nodes in production (quorum).</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The hotel's master reservation database. If this burns, nobody knows who booked what. Must be backed up religiously.</div>
+      </div>
+      <div class="mc" style="margin-bottom:10px;">
+        <h4>kube-scheduler</h4>
+        <p>Watches for unscheduled Pods. Finds the best Node based on: resource requests/limits, affinity rules, taints/tolerations, data locality. Assigns Pod to Node. Does NOT start the Pod.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The room assignment manager — looks at all available rooms and decides which is best for each guest based on preferences, availability, and special needs.</div>
+      </div>
+      <div class="mc">
+        <h4>kube-controller-manager</h4>
+        <p>Runs control loops that watch cluster state and make changes to reach desired state. Contains: Node Controller, ReplicaSet Controller, Endpoints Controller, ServiceAccount Controller, etc.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>Hotel operations manager who continuously checks: "Is every booked room occupied? If 3 guests should be in room 101 but only 2 are there, find a 3rd." Never stops watching.</div>
+      </div>
+    </div>
+
+    <div class="arch arch-orange">
+      <h3>💪 WORKER NODE</h3>
+      <div class="mc" style="margin-bottom:10px;">
+        <h4>kubelet</h4>
+        <p>Agent running on every node. Communicates with API Server. Ensures containers described in PodSpecs are running and healthy. Reports node/pod status back to control plane. Does NOT manage containers not created by K8s.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The floor manager of each hotel floor. Reports to head office (API Server), makes sure all rooms on their floor are properly occupied, and flags any issues.</div>
+      </div>
+      <div class="mc" style="margin-bottom:10px;">
+        <h4>kube-proxy</h4>
+        <p>Network proxy on each node. Implements K8s Service concept — maintains iptables/ipvs rules so traffic to a Service IP gets forwarded to the correct Pod. Enables pod-to-pod and external-to-pod communication.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The hotel switchboard operator. When you call the front desk asking for "room service," the operator connects you to the right kitchen extension.</div>
+      </div>
+      <div class="mc">
+        <h4>Container Runtime</h4>
+        <p>Actually creates and runs containers. K8s uses CRI (Container Runtime Interface) to talk to runtimes. Options: <span class="badge b-cyan">containerd</span> (default), <span class="badge b-orange">CRI-O</span>, <span class="badge b-yellow">Docker</span> (deprecated K8s 1.24+).</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The actual kitchen that makes the food. Kubelet is the manager who orders the food, but container runtime is the chef who actually cooks it.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ HA Design Pros</h4><ul>
+      <li>Multi-master control plane (3+ nodes)</li>
+      <li>etcd quorum (3 or 5 nodes)</li>
+      <li>Node failure doesn't kill apps</li>
+      <li>Zone-spread for true HA</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Common Failures</h4><ul>
+      <li>etcd corruption = cluster loss</li>
+      <li>API server overload = cluster lag</li>
+      <li>Split-brain if network partitions</li>
+      <li>Single master = SPOF</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost</h4><ul>
+      <li>Self-managed HA: 3 master VMs ~$150-300/mo</li>
+      <li>EKS managed: $73/mo control plane</li>
+      <li>GKE Autopilot: no control plane cost</li>
+      <li>etcd backup storage: ~$5-20/mo</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 3 — CORE OBJECTS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p3">
+  <div class="ph">
+    <div class="ph-num">PAGE 03 · FOUNDATION</div>
+    <h2>CORE K8S OBJECTS</h2>
+    <p>Pod, ReplicaSet, Deployment, StatefulSet, DaemonSet, Job, CronJob — the building blocks of every K8s application.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🟦 Pod</div>
+      <p>Smallest deployable unit. Wraps 1+ containers that share network namespace (same IP) and storage volumes. Containers in a pod communicate via <code style="color:var(--cyan)">localhost</code>.</p>
+      <div class="layman"><div class="layman-label">Layman</div>A hotel room with roommates. The room has one address (IP). Roommates share the bathroom (volumes) and can talk directly without the phone system (localhost).</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Shared network/storage</li><li>Co-location of related processes</li><li>Sidecar pattern (logging, proxy)</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>Ephemeral — data lost on death</li><li>Never use Pods directly in prod</li><li>No auto-restart alone</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔁 ReplicaSet</div>
+      <p>Ensures N identical Pod replicas are always running. If a pod dies, creates a replacement. Selected by Deployment — you rarely create ReplicaSets directly.</p>
+      <div class="layman"><div class="layman-label">Layman</div>"I always want exactly 3 waiters on the floor." If one quits, immediately hire another. No gaps in service. The floor must always have exactly 3 staff.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Auto-healing</li><li>Ensures availability</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>No rolling update logic</li><li>Use Deployment instead</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🚀 Deployment</div>
+      <p>Manages ReplicaSets declaratively. Enables: rolling updates (replace pods gradually), rollback (undo last update), pause/resume updates. The <strong>standard way to run stateless apps</strong>.</p>
+      <div class="layman"><div class="layman-label">Layman</div>The head chef. Manages all kitchen staff (ReplicaSet). When introducing new menu (update): trains one cook at a time so kitchen never shuts down. If new menu is bad, instantly reverts to last menu.</div>
+      <div class="code">
+<span class="cc"># Deploy and rollback</span>
+<span class="ck">kubectl apply</span> <span class="cv">-f deployment.yaml</span>
+<span class="ck">kubectl rollout status</span> <span class="cv">deployment/myapp</span>
+<span class="ck">kubectl rollout undo</span> <span class="cv">deployment/myapp</span>
+<span class="ck">kubectl rollout history</span> <span class="cv">deployment/myapp</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗄️ StatefulSet</div>
+      <p>For stateful apps (databases, Kafka, Zookeeper, Elasticsearch). Provides: stable pod names (pod-0, pod-1), stable network identity, ordered deployment/scaling, dedicated PVC per pod.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Hotel rooms with PERMANENT numbers. Room 101 always belongs to the same guest. Even if the guest leaves and returns, their belongings are still in Room 101. Pods get consistent identity across restarts.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Stable identity (pod-0, pod-1)</li><li>Ordered rolling updates</li><li>Each pod gets its own PVC</li><li>Perfect for Kafka, MySQL, Redis Cluster</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>No automatic data sharding</li><li>Updates are slow (ordered)</li><li>Storage reclaim complex</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g3">
+    <div class="card">
+      <div class="card-title">📡 DaemonSet</div>
+      <p>Runs exactly ONE pod on EVERY node (or selected nodes). As nodes are added, pods are added. Used for cluster-wide infrastructure: log collectors, monitoring agents, security scanners, CNI plugins.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Every branch of a bank must have exactly 1 security guard. Open a new branch? A guard is automatically assigned. Close a branch? Guard removed.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Auto-deploys to new nodes</li><li>Perfect for infrastructure agents</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>Uses resources on every node</li><li>Can't scale below 1-per-node</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Job</div>
+      <p>Runs a pod to completion — not continuously. Used for batch tasks: data migration, report generation, ML training. Guarantees pod completes successfully (retries on failure).</p>
+      <div class="layman"><div class="layman-label">Layman</div>Like a temp worker hired for one specific task (clean the warehouse). Once done, they leave. If they fail mid-task, hire another temp to finish.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Guaranteed completion</li><li>Parallel job support</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>No scheduling (use CronJob)</li><li>Manual cleanup needed</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⏰ CronJob</div>
+      <p>Runs Jobs on a schedule (cron syntax). Database backups at midnight, reports every hour, cleanup tasks weekly. K8s manages the Job lifecycle.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Like scheduled cleaning crew — every Monday at 2am, 3 cleaners arrive, do their job, and leave. K8s sets the alarm and manages the crew.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>No external scheduler needed</li><li>Standard cron syntax</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>Not for sub-minute jobs</li><li>Missed job detection is basic</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 4 — WORKLOADS DEEP DIVE
+═══════════════════════════════════════════════ -->
+<div class="page" id="p4">
+  <div class="ph">
+    <div class="ph-num">PAGE 04 · FOUNDATION</div>
+    <h2>WORKLOADS DEEP DIVE</h2>
+    <p>Pod lifecycle, init containers, sidecar patterns, multi-container pods, and namespace isolation.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 Pod Lifecycle States</div>
+    <div class="flow">
+      <div class="fs">Pending</div><div class="fa">→</div>
+      <div class="fs">Scheduled to Node</div><div class="fa">→</div>
+      <div class="fs">Init Containers Run</div><div class="fa">→</div>
+      <div class="fs">Running</div><div class="fa">→</div>
+      <div class="fs">Succeeded / Failed</div>
+    </div>
+    <table class="tbl">
+      <tr><th>Phase</th><th>Meaning</th><th>Common Cause</th></tr>
+      <tr><td><span class="badge b-yellow">Pending</span></td><td>Accepted by cluster, not running yet</td><td>Insufficient resources, image pull, node selector mismatch</td></tr>
+      <tr><td><span class="badge b-cyan">Running</span></td><td>Pod bound to node, containers started</td><td>Normal state</td></tr>
+      <tr><td><span class="badge b-green">Succeeded</span></td><td>All containers exited 0</td><td>Job completed</td></tr>
+      <tr><td><span class="badge b-red">Failed</span></td><td>Containers exited non-zero</td><td>App crash, OOMKilled</td></tr>
+      <tr><td><span class="badge b-orange">CrashLoopBackOff</span></td><td>Container keeps crashing and restarting</td><td>App bug, wrong config, missing env vars</td></tr>
+      <tr><td><span class="badge b-purple">ImagePullBackOff</span></td><td>Can't pull container image</td><td>Wrong tag, no registry credentials</td></tr>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🔧 Init Containers</div>
+      <p>Special containers that run to completion BEFORE main containers start. Used for: waiting for a database to be ready, cloning config from git, setting up permissions.</p>
+      <div class="layman"><div class="layman-label">Layman</div>The prep cook who gets the kitchen ready before the head chef arrives. Head chef (main container) only starts cooking when prep is completely done.</div>
+      <div class="code">
+<span class="ck">initContainers:</span>
+<span class="cv">- name: wait-for-db</span>
+&nbsp;&nbsp;<span class="ck">image:</span> <span class="cv">busybox</span>
+&nbsp;&nbsp;<span class="ck">command:</span>
+&nbsp;&nbsp;<span class="cv">- sh</span>
+&nbsp;&nbsp;<span class="cv">- -c</span>
+&nbsp;&nbsp;<span class="cv">- "until nc -z mysql 3306; do sleep 2; done"</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔗 Sidecar Pattern</div>
+      <p>Multiple containers in the same Pod working together. Common patterns: logging sidecar (Fluentd), proxy sidecar (Envoy/Istio), config watcher. Share volumes and network.</p>
+      <div class="layman"><div class="layman-label">Layman</div>The main chef (app container) cooks. The sidecar is the kitchen assistant who silently handles: collecting all cooking logs, routing orders from the dining room, watching for recipe updates.</div>
+      <div class="g2" style="margin-top:10px;">
+        <div class="mc"><h4>Logging Sidecar</h4><p>Fluentd/Filebeat reads app log files and ships to Elasticsearch. App doesn't need logging code.</p></div>
+        <div class="mc"><h4>Service Mesh Proxy</h4><p>Envoy/Istio proxy intercepts all network traffic for mTLS, tracing, circuit breaking.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏘️ Namespaces — Cluster Isolation</div>
+    <p>Namespaces provide virtual clusters within a physical cluster. Separate teams/environments/apps logically. Apply resource quotas, RBAC, and network policies per namespace.</p>
+    <div class="g3" style="margin-top:12px;">
+      <div class="mc"><h4>default</h4><p>Where resources go if no namespace specified. Avoid using this in production.</p></div>
+      <div class="mc"><h4>kube-system</h4><p>K8s system components: DNS, kube-proxy, metrics-server. Never modify unless you know what you're doing.</p></div>
+      <div class="mc"><h4>kube-public</h4><p>Readable by all, including unauthenticated users. Contains cluster info.</p></div>
+    </div>
+    <div class="code">
+<span class="cc"># Common namespace commands</span>
+<span class="ck">kubectl get pods</span> <span class="cv">-n production</span>
+<span class="ck">kubectl get pods</span> <span class="cv">--all-namespaces</span>
+<span class="ck">kubectl create namespace</span> <span class="cv">staging</span>
+<span class="ck">kubectl config set-context --current</span> <span class="cv">--namespace=production</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 5 — SERVICES OVERVIEW
+═══════════════════════════════════════════════ -->
+<div class="page" id="p5">
+  <div class="ph">
+    <div class="ph-num">PAGE 05 · NETWORKING</div>
+    <h2>SERVICES OVERVIEW</h2>
+    <p>Stable networking for pods — ClusterIP, NodePort, LoadBalancer, ExternalName, and Headless services explained in depth.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">❓ Why Services Exist</div>
+    <p>Pods are ephemeral. When a pod dies and restarts, it gets a NEW IP address. If Service A hard-codes Service B's pod IP, it breaks on every pod restart. Services provide a <strong>stable virtual IP (ClusterIP) + DNS name</strong> that always routes to healthy pods via label selectors.</p>
+    <div class="layman"><div class="layman-label">Layman</div>Imagine calling your pizza place by the chef's personal phone number. Every time a new chef is hired, you'd need the new number. Instead, call the RESTAURANT'S number — it always routes to whoever is working, regardless of who that is. That's a Kubernetes Service.</div>
+  </div>
+
+  <div class="g2">
+    <div class="arch arch-cyan">
+      <h3>🔒 CLUSTERIP (DEFAULT)</h3>
+      <p>Exposes service on a cluster-internal IP. Only reachable from WITHIN the cluster. Has a stable DNS name: <code style="color:var(--cyan)">service-name.namespace.svc.cluster.local</code></p>
+      <div class="layman"><div class="layman-label">Layman</div>The internal office phone extension. Only people INSIDE the building can dial it. No external calls.</div>
+      <div class="code">
+<span class="ck">kind:</span> <span class="cv">Service</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">ClusterIP</span>  <span class="cc"># default</span>
+&nbsp;&nbsp;<span class="ck">selector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">backend</span>
+&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;<span class="cv">- port: 80</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">targetPort:</span> <span class="cv">8080</span></div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Use For</h4><ul><li>Internal microservices</li><li>DB connections from app</li><li>Any backend service</li></ul></div>
+        <div class="pcc-box m-box"><h4>💰 Cost</h4><ul><li>FREE — no external resources</li><li>Uses only cluster networking</li></ul></div>
+      </div>
+    </div>
+
+    <div class="arch arch-orange">
+      <h3>🔌 NODEPORT</h3>
+      <p>Exposes service on a static port (30000-32767) on EACH node's external IP. External traffic hits ANY node IP + that port and gets routed to the service.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Like a direct phone line from outside that rings on every desk in the office simultaneously. Whoever picks up first gets the call. Only for testing — exposes node IPs publicly.</div>
+      <div class="code">
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">NodePort</span>
+&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;<span class="cv">- port: 80</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">targetPort:</span> <span class="cv">8080</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nodePort:</span> <span class="cv">30080</span>  <span class="cc"># 30000-32767</span></div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Use For</h4><ul><li>Dev/testing environments</li><li>When no LB available</li><li>Debugging connectivity</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Avoid</h4><ul><li>Production (exposes node IPs)</li><li>Port range limited</li><li>No TLS termination</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="arch arch-green">
+      <h3>⚖️ LOADBALANCER</h3>
+      <p>Creates a cloud provider's load balancer with a public IP. Each service gets its OWN load balancer. Traffic flows: Internet → Cloud LB → NodePort → Pods. Works on EKS, AKS, GKE automatically.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Renting a dedicated phone number with an automatic call routing system from your telecom provider. Expensive but professional. Every service gets its own 1-800 number.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Production-ready external access</li><li>Cloud-managed, highly available</li><li>Automatic TLS (with annotations)</li></ul></div>
+        <div class="pcc-box m-box"><h4>💰 Cost</h4><ul><li>AWS ALB: ~$20-30/mo base</li><li>AWS NLB: ~$16/mo + data</li><li>GCP LB: ~$18/mo + data</li><li>Azure LB: ~$18/mo + data</li></ul></div>
+      </div>
+    </div>
+
+    <div class="arch arch-purple">
+      <h3>🔗 HEADLESS + EXTERNALNAME</h3>
+      <p><strong>Headless</strong> (clusterIP: None): Returns individual pod IPs instead of VIP. Used by StatefulSets so each pod is directly addressable. <br><br><strong>ExternalName</strong>: Maps to an external DNS name. Used to access external services (RDS, Azure SQL) as if they were internal.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Headless: Instead of calling the restaurant number, you get the direct number for each individual chef. ExternalName: A nickname in your contacts — "Office Supplier" dials the real external company.</div>
+      <div class="code">
+<span class="cc"># ExternalName to external RDS</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">ExternalName</span>
+&nbsp;&nbsp;<span class="ck">externalName:</span> <span class="cv">mydb.abc123.rds.amazonaws.com</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 6 — INGRESS CORE CONCEPTS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p6">
+  <div class="ph">
+    <div class="ph-num">PAGE 06 · NETWORKING</div>
+    <h2>INGRESS — CORE CONCEPTS</h2>
+    <p>HTTP/HTTPS routing, TLS termination, host/path-based routing — the gateway to your Kubernetes services.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">❓ Why Ingress? (The LoadBalancer Problem)</div>
+    <p>With LoadBalancer services, EACH service gets its own cloud load balancer. If you have 20 microservices, that's 20 load balancers at $20-30/mo each = <strong>$400-600/mo</strong> just for LBs. Ingress solves this: ONE load balancer, ONE IP, route to MANY services based on hostname or URL path.</p>
+    <div class="layman"><div class="layman-label">Layman</div>Instead of 20 separate front doors (one per service), you have ONE grand entrance lobby. The lobby receptionist reads the visitor's destination (URL path) and directs them to the right department (service). 20x cheaper than 20 separate doors.</div>
+    <div class="flow">
+      <div class="fs">Internet</div><div class="fa">→</div>
+      <div class="fs">Cloud LB (1 only)</div><div class="fa">→</div>
+      <div class="fs">Ingress Controller</div><div class="fa">→</div>
+      <div class="fs">Ingress Rules</div><div class="fa">→</div>
+      <div class="fs">Service A or B or C</div><div class="fa">→</div>
+      <div class="fs">Pods</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🗺️ Path-Based Routing</div>
+      <p>Different URL paths route to different backend services. All on the same domain.</p>
+      <div class="code">
+<span class="ck">rules:</span>
+<span class="cv">- host: myapp.com</span>
+&nbsp;&nbsp;<span class="ck">http:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">paths:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /api</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.name:</span> <span class="cv">api-service</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /admin</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.name:</span> <span class="cv">admin-service</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.name:</span> <span class="cv">frontend-service</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 Host-Based Routing</div>
+      <p>Different subdomains route to different services. Same IP, different hostnames.</p>
+      <div class="code">
+<span class="ck">rules:</span>
+<span class="cv">- host: api.myapp.com</span>
+&nbsp;&nbsp;<span class="ck">http.paths[0].backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service:</span> <span class="cv">api-service</span>
+<span class="cv">- host: admin.myapp.com</span>
+&nbsp;&nbsp;<span class="ck">http.paths[0].backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service:</span> <span class="cv">admin-service</span>
+<span class="cv">- host: shop.myapp.com</span>
+&nbsp;&nbsp;<span class="ck">http.paths[0].backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service:</span> <span class="cv">shop-service</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔐 TLS / HTTPS with Ingress</div>
+    <p>Ingress handles TLS termination — HTTPS to the Ingress, then plain HTTP inside the cluster (or re-encrypted). Certificates stored as K8s Secrets (type: kubernetes.io/tls). Use <strong>cert-manager</strong> to auto-issue Let's Encrypt certs.</p>
+    <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">Ingress</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">my-ingress</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cert-manager.io/cluster-issuer:</span> <span class="cv">"letsencrypt-prod"</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">tls:</span>
+&nbsp;&nbsp;<span class="cv">- hosts:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- myapp.com</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">secretName:</span> <span class="cv">myapp-tls</span>  <span class="cc"># cert stored here</span>
+&nbsp;&nbsp;<span class="ck">rules:</span>
+&nbsp;&nbsp;<span class="cv">- host: myapp.com</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">http:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">paths:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pathType:</span> <span class="cv">Prefix</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">frontend</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port.number:</span> <span class="cv">80</span></div>
+    <div class="pcc">
+      <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>One LB for all services — huge cost saving</li><li>TLS termination built-in</li><li>Host/path routing</li><li>Rate limiting, auth, rewrite (via annotations)</li></ul></div>
+      <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>Only HTTP/HTTPS (Layer 7) — not TCP/UDP</li><li>Requires Ingress Controller installation</li><li>Controller itself needs a LoadBalancer service</li></ul></div>
+      <div class="pcc-box m-box"><h4>💰 Cost vs LoadBalancer</h4><ul><li>Without Ingress: 20 LBs × $25 = $500/mo</li><li>With Ingress: 1 LB × $25 = $25/mo</li><li>Savings: $475/mo = $5,700/yr</li><li>cert-manager: Free (open source)</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 7 — AWS ALB INGRESS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p7">
+  <div class="ph">
+    <div class="ph-num">PAGE 07 · AWS NETWORKING</div>
+    <h2>AWS INGRESS — ALB CONTROLLER</h2>
+    <p>AWS Load Balancer Controller provisions Application Load Balancers (ALB) natively in EKS clusters.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏗️ How AWS ALB Ingress Works</div>
+    <p>When you create an Ingress resource with <code style="color:var(--cyan)">kubernetes.io/ingress.class: alb</code>, the AWS Load Balancer Controller (running in your cluster) talks to AWS APIs and provisions a real ALB in your VPC. The ALB routes traffic directly to pod IPs (no NodePort hop!) via <strong>IP target mode</strong>.</p>
+    <div class="flow">
+      <div class="fs">Internet</div><div class="fa">→</div>
+      <div class="fs">AWS ALB</div><div class="fa">→</div>
+      <div class="fs">Target Group (Pod IPs)</div><div class="fa">→</div>
+      <div class="fs">Pods directly</div>
+    </div>
+    <div class="layman"><div class="layman-label">Layman</div>AWS ALB is like hiring Amazon's own professional traffic director to stand outside your building. When you write the Ingress YAML, K8s tells AWS "please set up a real load balancer" and AWS provisions one fully managed, auto-scaling ALB in minutes.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔧 Installation</div>
+    <div class="code">
+<span class="cc"># 1. Install AWS Load Balancer Controller via Helm</span>
+<span class="ck">helm repo add</span> <span class="cv">eks https://aws.github.io/eks-charts</span>
+<span class="ck">helm install</span> <span class="cv">aws-load-balancer-controller eks/aws-load-balancer-controller \</span>
+&nbsp;&nbsp;<span class="cv">-n kube-system \</span>
+&nbsp;&nbsp;<span class="cv">--set clusterName=my-cluster \</span>
+&nbsp;&nbsp;<span class="cv">--set serviceAccount.create=false \</span>
+&nbsp;&nbsp;<span class="cv">--set serviceAccount.name=aws-load-balancer-controller</span>
+
+<span class="cc"># 2. IAM role required for controller (IRSA)</span>
+<span class="cc"># Controller needs permissions to manage ALB, Target Groups, etc.</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Complete ALB Ingress YAML with Annotations</div>
+    <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">Ingress</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">my-alb-ingress</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">production</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Core ALB annotations ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kubernetes.io/ingress.class:</span> <span class="cv">alb</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/scheme:</span> <span class="cv">internet-facing</span>  <span class="cc"># or internal</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/target-type:</span> <span class="cv">ip</span>           <span class="cc"># route to pod IPs</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- TLS ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/certificate-arn:</span> <span class="cv">arn:aws:acm:us-east-1:123:certificate/abc</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/ssl-redirect:</span> <span class="cv">"443"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/listen-ports:</span> <span class="cv">'[{"HTTP":80},{"HTTPS":443}]'</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Health Check ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/healthcheck-path:</span> <span class="cv">/health</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/healthcheck-interval-seconds:</span> <span class="cv">"30"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/success-codes:</span> <span class="cv">"200-299"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- WAF + Security ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/wafv2-acl-arn:</span> <span class="cv">arn:aws:wafv2:us-east-1:123:webacl/myacl/abc</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Performance ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/load-balancer-attributes:</span> <span class="cv">idle_timeout.timeout_seconds=120</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Subnet placement ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/subnets:</span> <span class="cv">subnet-abc123,subnet-def456</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Tags for billing ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">alb.ingress.kubernetes.io/tags:</span> <span class="cv">Environment=prod,Team=platform</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">ingressClassName:</span> <span class="cv">alb</span>
+&nbsp;&nbsp;<span class="ck">rules:</span>
+&nbsp;&nbsp;<span class="cv">- host: api.myapp.com</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">http.paths:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /v1</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pathType:</span> <span class="cv">Prefix</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend.service:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">api-v1-service</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port.number:</span> <span class="cv">80</span></div>
+  </div>
+
+  <div class="st">KEY ALB ANNOTATION REFERENCE</div>
+  <table class="tbl">
+    <tr><th>Annotation</th><th>Values</th><th>Purpose</th></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/scheme</code></td><td>internet-facing / internal</td><td>Public or private ALB</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/target-type</code></td><td>ip / instance</td><td>Route to pod IPs or node instances</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/certificate-arn</code></td><td>ACM ARN</td><td>TLS certificate from ACM</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/group.name</code></td><td>string</td><td>Share 1 ALB across multiple Ingresses</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/wafv2-acl-arn</code></td><td>WAF ARN</td><td>Attach AWS WAF for protection</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/actions.{name}</code></td><td>JSON</td><td>Custom actions (redirect, fixed-response)</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/auth-type</code></td><td>cognito / oidc / none</td><td>ALB authentication</td></tr>
+    <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/conditions.{name}</code></td><td>JSON</td><td>Advanced routing conditions</td></tr>
+  </table>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ ALB Pros</h4><ul>
+      <li>Native AWS integration (no 3rd party)</li>
+      <li>Direct pod IP routing (ip target mode)</li>
+      <li>WAF, Cognito auth built-in</li>
+      <li>Sticky sessions support</li>
+      <li>HTTP/2 and gRPC support</li>
+      <li>Share 1 ALB via group.name annotation</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ ALB Cons</h4><ul>
+      <li>EKS/AWS only — not portable</li>
+      <li>Slow provisioning (~2-3 min per ALB)</li>
+      <li>Complex IAM setup (IRSA required)</li>
+      <li>Limited annotation debugging</li>
+      <li>No built-in rate limiting</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 ALB Cost</h4><ul>
+      <li>Base: ~$18/mo per ALB (LCU pricing)</li>
+      <li>Data processing: $0.008/GB</li>
+      <li>With WAF: +$5-10/mo</li>
+      <li>Use group.name to share = 1 ALB for all</li>
+      <li>Certificate: Free via ACM</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 8 — AWS NLB + ANNOTATIONS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p8">
+  <div class="ph">
+    <div class="ph-num">PAGE 08 · AWS NETWORKING</div>
+    <h2>AWS NLB + ALL ANNOTATIONS</h2>
+    <p>Network Load Balancer for TCP/UDP workloads, and the complete AWS Load Balancer Controller annotation reference.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🌊 NLB vs ALB — When to Use Which</div>
+      <table class="tbl">
+        <tr><th>Feature</th><th>ALB (L7)</th><th>NLB (L4)</th></tr>
+        <tr><td>Layer</td><td>HTTP/HTTPS (L7)</td><td>TCP/UDP/TLS (L4)</td></tr>
+        <tr><td>Routing</td><td>Path/Host/Header</td><td>Port only</td></tr>
+        <tr><td>Latency</td><td>~1-2ms overhead</td><td>Ultra-low (~100µs)</td></tr>
+        <tr><td>Use case</td><td>Web apps, REST APIs</td><td>Gaming, Kafka, MQTT, gRPC</td></tr>
+        <tr><td>Static IP</td><td>No (DNS only)</td><td>Yes (Elastic IPs)</td></tr>
+        <tr><td>Preserve source IP</td><td>X-Forwarded-For</td><td>Native (no proxy protocol needed)</td></tr>
+        <tr><td>Cost</td><td>~$18/mo + LCUs</td><td>~$16/mo + NLCUs</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 NLB Service YAML</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">v1</span>
+<span class="ck">kind:</span> <span class="cv">Service</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">my-nlb-service</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-type:</span> <span class="cv">"external"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-nlb-target-type:</span> <span class="cv">ip</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-scheme:</span> <span class="cv">internet-facing</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Static Elastic IPs</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-eip-allocations:</span> <span class="cv">eipalloc-abc,eipalloc-def</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># TLS on NLB</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-ssl-cert:</span> <span class="cv">arn:aws:acm:...</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-ssl-ports:</span> <span class="cv">"443"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Cross-zone LB</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled:</span> <span class="cv">"true"</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">LoadBalancer</span>
+&nbsp;&nbsp;<span class="ck">loadBalancerClass:</span> <span class="cv">service.k8s.aws/nlb</span>
+&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;<span class="cv">- port: 443</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">targetPort:</span> <span class="cv">8443</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">protocol:</span> <span class="cv">TCP</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📖 Complete AWS Annotation Reference</div>
+    <div class="st" style="font-size:14px;">ALB Ingress Annotations</div>
+    <table class="tbl">
+      <tr><th>Annotation</th><th>Description</th></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/group.name</code></td><td>Share one ALB across multiple Ingress resources — massive cost saving</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/group.order</code></td><td>Order of rules when sharing ALB (lower = higher priority)</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/auth-type</code></td><td>cognito / oidc — authenticate at LB level before reaching pods</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/auth-cognito-user-pool-arn</code></td><td>Cognito User Pool ARN for authentication</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/auth-oidc-issuer</code></td><td>OIDC provider URL (Okta, Auth0, etc.)</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/ip-address-type</code></td><td>ipv4 / dualstack (IPv4 + IPv6)</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/backend-protocol</code></td><td>HTTP / HTTPS / gRPC / HTTP2 (backend protocol)</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/target-group-attributes</code></td><td>deregistration_delay.timeout_seconds=30, stickiness.enabled=true</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/load-balancer-attributes</code></td><td>access_logs.s3.enabled=true,access_logs.s3.bucket=my-logs</td></tr>
+      <tr><td><code style="color:var(--cyan)">alb.ingress.kubernetes.io/security-groups</code></td><td>Custom security groups for ALB (comma-separated SG IDs)</td></tr>
+    </table>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ NLB Pros</h4><ul>
+      <li>Ultra-low latency (no HTTP parsing)</li>
+      <li>Static Elastic IPs (whitelisting)</li>
+      <li>Handles millions of req/sec</li>
+      <li>TCP/UDP — not HTTP only</li>
+      <li>Preserves source IP natively</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ NLB Cons</h4><ul>
+      <li>No host/path routing</li>
+      <li>No HTTP header manipulation</li>
+      <li>No WAF integration</li>
+      <li>More complex to debug</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost Tips</h4><ul>
+      <li>Use group.name → 1 ALB for all services</li>
+      <li>Internal scheme for internal services</li>
+      <li>Delete unused target groups</li>
+      <li>Enable access logs → S3 (cheap)</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 9 — AZURE AGIC INGRESS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p9">
+  <div class="ph">
+    <div class="ph-num">PAGE 09 · AZURE NETWORKING</div>
+    <h2>AZURE INGRESS — AGIC</h2>
+    <p>Application Gateway Ingress Controller — Azure's native L7 load balancer tightly integrated with AKS.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏗️ What is AGIC?</div>
+    <p>AGIC (Application Gateway Ingress Controller) is an AKS add-on that provisions and configures Azure Application Gateway based on Kubernetes Ingress resources. It watches Ingress objects and updates App Gateway rules automatically. Routes traffic directly to pod IPs.</p>
+    <div class="layman"><div class="layman-label">Layman</div>Azure's traffic manager who understands K8s language. You write a K8s Ingress YAML, AGIC reads it and tells Azure Application Gateway exactly how to route traffic — no manual Azure portal configuration needed.</div>
+    <div class="flow">
+      <div class="fs">Internet</div><div class="fa">→</div>
+      <div class="fs">Azure Application Gateway</div><div class="fa">→</div>
+      <div class="fs">AGIC (reads Ingress)</div><div class="fa">→</div>
+      <div class="fs">Backend Pool (Pod IPs)</div><div class="fa">→</div>
+      <div class="fs">AKS Pods</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🔧 Enable AGIC on AKS</div>
+      <div class="code">
+<span class="cc"># Enable AGIC add-on (creates App Gateway too)</span>
+<span class="ck">az aks enable-addons</span> <span class="cv">\</span>
+&nbsp;&nbsp;<span class="cv">-n myAKSCluster \</span>
+&nbsp;&nbsp;<span class="cv">-g myResourceGroup \</span>
+&nbsp;&nbsp;<span class="cv">--addons ingress-appgw \</span>
+&nbsp;&nbsp;<span class="cv">--appgw-name myAppGateway \</span>
+&nbsp;&nbsp;<span class="cv">--appgw-subnet-cidr 10.2.0.0/16</span>
+
+<span class="cc"># Or via Helm (Bring Your Own App Gateway)</span>
+<span class="ck">helm repo add</span> <span class="cv">application-gateway-kubernetes-ingress \</span>
+&nbsp;&nbsp;<span class="cv">https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/</span>
+<span class="ck">helm install</span> <span class="cv">ingress-azure agic/ingress-azure \</span>
+&nbsp;&nbsp;<span class="cv">-f helm-config.yaml</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 AGIC Ingress YAML</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">Ingress</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">my-agic-ingress</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kubernetes.io/ingress.class:</span> <span class="cv">azure/application-gateway</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Enable SSL redirect HTTP→HTTPS</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">appgw.ingress.kubernetes.io/ssl-redirect:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Use Azure Key Vault cert</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">appgw.ingress.kubernetes.io/appgw-ssl-certificate:</span> <span class="cv">my-akv-cert</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Custom health probe</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">appgw.ingress.kubernetes.io/health-probe-path:</span> <span class="cv">/healthz</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">appgw.ingress.kubernetes.io/health-probe-interval:</span> <span class="cv">"30"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Cookie-based session affinity</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">appgw.ingress.kubernetes.io/cookie-based-affinity:</span> <span class="cv">Enabled</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">ingressClassName:</span> <span class="cv">azure-application-gateway</span>
+&nbsp;&nbsp;<span class="ck">rules:</span>
+&nbsp;&nbsp;<span class="cv">- host: myapp.azurewebsites.net</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">http.paths:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pathType:</span> <span class="cv">Prefix</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend.service:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">frontend-svc</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port.number:</span> <span class="cv">80</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📖 AGIC Annotation Reference</div>
+    <table class="tbl">
+      <tr><th>Annotation</th><th>Purpose</th></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/ssl-redirect</code></td><td>"true" — Redirect HTTP to HTTPS automatically</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/appgw-ssl-certificate</code></td><td>Name of certificate in App Gateway (from Key Vault)</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/backend-protocol</code></td><td>http / https — protocol to backend pods</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/connection-draining</code></td><td>"true" — Graceful connection draining on pod termination</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/connection-draining-timeout</code></td><td>Seconds to wait during drain (default 30)</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/cookie-based-affinity</code></td><td>Enabled / Disabled — sticky sessions</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/request-timeout</code></td><td>Backend request timeout in seconds</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/use-private-ip</code></td><td>"true" — Use App Gateway's private IP for routing</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/rewrite-rule-set</code></td><td>Name of App Gateway rewrite rule set for URL rewriting</td></tr>
+      <tr><td><code style="color:var(--cyan)">appgw.ingress.kubernetes.io/waf-policy-for-path</code></td><td>Apply WAF policy to specific paths</td></tr>
+    </table>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ AGIC Pros</h4><ul>
+      <li>Native Azure integration — fully managed</li>
+      <li>Azure WAF built-in (OWASP rules)</li>
+      <li>Azure Key Vault cert integration</li>
+      <li>Azure AD authentication support</li>
+      <li>Autoscaling App Gateway</li>
+      <li>Direct pod IP routing</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ AGIC Cons</h4><ul>
+      <li>Azure/AKS only — not portable</li>
+      <li>App Gateway is expensive</li>
+      <li>AGIC updates can lag App Gateway</li>
+      <li>Complex WAF rule management</li>
+      <li>Limited annotation flexibility vs NGINX</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Azure Cost</h4><ul>
+      <li>App Gateway v2: ~$180-250/mo (Standard)</li>
+      <li>App Gateway WAF v2: ~$350-500/mo</li>
+      <li>Data processing: ~$0.008/GB</li>
+      <li>Capacity units: $0.008/CU/hr</li>
+      <li>Much pricier than AWS ALB!</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 10 — AZURE INTERNAL + TLS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p10">
+  <div class="ph">
+    <div class="ph-num">PAGE 10 · AZURE NETWORKING</div>
+    <h2>AZURE INTERNAL LB + TLS</h2>
+    <p>Internal load balancers for private traffic, Azure Front Door, TLS with Key Vault, and NGINX on AKS.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🔒 Internal Azure Load Balancer</div>
+      <p>For services that should ONLY be accessible within your Azure VNet (not publicly). Used for: internal APIs, database proxies, internal dashboards.</p>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">v1</span>
+<span class="ck">kind:</span> <span class="cv">Service</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">internal-api</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># This makes it INTERNAL (private IP)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/azure-load-balancer-internal:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Specific subnet for private IP</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/azure-load-balancer-internal-subnet:</span> <span class="cv">internal-subnet</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># IP version</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">service.beta.kubernetes.io/azure-load-balancer-ipv4:</span> <span class="cv">10.240.0.100</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">LoadBalancer</span></div>
+      <div class="layman"><div class="layman-label">Layman</div>The staff-only entrance at the back of the building. No public signage, only accessible from inside the building complex (VNet).</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 Azure Front Door + AKS</div>
+      <p>Azure Front Door is a global CDN + WAF + load balancer. Integrates with AKS via the <strong>Azure Front Door Ingress Controller</strong> or via standard AGIC with App Gateway as origin.</p>
+      <div class="code">
+<span class="cc"># Front Door → App Gateway → AKS pattern</span>
+<span class="ck">Internet</span> <span class="co">→</span> <span class="cv">Azure Front Door (Global CDN/WAF)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="co">→</span> <span class="cv">App Gateway (per-region L7)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="co">→</span> <span class="cv">AKS Services → Pods</span>
+
+<span class="cc"># Front Door profile annotations</span>
+<span class="ck">azure.ingress.kubernetes.io/frontdoor-routing-rule:</span> <span class="cv">myrouting</span>
+<span class="ck">azure.ingress.kubernetes.io/frontdoor-waf-policy:</span> <span class="cv">myWAFpolicy</span></div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Front Door Pros</h4><ul><li>Global load balancing</li><li>CDN + WAF in one</li><li>Anycast routing</li><li>DDoS protection</li></ul></div>
+        <div class="pcc-box m-box"><h4>💰 Cost</h4><ul><li>Front Door Standard: ~$35/mo</li><li>Premium (WAF): ~$330/mo</li><li>Data: $0.008-0.17/GB by region</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔐 TLS with Azure Key Vault on AKS</div>
+    <p>Best practice: Store TLS certificates in Azure Key Vault, sync to K8s Secrets via <strong>Secrets Store CSI Driver</strong>. No plaintext certs in etcd.</p>
+    <div class="code">
+<span class="cc"># 1. Install Secrets Store CSI Driver + Azure Provider</span>
+<span class="ck">helm install</span> <span class="cv">csi-secrets-store secrets-store-csi-driver/secrets-store-csi-driver</span>
+
+<span class="cc"># 2. Create SecretProviderClass</span>
+<span class="ck">apiVersion:</span> <span class="cv">secrets-store.csi.x-k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">SecretProviderClass</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">azure-kvname-tls</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">provider:</span> <span class="cv">azure</span>
+&nbsp;&nbsp;<span class="ck">secretObjects:</span>
+&nbsp;&nbsp;<span class="cv">- secretName: tls-secret</span>  <span class="cc"># Creates K8s Secret</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">kubernetes.io/tls</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">data:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- objectName: my-tls-cert</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">key:</span> <span class="cv">tls.crt</span>
+&nbsp;&nbsp;<span class="ck">parameters:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">usePodIdentity:</span> <span class="cv">"false"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">clientID:</span> <span class="cv">your-managed-identity-client-id</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">keyvaultName:</span> <span class="cv">my-keyvault</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">objects:</span> <span class="cv">|
+      array:
+        - objectName: my-tls-cert
+          objectType: secret</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">tenantId:</span> <span class="cv">your-tenant-id</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📖 Complete Azure Service Annotation Reference</div>
+    <table class="tbl">
+      <tr><th>Annotation</th><th>Purpose</th></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-load-balancer-internal</code></td><td>"true" — Creates internal (private) LB</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-load-balancer-internal-subnet</code></td><td>Subnet name for internal LB IP</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-pip-name</code></td><td>Use specific Public IP resource name</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-dns-label-name</code></td><td>DNS label for the public IP (creates .region.cloudapp.azure.com)</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-load-balancer-resource-group</code></td><td>Resource group for LB (BYO RG)</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path</code></td><td>Custom health probe path for HTTP/HTTPS probes</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-shared-securityrule</code></td><td>"true" — Share NSG rules to avoid 2000 rule limit</td></tr>
+      <tr><td><code style="color:var(--cyan)">service.beta.kubernetes.io/azure-load-balancer-tcp-idle-timeout</code></td><td>TCP idle timeout in minutes (4-30)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 11 — NGINX INGRESS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p11">
+  <div class="ph">
+    <div class="ph-num">PAGE 11 · NETWORKING</div>
+    <h2>NGINX INGRESS CONTROLLER</h2>
+    <p>The most popular, battle-tested Ingress controller — works on any cloud and bare metal.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌍 Why NGINX Ingress?</div>
+    <p>NGINX Ingress is the most widely used Ingress controller. It runs NGINX inside K8s as a deployment, and dynamically configures NGINX rules based on Ingress objects. Works on <strong>ANY Kubernetes</strong> — AWS, Azure, GCP, on-prem, bare metal.</p>
+    <div class="layman"><div class="layman-label">Layman</div>NGINX is the world's most popular web server turned into a K8s traffic cop. Cloud-neutral — it doesn't care if you're on AWS, Azure, or your own server rack. Same config everywhere.</div>
+    <div class="code">
+<span class="cc"># Install via Helm (works anywhere)</span>
+<span class="ck">helm repo add</span> <span class="cv">ingress-nginx https://kubernetes.github.io/ingress-nginx</span>
+<span class="ck">helm install</span> <span class="cv">ingress-nginx ingress-nginx/ingress-nginx \</span>
+&nbsp;&nbsp;<span class="cv">--create-namespace \</span>
+&nbsp;&nbsp;<span class="cv">--namespace ingress-nginx \</span>
+&nbsp;&nbsp;<span class="cv">--set controller.replicaCount=2 \</span>
+&nbsp;&nbsp;<span class="cv">--set controller.metrics.enabled=true</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 NGINX Ingress YAML — Full Example</div>
+    <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">Ingress</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">nginx-ingress-example</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kubernetes.io/ingress.class:</span> <span class="cv">nginx</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- SSL/TLS ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/ssl-redirect:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/force-ssl-redirect:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Rate Limiting ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/limit-rps:</span> <span class="cv">"100"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/limit-connections:</span> <span class="cv">"50"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- URL Rewrite ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/rewrite-target:</span> <span class="cv">/$2</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Proxy Config ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/proxy-body-size:</span> <span class="cv">50m</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/proxy-connect-timeout:</span> <span class="cv">"60"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/proxy-read-timeout:</span> <span class="cv">"120"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- CORS ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/enable-cors:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/cors-allow-origin:</span> <span class="cv">"https://myapp.com"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Auth ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/auth-url:</span> <span class="cv">https://auth.myapp.com/verify</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/auth-signin:</span> <span class="cv">https://auth.myapp.com/login</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Canary Routing ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/canary:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/canary-weight:</span> <span class="cv">"10"</span>  <span class="cc"># 10% traffic</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># --- Session Affinity ---</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/affinity:</span> <span class="cv">cookie</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/session-cookie-name:</span> <span class="cv">INGRESSCOOKIE</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">ingressClassName:</span> <span class="cv">nginx</span>
+&nbsp;&nbsp;<span class="ck">tls:</span>
+&nbsp;&nbsp;<span class="cv">- hosts: [myapp.com]</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">secretName:</span> <span class="cv">myapp-tls-secret</span>
+&nbsp;&nbsp;<span class="ck">rules:</span>
+&nbsp;&nbsp;<span class="cv">- host: myapp.com</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">http.paths:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- path: /api(/|$)(.*)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pathType:</span> <span class="cv">Prefix</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">backend.service:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">api-service</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port.number:</span> <span class="cv">80</span></div>
+  </div>
+
+  <div class="st">NGINX ANNOTATION QUICK REFERENCE</div>
+  <table class="tbl">
+    <tr><th>Category</th><th>Annotation</th><th>Example Value</th></tr>
+    <tr><td>Rate Limit</td><td>nginx.ingress.kubernetes.io/limit-rps</td><td>"100" — requests per second per IP</td></tr>
+    <tr><td>Rate Limit</td><td>nginx.ingress.kubernetes.io/limit-rpm</td><td>"1000" — requests per minute</td></tr>
+    <tr><td>Whitelist</td><td>nginx.ingress.kubernetes.io/whitelist-source-range</td><td>"10.0.0.0/8,192.168.0.0/16"</td></tr>
+    <tr><td>Rewrite</td><td>nginx.ingress.kubernetes.io/rewrite-target</td><td>/ or /$1 (capture groups)</td></tr>
+    <tr><td>Canary</td><td>nginx.ingress.kubernetes.io/canary-header</td><td>X-Canary: always (header-based canary)</td></tr>
+    <tr><td>gRPC</td><td>nginx.ingress.kubernetes.io/backend-protocol</td><td>GRPC or GRPCS</td></tr>
+    <tr><td>Buffer</td><td>nginx.ingress.kubernetes.io/proxy-buffering</td><td>"on" or "off"</td></tr>
+    <tr><td>Custom Config</td><td>nginx.ingress.kubernetes.io/configuration-snippet</td><td>Raw NGINX config snippet</td></tr>
+    <tr><td>Server Config</td><td>nginx.ingress.kubernetes.io/server-snippet</td><td>NGINX server block snippet</td></tr>
+    <tr><td>ModSecurity</td><td>nginx.ingress.kubernetes.io/enable-modsecurity</td><td>"true" — WAF via ModSecurity</td></tr>
+  </table>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ NGINX Pros</h4><ul>
+      <li>Works on ANY K8s (cloud-neutral)</li>
+      <li>Rich annotation set</li>
+      <li>Canary deployments built-in</li>
+      <li>Rate limiting out of the box</li>
+      <li>CORS, auth, rewrites</li>
+      <li>Huge community + documentation</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ NGINX Cons</h4><ul>
+      <li>Config reload causes brief hiccups</li>
+      <li>Not as integrated as cloud-native LBs</li>
+      <li>Needs its own LoadBalancer Service</li>
+      <li>NGINX Ingress vs ingress-nginx (2 different!)</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost</h4><ul>
+      <li>NGINX Ingress itself: Free</li>
+      <li>NGINX Plus (enterprise): ~$2,500/yr per instance</li>
+      <li>Still needs 1 cloud LB: ~$16-25/mo</li>
+      <li>Very cost-effective vs per-service LBs</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 12 — TRAEFIK
+═══════════════════════════════════════════════ -->
+<div class="page" id="p12">
+  <div class="ph">
+    <div class="ph-num">PAGE 12 · NETWORKING</div>
+    <h2>TRAEFIK INGRESS</h2>
+    <p>Modern cloud-native edge router with automatic service discovery, built-in dashboard, and middleware support.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚡ What Makes Traefik Different</div>
+    <p>Traefik auto-discovers services — no need to manually create Ingress objects for simple cases. It reads K8s service annotations and configures itself. Supports <strong>IngressRoute</strong> (its own CRD) for more power than standard Ingress. Has a built-in dashboard. Native support for Let's Encrypt auto-cert renewal.</p>
+    <div class="layman"><div class="layman-label">Layman</div>Unlike NGINX which needs explicit configuration, Traefik is like a smart receptionist who watches the building directory and automatically updates the routing board when new departments (services) are added or removed. No manual "please add this to the routing table" required.</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📋 Standard Ingress (Traefik)</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">Ingress</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">traefik-ingress</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kubernetes.io/ingress.class:</span> <span class="cv">traefik</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># Middlewares</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">traefik.ingress.kubernetes.io/router.middlewares:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">default-redirectscheme@kubernetescrd</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># TLS</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">traefik.ingress.kubernetes.io/router.tls:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">traefik.ingress.kubernetes.io/router.tls.certresolver:</span> <span class="cv">letsencrypt</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🚀 IngressRoute (Traefik CRD)</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">traefik.containo.us/v1alpha1</span>
+<span class="ck">kind:</span> <span class="cv">IngressRoute</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">my-ingressroute</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">entryPoints:</span> <span class="cv">[websecure]</span>
+&nbsp;&nbsp;<span class="ck">routes:</span>
+&nbsp;&nbsp;<span class="cv">- match: Host(`myapp.com`) && PathPrefix(`/api`)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kind:</span> <span class="cv">Rule</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">services:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- name: api-service</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port:</span> <span class="cv">80</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">middlewares:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- name: rate-limit</span>
+&nbsp;&nbsp;<span class="ck">tls:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">certResolver:</span> <span class="cv">letsencrypt</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔧 Traefik Middleware Examples</div>
+    <div class="g3">
+      <div class="mc">
+        <h4>Rate Limiting</h4>
+        <div class="code" style="font-size:10px;">
+<span class="ck">kind:</span> <span class="cv">Middleware</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">rate-limit</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">rateLimit:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">average:</span> <span class="cv">100</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">burst:</span> <span class="cv">200</span></div>
+      </div>
+      <div class="mc">
+        <h4>Basic Auth</h4>
+        <div class="code" style="font-size:10px;">
+<span class="ck">kind:</span> <span class="cv">Middleware</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">basic-auth</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">basicAuth:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">secret:</span> <span class="cv">auth-secret</span></div>
+      </div>
+      <div class="mc">
+        <h4>HTTP→HTTPS Redirect</h4>
+        <div class="code" style="font-size:10px;">
+<span class="ck">kind:</span> <span class="cv">Middleware</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">redirectScheme:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">scheme:</span> <span class="cv">https</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">permanent:</span> <span class="cv">true</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ Traefik Pros</h4><ul>
+      <li>Auto-discovery of services</li>
+      <li>Built-in Let's Encrypt ACME</li>
+      <li>Beautiful dashboard UI</li>
+      <li>Middleware system (rate limit, auth, retry)</li>
+      <li>Native support for TCP/UDP</li>
+      <li>Zero-downtime reload</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Traefik Cons</h4><ul>
+      <li>CRDs not standard K8s Ingress</li>
+      <li>Less NGINX-level performance at scale</li>
+      <li>IngressRoute not portable</li>
+      <li>Smaller community than NGINX</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost</h4><ul>
+      <li>Traefik Open Source: Free</li>
+      <li>Traefik Enterprise: Contact for pricing</li>
+      <li>Let's Encrypt certs: Free</li>
+      <li>Still needs 1 cloud LB service</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 13 — NETWORK POLICY BASICS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p13">
+  <div class="ph">
+    <div class="ph-num">PAGE 13 · SECURITY</div>
+    <h2>NETWORK POLICY — BASICS</h2>
+    <p>Kubernetes firewall rules for pods — controlling which pods can talk to which pods and on which ports.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔥 The Default Problem — All Pods Can Talk to All Pods</div>
+    <p>By default, Kubernetes has NO network isolation. Pod A in namespace "frontend" can freely connect to Pod B in namespace "database". This is a massive security risk in production. Network Policies fix this.</p>
+    <div class="warn"><strong>⚠️ Important:</strong> Network Policies require a CNI plugin that supports them — Calico, Cilium, Weave Net, or Antrea. Flannel does NOT support Network Policies by default. AWS VPC CNI requires Calico for NP support.</div>
+    <div class="layman"><div class="layman-label">Layman</div>By default, every employee in an office can walk into any room — the server room, the CEO's office, the finance department — all unlocked. Network Policies are the keycards and door locks that restrict access: "Only HR staff can enter HR rooms. Only DBAs can enter the server room."</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🚫 Deny All Ingress (Best Practice Start)</div>
+      <p>First, deny ALL incoming traffic to all pods in a namespace. Then selectively allow only what's needed.</p>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">NetworkPolicy</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">deny-all-ingress</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">production</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">podSelector:</span> <span class="cv">{}</span>  <span class="cc"># matches ALL pods</span>
+&nbsp;&nbsp;<span class="ck">policyTypes:</span>
+&nbsp;&nbsp;<span class="cv">- Ingress</span>
+&nbsp;&nbsp;<span class="cc"># No ingress rules = deny all inbound</span></div>
+      <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>Close and lock every door in the production wing. Nobody gets in until we explicitly issue keycards.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">✅ Allow Specific Traffic</div>
+      <p>Allow frontend pods to talk to backend pods on port 8080 only.</p>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">NetworkPolicy</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">allow-frontend-to-backend</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">podSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">backend</span>  <span class="cc"># applies to backend pods</span>
+&nbsp;&nbsp;<span class="ck">policyTypes:</span>
+&nbsp;&nbsp;<span class="cv">- Ingress</span>
+&nbsp;&nbsp;<span class="ck">ingress:</span>
+&nbsp;&nbsp;<span class="cv">- from:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- podSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">frontend</span>  <span class="cc"># ONLY frontend pods</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- protocol: TCP</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port:</span> <span class="cv">8080</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏗️ Namespace-Level Isolation</div>
+    <p>Allow traffic only FROM pods in a specific namespace. Used to isolate staging from production, or separate team namespaces.</p>
+    <div class="code">
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">podSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">api</span>
+&nbsp;&nbsp;<span class="ck">ingress:</span>
+&nbsp;&nbsp;<span class="cv">- from:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- namespaceSelector:</span>  <span class="cc"># pods from specific namespace</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kubernetes.io/metadata.name:</span> <span class="cv">frontend-ns</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">podSelector:</span>  <span class="cc"># AND specific pods</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">role:</span> <span class="cv">web</span></div>
+    <div class="info"><strong>⚡ Key insight:</strong> When both namespaceSelector AND podSelector are under the same <code style="color:#7BA7FF">- from:</code> entry, it's AND (must match both). When they're separate list items, it's OR (either matches).</div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ Network Policy Pros</h4><ul>
+      <li>Zero-trust network within cluster</li>
+      <li>Blast radius containment</li>
+      <li>Pod-level granularity</li>
+      <li>Namespace isolation</li>
+      <li>Free (built into K8s API)</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Network Policy Cons</h4><ul>
+      <li>Requires CNI support (Calico/Cilium)</li>
+      <li>No built-in logging of blocked traffic</li>
+      <li>Complex AND/OR selector logic</li>
+      <li>Additive — can't "deny specific"</li>
+      <li>No Layer 7 (HTTP) filtering (use Cilium)</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost</h4><ul>
+      <li>Calico OSS: Free</li>
+      <li>Calico Enterprise: ~$50k+/yr</li>
+      <li>Cilium OSS: Free</li>
+      <li>Cilium Enterprise: Contact pricing</li>
+      <li>AWS VPC CNI + Calico: Free</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 14 — NETWORK POLICY ADVANCED
+═══════════════════════════════════════════════ -->
+<div class="page" id="p14">
+  <div class="ph">
+    <div class="ph-num">PAGE 14 · SECURITY</div>
+    <h2>NETWORK POLICY — ADVANCED</h2>
+    <p>Egress control, IP block rules, DNS whitelisting, Cilium L7 policies, and real production patterns.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🚪 Egress Policies — Control Outbound Traffic</div>
+    <p>Egress policies control what pods can SEND traffic TO. By default, all pods can reach the internet. Lock this down in production.</p>
+    <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">networking.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">NetworkPolicy</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">restrict-egress</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">podSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">backend</span>
+&nbsp;&nbsp;<span class="ck">policyTypes:</span>
+&nbsp;&nbsp;<span class="cv">- Egress</span>
+&nbsp;&nbsp;<span class="ck">egress:</span>
+&nbsp;&nbsp;<span class="cv">- to:</span>  <span class="cc"># Allow to database pods only</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- podSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">mysql</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- port: 3306</span>
+&nbsp;&nbsp;<span class="cv">- to:</span>  <span class="cc"># Allow DNS (kube-dns)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- namespaceSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kubernetes.io/metadata.name:</span> <span class="cv">kube-system</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- port: 53</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">protocol:</span> <span class="cv">UDP</span></div>
+    <div class="warn"><strong>⚠️ Always allow port 53 UDP for DNS!</strong> If you block egress and forget DNS, pods can't resolve any service names and everything breaks silently.</div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🌐 IP Block — Block/Allow External IPs</div>
+      <div class="code">
+<span class="ck">egress:</span>
+<span class="cv">- to:</span>
+&nbsp;&nbsp;<span class="cv">- ipBlock:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cidr:</span> <span class="cv">0.0.0.0/0</span>  <span class="cc"># all IPs</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">except:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- 10.0.0.0/8</span>    <span class="cc"># except private</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- 172.16.0.0/12</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- 192.168.0.0/16</span>
+
+<span class="cc"># Allow only Stripe's IP range</span>
+<span class="ck">egress:</span>
+<span class="cv">- to:</span>
+&nbsp;&nbsp;<span class="cv">- ipBlock:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cidr:</span> <span class="cv">54.187.174.169/32</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⭐ Cilium — Layer 7 Network Policy</div>
+      <p>Cilium extends Network Policy to HTTP/gRPC level — allow only specific HTTP methods and paths.</p>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">cilium.io/v2</span>
+<span class="ck">kind:</span> <span class="cv">CiliumNetworkPolicy</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">endpointSelector:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">api</span>
+&nbsp;&nbsp;<span class="ck">ingress:</span>
+&nbsp;&nbsp;<span class="cv">- fromEndpoints:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- matchLabels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">frontend</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">toPorts:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- ports:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- port: "80"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">rules:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">http:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- method: GET</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">path:</span> <span class="cv">"/api/v1/.*"</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🏭 Production Network Policy Patterns</div>
+    <div class="g3">
+      <div class="mc"><h4>3-Tier App Isolation</h4><p>Frontend → Backend: port 80 only. Backend → DB: port 5432 only. DB accepts NOTHING else. Zero lateral movement possible.</p></div>
+      <div class="mc"><h4>Monitoring Carve-out</h4><p>Allow Prometheus (namespace: monitoring) to scrape ALL pods on their metrics port (usually 9090). Separate NP for monitoring namespace.</p></div>
+      <div class="mc"><h4>Ingress-Only Allow</h4><p>Allow ingress traffic only from ingress-nginx namespace/pod. Block all other external sources. All external traffic MUST go through Ingress controller.</p></div>
+    </div>
+    <div class="code">
+<span class="cc"># Complete production pattern: 3-tier isolation</span>
+<span class="cc">--- Policy 1: Deny ALL in production namespace</span>
+<span class="ck">podSelector:</span> <span class="cv">{}</span>  <span class="cc"># all pods</span>
+<span class="ck">policyTypes:</span> <span class="cv">[Ingress, Egress]</span>
+<span class="cc">--- Policy 2: Allow frontend from ingress-nginx</span>
+<span class="ck">podSelector.matchLabels.tier:</span> <span class="cv">frontend</span>
+<span class="ck">ingress.from.namespaceSelector:</span> <span class="cv">ingress-nginx</span>
+<span class="cc">--- Policy 3: Allow backend from frontend only</span>
+<span class="ck">podSelector.matchLabels.tier:</span> <span class="cv">backend</span>
+<span class="ck">ingress.from.podSelector.matchLabels.tier:</span> <span class="cv">frontend</span>
+<span class="cc">--- Policy 4: Allow DB from backend only</span>
+<span class="ck">podSelector.matchLabels.tier:</span> <span class="cv">database</span>
+<span class="ck">ingress.from.podSelector.matchLabels.tier:</span> <span class="cv">backend</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 15 — RBAC CORE
+═══════════════════════════════════════════════ -->
+<div class="page" id="p15">
+  <div class="ph">
+    <div class="ph-num">PAGE 15 · SECURITY</div>
+    <h2>RBAC — CORE CONCEPTS</h2>
+    <p>Role-Based Access Control — who can do what in your Kubernetes cluster.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔐 RBAC Building Blocks</div>
+    <div class="layman"><div class="layman-label">Layman</div>RBAC is like a hospital access system. <strong>Roles</strong> are job descriptions (Doctor can prescribe, Nurse can check vitals, Cleaner can clean). <strong>Subjects</strong> are people/systems. <strong>RoleBindings</strong> are the assignment: "This specific nurse = Nurse role." Only assigned roles define what each person can do.</div>
+    <div class="g4" style="margin-top:16px;">
+      <div class="mc"><h4>Subject</h4><p>WHO: User, Group, or ServiceAccount (for pods)</p></div>
+      <div class="mc"><h4>Role / ClusterRole</h4><p>WHAT: Set of permissions (verbs on resources)</p></div>
+      <div class="mc"><h4>RoleBinding</h4><p>Binds Subject → Role within a namespace</p></div>
+      <div class="mc"><h4>ClusterRoleBinding</h4><p>Binds Subject → ClusterRole cluster-wide</p></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📋 Role (Namespace-scoped)</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">rbac.authorization.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">Role</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">developer-role</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">staging</span>  <span class="cc"># scoped to staging only</span>
+<span class="ck">rules:</span>
+<span class="cv">- apiGroups:</span> <span class="cv">[""]</span>  <span class="cc"># "" = core API group</span>
+&nbsp;&nbsp;<span class="ck">resources:</span> <span class="cv">["pods", "pods/log", "services"]</span>
+&nbsp;&nbsp;<span class="ck">verbs:</span> <span class="cv">["get", "list", "watch"]</span>
+<span class="cv">- apiGroups:</span> <span class="cv">["apps"]</span>
+&nbsp;&nbsp;<span class="ck">resources:</span> <span class="cv">["deployments"]</span>
+&nbsp;&nbsp;<span class="ck">verbs:</span> <span class="cv">["get", "list", "update", "patch"]</span>
+<span class="cv">- apiGroups:</span> <span class="cv">[""]</span>
+&nbsp;&nbsp;<span class="ck">resources:</span> <span class="cv">["configmaps"]</span>
+&nbsp;&nbsp;<span class="ck">verbs:</span> <span class="cv">["get", "list"]</span>
+&nbsp;&nbsp;<span class="cc"># Intentionally no Secrets access</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 RoleBinding</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">rbac.authorization.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">RoleBinding</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">dev-binding</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">staging</span>
+<span class="ck">subjects:</span>
+<span class="cc"># Bind to a User</span>
+<span class="cv">- kind: User</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">jane.doe@company.com</span>
+&nbsp;&nbsp;<span class="ck">apiGroup:</span> <span class="cv">rbac.authorization.k8s.io</span>
+<span class="cc"># OR a Group</span>
+<span class="cv">- kind: Group</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">developers</span>
+<span class="cc"># OR a ServiceAccount</span>
+<span class="cv">- kind: ServiceAccount</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">ci-cd-bot</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">kube-system</span>
+<span class="ck">roleRef:</span>
+&nbsp;&nbsp;<span class="ck">kind:</span> <span class="cv">Role</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">developer-role</span>
+&nbsp;&nbsp;<span class="ck">apiGroup:</span> <span class="cv">rbac.authorization.k8s.io</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌍 ClusterRole vs Role</div>
+    <table class="tbl">
+      <tr><th>Feature</th><th>Role</th><th>ClusterRole</th></tr>
+      <tr><td>Scope</td><td>Single namespace only</td><td>All namespaces OR cluster-wide resources</td></tr>
+      <tr><td>Bound via</td><td>RoleBinding (in same namespace)</td><td>ClusterRoleBinding OR RoleBinding</td></tr>
+      <tr><td>Access nodes, PVs</td><td>No (not namespaced)</td><td>Yes — cluster-scoped resources</td></tr>
+      <tr><td>Use case</td><td>Team namespace access</td><td>Cluster admins, monitoring, CI/CD</td></tr>
+    </table>
+    <div class="st" style="font-size:14px; margin-top:16px;">RBAC Verbs Reference</div>
+    <div class="g4">
+      <div class="mc"><h4>get</h4><p>Read a specific resource by name</p></div>
+      <div class="mc"><h4>list</h4><p>Read all resources of a type</p></div>
+      <div class="mc"><h4>watch</h4><p>Stream changes to resources</p></div>
+      <div class="mc"><h4>create</h4><p>Create new resources</p></div>
+      <div class="mc"><h4>update</h4><p>Replace entire resource</p></div>
+      <div class="mc"><h4>patch</h4><p>Partially update resource</p></div>
+      <div class="mc"><h4>delete</h4><p>Delete a resource</p></div>
+      <div class="mc"><h4>deletecollection</h4><p>Delete multiple resources</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 16 — RBAC ADVANCED
+═══════════════════════════════════════════════ -->
+<div class="page" id="p16">
+  <div class="ph">
+    <div class="ph-num">PAGE 16 · SECURITY</div>
+    <h2>RBAC — ADVANCED + AUDIT</h2>
+    <p>ServiceAccount IRSA, audit logging, least privilege patterns, debugging RBAC, and common production roles.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">👤 Service Account — Pod Identity</div>
+    <p>Pods use ServiceAccounts to authenticate to the K8s API. By default, every pod gets the "default" service account — which is too permissive. Always create dedicated service accounts with minimal permissions.</p>
+    <div class="code">
+<span class="cc"># 1. Create dedicated ServiceAccount</span>
+<span class="ck">apiVersion:</span> <span class="cv">v1</span>
+<span class="ck">kind:</span> <span class="cv">ServiceAccount</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">myapp-sa</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">production</span>
+&nbsp;&nbsp;<span class="ck">annotations:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc"># AWS IRSA — link SA to IAM role</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">eks.amazonaws.com/role-arn:</span> <span class="cv">arn:aws:iam::123:role/myapp-role</span>
+
+<span class="cc"># 2. Use it in Pod/Deployment</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">serviceAccountName:</span> <span class="cv">myapp-sa</span>
+&nbsp;&nbsp;<span class="cc"># Optional: block token automounting</span>
+&nbsp;&nbsp;<span class="ck">automountServiceAccountToken:</span> <span class="cv">false</span></div>
+    <div class="layman"><div class="layman-label">Layman</div>Every employee (pod) gets an ID badge (service account). Instead of giving everyone a master key, give each the minimum doors they need access to. IRSA links the K8s badge to an AWS access card — when the pod talks to AWS S3, AWS validates the K8s token instead of needing hardcoded credentials.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Debugging RBAC — Who Can Do What</div>
+    <div class="code">
+<span class="cc"># Can this user create pods in production?</span>
+<span class="ck">kubectl auth can-i</span> <span class="cv">create pods \</span>
+&nbsp;&nbsp;<span class="cv">--namespace production \</span>
+&nbsp;&nbsp;<span class="cv">--as jane.doe@company.com</span>
+
+<span class="cc"># List all permissions for current user</span>
+<span class="ck">kubectl auth can-i</span> <span class="cv">--list</span>
+
+<span class="cc"># Check service account permissions</span>
+<span class="ck">kubectl auth can-i</span> <span class="cv">create deployments \</span>
+&nbsp;&nbsp;<span class="cv">--as system:serviceaccount:prod:myapp-sa</span>
+
+<span class="cc"># See all role bindings in namespace</span>
+<span class="ck">kubectl get rolebindings</span> <span class="cv">-n production -o wide</span>
+
+<span class="cc"># Describe what a specific role allows</span>
+<span class="ck">kubectl describe clusterrole</span> <span class="cv">cluster-admin</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Common Production RBAC Roles</div>
+    <div class="g3">
+      <div class="mc">
+        <h4>Read-Only (SRE/Support)</h4>
+        <div class="code" style="font-size:10px;">
+<span class="ck">resources:</span> <span class="cv">["pods","services",<br>"deployments","events",<br>"configmaps","ingresses"]</span>
+<span class="ck">verbs:</span> <span class="cv">["get","list","watch"]</span></div>
+      </div>
+      <div class="mc">
+        <h4>Developer (Deploy only)</h4>
+        <div class="code" style="font-size:10px;">
+<span class="ck">resources:</span> <span class="cv">["deployments"]</span>
+<span class="ck">verbs:</span> <span class="cv">["get","list","update","patch"]</span>
+<span class="ck">resources:</span> <span class="cv">["pods/log"]</span>
+<span class="ck">verbs:</span> <span class="cv">["get"]</span></div>
+      </div>
+      <div class="mc">
+        <h4>CI/CD Bot</h4>
+        <div class="code" style="font-size:10px;">
+<span class="ck">resources:</span> <span class="cv">["deployments",<br>"services","configmaps"]</span>
+<span class="ck">verbs:</span> <span class="cv">["*"]</span>  <span class="cc"># full CRUD</span>
+<span class="cc"># NO secrets access</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ RBAC Best Practices</h4><ul>
+      <li>Principle of least privilege always</li>
+      <li>Never use cluster-admin for apps</li>
+      <li>Use Groups not individual Users</li>
+      <li>Dedicated SA per application</li>
+      <li>Disable default SA token automount</li>
+      <li>Regularly audit with kubectl auth can-i</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ RBAC Mistakes</h4><ul>
+      <li>Wildcard verbs ["*"] in production</li>
+      <li>Cluster-wide binding for namespaced needs</li>
+      <li>Giving Secrets access unnecessarily</li>
+      <li>Not reviewing accumulated permissions</li>
+      <li>Using default service account for everything</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Security ROI</h4><ul>
+      <li>Proper RBAC = compliance (SOC2, ISO27001)</li>
+      <li>Limits blast radius of compromised pods</li>
+      <li>Required for PCI DSS</li>
+      <li>Audit tools: Polaris, kube-bench (free)</li>
+      <li>Enterprise: Teleport, StrongDM</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 17 — POD SECURITY STANDARDS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p17">
+  <div class="ph">
+    <div class="ph-num">PAGE 17 · SECURITY</div>
+    <h2>POD SECURITY STANDARDS</h2>
+    <p>Privileged, Baseline, Restricted — securing how pods run at the kernel level.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🛡️ Three Security Levels</div>
+    <div class="g3">
+      <div class="arch arch-red" style="border-color:rgba(255,23,68,0.4); background:rgba(255,23,68,0.05); border-radius:8px; padding:16px;">
+        <h3 style="color:var(--red); font-family:'Bebas Neue',sans-serif; font-size:18px; margin-bottom:8px;">PRIVILEGED</h3>
+        <p style="font-size:12px; color:var(--muted);">Completely unrestricted. Can run as root, mount host filesystem, use host network. Only for system-level infrastructure like CNI plugins.</p>
+        <div style="margin-top:8px;"><span class="badge b-red">Root allowed</span><span class="badge b-red">Host PID</span><span class="badge b-red">Host Network</span></div>
+      </div>
+      <div class="arch arch-yellow" style="border-color:rgba(255,214,0,0.4); background:rgba(255,214,0,0.05); border-radius:8px; padding:16px;">
+        <h3 style="color:var(--yellow); font-family:'Bebas Neue',sans-serif; font-size:18px; margin-bottom:8px;">BASELINE</h3>
+        <p style="font-size:12px; color:var(--muted);">Minimal restrictions — prevents obvious privilege escalations. Allows most standard workloads without modifications.</p>
+        <div style="margin-top:8px;"><span class="badge b-yellow">No privileged</span><span class="badge b-yellow">No hostPID</span><span class="badge b-yellow">No hostNetwork</span></div>
+      </div>
+      <div class="arch arch-green" style="border-color:rgba(0,230,118,0.4); background:rgba(0,230,118,0.05); border-radius:8px; padding:16px;">
+        <h3 style="color:var(--green); font-family:'Bebas Neue',sans-serif; font-size:18px; margin-bottom:8px;">RESTRICTED</h3>
+        <p style="font-size:12px; color:var(--muted);">Heavily hardened. Follows pod hardening best practices. Requires non-root user, read-only root filesystem, dropped capabilities.</p>
+        <div style="margin-top:8px;"><span class="badge b-green">Non-root</span><span class="badge b-green">No privilege escalation</span><span class="badge b-green">Drop ALL caps</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Apply PSS to Namespace</div>
+    <div class="code">
+<span class="cc"># Apply via namespace labels</span>
+<span class="ck">kubectl label namespace production</span> \
+&nbsp;&nbsp;<span class="cv">pod-security.kubernetes.io/enforce=restricted</span> \
+&nbsp;&nbsp;<span class="cv">pod-security.kubernetes.io/warn=restricted</span> \
+&nbsp;&nbsp;<span class="cv">pod-security.kubernetes.io/audit=restricted</span>
+
+<span class="cc"># Or in namespace YAML</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">production</span>
+&nbsp;&nbsp;<span class="ck">labels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pod-security.kubernetes.io/enforce:</span> <span class="cv">restricted</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">pod-security.kubernetes.io/enforce-version:</span> <span class="cv">latest</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Secure Pod securityContext</div>
+    <div class="code">
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">securityContext:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">runAsNonRoot:</span> <span class="cv">true</span>         <span class="cc"># never run as root</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">runAsUser:</span> <span class="cv">1000</span>              <span class="cc"># specific UID</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">runAsGroup:</span> <span class="cv">3000</span>             <span class="cc"># specific GID</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">fsGroup:</span> <span class="cv">2000</span>                <span class="cc"># volume ownership</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">seccompProfile:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">RuntimeDefault</span>       <span class="cc"># syscall filtering</span>
+&nbsp;&nbsp;<span class="ck">containers:</span>
+&nbsp;&nbsp;<span class="cv">- name: app</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">securityContext:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">allowPrivilegeEscalation:</span> <span class="cv">false</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">readOnlyRootFilesystem:</span> <span class="cv">true</span>  <span class="cc"># prevent writes to container FS</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">capabilities:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">drop:</span> <span class="cv">["ALL"]</span>              <span class="cc"># drop ALL Linux capabilities</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">add:</span> <span class="cv">["NET_BIND_SERVICE"]</span>   <span class="cc"># add only what's needed</span></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 18 — SECRETS MANAGEMENT
+═══════════════════════════════════════════════ -->
+<div class="page" id="p18">
+  <div class="ph">
+    <div class="ph-num">PAGE 18 · SECURITY</div>
+    <h2>SECRETS MANAGEMENT</h2>
+    <p>K8s Secrets, encryption at rest, HashiCorp Vault, AWS Secrets Manager, and Azure Key Vault integration.</p>
+  </div>
+
+  <div class="warn"><strong>⚠️ Default K8s Secrets are NOT encrypted!</strong> Base64 is encoding, not encryption. Anyone with etcd access can read all secrets. Enable encryption at rest AND use external secret managers for production.</div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🔑 Types of K8s Secrets</div>
+      <table class="tbl">
+        <tr><th>Type</th><th>Use Case</th></tr>
+        <tr><td><span class="badge b-cyan">Opaque</span></td><td>General key-value secrets (passwords, API keys)</td></tr>
+        <tr><td><span class="badge b-orange">kubernetes.io/tls</span></td><td>TLS certificate + private key pairs</td></tr>
+        <tr><td><span class="badge b-green">kubernetes.io/dockerconfigjson</span></td><td>Docker registry credentials for image pull</td></tr>
+        <tr><td><span class="badge b-purple">kubernetes.io/service-account-token</span></td><td>Service account JWT tokens</td></tr>
+        <tr><td><span class="badge b-yellow">kubernetes.io/basic-auth</span></td><td>Username + password pairs</td></tr>
+        <tr><td><span class="badge b-blue">kubernetes.io/ssh-auth</span></td><td>SSH private keys</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">🔧 External Secrets Operator</div>
+      <p>Syncs secrets FROM external providers (Vault, AWS SM, Azure KV, GCP SM) INTO K8s Secrets automatically. The industry standard approach.</p>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">external-secrets.io/v1beta1</span>
+<span class="ck">kind:</span> <span class="cv">ExternalSecret</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">db-credentials</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">refreshInterval:</span> <span class="cv">1h</span>
+&nbsp;&nbsp;<span class="ck">secretStoreRef:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">aws-secretsmanager</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kind:</span> <span class="cv">ClusterSecretStore</span>
+&nbsp;&nbsp;<span class="ck">target:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">my-k8s-secret</span>  <span class="cc"># K8s Secret created</span>
+&nbsp;&nbsp;<span class="ck">data:</span>
+&nbsp;&nbsp;<span class="cv">- secretKey: DB_PASSWORD</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">remoteRef:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">key:</span> <span class="cv">prod/myapp/db</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">property:</span> <span class="cv">password</span></div>
+    </div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ Production Secret Strategy</h4><ul>
+      <li>Enable etcd encryption at rest</li>
+      <li>Use External Secrets Operator</li>
+      <li>Rotate secrets automatically</li>
+      <li>RBAC: only specific SAs can read secrets</li>
+      <li>Audit secret access in logs</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Common Mistakes</h4><ul>
+      <li>Secrets in env vars (visible in ps output)</li>
+      <li>Hardcoded secrets in YAML committed to git</li>
+      <li>Too broad RBAC on secrets</li>
+      <li>Not rotating secrets regularly</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost</h4><ul>
+      <li>External Secrets Operator: Free</li>
+      <li>AWS Secrets Manager: $0.40/secret/mo</li>
+      <li>HashiCorp Vault OSS: Free (self-host)</li>
+      <li>Vault Enterprise: $$$</li>
+      <li>Azure Key Vault: ~$0.03/10k operations</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 19 — STORAGE DEEP DIVE
+═══════════════════════════════════════════════ -->
+<div class="page" id="p19">
+  <div class="ph">
+    <div class="ph-num">PAGE 19 · OPERATIONS</div>
+    <h2>STORAGE DEEP DIVE</h2>
+    <p>PV, PVC, StorageClass, access modes, reclaim policies, and cloud storage integration.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">💾 Access Modes</div>
+    <table class="tbl">
+      <tr><th>Mode</th><th>Short</th><th>Description</th><th>Use Case</th></tr>
+      <tr><td>ReadWriteOnce</td><td><span class="badge b-cyan">RWO</span></td><td>One node can read+write. Most common.</td><td>Databases, single app</td></tr>
+      <tr><td>ReadOnlyMany</td><td><span class="badge b-green">ROX</span></td><td>Many nodes can read, nobody writes</td><td>Shared config, ML models</td></tr>
+      <tr><td>ReadWriteMany</td><td><span class="badge b-orange">RWX</span></td><td>Many nodes can read+write simultaneously</td><td>NFS, EFS, Azure Files</td></tr>
+      <tr><td>ReadWriteOncePod</td><td><span class="badge b-purple">RWOP</span></td><td>Only ONE pod (not node) can access</td><td>Strict isolation (K8s 1.22+)</td></tr>
+    </table>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🔄 Reclaim Policies</div>
+      <div class="g3" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="mc"><h4>Retain</h4><p>PV kept after PVC deleted. Admin manually reclaims. Use for critical data.</p><span class="badge b-green">Safest</span></div>
+        <div class="mc"><h4>Delete</h4><p>PV AND underlying storage deleted when PVC is deleted. Cloud storage gone!</p><span class="badge b-red">Dangerous</span></div>
+        <div class="mc"><h4>Recycle</h4><p>Basic scrub (rm -rf) then made available. Deprecated — don't use.</p><span class="badge b-yellow">Deprecated</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ StorageClass Examples</div>
+      <div class="code">
+<span class="cc"># AWS gp3 StorageClass</span>
+<span class="ck">apiVersion:</span> <span class="cv">storage.k8s.io/v1</span>
+<span class="ck">kind:</span> <span class="cv">StorageClass</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">gp3-ssd</span>
+<span class="ck">provisioner:</span> <span class="cv">ebs.csi.aws.com</span>
+<span class="ck">parameters:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">gp3</span>
+&nbsp;&nbsp;<span class="ck">iops:</span> <span class="cv">"3000"</span>
+&nbsp;&nbsp;<span class="ck">throughput:</span> <span class="cv">"125"</span>
+&nbsp;&nbsp;<span class="ck">encrypted:</span> <span class="cv">"true"</span>
+<span class="ck">reclaimPolicy:</span> <span class="cv">Retain</span>
+<span class="ck">allowVolumeExpansion:</span> <span class="cv">true</span>
+<span class="ck">volumeBindingMode:</span> <span class="cv">WaitForFirstConsumer</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">☁️ Cloud Storage Comparison</div>
+    <table class="tbl">
+      <tr><th>Cloud</th><th>Block Storage (RWO)</th><th>File Storage (RWX)</th><th>Object</th></tr>
+      <tr><td>AWS</td><td>EBS gp3 ($0.08/GB/mo)</td><td>EFS ($0.30/GB/mo)</td><td>S3 ($0.023/GB/mo)</td></tr>
+      <tr><td>Azure</td><td>Managed Disk ($0.04-0.17/GB)</td><td>Azure Files ($0.06/GB/mo)</td><td>Blob ($0.018/GB/mo)</td></tr>
+      <tr><td>GCP</td><td>Persistent Disk ($0.04/GB/mo)</td><td>Filestore ($0.20/GB/mo)</td><td>GCS ($0.020/GB/mo)</td></tr>
+      <tr><td>On-Prem</td><td>Ceph RBD</td><td>NFS / CephFS</td><td>MinIO</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 20 — SCALING
+═══════════════════════════════════════════════ -->
+<div class="page" id="p20">
+  <div class="ph">
+    <div class="ph-num">PAGE 20 · OPERATIONS</div>
+    <h2>SCALING STRATEGIES</h2>
+    <p>HPA, VPA, KEDA, Cluster Autoscaler — scaling pods and nodes automatically.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📊 HPA — Horizontal Pod Autoscaler</div>
+      <p>Scales the NUMBER of pod replicas based on CPU, memory, or custom metrics. Most common autoscaler.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Call center staffing: When call volume doubles, automatically roster more agents. When night shift is quiet, send some home. HPA manages the headcount based on workload.</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">autoscaling/v2</span>
+<span class="ck">kind:</span> <span class="cv">HorizontalPodAutoscaler</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">scaleTargetRef:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">kind:</span> <span class="cv">Deployment</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">myapp</span>
+&nbsp;&nbsp;<span class="ck">minReplicas:</span> <span class="cv">2</span>
+&nbsp;&nbsp;<span class="ck">maxReplicas:</span> <span class="cv">20</span>
+&nbsp;&nbsp;<span class="ck">metrics:</span>
+&nbsp;&nbsp;<span class="cv">- type: Resource</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">resource:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">cpu</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">target:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">Utilization</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">averageUtilization:</span> <span class="cv">70</span>
+&nbsp;&nbsp;<span class="cv">- type: Resource</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">resource.name:</span> <span class="cv">memory</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">resource.target.averageUtilization:</span> <span class="cv">80</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ KEDA — Event-Driven Autoscaling</div>
+      <p>Scale based on external event sources — Kafka queue depth, SQS messages, Azure Service Bus, Prometheus queries. Scales to ZERO when idle.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Unlike HPA (reacts to CPU), KEDA reacts to business events: "If there are 1000 messages in the Kafka queue, spin up 10 workers. If queue is empty, scale to 0 workers (save all money)."</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">keda.sh/v1alpha1</span>
+<span class="ck">kind:</span> <span class="cv">ScaledObject</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">scaleTargetRef.name:</span> <span class="cv">worker-deployment</span>
+&nbsp;&nbsp;<span class="ck">minReplicaCount:</span> <span class="cv">0</span>  <span class="cc"># scale to zero!</span>
+&nbsp;&nbsp;<span class="ck">maxReplicaCount:</span> <span class="cv">50</span>
+&nbsp;&nbsp;<span class="ck">triggers:</span>
+&nbsp;&nbsp;<span class="cv">- type: kafka</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">metadata:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">bootstrapServers:</span> <span class="cv">kafka:9092</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">topic:</span> <span class="cv">orders</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">lagThreshold:</span> <span class="cv">"100"</span>  <span class="cc"># 1 pod per 100 messages</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🖥️ Cluster Autoscaler + Karpenter</div>
+    <div class="g2">
+      <div class="mc">
+        <h4>Cluster Autoscaler (Traditional)</h4>
+        <p>Adds/removes NODES based on pending pods. Works with AWS Auto Scaling Groups, Azure VMSS, GCP MIGs. Slow (2-5 min to provision a node).</p>
+        <div class="pcc2">
+          <div class="pcc-box p-box"><h4>✅</h4><ul><li>Works on all clouds</li><li>Stable, mature</li></ul></div>
+          <div class="pcc-box c-box"><h4>❌</h4><ul><li>Slow (2-5 min)</li><li>Node group constraints</li></ul></div>
+        </div>
+      </div>
+      <div class="mc">
+        <h4>Karpenter (AWS-native, new)</h4>
+        <p>AWS-native node provisioner. Much faster (30-60s). Directly provisions EC2 instances. Consolidates underutilized nodes. Picks optimal instance type automatically.</p>
+        <div class="pcc2">
+          <div class="pcc-box p-box"><h4>✅</h4><ul><li>30-60s provisioning</li><li>Spot + On-Demand mix</li><li>Auto instance selection</li></ul></div>
+          <div class="pcc-box c-box"><h4>❌</h4><ul><li>AWS-only</li><li>Newer, less battle-tested</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ Best Scaling Strategy</h4><ul>
+      <li>HPA for web/API services</li>
+      <li>KEDA for batch/queue workers</li>
+      <li>VPA for resource right-sizing</li>
+      <li>Cluster Autoscaler or Karpenter for nodes</li>
+      <li>Spot instances for stateless workloads</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Avoid</h4><ul>
+      <li>Manual scaling in production</li>
+      <li>HPA + VPA conflict (on same resource)</li>
+      <li>minReplicas=0 for critical services</li>
+      <li>Scaling without resource limits set</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Cost Savings</h4><ul>
+      <li>Cluster Autoscaler: 40-60% savings</li>
+      <li>Spot nodes: 60-90% off on-demand</li>
+      <li>KEDA scale-to-zero: 100% idle savings</li>
+      <li>Karpenter consolidation: 20-30% extra</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 21 — HEALTH PROBES
+═══════════════════════════════════════════════ -->
+<div class="page" id="p21">
+  <div class="ph">
+    <div class="ph-num">PAGE 21 · OPERATIONS</div>
+    <h2>HEALTH PROBES</h2>
+    <p>Liveness, Readiness, Startup probes — keeping your apps healthy and serving traffic correctly.</p>
+  </div>
+
+  <div class="g3">
+    <div class="arch arch-cyan">
+      <h3>❤️ LIVENESS</h3>
+      <p style="font-size:13px; margin-bottom:10px;">Is the app still alive? Fails → container RESTARTS.</p>
+      <div class="layman" style="margin-bottom:10px;"><div class="layman-label">Layman</div>Security camera check — if screen is frozen/dead, reboot the monitor system.</div>
+      <div class="code" style="font-size:10px;">
+<span class="ck">livenessProbe:</span>
+&nbsp;&nbsp;<span class="ck">httpGet:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">path:</span> <span class="cv">/healthz</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port:</span> <span class="cv">8080</span>
+&nbsp;&nbsp;<span class="ck">initialDelaySeconds:</span> <span class="cv">30</span>
+&nbsp;&nbsp;<span class="ck">periodSeconds:</span> <span class="cv">10</span>
+&nbsp;&nbsp;<span class="ck">failureThreshold:</span> <span class="cv">3</span>
+&nbsp;&nbsp;<span class="ck">timeoutSeconds:</span> <span class="cv">5</span></div>
+    </div>
+    <div class="arch arch-green">
+      <h3>✅ READINESS</h3>
+      <p style="font-size:13px; margin-bottom:10px;">Ready for traffic? Fails → removed from Service endpoints. NOT restarted.</p>
+      <div class="layman" style="margin-bottom:10px;"><div class="layman-label">Layman</div>Restaurant "Open" sign. Only flip to open when kitchen is fully ready. K8s won't send customers until Ready.</div>
+      <div class="code" style="font-size:10px;">
+<span class="ck">readinessProbe:</span>
+&nbsp;&nbsp;<span class="ck">httpGet:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">path:</span> <span class="cv">/ready</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port:</span> <span class="cv">8080</span>
+&nbsp;&nbsp;<span class="ck">initialDelaySeconds:</span> <span class="cv">5</span>
+&nbsp;&nbsp;<span class="ck">periodSeconds:</span> <span class="cv">5</span>
+&nbsp;&nbsp;<span class="ck">failureThreshold:</span> <span class="cv">3</span>
+&nbsp;&nbsp;<span class="ck">successThreshold:</span> <span class="cv">1</span></div>
+    </div>
+    <div class="arch arch-orange">
+      <h3>🚀 STARTUP</h3>
+      <p style="font-size:13px; margin-bottom:10px;">Has the app finished starting? Liveness/Readiness disabled until this passes.</p>
+      <div class="layman" style="margin-bottom:10px;"><div class="layman-label">Layman</div>Give the slow app time to boot (Spring Boot takes 60s). Don't penalize it for being slow — just be patient during startup.</div>
+      <div class="code" style="font-size:10px;">
+<span class="ck">startupProbe:</span>
+&nbsp;&nbsp;<span class="ck">httpGet:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">path:</span> <span class="cv">/healthz</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">port:</span> <span class="cv">8080</span>
+&nbsp;&nbsp;<span class="ck">failureThreshold:</span> <span class="cv">30</span>
+&nbsp;&nbsp;<span class="ck">periodSeconds:</span> <span class="cv">10</span>
+<span class="cc"># Allows up to 300s to start</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Probe Check Methods</div>
+    <table class="tbl">
+      <tr><th>Method</th><th>How it works</th><th>Best for</th></tr>
+      <tr><td><span class="badge b-cyan">HTTP GET</span></td><td>2xx/3xx response = healthy. 4xx/5xx = unhealthy.</td><td>REST APIs, web servers</td></tr>
+      <tr><td><span class="badge b-green">TCP Socket</span></td><td>Opens TCP connection to port. Connection succeeds = healthy.</td><td>Databases, non-HTTP services</td></tr>
+      <tr><td><span class="badge b-orange">Exec Command</span></td><td>Runs command in container. Exit code 0 = healthy.</td><td>Custom logic, scripts</td></tr>
+      <tr><td><span class="badge b-purple">gRPC</span></td><td>Calls gRPC health protocol (K8s 1.24+).</td><td>gRPC microservices</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 22 — SCHEDULING & RESOURCES
+═══════════════════════════════════════════════ -->
+<div class="page" id="p22">
+  <div class="ph">
+    <div class="ph-num">PAGE 22 · OPERATIONS</div>
+    <h2>SCHEDULING & RESOURCES</h2>
+    <p>Requests, limits, affinity, taints, tolerations — controlling where and how pods run.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⚖️ Requests vs Limits</div>
+    <div class="g2">
+      <div class="mc">
+        <h4>Resource Requests</h4>
+        <p>What the pod GUARANTEES it needs. Used by scheduler to find a node with enough capacity. Node must have at least this much free.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The seat you reserved. Nobody else can take it. The node is guaranteed to have this resource available for you.</div>
+      </div>
+      <div class="mc">
+        <h4>Resource Limits</h4>
+        <p>Maximum the pod is ALLOWED to use. CPU: throttled when exceeded. Memory: OOMKilled (killed) when exceeded.</p>
+        <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>The maximum plates you can order. Exceed it and service stops. Memory OOMKill = bouncer kicks you out for ordering too much.</div>
+      </div>
+    </div>
+    <div class="code">
+<span class="ck">resources:</span>
+&nbsp;&nbsp;<span class="ck">requests:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cpu:</span>    <span class="cv">"250m"</span>    <span class="cc"># 0.25 core guaranteed</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">memory:</span> <span class="cv">"256Mi"</span>   <span class="cc"># 256MB guaranteed</span>
+&nbsp;&nbsp;<span class="ck">limits:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cpu:</span>    <span class="cv">"500m"</span>    <span class="cc"># max 0.5 core (throttled above)</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">memory:</span> <span class="cv">"512Mi"</span>   <span class="cc"># max 512MB (OOMKilled above)</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🧲 Node Affinity</div>
+      <div class="code">
+<span class="ck">affinity:</span>
+&nbsp;&nbsp;<span class="ck">nodeAffinity:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">requiredDuringSchedulingIgnoredDuringExecution:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">nodeSelectorTerms:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- matchExpressions:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- key: node-type</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">operator:</span> <span class="cv">In</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">values:</span> <span class="cv">[gpu, high-memory]</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">preferredDuringSchedulingIgnoredDuringExecution:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- weight: 100</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">preference:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">matchExpressions:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- key: zone</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">operator:</span> <span class="cv">In</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">values:</span> <span class="cv">[us-east-1a]</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🚫 Taints & Tolerations</div>
+      <div class="code">
+<span class="cc"># Taint a node (only tolerated pods allowed)</span>
+<span class="ck">kubectl taint nodes</span> <span class="cv">node1 gpu=true:NoSchedule</span>
+
+<span class="cc"># Pod must tolerate to be scheduled</span>
+<span class="ck">tolerations:</span>
+<span class="cv">- key: gpu</span>
+&nbsp;&nbsp;<span class="ck">operator:</span> <span class="cv">Equal</span>
+&nbsp;&nbsp;<span class="ck">value:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;<span class="ck">effect:</span> <span class="cv">NoSchedule</span>
+
+<span class="cc"># Taint effects:</span>
+<span class="cc"># NoSchedule — don't schedule new pods</span>
+<span class="cc"># PreferNoSchedule — avoid if possible</span>
+<span class="cc"># NoExecute — evict existing pods too</span></div>
+      <div class="layman" style="margin-top:8px;"><div class="layman-label">Layman</div>Taint = VIP lounge "Members Only" sign. Toleration = your VIP membership card. Without the card, you can't enter regardless of space available.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 23 — DEPLOY STRATEGIES
+═══════════════════════════════════════════════ -->
+<div class="page" id="p23">
+  <div class="ph">
+    <div class="ph-num">PAGE 23 · OPERATIONS</div>
+    <h2>DEPLOYMENT STRATEGIES</h2>
+    <p>Rolling, Blue-Green, Canary, Recreate — shipping safely with zero downtime.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🔄 Rolling Update (Default)</div>
+      <p>Replace pods gradually. New pods start, old pods stop. Controlled by <code style="color:var(--cyan)">maxSurge</code> (extra pods during update) and <code style="color:var(--cyan)">maxUnavailable</code> (pods that can be down).</p>
+      <div class="layman"><div class="layman-label">Layman</div>Renovating a hotel one floor at a time. Guests on floor 1 move to new floor while floor 1 is upgraded. Then floor 2, etc. Hotel never fully closes.</div>
+      <div class="code">
+<span class="ck">strategy:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">RollingUpdate</span>
+&nbsp;&nbsp;<span class="ck">rollingUpdate:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">maxSurge:</span> <span class="cv">25%</span>        <span class="cc"># extra pods allowed</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">maxUnavailable:</span> <span class="cv">25%</span>  <span class="cc"># pods that can be down</span></div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Zero downtime</li><li>Built-in K8s (default)</li><li>Gradual rollout</li></ul></div>
+        <div class="pcc-box c-box"><h4>❌ Cons</h4><ul><li>Both versions running briefly</li><li>Hard to test in isolation</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔵🟢 Blue-Green</div>
+      <p>Maintain two identical environments. All traffic on Blue (current). Deploy to Green (new). Switch Service selector instantly. Instant rollback = switch selector back.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Maintain a backup kitchen (Green) fully equipped. Cook new menu there. When ready, flip the sign from "Blue kitchen" to "Green kitchen" in 1 second. Old kitchen is instant rollback option.</div>
+      <div class="code">
+<span class="cc"># Blue deployment running, switch to Green:</span>
+<span class="ck">kubectl patch service</span> <span class="cv">myapp-service \</span>
+&nbsp;&nbsp;<span class="cv">-p '{"spec":{"selector":{"version":"green"}}}'</span></div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Pros</h4><ul><li>Instant rollback</li><li>Full testing before switch</li><li>Zero downtime</li></ul></div>
+        <div class="pcc-box m-box"><h4>💰 Cost</h4><ul><li>2x infrastructure during deploy</li><li>Expensive for large clusters</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🐤 Canary Deployment</div>
+      <p>Route a small percentage of traffic (5-10%) to new version. Monitor error rates, latency. Gradually increase to 100% if healthy. NGINX Ingress supports this natively.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Test new restaurant menu on 10% of tables first. If no complaints, roll it out to all tables. If 10% of diners complain, revert — only 10% affected, not everyone.</div>
+      <div class="code">
+<span class="cc"># NGINX canary: 10% traffic to new version</span>
+<span class="ck">annotations:</span>
+&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/canary:</span> <span class="cv">"true"</span>
+&nbsp;&nbsp;<span class="ck">nginx.ingress.kubernetes.io/canary-weight:</span> <span class="cv">"10"</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">💥 Recreate Strategy</div>
+      <p>Kill ALL old pods first. Then create new pods. Guaranteed downtime. Only use when two versions CANNOT coexist (DB schema changes, stateful apps).</p>
+      <div class="layman"><div class="layman-label">Layman</div>Close the entire restaurant for renovations. Put up "Closed for refurbishment" sign. Reopen with new look. Customers must wait. Only acceptable when you truly cannot run old + new simultaneously.</div>
+      <div class="code">
+<span class="ck">strategy:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">Recreate</span>
+<span class="cc"># ALL pods killed, THEN new pods start</span>
+<span class="cc"># Use only for dev/staging or when necessary</span></div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Strategy</th><th>Downtime</th><th>Rollback</th><th>Cost</th><th>When to Use</th></tr>
+    <tr><td>Rolling Update</td><td>Zero</td><td>Minutes</td><td>Minimal</td><td>Standard deployments</td></tr>
+    <tr><td>Blue-Green</td><td>Zero</td><td>Instant</td><td>2x infra cost</td><td>Critical services</td></tr>
+    <tr><td>Canary</td><td>Zero</td><td>Minutes</td><td>Small overhead</td><td>High-risk releases</td></tr>
+    <tr><td>Recreate</td><td>YES</td><td>Fast</td><td>None</td><td>Dev/staging ONLY</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 24 — OBSERVABILITY
+═══════════════════════════════════════════════ -->
+<div class="page" id="p24">
+  <div class="ph">
+    <div class="ph-num">PAGE 24 · OPERATIONS</div>
+    <h2>OBSERVABILITY</h2>
+    <p>Prometheus, Grafana, EFK/Loki, Jaeger — the three pillars: metrics, logs, and traces.</p>
+  </div>
+
+  <div class="g3">
+    <div class="arch arch-orange">
+      <h3>📈 METRICS — PROMETHEUS</h3>
+      <p style="font-size:13px;">Pull-based time-series metrics. Scrapes pods every 15s. Stores CPU, memory, request count, error rates. Queries via PromQL. Add Alertmanager for alerts.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Like a fitness tracker — every 15 seconds records heartbeat (CPU), weight (memory), steps (requests). Query: "Show my heart rate for the last 24 hours."</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅</h4><ul><li>CNCF standard</li><li>Huge ecosystem</li><li>AlertManager</li></ul></div>
+        <div class="pcc-box m-box"><h4>💰</h4><ul><li>OSS: Free</li><li>Grafana Cloud: from $0</li><li>Datadog: $15/host/mo</li></ul></div>
+      </div>
+    </div>
+    <div class="arch arch-yellow">
+      <h3>📊 DASHBOARDS — GRAFANA</h3>
+      <p style="font-size:13px;">Visualization layer. Connects to Prometheus, Loki, Elasticsearch, Jaeger. Pre-built K8s dashboards (import ID: 15661). Create custom dashboards. Alerting.</p>
+      <div class="layman"><div class="layman-label">Layman</div>The beautiful fitness app that turns raw tracker data into graphs, trends, and weekly summaries. Makes numbers understandable at a glance.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅</h4><ul><li>Beautiful UI</li><li>Free & open source</li><li>Multi-datasource</li></ul></div>
+        <div class="pcc-box m-box"><h4>💰</h4><ul><li>OSS: Free</li><li>Grafana Cloud: Free tier</li><li>Enterprise: contact</li></ul></div>
+      </div>
+    </div>
+    <div class="arch arch-cyan">
+      <h3>📜 LOGS — LOKI / EFK</h3>
+      <p style="font-size:13px;"><strong>Loki</strong> (Grafana): Lightweight, index-free log aggregation. 10x cheaper than ELK. <strong>EFK</strong> (Elasticsearch+Fluentd+Kibana): Full-featured but resource-heavy and expensive at scale.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Hotel CCTV system. Every camera (pod) feeds into a central archive. Search for "robbery at 3pm Tuesday" across ALL cameras instantly.</div>
+      <div class="pcc2">
+        <div class="pcc-box p-box"><h4>✅ Loki</h4><ul><li>Cheap (no full-text index)</li><li>Grafana native</li></ul></div>
+        <div class="pcc-box p-box"><h4>✅ EFK</h4><ul><li>Full-text search</li><li>Powerful Kibana UI</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Distributed Tracing — Jaeger / Tempo</div>
+    <p>Traces a single request as it flows through multiple microservices. Shows WHERE latency happens. Essential for debugging microservice performance issues.</p>
+    <div class="flow">
+      <div class="fs">User Request</div><div class="fa">→</div>
+      <div class="fs">API Gateway (10ms)</div><div class="fa">→</div>
+      <div class="fs">Auth Service (5ms)</div><div class="fa">→</div>
+      <div class="fs">Product Service (80ms ⚠️)</div><div class="fa">→</div>
+      <div class="fs">Database (75ms!)</div>
+    </div>
+    <div class="layman"><div class="layman-label">Layman</div>Like tracking a package: instead of "my order is late", you know exactly "it's stuck at the sorting warehouse" (Product Service → Database query is slow). Traces make latency visible across the whole journey.</div>
+  </div>
+
+  <div class="pcc">
+    <div class="pcc-box p-box"><h4>✅ Full Observability Stack</h4><ul>
+      <li>kube-prometheus-stack (Helm): Prometheus + Grafana + AlertManager</li>
+      <li>Loki + Promtail for logs</li>
+      <li>Tempo for traces (Grafana)</li>
+      <li>Import dashboard 15661 for K8s</li>
+    </ul></div>
+    <div class="pcc-box c-box"><h4>❌ Common Mistakes</h4><ul>
+      <li>ELK with no storage limits (disk fills up)</li>
+      <li>Too many metrics (cardinality explosion)</li>
+      <li>No alerting (just dashboards)</li>
+      <li>Prometheus without long-term storage (Thanos/Cortex)</li>
+    </ul></div>
+    <div class="pcc-box m-box"><h4>💰 Full Stack Cost</h4><ul>
+      <li>Self-hosted OSS: ~$50-200/mo infra</li>
+      <li>Grafana Cloud Free: generous free tier</li>
+      <li>Datadog: $15-23/host/mo (adds up!)</li>
+      <li>New Relic: $25/user/mo</li>
+      <li>Tip: start with Grafana Cloud free tier</li>
+    </ul></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 25 — HELM & GITOPS
+═══════════════════════════════════════════════ -->
+<div class="page" id="p25">
+  <div class="ph">
+    <div class="ph-num">PAGE 25 · OPERATIONS</div>
+    <h2>HELM & GITOPS</h2>
+    <p>Helm package manager, chart creation, and GitOps with ArgoCD and Flux.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">⛵ Helm — K8s Package Manager</div>
+      <p>Helm packages K8s YAML into reusable, versioned Charts. Template values so the same chart works for dev, staging, production with different configs.</p>
+      <div class="layman"><div class="layman-label">Layman</div>Like npm install for K8s. Instead of writing 500 lines of YAML to install Prometheus, just <code style="color:var(--cyan)">helm install prometheus</code> and it's done in 30 seconds. Versioned, rollbackable, configurable.</div>
+      <div class="code">
+<span class="cc"># Essential Helm commands</span>
+<span class="ck">helm search hub</span> <span class="cv">nginx</span>              <span class="cc"># find charts</span>
+<span class="ck">helm install</span> <span class="cv">myapp ./mychart \</span>
+&nbsp;&nbsp;<span class="cv">-f values-prod.yaml \</span>
+&nbsp;&nbsp;<span class="cv">--namespace production</span>
+<span class="ck">helm upgrade</span> <span class="cv">myapp ./mychart -f values-prod.yaml</span>
+<span class="ck">helm rollback</span> <span class="cv">myapp 1</span>            <span class="cc"># back to revision 1</span>
+<span class="ck">helm list</span> <span class="cv">-A</span>                    <span class="cc"># all releases</span>
+<span class="ck">helm template</span> <span class="cv">myapp ./mychart</span>  <span class="cc"># render YAML</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 GitOps with ArgoCD</div>
+      <p>GitOps: Git is the single source of truth. ArgoCD watches your Git repo and automatically syncs any changes to the cluster. No manual kubectl apply in production.</p>
+      <div class="layman"><div class="layman-label">Layman</div>ArgoCD is the auto-deployer: your Git repo is the "spec sheet" for what should be running. Any change merged to main → automatically deployed within minutes. No one manually pushing to production.</div>
+      <div class="code">
+<span class="cc"># ArgoCD Application</span>
+<span class="ck">apiVersion:</span> <span class="cv">argoproj.io/v1alpha1</span>
+<span class="ck">kind:</span> <span class="cv">Application</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">source:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">repoURL:</span> <span class="cv">https://github.com/myorg/k8s-configs</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">targetRevision:</span> <span class="cv">HEAD</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">path:</span> <span class="cv">production/myapp</span>
+&nbsp;&nbsp;<span class="ck">destination:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">server:</span> <span class="cv">https://kubernetes.default.svc</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">production</span>
+&nbsp;&nbsp;<span class="ck">syncPolicy:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">automated:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">prune:</span> <span class="cv">true</span>   <span class="cc"># delete removed resources</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">selfHeal:</span> <span class="cv">true</span> <span class="cc"># fix manual changes</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 26 — YAML REFERENCE
+═══════════════════════════════════════════════ -->
+<div class="page" id="p26">
+  <div class="ph">
+    <div class="ph-num">PAGE 26 · REFERENCE</div>
+    <h2>YAML REFERENCE</h2>
+    <p>Complete YAML templates for the most common Kubernetes resources.</p>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">🚀 Full Deployment YAML</div>
+      <div class="code">
+<span class="ck">apiVersion:</span> <span class="cv">apps/v1</span>
+<span class="ck">kind:</span> <span class="cv">Deployment</span>
+<span class="ck">metadata:</span>
+&nbsp;&nbsp;<span class="ck">name:</span> <span class="cv">myapp</span>
+&nbsp;&nbsp;<span class="ck">namespace:</span> <span class="cv">production</span>
+&nbsp;&nbsp;<span class="ck">labels:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">app:</span> <span class="cv">myapp</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">version:</span> <span class="cv">v1.2.0</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">replicas:</span> <span class="cv">3</span>
+&nbsp;&nbsp;<span class="ck">selector.matchLabels.app:</span> <span class="cv">myapp</span>
+&nbsp;&nbsp;<span class="ck">strategy:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">RollingUpdate</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">rollingUpdate:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">maxSurge:</span> <span class="cv">1</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">maxUnavailable:</span> <span class="cv">0</span>
+&nbsp;&nbsp;<span class="ck">template:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">metadata.labels.app:</span> <span class="cv">myapp</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">spec:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">serviceAccountName:</span> <span class="cv">myapp-sa</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">containers:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- name: app</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">image:</span> <span class="cv">myregistry/myapp:1.2.0</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- containerPort: 8080</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">envFrom:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- configMapRef.name: myapp-config</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cv">- secretRef.name: myapp-secrets</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">resources:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">requests:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cpu:</span> <span class="cv">100m</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">memory:</span> <span class="cv">128Mi</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">limits:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">cpu:</span> <span class="cv">500m</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">memory:</span> <span class="cv">256Mi</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">livenessProbe.httpGet.path:</span> <span class="cv">/health</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">livenessProbe.httpGet.port:</span> <span class="cv">8080</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">readinessProbe.httpGet.path:</span> <span class="cv">/ready</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">readinessProbe.httpGet.port:</span> <span class="cv">8080</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">securityContext:</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">runAsNonRoot:</span> <span class="cv">true</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">allowPrivilegeEscalation:</span> <span class="cv">false</span></div>
+    </div>
+    <div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-title">🌐 Service + Ingress</div>
+        <div class="code">
+<span class="ck">kind:</span> <span class="cv">Service</span>
+<span class="ck">metadata.name:</span> <span class="cv">myapp-svc</span>
+<span class="ck">spec:</span>
+&nbsp;&nbsp;<span class="ck">type:</span> <span class="cv">ClusterIP</span>
+&nbsp;&nbsp;<span class="ck">selector.app:</span> <span class="cv">myapp</span>
+&nbsp;&nbsp;<span class="ck">ports:</span>
+&nbsp;&nbsp;<span class="cv">- port: 80</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="ck">targetPort:</span> <span class="cv">8080</span>
+<span class="co">---</span>
+<span class="ck">kind:</span> <span class="cv">Ingress</span>
+<span class="ck">metadata.annotations:</span>
+&nbsp;&nbsp;<span class="ck">kubernetes.io/ingress.class:</span> <span class="cv">nginx</span>
+&nbsp;&nbsp;<span class="ck">cert-manager.io/cluster-issuer:</span> <span class="cv">letsencrypt</span>
+<span class="ck">spec.tls:</span>
+<span class="cv">- hosts: [myapp.com]</span>
+&nbsp;&nbsp;<span class="ck">secretName:</span> <span class="cv">myapp-tls</span>
+<span class="ck">spec.rules:</span>
+<span class="cv">- host: myapp.com</span>
+&nbsp;&nbsp;<span class="ck">http.paths[0].path:</span> <span class="cv">/</span>
+&nbsp;&nbsp;<span class="ck">backend.service.name:</span> <span class="cv">myapp-svc</span>
+&nbsp;&nbsp;<span class="ck">backend.service.port.number:</span> <span class="cv">80</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📖 apiVersion Cheatsheet</div>
+        <table class="tbl">
+          <tr><th>Resource</th><th>apiVersion</th></tr>
+          <tr><td>Pod, Service, ConfigMap, Secret, PV, PVC</td><td><span class="badge b-cyan">v1</span></td></tr>
+          <tr><td>Deployment, ReplicaSet, StatefulSet, DaemonSet</td><td><span class="badge b-orange">apps/v1</span></td></tr>
+          <tr><td>Ingress, NetworkPolicy</td><td><span class="badge b-green">networking.k8s.io/v1</span></td></tr>
+          <tr><td>HPA</td><td><span class="badge b-yellow">autoscaling/v2</span></td></tr>
+          <tr><td>Job, CronJob</td><td><span class="badge b-purple">batch/v1</span></td></tr>
+          <tr><td>Role, RoleBinding, ClusterRole</td><td><span class="badge b-blue">rbac.authorization.k8s.io/v1</span></td></tr>
+          <tr><td>StorageClass</td><td><span class="badge b-cyan">storage.k8s.io/v1</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE 27 — TROUBLESHOOTING
+═══════════════════════════════════════════════ -->
+<div class="page" id="p27">
+  <div class="ph">
+    <div class="ph-num">PAGE 27 · OPERATIONS</div>
+    <h2>TROUBLESHOOTING</h2>
+    <p>Diagnose and fix the most common Kubernetes issues — CrashLoopBackOff, Pending pods, networking problems, and more.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔍 Universal Debugging Workflow</div>
+    <div class="flow">
+      <div class="fs">kubectl get pods</div><div class="fa">→</div>
+      <div class="fs">Note STATUS</div><div class="fa">→</div>
+      <div class="fs">kubectl describe pod</div><div class="fa">→</div>
+      <div class="fs">Read Events section</div><div class="fa">→</div>
+      <div class="fs">kubectl logs pod</div><div class="fa">→</div>
+      <div class="fs">Fix root cause</div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">💥 CrashLoopBackOff</div>
+      <p>Container starts, crashes, K8s restarts it, it crashes again. Exponential backoff delay between restarts.</p>
+      <div class="code">
+<span class="cc"># Diagnose</span>
+<span class="ck">kubectl describe pod</span> <span class="cv">mypod</span>  <span class="cc"># check Exit Code</span>
+<span class="ck">kubectl logs</span> <span class="cv">mypod --previous</span>  <span class="cc"># last crash logs</span>
+<span class="ck">kubectl logs</span> <span class="cv">mypod -f</span>          <span class="cc"># stream logs</span></div>
+      <div class="mc" style="margin-top:10px;">
+        <h4>Common Causes & Fixes</h4>
+        <p>Exit 1: App crash — check logs for errors<br>
+        Exit 137: OOMKilled — increase memory limits<br>
+        Exit 139: Segfault — app or dependency bug<br>
+        Missing env vars: add to ConfigMap/Secret<br>
+        Wrong image tag: fix image in deployment</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⏳ Pod Stuck in Pending</div>
+      <div class="code">
+<span class="ck">kubectl describe pod</span> <span class="cv">mypod</span>
+<span class="cc"># Look at Events section at bottom!</span></div>
+      <div class="mc" style="margin-top:10px;">
+        <h4>Common Causes & Fixes</h4>
+        <p><strong>Insufficient CPU/Memory:</strong> Add nodes or lower requests<br>
+        <strong>NodeSelector mismatch:</strong> Check node labels<br>
+        <strong>PVC not bound:</strong> Check StorageClass exists<br>
+        <strong>Taint not tolerated:</strong> Add toleration to pod<br>
+        <strong>ImagePullBackOff:</strong> Fix registry credentials<br>
+        <strong>Quota exceeded:</strong> Check ResourceQuota in namespace</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌐 Network Debugging Commands</div>
+    <div class="code">
+<span class="cc"># Test connectivity between pods</span>
+<span class="ck">kubectl exec</span> <span class="cv">-it pod1 -- curl http://service-name:80</span>
+
+<span class="cc"># Check DNS resolution</span>
+<span class="ck">kubectl exec</span> <span class="cv">-it pod1 -- nslookup service-name</span>
+<span class="ck">kubectl exec</span> <span class="cv">-it pod1 -- nslookup service-name.namespace.svc.cluster.local</span>
+
+<span class="cc"># Run debug pod (alpine with tools)</span>
+<span class="ck">kubectl run debug</span> <span class="cv">--image=nicolaka/netshoot -it --rm -- bash</span>
+
+<span class="cc"># Check service endpoints (are pods selected?)</span>
+<span class="ck">kubectl get endpoints</span> <span class="cv">my-service</span>
+<span class="cc"># If NONE: label selector mismatch between Service and Pod</span>
+
+<span class="cc"># Port-forward for local testing</span>
+<span class="ck">kubectl port-forward</span> <span class="cv">svc/myservice 8080:80</span>
+
+<span class="cc"># Check events across all resources</span>
+<span class="ck">kubectl get events</span> <span class="cv">--sort-by=.lastTimestamp -n production</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📋 Common Error Reference</div>
+    <table class="tbl">
+      <tr><th>Error</th><th>Meaning</th><th>Fix</th></tr>
+      <tr><td><span class="badge b-red">ImagePullBackOff</span></td><td>Can't pull container image</td><td>Fix image name/tag, create imagePullSecret</td></tr>
+      <tr><td><span class="badge b-red">OOMKilled</span></td><td>Memory limit exceeded</td><td>Increase memory limit, fix memory leak</td></tr>
+      <tr><td><span class="badge b-red">Evicted</span></td><td>Node ran out of resources</td><td>Add nodes, reduce requests, check disk usage</td></tr>
+      <tr><td><span class="badge b-orange">Terminating (stuck)</span></td><td>Pod can't finish terminating</td><td>kubectl delete pod --force --grace-period=0</td></tr>
+      <tr><td><span class="badge b-orange">Init:CrashLoopBackOff</span></td><td>Init container failing</td><td>Check init container logs: -c init-container-name</td></tr>
+      <tr><td><span class="badge b-yellow">RunContainerError</span></td><td>Container can't start</td><td>Check securityContext, entrypoint, permissions</td></tr>
+      <tr><td><span class="badge b-yellow">CreateContainerError</span></td><td>Can't create container</td><td>Check ConfigMap/Secret references exist</td></tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+const pages = ['p0','p1','p2','p3','p4','p5','p6','p7','p8','p9','p10',
+               'p11','p12','p13','p14','p15','p16','p17','p18','p19','p20',
+               'p21','p22','p23','p24','p25','p26','p27'];
+
+function go(id) {
+  // Hide all pages
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Show target
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.getAttribute('onclick') && n.getAttribute('onclick').includes(id)) {
+      n.classList.add('active');
+    }
+  });
+  // Scroll main to top
+  document.getElementById('main').scrollTo(0, 0);
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

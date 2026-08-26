@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced DevOps — Expert Study Canvas 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #07090f;
+  --bg2:   #0e1118;
+  --bg3:   #141720;
+  --bg4:   #1b1f2c;
+  --bg5:   #222736;
+  --b:     rgba(255,255,255,0.055);
+  --b2:    rgba(255,255,255,0.10);
+  --b3:    rgba(255,255,255,0.16);
+  --tx:    #e2e6f4;
+  --tx2:   #8892b0;
+  --tx3:   #4a5270;
+  --mono:  'Fira Code', monospace;
+  --sans:  'Outfit', sans-serif;
+
+  /* Phase colors */
+  --c1:#94a3b8; --c2:#38bdf8; --c3:#2dd4bf;
+  --c4:#a78bfa; --c5:#fb923c; --c6:#f43f5e;
+  --c7:#4ade80; --c8:#f97316; --c9:#e879f9;
+  --c10:#818cf8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);font-size:14px;line-height:1.6;display:flex;min-height:100vh;overflow-x:hidden}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--bg5);border-radius:2px}
+
+/* ─── SIDEBAR ─── */
+.sb{width:260px;min-width:260px;background:var(--bg2);border-right:1px solid var(--b);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.sb-brand{padding:22px 20px 16px;border-bottom:1px solid var(--b)}
+.sb-eyebrow{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.sb-title{font-size:18px;font-weight:800;color:var(--tx);letter-spacing:-.03em;line-height:1.2}
+.sb-title span{display:block;font-size:11px;font-weight:400;color:var(--tx3);letter-spacing:.02em;margin-top:3px}
+.sb-prog{padding:14px 20px;border-bottom:1px solid var(--b)}
+.sp-top{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--tx3);margin-bottom:8px}
+.sp-bar{height:2px;background:var(--bg5);border-radius:1px}
+.sp-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,#6366f1,#2dd4bf);transition:width .4s}
+.sb-nav{flex:1;padding:8px 0}
+.sn-group{padding:10px 20px 4px;font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.1em;text-transform:uppercase}
+.sn-item{display:flex;align-items:center;gap:10px;padding:8px 20px;cursor:pointer;transition:background .1s;border-left:2px solid transparent;text-decoration:none}
+.sn-item:hover{background:var(--bg3)}
+.sn-item.active{background:var(--bg3);border-left-color:var(--pc,#fff)}
+.sn-badge{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:600;flex-shrink:0;color:var(--pc);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07)}
+.sn-label{font-size:12px;color:var(--tx2);flex:1;line-height:1.3}
+.sn-item.active .sn-label{color:var(--tx);font-weight:500}
+.sn-check{font-size:10px;color:var(--pc);opacity:0;transition:opacity .2s}
+.sn-item.done .sn-check{opacity:1}
+.sb-foot{padding:14px 20px;border-top:1px solid var(--b);font-family:var(--mono);font-size:9px;color:var(--tx3)}
+
+/* ─── MAIN ─── */
+.main{margin-left:260px;flex:1;min-width:0}
+
+/* ─── TOPBAR ─── */
+.topbar{position:sticky;top:0;background:rgba(7,9,15,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--b);padding:11px 36px;display:flex;align-items:center;gap:16px;z-index:50}
+.tb-name{font-weight:700;font-size:13px;color:var(--tx);flex:1}
+.tb-pill{font-family:var(--mono);font-size:9px;padding:4px 10px;border-radius:4px;background:var(--bg4);border:1px solid var(--b2);color:var(--tx3);letter-spacing:.04em}
+.tb-pill.accent{color:var(--tx);border-color:var(--b3)}
+
+/* ─── CONTENT ─── */
+.content{padding:0 36px 100px}
+
+/* ─── HERO ─── */
+.hero{padding:56px 0 40px;border-bottom:1px solid var(--b);margin-bottom:0}
+.h-kicker{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:10px;color:var(--tx3);border:1px solid var(--b2);border-radius:3px;padding:4px 10px;margin-bottom:20px;letter-spacing:.06em}
+.h-kicker::before{content:'';width:6px;height:6px;border-radius:50%;background:#f43f5e;animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-size:clamp(32px,4.5vw,58px);font-weight:900;letter-spacing:-.04em;line-height:1.05;margin-bottom:16px;color:var(--tx)}
+.hero h1 mark{background:none;color:#38bdf8;-webkit-text-stroke:.5px #38bdf8}
+.hero p{font-size:15px;color:var(--tx2);max-width:580px;line-height:1.75;margin-bottom:28px}
+.h-stats{display:flex;gap:36px;flex-wrap:wrap}
+.hs{display:flex;flex-direction:column;gap:2px}
+.hs-v{font-size:26px;font-weight:900;letter-spacing:-.04em;color:var(--tx)}
+.hs-l{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase}
+.h-warning{display:flex;align-items:flex-start;gap:10px;margin-top:22px;padding:12px 16px;background:rgba(244,63,94,.06);border:1px solid rgba(244,63,94,.2);border-radius:8px;font-size:12px;color:var(--tx2);max-width:640px;line-height:1.6}
+.h-warning strong{color:#f43f5e}
+
+/* ─── SECTION ─── */
+.section{padding:44px 0;border-bottom:1px solid var(--b)}
+.sec-hdr{display:flex;align-items:flex-start;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+.sec-num{width:52px;height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0;border:1px solid;gap:1px}
+.sn-ph{font-family:var(--mono);font-size:8px;opacity:.5}
+.sn-n{font-family:var(--mono);font-size:20px;font-weight:700;line-height:1}
+.sec-info{flex:1}
+.sec-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+.sec-h2{font-size:24px;font-weight:800;letter-spacing:-.03em;color:var(--tx)}
+.sec-lv{font-family:var(--mono);font-size:9px;padding:3px 9px;border-radius:3px;border:1px solid;letter-spacing:.06em;text-transform:uppercase}
+.sec-goal{font-size:13px;color:var(--tx2);border-left:2px solid;padding-left:10px;font-style:italic;line-height:1.5}
+.done-btn{font-family:var(--mono);font-size:10px;padding:7px 14px;border-radius:6px;border:1px solid var(--b2);background:var(--bg3);color:var(--tx2);cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.done-btn:hover{color:var(--tx);border-color:var(--b3)}
+.done-btn.done{color:var(--pc);border-color:var(--pc)}
+
+/* ─── GRID ─── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.grid1{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ─── CARD ─── */
+.card{background:var(--bg2);border:1px solid var(--b);border-radius:12px;padding:18px;transition:border-color .15s}
+.card:hover{border-color:var(--b2)}
+.card-hd{display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.card-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.card-ttl{font-family:var(--mono);font-size:11px;font-weight:600;color:var(--tx);letter-spacing:.02em}
+.card-sub{font-size:10px;color:var(--tx3);margin-left:auto;font-family:var(--mono)}
+
+/* ─── CODE BLOCK ─── */
+.cb{background:var(--bg);border:1px solid var(--b2);border-radius:9px;overflow:hidden;margin-bottom:8px}
+.cb-hd{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;background:var(--bg3);border-bottom:1px solid var(--b)}
+.cb-lang{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase}
+.cb-copy{font-family:var(--mono);font-size:9px;color:var(--tx3);cursor:pointer;background:none;border:none;transition:color .15s}
+.cb-copy:hover{color:var(--tx)}
+.cb-body{padding:13px 15px;font-family:var(--mono);font-size:11.5px;line-height:1.75;color:#cdd6f4;overflow-x:auto;white-space:pre}
+.k{color:#89dceb}   /* keyword */
+.s{color:#a6e3a1}   /* string */
+.c{color:#585b70}   /* comment */
+.f{color:#89b4fa}   /* function */
+.v{color:#fab387}   /* variable/flag */
+.o{color:#cba6f7}   /* operator/type */
+.n{color:#f38ba8}   /* number */
+
+/* ─── CONCEPT LIST ─── */
+.clist{display:flex;flex-direction:column;gap:6px}
+.ci{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;background:var(--bg3);border-radius:7px;border:1px solid var(--b);font-size:12px;line-height:1.5}
+.ci-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ci strong{color:var(--tx);font-weight:500}
+.ci span{color:var(--tx2)}
+.ci code{font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;color:#cba6f7}
+
+/* ─── KEY TERMS ─── */
+.kgrid{display:flex;flex-direction:column;gap:5px}
+.kt{display:grid;grid-template-columns:140px 1fr;gap:10px;padding:8px 10px;background:var(--bg3);border-radius:7px;border:1px solid var(--b);font-size:12px}
+.kt-k{font-family:var(--mono);font-size:10px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kt-v{color:var(--tx2);line-height:1.4}
+.kt-v code{font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;color:#f38ba8}
+
+/* ─── CHECKLIST ─── */
+.ckl{display:flex;flex-direction:column;gap:5px}
+.cki{display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:7px;cursor:pointer;transition:background .1s;border:1px solid transparent}
+.cki:hover{background:var(--bg3);border-color:var(--b)}
+.cki.chk{opacity:.5}
+.ck-box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--b2);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.cki.chk .ck-box{background:var(--pc);border-color:var(--pc)}
+.ck-tick{font-size:9px;color:#fff;display:none}
+.cki.chk .ck-tick{display:block}
+.ck-text{font-size:12px;color:var(--tx);line-height:1.5}
+.cki.chk .ck-text{text-decoration:line-through;color:var(--tx3)}
+
+/* ─── PRACTICE ─── */
+.pcard{background:var(--bg3);border:1px solid var(--b2);border-radius:9px;padding:15px;margin-bottom:8px}
+.p-num{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.08em;margin-bottom:6px}
+.p-q{font-size:13px;color:var(--tx);font-weight:500;margin-bottom:8px;line-height:1.55}
+.p-hint{font-size:11px;color:var(--tx3);cursor:pointer;border-top:1px solid var(--b);padding-top:7px;display:flex;align-items:center;gap:5px;transition:color .15s;font-family:var(--mono)}
+.p-hint:hover{color:var(--tx2)}
+.p-ans{display:none;margin-top:8px;font-size:12px;color:var(--tx2);line-height:1.6;background:var(--bg4);border-radius:6px;padding:10px;border-left:2px solid var(--pc,#6366f1)}
+.p-ans.show{display:block}
+
+/* ─── NOTE ─── */
+.note{display:flex;gap:10px;padding:12px 14px;border-radius:8px;background:var(--bg3);border-left:3px solid;margin-bottom:10px;font-size:12px;line-height:1.65}
+.note.warn{border-color:#fb923c}
+.note.tip{border-color:#4ade80}
+.note.danger{border-color:#f43f5e}
+.note.info{border-color:#38bdf8}
+.note strong{color:var(--tx);font-weight:600}
+.note span{color:var(--tx2)}
+
+/* ─── ARCH DIAGRAM ─── */
+.arch{background:var(--bg);border:1px solid var(--b2);border-radius:9px;padding:18px;font-family:var(--mono);font-size:11px;line-height:1.8;color:#585b70;white-space:pre;overflow-x:auto;margin-bottom:10px}
+.arch .ah{color:#89b4fa} .arch .as{color:#a6e3a1} .arch .aa{color:#fab387} .arch .ac{color:#cba6f7} .arch .ae{color:#f38ba8} .arch .at{color:#89dceb}
+
+/* ─── TAG ─── */
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:3px;border:1px solid;letter-spacing:.04em;margin:2px}
+
+/* ─── DIVIDER ─── */
+.div{height:1px;background:var(--b);margin:18px 0}
+
+/* ─── SCROLL TOP ─── */
+.stb{position:fixed;bottom:22px;right:22px;width:34px;height:34px;background:var(--bg3);border:1px solid var(--b2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx3);transition:all .15s;z-index:200;font-size:13px}
+.stb:hover{color:var(--tx);border-color:var(--b3)}
+
+/* ─── TIMELINE ─── */
+.timeline{position:relative;padding-left:20px;margin-bottom:8px}
+.timeline::before{content:'';position:absolute;left:4px;top:8px;bottom:8px;width:1px;background:var(--b2)}
+.tl-item{position:relative;padding:0 0 10px 16px;font-size:12px;color:var(--tx2);line-height:1.5}
+.tl-item::before{content:'';position:absolute;left:-4px;top:6px;width:8px;height:8px;border-radius:50%;background:var(--pc,#6366f1);border:1px solid var(--bg)}
+.tl-item strong{color:var(--tx);font-weight:500}
+
+/* ─── TWO-COL TABLE ─── */
+.tc-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:8px}
+.tc-table th{font-family:var(--mono);font-size:9px;color:var(--tx3);letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;border-bottom:1px solid var(--b2);text-align:left;font-weight:500}
+.tc-table td{padding:8px 10px;border-bottom:1px solid var(--b);color:var(--tx2);vertical-align:top}
+.tc-table td:first-child{color:var(--tx);font-family:var(--mono);font-size:10px;font-weight:500;white-space:nowrap}
+.tc-table td code{font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;color:#cba6f7}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-brand">
+    <div class="sb-eyebrow">Expert Level · 2026</div>
+    <div class="sb-title">Advanced DevOps<span>Senior / Staff Engineer</span></div>
+  </div>
+  <div class="sb-prog">
+    <div class="sp-top"><span>Mastery progress</span><span id="prog-txt">0 / 10</span></div>
+    <div class="sp-bar"><div class="sp-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+  <nav class="sb-nav" id="sb-nav">
+    <div class="sn-group">Foundation</div>
+  </nav>
+  <div class="sb-foot">advanced-devops-2026.html</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tb-name" id="tb-name">Advanced DevOps — Expert Study Canvas</div>
+    <div class="tb-pill accent" id="tb-checks">0 mastered</div>
+    <div class="tb-pill">SENIOR / STAFF LEVEL</div>
+  </div>
+
+  <div class="content">
+
+    <!-- HERO -->
+    <div class="hero" id="top">
+      <div class="h-kicker">ADVANCED DEVOPS MASTER CANVAS 2026</div>
+      <h1>Beyond basics.<br><mark>Expert internals.</mark></h1>
+      <p>Deep-dive study material for senior DevOps engineers. eBPF, Kubernetes operators, service mesh internals, chaos engineering, SLO engineering, supply chain security, and advanced system design patterns.</p>
+      <div class="h-stats">
+        <div class="hs"><div class="hs-v">150+</div><div class="hs-l">Commands</div></div>
+        <div class="hs"><div class="hs-v">60+</div><div class="hs-l">Advanced Topics</div></div>
+        <div class="hs"><div class="hs-v">30+</div><div class="hs-l">Real Scenarios</div></div>
+        <div class="hs"><div class="hs-v">10</div><div class="hs-l">Expert Phases</div></div>
+      </div>
+      <div class="h-warning">
+        <span>⚠</span>
+        <div><strong>Prerequisite:</strong> <span>This canvas assumes you already know basic Linux, K8s, CI/CD, and Terraform. If you haven't completed the intermediate roadmap, start there. This is production-grade expert content only.</span></div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 1 — LINUX EXPERT ═══════════ -->
+    <div class="section" id="phase-1" data-phase="1">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c1);color:var(--c1);background:rgba(148,163,184,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">01</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Linux — Kernel Level Mastery</div>
+            <span class="sec-lv" style="color:var(--c1);border-color:var(--c1);background:rgba(148,163,184,.06)">KERNEL EXPERT</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c1);color:var(--c1)">"You understand what happens between syscall and hardware"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c1)" onclick="markDone(1,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(148,163,184,.1)">⚡</div><div class="card-ttl">eBPF — Extended Berkeley Packet Filter</div></div>
+          <div class="clist">
+            <div class="ci"><div class="ci-dot" style="background:var(--c1)"></div><div><strong>What it is:</strong> <span>Run sandboxed programs inside the Linux kernel without changing kernel source. Hooks into kprobes, tracepoints, XDP, cgroups.</span></div></div>
+            <div class="ci"><div class="ci-dot" style="background:var(--c1)"></div><div><strong>bpftrace</strong> <span>— high-level tracing language. One-liners for deep kernel visibility.</span></div></div>
+            <div class="ci"><div class="ci-dot" style="background:var(--c1)"></div><div><strong>Cilium</strong> <span>— eBPF-based K8s networking. Replaces iptables entirely. 3x faster than kube-proxy.</span></div></div>
+            <div class="ci"><div class="ci-dot" style="background:var(--c1)"></div><div><strong>Falco</strong> <span>— uses eBPF kernel module to intercept syscalls. Runtime security at kernel level.</span></div></div>
+          </div>
+          <div class="cb" style="margin-top:12px">
+            <div class="cb-hd"><span class="cb-lang">BPFTRACE — ADVANCED KERNEL TRACING</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Trace all sys_execve calls (every command run)</span>
+<span class="k">bpftrace</span> <span class="v">-e</span> <span class="s">'tracepoint:syscalls:sys_enter_execve { printf("%s %s\n", comm, str(args->filename)); }'</span>
+
+<span class="c"># Trace TCP connections with latency</span>
+<span class="k">bpftrace</span> <span class="v">-e</span> <span class="s">'kretprobe:tcp_connect { @[comm] = count(); }'</span>
+
+<span class="c"># Find slow disk I/O (>10ms)</span>
+<span class="k">bpftrace</span> <span class="v">-e</span> <span class="s">'kprobe:blk_account_io_start { @start[arg0] = nsecs; }
+kprobe:blk_account_io_done /@start[arg0]/ {
+  $lat = (nsecs - @start[arg0]) / 1000000;
+  if ($lat > 10) { printf("slow I/O %d ms\n", $lat); }
+  delete(@start[arg0]);
+}'</span>
+
+<span class="c"># Count kernel function calls per process</span>
+<span class="k">bpftrace</span> <span class="v">-e</span> <span class="s">'kprobe:vfs_read { @[comm, pid] = count(); } END { print(@); }'</span>
+
+<span class="c"># Trace OOM killer events</span>
+<span class="k">bpftrace</span> <span class="v">-e</span> <span class="s">'kprobe:oom_kill_process { printf("OOM kill: %s PID %d\n", comm, pid); }'</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(148,163,184,.1)">🧠</div><div class="card-ttl">cgroups v2 + Namespaces Deep Dive</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">BASH — CGROUP V2 INTERNALS</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># List cgroup hierarchy</span>
+<span class="k">systemd-cgls</span>
+<span class="k">cat</span> /sys/fs/cgroup/system.slice/docker-*.scope/memory.current
+
+<span class="c"># Inspect container cgroup limits (via PID)</span>
+<span class="k">PID</span>=<span class="s">$(docker inspect -f '{{.State.Pid}}' mycontainer)</span>
+<span class="k">cat</span> /proc/<span class="v">$PID</span>/cgroup
+<span class="k">cat</span> /sys/fs/cgroup/<span class="o">$(</span>awk -F: <span class="s">'{print $3}'</span> /proc/<span class="v">$PID</span>/cgroup<span class="o">)</span>/memory.max
+
+<span class="c"># Namespaces a container lives in</span>
+<span class="k">lsns</span> <span class="v">-p</span> <span class="v">$PID</span>        <span class="c"># all namespace types</span>
+<span class="k">ls</span> <span class="v">-la</span> /proc/<span class="v">$PID</span>/ns/  <span class="c"># net, pid, mnt, uts, ipc, user</span>
+
+<span class="c"># Enter a container's namespace without docker exec</span>
+<span class="k">nsenter</span> <span class="v">--target</span> <span class="v">$PID</span> <span class="v">--mount</span> <span class="v">--uts</span> <span class="v">--ipc</span> <span class="v">--net</span> <span class="v">--pid</span> -- bash
+
+<span class="c"># Create isolated cgroup manually</span>
+<span class="k">mkdir</span> /sys/fs/cgroup/my-app
+<span class="k">echo</span> <span class="s">"512M"</span> > /sys/fs/cgroup/my-app/memory.max
+<span class="k">echo</span> <span class="s">"100000 1000000"</span> > /sys/fs/cgroup/my-app/cpu.max
+<span class="k">echo</span> <span class="v">$$</span> > /sys/fs/cgroup/my-app/cgroup.procs</div>
+          </div>
+          <div class="note tip"><strong>Key insight:</strong> <span>Every container is just a process with namespaces + cgroups. <code style="font-family:var(--mono);font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;color:#cba6f7">nsenter</code> lets you debug containers at the OS level without Docker, even if the container has no shell.</span></div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(148,163,184,.1)">🔍</div><div class="card-ttl">Advanced Performance Analysis</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">BASH — USE METHOD + PERF TOOLS</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># USE Method: Utilization, Saturation, Errors</span>
+<span class="c"># CPU utilization + saturation</span>
+<span class="k">mpstat</span> <span class="v">-P</span> ALL 1 3    <span class="c"># per-core CPU stats</span>
+<span class="k">sar</span> <span class="v">-u</span> 1 5             <span class="c"># CPU util history</span>
+<span class="k">perf</span> stat <span class="v">-a</span> sleep 5   <span class="c"># hardware counters</span>
+
+<span class="c"># CPU flame graph (find what code is burning CPU)</span>
+<span class="k">perf</span> record <span class="v">-F</span> 99 <span class="v">-a</span> <span class="v">-g</span> <span class="v">--</span> sleep 30
+<span class="k">perf</span> script | ./stackcollapse-perf.pl | ./flamegraph.pl > flame.svg
+
+<span class="c"># Memory: find what's using RAM</span>
+<span class="k">smem</span> <span class="v">-r</span> <span class="v">-k</span> <span class="v">-t</span>         <span class="c"># proportional set size per proc</span>
+<span class="k">slabtop</span>                <span class="c"># kernel slab allocator usage</span>
+<span class="k">cat</span> /proc/slabinfo | sort <span class="v">-k</span> 3 <span class="v">-nr</span> | head
+
+<span class="c"># Network saturation</span>
+<span class="k">sar</span> <span class="v">-n</span> DEV 1 5         <span class="c"># interface throughput</span>
+<span class="k">sar</span> <span class="v">-n</span> TCP,ETCP 1 5    <span class="c"># TCP error counters</span>
+<span class="k">ss</span> <span class="v">-s</span>                  <span class="c"># socket summary stats</span>
+
+<span class="c"># Latency distribution with perf</span>
+<span class="k">perf</span> trace <span class="v">-e</span> read,write <span class="v">-p</span> <span class="v">$PID</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(148,163,184,.1)">📋</div><div class="card-ttl">Expert Checklist</div></div>
+          <div class="ckl" style="--pc:var(--c1)">
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Write a bpftrace script to find which process causes network latency spikes</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Debug OOM kill using dmesg + /proc/slabinfo without rebooting</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Generate a CPU flame graph and identify the hot function</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Enter a containerized namespace using nsenter for live debugging</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Explain cgroup v2 unified hierarchy vs v1 split hierarchy</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Tune kernel parameters: tcp_fin_timeout, overcommit_memory, dirty_ratio</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Use perf + stackcollapse to find a slow syscall in production</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 2 — CLOUD ARCHITECT ═══════════ -->
+    <div class="section" id="phase-2" data-phase="2">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c2);color:var(--c2);background:rgba(56,189,248,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">02</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Cloud — Multi-Account Architecture</div>
+            <span class="sec-lv" style="color:var(--c2);border-color:var(--c2);background:rgba(56,189,248,.06)">STAFF ARCHITECT</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c2);color:var(--c2)">"Design an AWS Landing Zone for an enterprise with 50+ accounts"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c2)" onclick="markDone(2,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid1">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(56,189,248,.1)">🏛</div><div class="card-ttl">AWS Multi-Account Landing Zone Architecture</div></div>
+          <div class="arch"><span class="ah">AWS Organizations</span>
+<span class="at">├── Management Account</span> <span class="c">(billing, SCPs, Control Tower)</span>
+<span class="at">├── Security OU</span>
+<span class="as">│   ├── Audit Account</span>     <span class="c">(CloudTrail, Config aggregator)</span>
+<span class="as">│   └── Log Archive Account</span> <span class="c">(S3 centralized logs, immutable)</span>
+<span class="at">├── Infra OU</span>
+<span class="aa">│   ├── Networking Account</span> <span class="c">(Transit Gateway, VPCs, DNS)</span>
+<span class="aa">│   └── Shared Services Account</span> <span class="c">(ECR, JFrog, Vault)</span>
+<span class="at">├── Prod OU</span>
+<span class="ac">│   ├── Prod-EKS Account</span>  <span class="c">(K8s workloads)</span>
+<span class="ac">│   └── Prod-Data Account</span> <span class="c">(RDS, Redshift, MSK Kafka)</span>
+<span class="at">├── NonProd OU</span>
+<span class="ae">│   ├── Dev Account</span>
+<span class="ae">│   └── Staging Account</span>
+<span class="at">└── Sandbox OU</span>            <span class="c">(auto-nuke after 24h via lambda)</span>
+
+<span class="c">─── Traffic flow ───────────────────────────────────────</span>
+<span class="ah">Internet</span> → <span class="aa">Network Acct</span>(VPC Egress + ALB) → <span class="aa">Transit Gateway</span>
+         → <span class="ac">Prod EKS Acct</span>(private subnets, no IGW)
+<span class="ah">VPN/Direct Connect</span> → <span class="aa">Transit Gateway</span> → all VPCs
+<span class="ah">Cross-account IAM</span>: STS AssumeRole with MFA + Conditions</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(56,189,248,.1)">🔗</div><div class="card-ttl">Transit Gateway + PrivateLink</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">TERRAFORM — ADVANCED NETWORKING</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Transit Gateway — hub spoke model</span>
+<span class="k">resource</span> <span class="s">"aws_ec2_transit_gateway"</span> <span class="s">"tgw"</span> {
+  amazon_side_asn                 = <span class="n">64512</span>
+  default_route_table_association = <span class="s">"disable"</span>
+  default_route_table_propagation = <span class="s">"disable"</span>
+  dns_support                     = <span class="s">"enable"</span>
+  tags = { Name = <span class="s">"prod-tgw"</span> }
+}
+
+<span class="c"># Attach prod VPC to TGW</span>
+<span class="k">resource</span> <span class="s">"aws_ec2_transit_gateway_vpc_attachment"</span> <span class="s">"prod"</span> {
+  transit_gateway_id = aws_ec2_transit_gateway.tgw.id
+  vpc_id             = module.prod_vpc.vpc_id
+  subnet_ids         = module.prod_vpc.private_subnets
+  transit_gateway_default_route_table_association = <span class="k">false</span>
+}
+
+<span class="c"># PrivateLink — expose service without VPC peering</span>
+<span class="k">resource</span> <span class="s">"aws_vpc_endpoint_service"</span> <span class="s">"api"</span> {
+  acceptance_required        = <span class="k">false</span>
+  network_load_balancer_arns = [aws_lb.internal.arn]
+  private_dns_name           = <span class="s">"api.internal.company.com"</span>
+}
+
+<span class="c"># Service Control Policy — deny all outside ap-south-1</span>
+<span class="c"># Applied at OU level — cannot be overridden by member accounts</span>
+<span class="k">resource</span> <span class="s">"aws_organizations_policy"</span> <span class="s">"region_lock"</span> {
+  content = <span class="s">jsonencode</span>({
+    Statement = [{
+      Effect    = <span class="s">"Deny"</span>
+      Action    = <span class="s">"*"</span>
+      Resource  = <span class="s">"*"</span>
+      Condition = { StringNotEquals = {
+        <span class="s">"aws:RequestedRegion"</span>: [<span class="s">"ap-south-1"</span>,<span class="s">"us-east-1"</span>]
+      }}
+    }]
+  })
+}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(56,189,248,.1)">💰</div><div class="card-ttl">Cost Optimization — Advanced</div></div>
+          <div class="kgrid">
+            <div class="kt"><span class="kt-k" style="color:var(--c2)">Savings Plans</span><span class="kt-v">Commit to $X/hr compute spend. 30-66% saving. Flexible across instance types/regions. Prefer over Reserved Instances.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c2)">Spot + On-Demand</span><span class="kt-v">Run stateless K8s workers on Spot (70% cheaper). On-Demand for system nodes. Karpenter handles this automatically.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c2)">Karpenter</span><span class="kt-v">Next-gen autoscaler. Provisions exact node size needed. Spot fallback. Consolidates underutilized nodes. Better than cluster-autoscaler.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c2)">S3 Tiering</span><span class="kt-v">Intelligent-Tiering for unknown access patterns. Glacier Deep Archive for logs >90 days. Lifecycle rules = big savings.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c2)">Right-sizing</span><span class="kt-v"><code>AWS Compute Optimizer</code> + CloudWatch metrics. CPU &lt;20% avg = over-provisioned. Rightsizing = 30-40% savings typically.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 3 — KUBERNETES OPERATOR ═══════════ -->
+    <div class="section" id="phase-3" data-phase="3">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c3);color:var(--c3);background:rgba(45,212,191,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">03</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Kubernetes — Operators & Internals</div>
+            <span class="sec-lv" style="color:var(--c3);border-color:var(--c3);background:rgba(45,212,191,.06)">OPERATOR AUTHOR</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c3);color:var(--c3)">"Write a production Kubernetes operator and admission webhook from scratch"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c3)" onclick="markDone(3,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(45,212,191,.1)">⚙</div><div class="card-ttl">Kubernetes Request Lifecycle — Full Flow</div></div>
+          <div class="timeline" style="--pc:var(--c3)">
+            <div class="tl-item"><strong>1. kubectl apply</strong> — serializes object to JSON, sends to API server via HTTPS</div>
+            <div class="tl-item"><strong>2. Authentication</strong> — x509 certs / OIDC token / ServiceAccount JWT verified</div>
+            <div class="tl-item"><strong>3. Authorization (RBAC)</strong> — does this identity have permission for this verb+resource?</div>
+            <div class="tl-item"><strong>4. Mutating Webhooks</strong> — your admission webhooks modify the object (inject sidecars, add labels)</div>
+            <div class="tl-item"><strong>5. Object Validation</strong> — schema validation, default values applied</div>
+            <div class="tl-item"><strong>6. Validating Webhooks</strong> — OPA Gatekeeper, Kyverno reject or approve</div>
+            <div class="tl-item"><strong>7. Persist to etcd</strong> — object written with ResourceVersion</div>
+            <div class="tl-item"><strong>8. Scheduler watches</strong> — sees unscheduled pod, scores nodes, binds pod to node</div>
+            <div class="tl-item"><strong>9. kubelet watches</strong> — sees pod bound to its node, calls CRI (containerd) to start containers</div>
+            <div class="tl-item"><strong>10. CNI plugin</strong> — Cilium attaches eBPF programs, sets up pod networking via VXLAN/BGP</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(45,212,191,.1)">🤖</div><div class="card-ttl">Writing a Kubernetes Operator (Go)</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">GO — CONTROLLER-RUNTIME OPERATOR</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c">// Reconciler — the heart of every operator</span>
+<span class="k">func</span> (<span class="v">r</span> *<span class="o">AppReconciler</span>) Reconcile(
+  ctx context.Context, req reconcile.Request,
+) (reconcile.Result, error) {
+
+  <span class="c">// 1. Fetch the custom resource</span>
+  <span class="k">var</span> app apiv1.<span class="o">MyApp</span>
+  <span class="k">if</span> err := r.Get(ctx, req.NamespacedName, &app); err != nil {
+    <span class="k">return</span> reconcile.Result{}, client.IgnoreNotFound(err)
+  }
+
+  <span class="c">// 2. Define desired state (Deployment)</span>
+  desired := r.desiredDeployment(&app)
+
+  <span class="c">// 3. Create or Update — server-side apply</span>
+  <span class="k">if</span> err := r.Patch(ctx, desired,
+    client.Apply, client.FieldOwner(<span class="s">"my-operator"</span>),
+    client.ForceOwnership,
+  ); err != nil {
+    <span class="k">return</span> reconcile.Result{}, err
+  }
+
+  <span class="c">// 4. Update status subresource</span>
+  app.Status.Phase = <span class="s">"Running"</span>
+  app.Status.ObservedGeneration = app.Generation
+  r.Status().Update(ctx, &app)
+
+  <span class="c">// 5. Requeue after 30s for drift detection</span>
+  <span class="k">return</span> reconcile.Result{RequeueAfter: <span class="n">30</span> * time.Second}, nil
+}
+
+<span class="c">// SetupWithManager — watch resources</span>
+<span class="k">func</span> (<span class="v">r</span> *<span class="o">AppReconciler</span>) SetupWithManager(mgr ctrl.Manager) error {
+  <span class="k">return</span> ctrl.NewControllerManagedBy(mgr).
+    For(&apiv1.<span class="o">MyApp</span>{}).
+    Owns(&appsv1.<span class="o">Deployment</span>{}).  <span class="c">// watch owned deploys</span>
+    WithOptions(controller.Options{MaxConcurrentReconciles: <span class="n">5</span>}).
+    Complete(r)
+}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(45,212,191,.1)">🛡</div><div class="card-ttl">Admission Webhook — Mutating</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">GO — SIDECAR INJECTION WEBHOOK</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="k">func</span> (<span class="v">w</span> *<span class="o">PodWebhook</span>) Handle(
+  ctx context.Context, req admission.Request,
+) admission.Response {
+
+  <span class="k">var</span> pod corev1.<span class="o">Pod</span>
+  json.Unmarshal(req.Object.Raw, &pod)
+
+  <span class="c">// Inject OTEL sidecar if annotation present</span>
+  <span class="k">if</span> pod.Annotations[<span class="s">"inject-telemetry"</span>] == <span class="s">"true"</span> {
+    sidecar := corev1.<span class="o">Container</span>{
+      Name:  <span class="s">"otel-collector"</span>,
+      Image: <span class="s">"otel/opentelemetry-collector:latest"</span>,
+      Ports: []corev1.ContainerPort{{ContainerPort: <span class="n">4317</span>}},
+      VolumeMounts: []corev1.VolumeMount{{
+        Name: <span class="s">"otel-config"</span>, MountPath: <span class="s">"/etc/otel"</span>,
+      }},
+    }
+    pod.Spec.Containers = append(pod.Spec.Containers, sidecar)
+  }
+
+  <span class="c">// Add resource limits if missing (enforce policy)</span>
+  <span class="k">for</span> i := <span class="k">range</span> pod.Spec.Containers {
+    c := &pod.Spec.Containers[i]
+    <span class="k">if</span> c.Resources.Limits == nil {
+      c.Resources.Limits = corev1.ResourceList{
+        <span class="s">"memory"</span>: resource.MustParse(<span class="s">"512Mi"</span>),
+        <span class="s">"cpu"</span>:    resource.MustParse(<span class="s">"500m"</span>),
+      }
+    }
+  }
+
+  marshaled, _ := json.Marshal(pod)
+  <span class="k">return</span> admission.PatchResponseFromRaw(req.Object.Raw, marshaled)
+}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(45,212,191,.1)">📋</div><div class="card-ttl">OPA Gatekeeper — Policy as Code</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">REGO — ADVANCED POLICIES</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># ConstraintTemplate: require resource limits</span>
+<span class="k">package</span> requireresourcelimits
+
+violation[{<span class="s">"msg"</span>: msg}] {
+  container := input.review.object.spec.containers[_]
+  <span class="k">not</span> container.resources.limits.memory
+  msg := sprintf(<span class="s">"Container %v has no memory limit"</span>,
+    [container.name])
+}
+
+violation[{<span class="s">"msg"</span>: msg}] {
+  container := input.review.object.spec.containers[_]
+  limit := container.resources.limits.memory
+  bytes := units.parse_bytes(limit)
+  bytes > <span class="n">2</span> * <span class="n">1024</span> * <span class="n">1024</span> * <span class="n">1024</span>   <span class="c"># > 2Gi</span>
+  msg := sprintf(<span class="s">"Container %v exceeds 2Gi memory limit"</span>,
+    [container.name])
+}
+
+<span class="c"># Block privileged containers</span>
+violation[{<span class="s">"msg"</span>: msg}] {
+  c := input.review.object.spec.containers[_]
+  c.securityContext.privileged == <span class="k">true</span>
+  msg := sprintf(<span class="s">"Privileged container forbidden: %v"</span>, [c.name])
+}
+
+<span class="c"># Enforce image registry allowlist</span>
+violation[{<span class="s">"msg"</span>: msg}] {
+  c := input.review.object.spec.containers[_]
+  <span class="k">not</span> startswith(c.image, <span class="s">"my-registry.company.com/"</span>)
+  msg := sprintf(<span class="s">"Image not from approved registry: %v"</span>, [c.image])
+}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid1">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(45,212,191,.1)">🔬</div><div class="card-ttl">etcd — Backup, Restore & Disaster Recovery</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">BASH — ETCD OPERATIONS</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Health check all etcd members</span>
+<span class="k">ETCDCTL_API=3</span> etcdctl endpoint health \
+  <span class="v">--endpoints</span>=https://etcd1:2379,https://etcd2:2379,https://etcd3:2379 \
+  <span class="v">--cacert</span>=/etc/etcd/ca.crt <span class="v">--cert</span>=/etc/etcd/server.crt <span class="v">--key</span>=/etc/etcd/server.key
+
+<span class="c"># Snapshot backup (run on etcd leader)</span>
+<span class="k">ETCDCTL_API=3</span> etcdctl snapshot save /backup/etcd-<span class="o">$(date +%Y%m%d-%H%M%S)</span>.db \
+  <span class="v">--endpoints</span>=https://127.0.0.1:2379 \
+  <span class="v">--cacert</span>=/etc/etcd/ca.crt <span class="v">--cert</span>=/etc/etcd/server.crt <span class="v">--key</span>=/etc/etcd/server.key
+
+<span class="c"># Verify snapshot</span>
+<span class="k">ETCDCTL_API=3</span> etcdctl snapshot status /backup/etcd.db <span class="v">--write-out=table</span>
+
+<span class="c"># Restore (DISASTER RECOVERY — destroys current state)</span>
+<span class="k">systemctl</span> stop kube-apiserver etcd
+<span class="k">ETCDCTL_API=3</span> etcdctl snapshot restore /backup/etcd.db \
+  <span class="v">--name</span>=etcd1 \
+  <span class="v">--initial-cluster</span>=<span class="s">"etcd1=https://10.0.1.10:2380"</span> \
+  <span class="v">--initial-cluster-token</span>=etcd-cluster-prod \
+  <span class="v">--initial-advertise-peer-urls</span>=https://10.0.1.10:2380 \
+  <span class="v">--data-dir</span>=/var/lib/etcd-restored
+<span class="k">systemctl</span> start etcd kube-apiserver
+
+<span class="c"># Defragment etcd (run periodically — reclaims disk)</span>
+<span class="k">ETCDCTL_API=3</span> etcdctl defrag <span class="v">--endpoints</span>=https://127.0.0.1:2379 ...
+<span class="k">ETCDCTL_API=3</span> etcdctl alarm disarm  <span class="c"># clear NOSPACE alarm</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 4 — GITOPS + PROGRESSIVE DELIVERY ═══════════ -->
+    <div class="section" id="phase-4" data-phase="4">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c4);color:var(--c4);background:rgba(167,139,250,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">04</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">GitOps + Progressive Delivery</div>
+            <span class="sec-lv" style="color:var(--c4);border-color:var(--c4);background:rgba(167,139,250,.06)">PLATFORM ENGINEER</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c4);color:var(--c4)">"Automated, self-healing, multi-cluster deployments with zero risk"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c4)" onclick="markDone(4,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(167,139,250,.1)">🔄</div><div class="card-ttl">ArgoCD — Advanced ApplicationSets</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — MULTI-CLUSTER APPLICATIONSET</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="o">apiVersion</span>: argoproj.io/v1alpha1
+<span class="o">kind</span>: ApplicationSet
+<span class="o">metadata</span>:
+  <span class="o">name</span>: my-app-all-clusters
+<span class="o">spec</span>:
+  <span class="o">generators</span>:
+  - <span class="o">matrix</span>:
+      <span class="o">generators</span>:
+      - <span class="o">clusters</span>:            <span class="c"># all registered clusters</span>
+          <span class="o">selector</span>:
+            <span class="o">matchLabels</span>:
+              <span class="o">env</span>: prod
+      - <span class="o">list</span>:               <span class="c"># per-service config</span>
+          <span class="o">elements</span>:
+          - service: api
+            replicas: "5"
+          - service: worker
+            replicas: "10"
+  <span class="o">template</span>:
+    <span class="o">metadata</span>:
+      <span class="o">name</span>: <span class="s">'{{cluster}}-{{service}}'</span>
+    <span class="o">spec</span>:
+      <span class="o">project</span>: prod
+      <span class="o">source</span>:
+        <span class="o">repoURL</span>: https://github.com/company/gitops
+        <span class="o">targetRevision</span>: main
+        <span class="o">path</span>: apps/{{service}}
+        <span class="o">helm</span>:
+          <span class="o">parameters</span>:
+          - name: replicaCount
+            value: <span class="s">'{{replicas}}'</span>
+      <span class="o">destination</span>:
+        <span class="o">server</span>: <span class="s">'{{server}}'</span>
+        <span class="o">namespace</span>: <span class="s">'{{service}}'</span>
+      <span class="o">syncPolicy</span>:
+        <span class="o">automated</span>:
+          <span class="o">prune</span>: <span class="k">true</span>       <span class="c"># delete removed resources</span>
+          <span class="o">selfHeal</span>: <span class="k">true</span>    <span class="c"># fix drift automatically</span>
+        <span class="o">retry</span>:
+          <span class="o">limit</span>: 5
+          <span class="o">backoff</span>: {duration: 5s, factor: 2, maxDuration: 3m}</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(167,139,250,.1)">🚀</div><div class="card-ttl">Argo Rollouts — Progressive Delivery</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — CANARY WITH ANALYSIS</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="o">apiVersion</span>: argoproj.io/v1alpha1
+<span class="o">kind</span>: Rollout
+<span class="o">spec</span>:
+  <span class="o">strategy</span>:
+    <span class="o">canary</span>:
+      <span class="o">steps</span>:
+      - <span class="o">setWeight</span>: 5         <span class="c"># 5% to canary</span>
+      - <span class="o">analysis</span>:            <span class="c"># run metrics check</span>
+          <span class="o">templates</span>:
+          - templateName: success-rate
+      - <span class="o">pause</span>: {duration: 10m}
+      - <span class="o">setWeight</span>: 25
+      - <span class="o">analysis</span>:
+          <span class="o">templates</span>:
+          - templateName: success-rate
+          - templateName: latency-p99
+      - <span class="o">pause</span>: {duration: 20m}
+      - <span class="o">setWeight</span>: 100       <span class="c"># promote to full</span>
+
+<span class="c">---</span>
+<span class="o">kind</span>: AnalysisTemplate
+<span class="o">metadata</span>:
+  <span class="o">name</span>: success-rate
+<span class="o">spec</span>:
+  <span class="o">metrics</span>:
+  - <span class="o">name</span>: success-rate
+    <span class="o">interval</span>: 1m
+    <span class="o">successCondition</span>: result[0] >= 0.95  <span class="c"># >95% success</span>
+    <span class="o">failureLimit</span>: 3
+    <span class="o">provider</span>:
+      <span class="o">prometheus</span>:
+        <span class="o">address</span>: http://prometheus:9090
+        <span class="o">query</span>: |
+          sum(rate(http_requests_total{status!~"5.."}[5m]))
+          / sum(rate(http_requests_total[5m]))</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note tip" style="--pc:var(--c4)"><strong>Feature Flags + GitOps:</strong> <span>Use OpenFeature + flagd for runtime feature flags. GitOps controls infra, flags control behaviour. Never deploy risky features — ship them dark, enable with a flag, roll back without a deploy. This is how Netflix/Meta ship.</span></div>
+    </div>
+
+    <!-- ═══════════ PHASE 5 — ADVANCED TERRAFORM ═══════════ -->
+    <div class="section" id="phase-5" data-phase="5">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c5);color:var(--c5);background:rgba(251,146,60,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">05</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">IaC — Terraform at Scale</div>
+            <span class="sec-lv" style="color:var(--c5);border-color:var(--c5);background:rgba(251,146,60,.06)">PLATFORM IaC</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c5);color:var(--c5)">"Manage 500+ AWS resources across 10 accounts with zero manual changes"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c5)" onclick="markDone(5,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(251,146,60,.1)">🏗</div><div class="card-ttl">Terragrunt — Multi-Account DRY IaC</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">HCL — TERRAGRUNT HIERARCHY</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># infra/
+# ├── terragrunt.hcl          ← root config
+# ├── prod/
+# │   ├── account.hcl         ← prod account ID
+# │   ├── ap-south-1/
+# │   │   ├── region.hcl
+# │   │   ├── vpc/
+# │   │   │   └── terragrunt.hcl  ← inherits all above
+# │   │   └── eks/
+# │   │       └── terragrunt.hcl
+
+# root terragrunt.hcl</span>
+remote_state {
+  backend = <span class="s">"s3"</span>
+  generate = {
+    path      = <span class="s">"backend.tf"</span>
+    if_exists = <span class="s">"overwrite"</span>
+  }
+  config = {
+    bucket         = <span class="s">"tf-state-${local.account_id}"</span>
+    key            = <span class="s">"${path_relative_to_include()}/terraform.tfstate"</span>
+    region         = local.aws_region
+    dynamodb_table = <span class="s">"tf-locks"</span>
+    encrypt        = <span class="k">true</span>
+    role_arn       = <span class="s">"arn:aws:iam::${local.account_id}:role/TFDeployer"</span>
+  }
+}
+
+<span class="c"># prod/eks/terragrunt.hcl</span>
+dependency <span class="s">"vpc"</span> {
+  config_path = <span class="s">"../vpc"</span>
+  mock_outputs = { vpc_id = <span class="s">"vpc-00000000"</span> }  <span class="c"># plan without apply</span>
+}
+inputs = {
+  vpc_id          = dependency.vpc.outputs.vpc_id
+  private_subnets = dependency.vpc.outputs.private_subnets
+  cluster_version = <span class="s">"1.30"</span>
+}
+
+<span class="c"># Deploy all prod at once</span>
+<span class="k">terragrunt</span> run-all apply <span class="v">--terragrunt-working-dir</span> prod/
+<span class="k">terragrunt</span> run-all plan  <span class="v">--terragrunt-parallelism</span> 4</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(251,146,60,.1)">🔒</div><div class="card-ttl">Sentinel + Atlantis — Policy + PR Workflow</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">SENTINEL — TERRAFORM POLICY</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Sentinel: block public S3 buckets</span>
+<span class="k">import</span> <span class="s">"tfplan/v2"</span> as tfplan
+
+s3_buckets = filter tfplan.resource_changes as _, rc {
+  rc.type is <span class="s">"aws_s3_bucket"</span> and
+  rc.change.actions contains <span class="s">"create"</span>
+}
+
+deny_public_acl = rule {
+  all s3_buckets as _, bucket {
+    <span class="k">not</span> (bucket.change.after.acl in [<span class="s">"public-read"</span>,<span class="s">"public-read-write"</span>])
+  }
+}
+
+main = rule { deny_public_acl }
+
+<span class="c">---</span>
+<span class="c"># atlantis.yaml — PR-based Terraform workflow</span>
+<span class="o">version</span>: 3
+<span class="o">projects</span>:
+- <span class="o">name</span>: prod-eks
+  <span class="o">dir</span>: prod/ap-south-1/eks
+  <span class="o">workspace</span>: prod
+  <span class="o">autoplan</span>:
+    <span class="o">when_modified</span>: [<span class="s">"**/*.tf"</span>, <span class="s">"**/*.hcl"</span>]
+  <span class="o">workflow</span>: prod-workflow
+
+<span class="o">workflows</span>:
+  <span class="o">prod-workflow</span>:
+    <span class="o">plan</span>:
+      <span class="o">steps</span>:
+      - <span class="o">run</span>: <span class="s">tfsec . --minimum-severity HIGH</span>
+      - init
+      - plan: {extra_args: [-lock=false]}
+    <span class="o">apply</span>:
+      <span class="o">steps</span>:
+      - <span class="o">run</span>: <span class="s">echo "Require LGTM from 2 senior engineers"</span>
+      - apply</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 6 — SUPPLY CHAIN SECURITY ═══════════ -->
+    <div class="section" id="phase-6" data-phase="6">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c6);color:var(--c6);background:rgba(244,63,94,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">06</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Advanced DevSecOps — Supply Chain</div>
+            <span class="sec-lv" style="color:var(--c6);border-color:var(--c6);background:rgba(244,63,94,.06)">SECURITY ENGINEER</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c6);color:var(--c6)">"Sign, attest and verify every artifact from code to production — SLSA Level 3"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c6)" onclick="markDone(6,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid1">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(244,63,94,.1)">⛓</div><div class="card-ttl">SLSA — Software Supply Chain Levels</div></div>
+          <table class="tc-table">
+            <thead><tr><th>SLSA Level</th><th>What it requires</th><th>How to achieve</th></tr></thead>
+            <tbody>
+              <tr><td>L0 — No guarantee</td><td>No requirements. Most teams are here.</td><td>Starting point</td></tr>
+              <tr><td>L1 — Documented</td><td>Build process documented, provenance generated</td><td>Add --sbom flag to docker build, generate provenance JSON</td></tr>
+              <tr><td>L2 — Hosted build</td><td>Build in hosted CI (GitHub Actions), signed provenance</td><td>Use <code>sigstore/cosign</code> to sign images in CI</td></tr>
+              <tr><td>L3 — Hardened build</td><td>Build platform not influence by developer. Ephemeral build env.</td><td>GitHub Actions in isolated runners, Tekton Chains, OIDC tokens</td></tr>
+              <tr><td>L4 — Two-person review</td><td>Two-party review for all changes. Hermetic builds.</td><td>Branch protection + signed commits + build isolation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(244,63,94,.1)">✍</div><div class="card-ttl">Cosign — Image Signing & Verification</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">BASH — SIGSTORE COSIGN</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Sign image with keyless (OIDC — no key management!)</span>
+<span class="c"># Run in GitHub Actions — uses OIDC token automatically</span>
+<span class="k">cosign</span> sign <span class="v">--yes</span> <span class="s">ghcr.io/mycompany/api:sha-abc123</span>
+
+<span class="c"># Verify before deploying</span>
+<span class="k">cosign</span> verify <span class="s">ghcr.io/mycompany/api:sha-abc123</span> \
+  <span class="v">--certificate-identity-regexp</span>=<span class="s">'https://github.com/mycompany/.*'</span> \
+  <span class="v">--certificate-oidc-issuer</span>=<span class="s">https://token.actions.githubusercontent.com</span>
+
+<span class="c"># Attach SBOM attestation</span>
+<span class="k">syft</span> ghcr.io/mycompany/api:sha-abc123 <span class="v">-o</span> cyclonedx-json > sbom.json
+<span class="k">cosign</span> attest <span class="v">--yes</span> <span class="v">--predicate</span> sbom.json \
+  <span class="v">--type</span> cyclonedx <span class="s">ghcr.io/mycompany/api:sha-abc123</span>
+
+<span class="c"># Verify SBOM attestation</span>
+<span class="k">cosign</span> verify-attestation \
+  <span class="v">--type</span> cyclonedx \
+  <span class="v">--certificate-identity-regexp</span>=<span class="s">'.*'</span> \
+  <span class="v">--certificate-oidc-issuer</span>=<span class="s">https://token.actions.githubusercontent.com</span> \
+  ghcr.io/mycompany/api:sha-abc123 | jq .payload | base64 -d | jq
+
+<span class="c"># Policy: Kyverno block unsigned images</span>
+<span class="c"># spec.rules[].verifyImages[].attestors[].count: 1</span>
+<span class="c"># spec.rules[].verifyImages[].imageReferences: ["ghcr.io/mycompany/*"]</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(244,63,94,.1)">🎯</div><div class="card-ttl">Falco — Advanced Runtime Rules</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — PRODUCTION FALCO RULES</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Detect crypto-mining (high CPU + network)</span>
+- <span class="o">rule</span>: Cryptominer Detected
+  <span class="o">condition</span>: >
+    spawned_process and container and
+    (proc.name in (xmrig, minerd, cpuminer)) or
+    (proc.cmdline contains <span class="s">"--pool"</span> and proc.cmdline contains <span class="s">"stratum"</span>)
+  <span class="o">output</span>: <span class="s">"Cryptominer in container (cmd=%proc.cmdline pod=%k8s.pod.name)"</span>
+  <span class="o">priority</span>: CRITICAL
+
+<span class="c"># Detect kubectl exec into prod pods</span>
+- <span class="o">rule</span>: K8s Exec into Pod
+  <span class="o">condition</span>: >
+    k8s_audit and ka.verb=create and
+    ka.target.resource=pods/exec and
+    not ka.user.name startswith <span class="s">"system:"</span>
+  <span class="o">output</span>: <span class="s">"Exec into pod (user=%ka.user.name pod=%ka.target.name)"</span>
+  <span class="o">priority</span>: WARNING
+
+<span class="c"># Detect secrets access</span>
+- <span class="o">rule</span>: K8s Secret Access
+  <span class="o">condition</span>: >
+    k8s_audit and ka.verb in (get,list,watch) and
+    ka.target.resource=secrets and
+    not ka.user.name startswith <span class="s">"system:serviceaccount:kube-system"</span>
+  <span class="o">output</span>: <span class="s">"Secrets accessed (user=%ka.user.name ns=%ka.target.namespace)"</span>
+  <span class="o">priority</span>: ERROR
+
+<span class="c"># Falco sidekick → Slack alert + Falcosidekick-UI</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 7 — SLO ENGINEERING ═══════════ -->
+    <div class="section" id="phase-7" data-phase="7">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c7);color:var(--c7);background:rgba(74,222,128,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">07</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Observability — SLO Engineering</div>
+            <span class="sec-lv" style="color:var(--c7);border-color:var(--c7);background:rgba(74,222,128,.06)">SRE LEVEL</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c7);color:var(--c7)">"Define, measure and enforce SLOs with error budgets and automated burn-rate alerts"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c7)" onclick="markDone(7,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid1">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(74,222,128,.1)">📊</div><div class="card-ttl">SLI → SLO → Error Budget → Burn Rate Alerts</div></div>
+          <div class="kgrid">
+            <div class="kt"><span class="kt-k" style="color:var(--c7)">SLI (metric)</span><span class="kt-v">The raw measurement. E.g. "ratio of requests returning 200 in &lt;500ms". Must be directly observable from your system.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c7)">SLO (target)</span><span class="kt-v">"99.9% of requests succeed over 30 days". Your reliability promise. Too high = unsustainable cost. Too low = users unhappy.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c7)">Error Budget</span><span class="kt-v">100% - SLO = budget for failures. 99.9% SLO = 43.2 min/month allowed downtime. Burn this for deploys, experiments.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c7)">Burn Rate</span><span class="kt-v">How fast you're consuming error budget. Burn rate 1 = exactly consuming at SLO rate. Burn rate 14 = budget exhausts in 2h.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c7)">Alert policy</span><span class="kt-v">Alert when burn rate &gt;14x (1h window) AND &gt;1x (6h window) — catches fast burns without alert fatigue on slow burns.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(74,222,128,.1)">📈</div><div class="card-ttl">Advanced PromQL — Recording Rules + Alerts</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — SLO ALERT RULES</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="o">groups</span>:
+- <span class="o">name</span>: slo.rules
+  <span class="o">interval</span>: 30s
+  <span class="o">rules</span>:
+  <span class="c"># Recording rule: error ratio (fast window)</span>
+  - <span class="o">record</span>: slo:http_errors:ratio_rate5m
+    <span class="o">expr</span>: |
+      sum(rate(http_requests_total{code=~"5.."}[5m]))
+      / sum(rate(http_requests_total[5m]))
+
+  <span class="c"># Recording rule: error ratio (slow window)</span>
+  - <span class="o">record</span>: slo:http_errors:ratio_rate1h
+    <span class="o">expr</span>: |
+      sum(rate(http_requests_total{code=~"5.."}[1h]))
+      / sum(rate(http_requests_total[1h]))
+
+  <span class="c"># Burn rate alert: critical (pager)</span>
+  - <span class="o">alert</span>: HighErrorBudgetBurn
+    <span class="o">expr</span>: |
+      slo:http_errors:ratio_rate1h > (14 * 0.001)
+      and slo:http_errors:ratio_rate5m > (14 * 0.001)
+    <span class="o">for</span>: 2m
+    <span class="o">labels</span>: {severity: critical, slo: api-availability}
+    <span class="o">annotations</span>:
+      <span class="o">summary</span>: <span class="s">"Burning error budget 14x — exhausts in 2h"</span>
+      <span class="o">runbook</span>: https://runbooks.company.com/api-availability
+
+  <span class="c"># Burn rate alert: warning (slack)</span>
+  - <span class="o">alert</span>: MedErrorBudgetBurn
+    <span class="o">expr</span>: |
+      slo:http_errors:ratio_rate1h > (3 * 0.001)
+      and slo:http_errors:ratio_rate5m > (3 * 0.001)
+    <span class="o">for</span>: 15m
+    <span class="o">labels</span>: {severity: warning}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(74,222,128,.1)">🔭</div><div class="card-ttl">OpenTelemetry Collector — Advanced Config</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — OTEL COLLECTOR PIPELINE</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="o">receivers</span>:
+  <span class="o">otlp</span>:
+    <span class="o">protocols</span>:
+      <span class="o">grpc</span>: {endpoint: 0.0.0.0:4317}
+      <span class="o">http</span>: {endpoint: 0.0.0.0:4318}
+  <span class="o">prometheus</span>:
+    <span class="o">config</span>:
+      <span class="o">scrape_configs</span>:
+        - job_name: k8s-pods
+          kubernetes_sd_configs: [{role: pod}]
+
+<span class="o">processors</span>:
+  <span class="o">batch</span>:
+    <span class="o">send_batch_size</span>: 1000
+    <span class="o">timeout</span>: 10s
+  <span class="o">memory_limiter</span>:
+    <span class="o">limit_mib</span>: 512
+  <span class="o">filter</span>:           <span class="c"># drop health check traces</span>
+    <span class="o">traces</span>:
+      <span class="o">exclude</span>:
+        <span class="o">match_type</span>: strict
+        <span class="o">attributes</span>: [{key: http.url, value: /healthz}]
+  <span class="o">resource</span>:         <span class="c"># enrich with k8s metadata</span>
+    <span class="o">attributes</span>:
+      - action: insert
+        key: k8s.cluster.name
+        value: prod-cluster
+
+<span class="o">exporters</span>:
+  <span class="o">prometheusremotewrite</span>:
+    <span class="o">endpoint</span>: http://thanos-receive:9090/api/v1/receive
+  <span class="o">jaeger</span>:
+    <span class="o">endpoint</span>: jaeger-collector:14250
+  <span class="o">loki</span>:
+    <span class="o">endpoint</span>: http://loki:3100/loki/api/v1/push
+
+<span class="o">service</span>:
+  <span class="o">pipelines</span>:
+    <span class="o">traces</span>:   {receivers:[otlp], processors:[batch,filter], exporters:[jaeger]}
+    <span class="o">metrics</span>:  {receivers:[otlp,prometheus], processors:[batch,memory_limiter], exporters:[prometheusremotewrite]}
+    <span class="o">logs</span>:     {receivers:[otlp], processors:[batch,resource], exporters:[loki]}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 8 — SERVICE MESH ═══════════ -->
+    <div class="section" id="phase-8" data-phase="8">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c8);color:var(--c8);background:rgba(249,115,22,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">08</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Service Mesh — Istio Internals</div>
+            <span class="sec-lv" style="color:var(--c8);border-color:var(--c8);background:rgba(249,115,22,.06)">NETWORK EXPERT</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c8);color:var(--c8)">"mTLS everywhere, traffic shaping, and distributed tracing with zero app code changes"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c8)" onclick="markDone(8,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(249,115,22,.1)">🕸</div><div class="card-ttl">Istio Architecture + Data Plane</div></div>
+          <div class="arch"><span class="ah">Control Plane (istiod)</span>
+<span class="at">├── Pilot</span>       <span class="c">→ pushes xDS configs to all Envoy proxies</span>
+<span class="at">├── Citadel</span>     <span class="c">→ issues mTLS certs via SPIFFE/SPIRE standard</span>
+<span class="at">└── Galley</span>      <span class="c">→ validates & distributes Istio configs</span>
+
+<span class="ah">Data Plane (per pod)</span>
+<span class="as">App Container</span> ↔ <span class="ac">Envoy Sidecar</span> (iptables captures all traffic)
+                   <span class="c">↑ init container sets iptables rules on pod start</span>
+
+<span class="ah">Traffic flow (mTLS)</span>
+<span class="as">Service A (Envoy)</span> ─── <span class="ae">mTLS</span> ──→ <span class="as">Service B (Envoy)</span>
+<span class="c">  Both envoys verify each other's SPIFFE certs</span>
+<span class="c">  App code sees plain HTTP — Envoy handles TLS</span>
+
+<span class="ah">xDS APIs (how istiod talks to Envoy)</span>
+<span class="at">LDS</span> → Listener Discovery  <span class="c">(what ports to listen on)</span>
+<span class="at">RDS</span> → Route Discovery    <span class="c">(routing rules per host)</span>
+<span class="at">CDS</span> → Cluster Discovery  <span class="c">(upstream service endpoints)</span>
+<span class="at">EDS</span> → Endpoint Discovery <span class="c">(actual pod IPs)</span></div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(249,115,22,.1)">🎛</div><div class="card-ttl">Istio — Advanced Traffic Control</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — VIRTUALSERVICE + CIRCUIT BREAKER</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Header-based canary + fault injection + retry</span>
+<span class="o">apiVersion</span>: networking.istio.io/v1beta1
+<span class="o">kind</span>: VirtualService
+<span class="o">spec</span>:
+  <span class="o">http</span>:
+  - <span class="o">match</span>:
+    - <span class="o">headers</span>: {x-canary: {exact: <span class="s">"true"</span>}}
+    <span class="o">route</span>:
+    - destination: {host: api, subset: v2}
+  - <span class="o">fault</span>:                <span class="c"># inject delay for chaos testing</span>
+      <span class="o">delay</span>:
+        <span class="o">percentage</span>: {value: 1}
+        <span class="o">fixedDelay</span>: 5s
+    <span class="o">retries</span>:
+      <span class="o">attempts</span>: 3
+      <span class="o">perTryTimeout</span>: 2s
+      <span class="o">retryOn</span>: 5xx,gateway-error,connect-failure
+    <span class="o">timeout</span>: 10s
+    <span class="o">route</span>:
+    - destination: {host: api, subset: v1, port: {number: 8080}}
+      weight: 90
+    - destination: {host: api, subset: v2}
+      weight: 10
+---
+<span class="c"># Circuit breaker (DestinationRule)</span>
+<span class="o">kind</span>: DestinationRule
+<span class="o">spec</span>:
+  <span class="o">trafficPolicy</span>:
+    <span class="o">outlierDetection</span>:
+      <span class="o">consecutive5xxErrors</span>: 5
+      <span class="o">interval</span>: 10s
+      <span class="o">baseEjectionTime</span>: 30s  <span class="c"># eject bad pods</span>
+      <span class="o">maxEjectionPercent</span>: 50
+    <span class="o">connectionPool</span>:
+      <span class="o">tcp</span>: {maxConnections: 100}
+      <span class="o">http</span>: {h2UpgradePolicy: UPGRADE, http1MaxPendingRequests: 100}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid1">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(249,115,22,.1)">📋</div><div class="card-ttl">Expert Networking Checklist</div></div>
+          <div class="ckl" style="--pc:var(--c8)">
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Explain Envoy xDS protocol: LDS, RDS, CDS, EDS and how istiod pushes configs</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Debug mTLS handshake failures using istioctl proxy-config and Envoy access logs</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Configure Istio AuthorizationPolicy: deny all, allow only specific service-to-service</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Implement circuit breaker + retry + timeout in VirtualService for resilience</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Use BGP with Calico for on-prem K8s networking — explain AS numbers and peering</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Implement SPIFFE/SPIRE for workload identity in a multi-cluster setup</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 9 — CHAOS ENGINEERING ═══════════ -->
+    <div class="section" id="phase-9" data-phase="9">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c9);color:var(--c9);background:rgba(232,121,249,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">09</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Chaos Engineering + SRE Practices</div>
+            <span class="sec-lv" style="color:var(--c9);border-color:var(--c9);background:rgba(232,121,249,.06)">SRE EXPERT</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c9);color:var(--c9)">"Break production intentionally before the customer does it accidentally"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c9)" onclick="markDone(9,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(232,121,249,.1)">💥</div><div class="card-ttl">Chaos Mesh — Kubernetes Chaos</div></div>
+          <div class="cb">
+            <div class="cb-hd"><span class="cb-lang">YAML — CHAOS EXPERIMENTS</span><button class="cb-copy" onclick="cp(this)">copy</button></div>
+            <div class="cb-body"><span class="c"># Pod chaos: kill random pods in prod namespace</span>
+<span class="o">apiVersion</span>: chaos-mesh.org/v1alpha1
+<span class="o">kind</span>: PodChaos
+<span class="o">spec</span>:
+  <span class="o">action</span>: pod-kill
+  <span class="o">mode</span>: random-max-percent
+  <span class="o">value</span>: <span class="s">"20"</span>    <span class="c"># kill up to 20% of pods</span>
+  <span class="o">selector</span>:
+    <span class="o">namespaces</span>: [production]
+    <span class="o">labelSelectors</span>: {app: api}
+  <span class="o">scheduler</span>: {cron: <span class="s">"@every 30m"</span>}
+  <span class="o">duration</span>: <span class="s">"5m"</span>
+---
+<span class="c"># Network chaos: inject 200ms latency on DB calls</span>
+<span class="o">kind</span>: NetworkChaos
+<span class="o">spec</span>:
+  <span class="o">action</span>: delay
+  <span class="o">mode</span>: all
+  <span class="o">selector</span>:
+    <span class="o">namespaces</span>: [production]
+    <span class="o">labelSelectors</span>: {app: api}
+  <span class="o">delay</span>:
+    <span class="o">latency</span>: <span class="s">"200ms"</span>
+    <span class="o">correlation</span>: <span class="s">"100"</span>
+    <span class="o">jitter</span>: <span class="s">"50ms"</span>
+  <span class="o">direction</span>: both
+  <span class="o">externalTargets</span>: [<span class="s">"10.0.1.50"</span>]   <span class="c"># DB IP</span>
+---
+<span class="c"># Memory stress: test OOM handling</span>
+<span class="o">kind</span>: StressChaos
+<span class="o">spec</span>:
+  <span class="o">mode</span>: one
+  <span class="o">stressors</span>:
+    <span class="o">memory</span>: {workers: 4, size: <span class="s">"1GB"</span>}
+  <span class="o">duration</span>: <span class="s">"3m"</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(232,121,249,.1)">📝</div><div class="card-ttl">Incident Management — Production Playbook</div></div>
+          <div class="timeline" style="--pc:var(--c9)">
+            <div class="tl-item"><strong>Detect</strong> — Alert fires (burn rate &gt;14x). On-call paged via PagerDuty. Acknowledge within 5 min SLA.</div>
+            <div class="tl-item"><strong>Triage</strong> — Open incident channel #inc-YYYY-MM-DD. Assign IC (Incident Commander) and comms lead. Declare severity (P0-P4).</div>
+            <div class="tl-item"><strong>Investigate</strong> — USE method: Utilization → Saturation → Errors. Check dashboards → traces → logs → recent deploys.</div>
+            <div class="tl-item"><strong>Mitigate first</strong> — Rollback deploy / feature flag off / scale up / fail over. Fix the customer experience BEFORE finding root cause.</div>
+            <div class="tl-item"><strong>Root cause</strong> — 5 Whys. Timeline reconstruction. Never blame people — blame systems.</div>
+            <div class="tl-item"><strong>Post-mortem</strong> — Blameless. Published within 48h. Action items with owners + due dates. Measure if similar incidents decrease.</div>
+          </div>
+          <div class="pcard" style="margin-top:12px">
+            <div class="p-num">CHAOS EXPERIMENT</div>
+            <div class="p-q">Kill all pods of the "payment-service" in prod. Your SLO requires 99.9% success. Does the system survive? How long to recover?</div>
+            <div class="p-hint" onclick="toggleAns(this)">Show what you should observe ▾ <span class="p-ans">Circuit breaker in API gateway should open in &lt;5s. DB writes should queue in Kafka. Payment service should restart via K8s in &lt;30s. Error budget burned: 30s / 43.2min = ~1.2% of monthly budget. If recovery &gt;5min, your resilience is broken.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PHASE 10 — DISTRIBUTED SYSTEMS ═══════════ -->
+    <div class="section" id="phase-10" data-phase="10">
+      <div class="sec-hdr">
+        <div class="sec-num" style="border-color:var(--c10);color:var(--c10);background:rgba(129,140,248,.06)">
+          <span class="sn-ph">PH</span><span class="sn-n">10</span>
+        </div>
+        <div class="sec-info">
+          <div class="sec-row">
+            <div class="sec-h2">Distributed Systems — Staff Engineer</div>
+            <span class="sec-lv" style="color:var(--c10);border-color:var(--c10);background:rgba(129,140,248,.06)">STAFF ENGINEER</span>
+          </div>
+          <div class="sec-goal" style="border-color:var(--c10);color:var(--c10)">"Design systems that self-heal, scale horizontally, and survive any single failure"</div>
+        </div>
+        <button class="done-btn" style="--pc:var(--c10)" onclick="markDone(10,this)">○ Mark mastered</button>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(129,140,248,.1)">🧩</div><div class="card-ttl">Distributed Systems Patterns</div></div>
+          <div class="kgrid">
+            <div class="kt"><span class="kt-k" style="color:var(--c10)">Saga Pattern</span><span class="kt-v">Long-running distributed transactions without 2PC. Choreography (events) or Orchestration (central coordinator). Compensating transactions for rollback.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c10)">CQRS</span><span class="kt-v">Command Query Responsibility Segregation. Separate write model (commands) from read model (queries). Read replicas optimized per use case.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c10)">Event Sourcing</span><span class="kt-v">Store events, not state. Current state = replay of events. Audit log for free. Rebuild any projection. Kafka as event store.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c10)">Outbox Pattern</span><span class="kt-v">Write to DB + outbox table atomically. Debezium CDC reads outbox, publishes to Kafka. Guarantees exactly-once event publishing.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c10)">Backpressure</span><span class="kt-v">Producer slows down when consumer is overwhelmed. Kafka consumer lag triggers autoscale. Circuit breaker rejects when queue full.</span></div>
+            <div class="kt"><span class="kt-k" style="color:var(--c10)">Consistent Hashing</span><span class="kt-v">Add/remove cache nodes with minimal key remapping. Used by Redis Cluster, Cassandra, DynamoDB. Ring with virtual nodes.</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(129,140,248,.1)">🎓</div><div class="card-ttl">Staff-Level Design Challenge</div></div>
+          <div class="pcard">
+            <div class="p-num">DESIGN — REAL SCENARIO</div>
+            <div class="p-q">Design the payment system for a food delivery app. 100K orders/day, peak 500 TPS. Must never double-charge, must survive a full AWS AZ outage, must handle payment gateway timeout of 30s.</div>
+            <div class="p-hint" onclick="toggleAns(this)">Show architecture ▾ <span class="p-ans">Idempotency key (order_id) prevents double-charge. Outbox pattern: write order + payment_event to same DB transaction. Debezium publishes to Kafka. Payment service is stateless, horizontally scaled. Saga orchestrator handles gateway timeout: retry 3x with exponential backoff, then compensate (cancel order, notify user). Multi-AZ RDS with automatic failover. Kafka across 3 AZs. Dead letter queue for failed payments with alerting.</span></div>
+          </div>
+          <div class="pcard">
+            <div class="p-num">DESIGN — DATABASE SHARDING</div>
+            <div class="p-q">Your users table has 500M rows and queries are slow. How do you shard it? What happens when you need to add a shard 6 months later?</div>
+            <div class="p-hint" onclick="toggleAns(this)">Show approach ▾ <span class="p-ans">Shard by user_id using consistent hashing. Start with 16 logical shards on 4 physical DBs (4 shards each). When adding shard: use vitess for online resharding — it splits shards with zero downtime by double-writing, verifying checksums, then cutting over. Never shard by time — creates hot partitions. Always shard by entity ID with consistent hashing.</span></div>
+          </div>
+          <div class="pcard">
+            <div class="p-num">DESIGN — GLOBAL FAILOVER</div>
+            <div class="p-q">Your primary region (ap-south-1) goes completely dark. You have a DR region (us-east-1). RTO: 5 min, RPO: 30 sec. How?</div>
+            <div class="p-hint" onclick="toggleAns(this)">Show approach ▾ <span class="p-ans">Aurora Global Database replicates with &lt;1s lag (satisfies 30s RPO). Route53 health check detects primary down in &lt;30s. Lambda triggers promote Aurora secondary. Helm + ArgoCD already deployed to DR cluster (GitOps = always in sync). Total failover: &lt;5min. Test this monthly with chaos engineering. Never assume DR works — prove it.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid1">
+        <div class="card">
+          <div class="card-hd"><div class="card-ico" style="background:rgba(129,140,248,.1)">🏆</div><div class="card-ttl">Final Mastery Checklist — Staff DevOps Engineer</div></div>
+          <div class="ckl" style="--pc:var(--c10)">
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Write a Kubernetes operator in Go that manages a custom resource and handles reconciliation loops</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Implement SLO-based alerting with burn rate alerts — no more static threshold alerts</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Design a multi-account AWS Landing Zone with SCPs, centralized logging, and Transit Gateway</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Implement SLSA L2 supply chain security: signed images, SBOM attestation, policy enforcement</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Run a chaos engineering experiment in production with proper rollback mechanisms</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Write bpftrace one-liners to diagnose CPU, memory, disk, and network issues at kernel level</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Implement Istio mTLS, circuit breaker, and canary delivery with automatic rollback on error budget burn</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Design a distributed system using Saga pattern that survives full region failure with RPO &lt;30s</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Lead a blameless post-mortem and publish action items that prevent recurrence</div></div>
+            <div class="cki" onclick="tick(this)"><div class="ck-box"><span class="ck-tick">✓</span></div><div class="ck-text">Build a Terragrunt multi-account IaC structure with Atlantis PR workflow and Sentinel policies</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<div class="stb" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+const phases = [
+  {n:1,  name:"Linux — Kernel Level", col:"var(--c1)"},
+  {n:2,  name:"Cloud Multi-Account",  col:"var(--c2)"},
+  {n:3,  name:"K8s Operators",        col:"var(--c3)"},
+  {n:4,  name:"GitOps + Prog. Delivery", col:"var(--c4)"},
+  {n:5,  name:"Terraform at Scale",   col:"var(--c5)"},
+  {n:6,  name:"Supply Chain Security",col:"var(--c6)"},
+  {n:7,  name:"SLO Engineering",      col:"var(--c7)"},
+  {n:8,  name:"Service Mesh — Istio", col:"var(--c8)"},
+  {n:9,  name:"Chaos Engineering",    col:"var(--c9)"},
+  {n:10, name:"Distributed Systems",  col:"var(--c10)"},
+];
+
+const done = new Set(JSON.parse(localStorage.getItem('adv-done')||'[]'));
+const nav = document.getElementById('sb-nav');
+
+phases.forEach((p,i) => {
+  if(i===5){ const g=document.createElement('div'); g.className='sn-group'; g.textContent='Security & SRE'; nav.appendChild(g); }
+  if(i===9){ const g=document.createElement('div'); g.className='sn-group'; g.textContent='Architecture'; nav.appendChild(g); }
+  const a = document.createElement('a');
+  a.className = 'sn-item' + (done.has(p.n) ? ' done' : '');
+  a.href = '#phase-'+p.n;
+  a.style.setProperty('--pc', p.col);
+  a.innerHTML = `<div class="sn-badge">${p.n}</div><div class="sn-label">${p.name}</div><div class="sn-check">✓</div>`;
+  nav.appendChild(a);
+});
+
+function updateProg(){
+  const d = done.size;
+  document.getElementById('prog-fill').style.width = (d/10*100)+'%';
+  document.getElementById('prog-txt').textContent = d+' / 10';
+}
+updateProg();
+
+function markDone(n, btn){
+  const now = !done.has(n);
+  if(now){ done.add(n); btn.textContent='✓ Mastered'; btn.classList.add('done'); }
+  else{ done.delete(n); btn.textContent='○ Mark mastered'; btn.classList.remove('done'); }
+  localStorage.setItem('adv-done', JSON.stringify([...done]));
+  const items = nav.querySelectorAll('.sn-item');
+  const item = [...items].find(el => el.href && el.href.endsWith('#phase-'+n));
+  if(item) item.classList.toggle('done', now);
+  updateProg();
+}
+done.forEach(n=>{
+  const b=document.querySelector(`#phase-${n} .done-btn`);
+  if(b){b.textContent='✓ Mastered';b.classList.add('done');}
+});
+
+// Scroll spy
+const secs = document.querySelectorAll('.section');
+const names = phases.map(p=>p.name);
+window.addEventListener('scroll',()=>{
+  let cur=0;
+  secs.forEach((s,i)=>{ if(window.scrollY >= s.offsetTop-120) cur=i; });
+  document.getElementById('tb-name').textContent='Phase '+(cur+1)+' — '+names[cur];
+  const items = nav.querySelectorAll('.sn-item');
+  items.forEach((a,i)=>a.classList.toggle('active',i===cur));
+},{passive:true});
+
+// Tick checklist
+let checked = 0;
+function tick(el){
+  el.classList.toggle('chk');
+  checked = document.querySelectorAll('.cki.chk').length;
+  document.getElementById('tb-checks').textContent = checked+' mastered';
+}
+
+// Toggle answer
+function toggleAns(hint){
+  const ans = hint.querySelector('.p-ans');
+  ans.classList.toggle('show');
+  hint.style.color = ans.classList.contains('show') ? 'var(--tx2)' : '';
+}
+
+// Copy code
+function cp(btn){
+  const text = btn.closest('.cb').querySelector('.cb-body').innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='copied!';
+    setTimeout(()=>btn.textContent='copy',1500);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Linux Pro-Level Investigation Command Reference</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c232c; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
+    --safe:#3fb950; --caution:#d29922; --destructive:#f85149;
+    --safe-bg:#0f2818; --caution-bg:#2b2210; --destructive-bg:#2d1214;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.5;
+  }
+  header{
+    position:sticky; top:0; z-index:10; background:var(--panel);
+    border-bottom:1px solid var(--border); padding:14px 20px;
+  }
+  header h1{margin:0 0 2px; font-size:18px; font-weight:600;}
+  header p{margin:0; color:var(--muted); font-size:13px;}
+  .controls{
+    display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;
+  }
+  input#search{
+    flex:1; min-width:180px; background:var(--panel2); border:1px solid var(--border);
+    color:var(--text); padding:8px 12px; border-radius:6px; font-size:13px;
+  }
+  .tagbtn{
+    border:1px solid var(--border); background:var(--panel2); color:var(--muted);
+    padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;
+  }
+  .tagbtn.active[data-tag="SAFE"]{background:var(--safe-bg); color:var(--safe); border-color:var(--safe);}
+  .tagbtn.active[data-tag="CAUTION"]{background:var(--caution-bg); color:var(--caution); border-color:var(--caution);}
+  .tagbtn.active[data-tag="DESTRUCTIVE"]{background:var(--destructive-bg); color:var(--destructive); border-color:var(--destructive);}
+  .tagbtn.active[data-tag="ALL"]{background:#1f3554; color:var(--accent); border-color:var(--accent);}
+  main{padding:16px 20px 60px; max-width:960px; margin:0 auto;}
+  .domain{
+    border:1px solid var(--border); border-radius:8px; margin-bottom:12px;
+    background:var(--panel); overflow:hidden;
+  }
+  .domain-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 16px; cursor:pointer; user-select:none;
+  }
+  .domain-head:hover{background:var(--panel2);}
+  .domain-head h2{margin:0; font-size:15px; font-weight:600;}
+  .domain-head .count{color:var(--muted); font-size:12px;}
+  .chevron{transition:transform .15s; color:var(--muted);}
+  .domain.open .chevron{transform:rotate(90deg);}
+  .domain-body{display:none; padding:0 16px 12px;}
+  .domain.open .domain-body{display:block;}
+  .group{margin-top:10px;}
+  .group h3{
+    font-size:12px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--muted); margin:0 0 6px; font-weight:600;
+  }
+  ul.cmds{list-style:none; margin:0; padding:0;}
+  li.cmd{
+    display:flex; gap:10px; align-items:flex-start; padding:7px 0;
+    border-bottom:1px solid var(--border); font-size:13px;
+  }
+  li.cmd:last-child{border-bottom:none;}
+  li.cmd.hide{display:none;}
+  code{
+    background:var(--panel2); border:1px solid var(--border); color:var(--accent);
+    padding:2px 6px; border-radius:4px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px; white-space:nowrap; flex-shrink:0;
+  }
+  .desc{color:var(--text); flex:1;}
+  .badge{
+    font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px;
+    flex-shrink:0; letter-spacing:.03em; align-self:center;
+  }
+  .badge.SAFE{background:var(--safe-bg); color:var(--safe);}
+  .badge.CAUTION{background:var(--caution-bg); color:var(--caution);}
+  .badge.DESTRUCTIVE{background:var(--destructive-bg); color:var(--destructive);}
+  .empty-msg{color:var(--muted); font-size:13px; padding:10px 0; display:none;}
+  footer{
+    max-width:960px; margin:0 auto; padding:0 20px 40px; color:var(--muted); font-size:12px;
+  }
+  footer .flow{
+    background:var(--panel); border:1px solid var(--border); border-radius:8px;
+    padding:14px 16px; font-family:ui-monospace,monospace; font-size:12px; color:var(--accent);
+    text-align:center; margin:10px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Linux pro-level investigation command reference</h1>
+  <p>349 unique commands, zero duplicates · 6 domains · filter by tag or search by keyword</p>
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search commands, e.g. oom, ssh, swap, port...">
+    <button class="tagbtn active" data-tag="ALL">All</button>
+    <button class="tagbtn" data-tag="SAFE">Safe</button>
+    <button class="tagbtn" data-tag="CAUTION">Caution</button>
+    <button class="tagbtn" data-tag="DESTRUCTIVE">Destructive</button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <div class="flow">SYMPTOM → OBSERVATION → EVIDENCE → HYPOTHESIS → VALIDATION → ROOT CAUSE → FIX → VERIFY → PREVENT</div>
+  Cold-start order on an unfamiliar box: Users/Auth → Networking → Process/CPU → Memory → Disk/Files → SSH (only when access itself is the symptom).
+</footer>
+
+<script>
+const DATA = [
+{
+  domain: "1. User / identity / auth investigation",
+  groups: [
+    {name:"Who am I / who is this account", items:[
+      ["whoami","current effective user","SAFE"],
+      ["id","uid/gid/groups of current user","SAFE"],
+      ["id username","uid/gid/groups of any user","SAFE"],
+      ["groups username","group membership","SAFE"],
+      ["who","who's logged in, on which tty, since when","SAFE"],
+      ["w","who's logged in + what they're running + load avg","SAFE"],
+      ["last","login history (from wtmp)","SAFE"],
+      ["last -F","login history with full timestamps","SAFE"],
+      ["lastb","failed login attempts (from btmp)","SAFE"],
+      ["lastlog","last login time per user account","SAFE"],
+      ["finger username","user info if installed","SAFE"]
+    ]},
+    {name:"Account & password state", items:[
+      ["cat /etc/passwd","all local accounts, shells, home dirs","SAFE"],
+      ["getent passwd username","resolves user via NSS (local+LDAP+SSSD)","SAFE"],
+      ["cat /etc/shadow","hashed passwords, expiry (root only)","SAFE"],
+      ["chage -l username","password aging/expiry policy for a user","SAFE"],
+      ["passwd -S username","password status (locked/active/expired)","SAFE"],
+      ["cat /etc/group","group definitions","SAFE"],
+      ["getent group groupname","resolve group via NSS","SAFE"],
+      ["cat /etc/gshadow","group password hashes","SAFE"],
+      ["cat /etc/login.defs","default UID/GID ranges, password policy","SAFE"]
+    ]},
+    {name:"sudo / privilege", items:[
+      ["sudo -l","what current user can sudo as","SAFE"],
+      ["sudo -l -U username","sudo rights for another user","SAFE"],
+      ["cat /etc/sudoers","sudo policy (use visudo to edit, never vi directly)","SAFE"],
+      ["ls /etc/sudoers.d/","drop-in sudo policy files","SAFE"],
+      ["visudo -c","validate sudoers syntax","SAFE"],
+      ["journalctl _COMM=sudo","sudo usage from systemd journal","SAFE"],
+      ["grep -i sudo /var/log/auth.log","sudo history (Debian/Ubuntu)","SAFE"],
+      ["grep -i sudo /var/log/secure","sudo history (RHEL/CentOS)","SAFE"]
+    ]},
+    {name:"Session / process ownership", items:[
+      ["ps -ef | grep username","everything a user is running","SAFE"],
+      ["ps -u username","same, cleaner filter","SAFE"],
+      ["loginctl list-sessions","active systemd-logind sessions","SAFE"],
+      ["loginctl show-session SESSIONID","session detail (idle, remote host, tty)","SAFE"],
+      ["loginctl kill-session SESSIONID","terminate a session","CAUTION"],
+      ["pkill -u username","kill all processes owned by a user","CAUTION"],
+      ["who -u","sessions with idle time and PID","SAFE"]
+    ]},
+    {name:"Account modification", items:[
+      ["useradd -m -s /bin/bash username","create user with home + shell","CAUTION"],
+      ["usermod -aG groupname username","add user to a group (append, don't overwrite)","CAUTION"],
+      ["usermod -L username","lock account (disable password login)","CAUTION"],
+      ["usermod -U username","unlock account","CAUTION"],
+      ["usermod -s /usr/sbin/nologin username","disable interactive shell","CAUTION"],
+      ["passwd -l username","lock password","CAUTION"],
+      ["passwd -e username","force password change on next login","CAUTION"],
+      ["deluser --remove-home username","remove user + home","DESTRUCTIVE"],
+      ["groupadd groupname","create a group","CAUTION"],
+      ["gpasswd -d username groupname","remove user from group","CAUTION"]
+    ]},
+    {name:"SSH key / identity trust", items:[
+      ["cat ~/.ssh/authorized_keys","keys trusted to log in as this user","SAFE"],
+      ["ssh-keygen -lf ~/.ssh/id_rsa.pub","fingerprint of a key","SAFE"],
+      ["ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub","host key fingerprint","SAFE"],
+      ["find / -name authorized_keys 2>/dev/null","hunt for trust anchors across the box","SAFE"],
+      ["stat ~/.ssh && stat ~/.ssh/authorized_keys","verify 700/600 perms (SSH refuses loose perms)","SAFE"]
+    ]},
+    {name:"PAM / limits / capability", items:[
+      ["cat /etc/pam.d/sshd","PAM stack applied at SSH login","SAFE"],
+      ["cat /etc/security/limits.conf","per-user resource limits (nofile, nproc)","SAFE"],
+      ["ulimit -a","current shell's effective limits","SAFE"],
+      ["getcap /usr/bin/*","binaries with elevated Linux capabilities set","SAFE"],
+      ["getent shadow username","confirm account isn't locked (root only)","SAFE"]
+    ]},
+    {name:"Audit trail correlation", items:[
+      ["ausearch -m USER_LOGIN","auditd login events, if auditd running","SAFE"],
+      ["aureport --auth","authentication summary report","SAFE"],
+      ["grep \"Accepted\\|Failed\" /var/log/auth.log","success/fail SSH logins","SAFE"],
+      ["awk -F: '$3>=1000{print $1,$3,$6,$7}' /etc/passwd","list all human accounts fast","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "2. Networking investigation",
+  groups: [
+    {name:"Interfaces / addressing", items:[
+      ["ip -br addr","interfaces, state, IPs, one line each","SAFE"],
+      ["ip addr show","full interface detail (MTU, flags, scope)","SAFE"],
+      ["ip link show","L2 state, carrier, MAC","SAFE"],
+      ["ethtool eth0","link speed/duplex/carrier at NIC level","SAFE"],
+      ["ethtool -S eth0","NIC error/drop counters","SAFE"],
+      ["cat /sys/class/net/eth0/operstate","up/down at kernel level","SAFE"],
+      ["ip -s link show eth0","RX/TX packets, errors, drops, overruns","SAFE"],
+      ["hostname -I","all IPs bound to the host","SAFE"]
+    ]},
+    {name:"Routing", items:[
+      ["ip route","routing table, default gateway","SAFE"],
+      ["ip route get 8.8.8.8","which route/interface a destination will use","SAFE"],
+      ["ip rule show","policy routing rules (multi-table setups)","SAFE"],
+      ["route -n","legacy routing table view","SAFE"],
+      ["traceroute -n 8.8.8.8","hop-by-hop path, where it dies","SAFE"],
+      ["mtr -rw 8.8.8.8","traceroute + loss% per hop, live","SAFE"],
+      ["ip neigh","ARP/neighbor cache (L2 reachability)","SAFE"]
+    ]},
+    {name:"DNS", items:[
+      ["cat /etc/resolv.conf","resolvers currently in use","SAFE"],
+      ["resolvectl status","systemd-resolved per-interface DNS config","SAFE"],
+      ["dig domain.com","full DNS resolution trace","SAFE"],
+      ["dig +short domain.com","quick A record","SAFE"],
+      ["dig domain.com +trace","walk resolution from root servers down","SAFE"],
+      ["dig -x 1.2.3.4","reverse DNS (PTR) lookup","SAFE"],
+      ["nslookup domain.com","alt DNS query tool","SAFE"],
+      ["host domain.com","quick DNS lookup","SAFE"],
+      ["cat /etc/nsswitch.conf","resolution order (files/dns/ldap)","SAFE"],
+      ["cat /etc/hosts","static hostname overrides","SAFE"],
+      ["systemd-resolve --statistics","DNS cache hit/miss stats","SAFE"]
+    ]},
+    {name:"TCP / connection state", items:[
+      ["ss -s","connection state summary counts","SAFE"],
+      ["ss -antp","all TCP sockets with PID/process","SAFE"],
+      ["ss -lntp","listening TCP sockets with owning process","SAFE"],
+      ["ss -tunap","TCP+UDP, all states, with process","SAFE"],
+      ["ss -o state established","established connections with timers","SAFE"],
+      ["ss -tn state time-wait | wc -l","TIME_WAIT count (port exhaustion check)","SAFE"],
+      ["netstat -antp","legacy equivalent of ss","SAFE"],
+      ["cat /proc/net/tcp","raw kernel TCP table","SAFE"],
+      ["sysctl net.ipv4.tcp_tw_reuse","TIME_WAIT reuse setting","SAFE"],
+      ["sysctl net.ipv4.ip_local_port_range","ephemeral port range","SAFE"]
+    ]},
+    {name:"Connectivity testing", items:[
+      ["ping -c 4 host","ICMP reachability + latency","SAFE"],
+      ["ping -c 4 -M do -s 1472 host","MTU/PMTU black-hole test","SAFE"],
+      ["nc -vz -w 5 host port","TCP port reachability without full protocol","SAFE"],
+      ["nc -u -vz host port","UDP port reachability check","SAFE"],
+      ["curl -v http://host:port/","full HTTP handshake trace","SAFE"],
+      ["curl -o /dev/null -s -w \"%{time_total}\\n\" URL","timing breakdown","SAFE"],
+      ["telnet host port","raw TCP connect test (legacy but useful)","SAFE"],
+      ["wget --spider URL","check URL reachability without downloading","SAFE"]
+    ]},
+    {name:"Packet capture", items:[
+      ["tcpdump -nn -i eth0","live packet capture, no DNS resolution","SAFE"],
+      ["tcpdump -nn -i eth0 host 10.0.0.5","capture filtered by host","SAFE"],
+      ["tcpdump -nn -i eth0 port 443","capture filtered by port","SAFE"],
+      ["tcpdump -nn -i eth0 -w capture.pcap","write capture to file for offline analysis","CAUTION"],
+      ["tcpdump 'tcp[tcpflags] & tcp-syn != 0'","isolate SYN packets (connection attempts)","SAFE"],
+      ["tshark -i eth0 -Y \"tcp.flags.reset==1\"","capture only RSTs","SAFE"]
+    ]},
+    {name:"Firewall / NAT", items:[
+      ["iptables -L -n -v","active firewall rules with hit counters","SAFE"],
+      ["iptables -t nat -L -n -v","NAT table rules","SAFE"],
+      ["nft list ruleset","nftables rules (modern replacement for iptables)","SAFE"],
+      ["ufw status verbose","Ubuntu firewall frontend status","SAFE"],
+      ["firewall-cmd --list-all","RHEL firewalld active zone rules","SAFE"],
+      ["conntrack -L","active connection tracking table","SAFE"]
+    ]},
+    {name:"Bandwidth / throughput", items:[
+      ["sar -n DEV 1 5","per-interface throughput over time","SAFE"],
+      ["iftop -i eth0","live per-connection bandwidth usage","SAFE"],
+      ["nload eth0","live interface throughput graph","SAFE"],
+      ["vnstat -i eth0","historical bandwidth usage per interface","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "3. Process & CPU investigation",
+  groups: [
+    {name:"Process listing / tree", items:[
+      ["ps -ef","every process, full command line","SAFE"],
+      ["ps aux","BSD-style, with %CPU/%MEM columns","SAFE"],
+      ["ps -eLf","processes with individual thread rows","SAFE"],
+      ["pstree -ap","parent/child tree with PIDs and args","SAFE"],
+      ["pgrep -af processname","find PIDs by name, with full args","SAFE"],
+      ["ps --forest -eo pid,ppid,cmd","tree view via plain ps","SAFE"],
+      ["top","live process view, sortable","SAFE"],
+      ["htop","interactive live view (if installed)","SAFE"],
+      ["ps -fp PID","full detail for one specific PID","SAFE"],
+      ["ps -o pid,ppid,%cpu,%mem,etime,cmd -p PID","custom column detail","SAFE"]
+    ]},
+    {name:"CPU-specific", items:[
+      ["top -o %CPU","sort live view by CPU","SAFE"],
+      ["ps aux --sort=-%cpu | head -20","top 20 CPU consumers, static","SAFE"],
+      ["mpstat 1 5","per-core CPU utilization over 5 samples","SAFE"],
+      ["mpstat -P ALL 1 5","breakdown per individual core","SAFE"],
+      ["pidstat 1 5","per-process CPU% over time","SAFE"],
+      ["pidstat -t -p PID 1 5","per-thread CPU% for one process","SAFE"],
+      ["uptime","load average (1/5/15 min)","SAFE"],
+      ["cat /proc/loadavg","raw load average + runnable/total tasks","SAFE"],
+      ["nproc","number of usable CPUs","SAFE"],
+      ["lscpu","CPU model, cores, sockets, cache, flags","SAFE"],
+      ["cat /proc/cpuinfo","raw per-core CPU detail","SAFE"],
+      ["vmstat 1 5","us/sy/id/wa/st breakdown over time","SAFE"],
+      ["sar -u 1 5","historical/live CPU utilization","SAFE"],
+      ["perf top","live symbol-level CPU hotspot profiling","SAFE"],
+      ["perf stat -p PID","CPU cycles/instructions/cache-misses for a PID","SAFE"],
+      ["strace -c -p PID","syscall summary + time spent, for one process","CAUTION"]
+    ]},
+    {name:"Per-PID deep dive", items:[
+      ["cat /proc/PID/status","memory, threads, signal state for a PID","SAFE"],
+      ["cat /proc/PID/stat","raw scheduler/CPU accounting fields","SAFE"],
+      ["cat /proc/PID/cmdline | tr '\\0' ' '","exact command line invoked","SAFE"],
+      ["cat /proc/PID/environ | tr '\\0' '\\n'","environment variables at launch","SAFE"],
+      ["readlink -f /proc/PID/exe","actual binary being executed","SAFE"],
+      ["readlink -f /proc/PID/cwd","process's working directory","SAFE"],
+      ["ls -la /proc/PID/fd","every open file descriptor","SAFE"],
+      ["lsof -p PID","open files + sockets for a PID, human readable","SAFE"],
+      ["cat /proc/PID/limits","effective ulimits for that process","SAFE"],
+      ["cat /proc/PID/io","bytes read/written by the process","SAFE"],
+      ["cat /proc/PID/task/*/stat","per-thread scheduling stats","SAFE"],
+      ["taskset -pc PID","CPU affinity currently set for a PID","SAFE"],
+      ["chrt -p PID","scheduling policy/priority of a PID","SAFE"],
+      ["ionice -p PID","I/O scheduling class/priority","SAFE"]
+    ]},
+    {name:"Process control", items:[
+      ["kill -15 PID","graceful termination (SIGTERM)","CAUTION"],
+      ["kill -9 PID","force kill (SIGKILL, no cleanup)","DESTRUCTIVE"],
+      ["kill -1 PID","SIGHUP, often used to reload config","CAUTION"],
+      ["pkill -f \"pattern\"","kill by matching command-line pattern","CAUTION"],
+      ["renice -n 10 -p PID","lower a process's CPU priority","CAUTION"],
+      ["taskset -pc 0,1 PID","pin a process to specific CPU cores","CAUTION"],
+      ["kill -STOP PID / kill -CONT PID","pause/resume a process without killing it","CAUTION"]
+    ]},
+    {name:"Zombies / orphans / runaway", items:[
+      ["ps aux | awk '$8 ~ /Z/'","list zombie processes","SAFE"],
+      ["ps -ef | awk '$3==1'","processes reparented to init (orphans)","SAFE"],
+      ["ps -eo pid,etimes,cmd --sort=-etimes | head","longest-running processes","SAFE"],
+      ["watch -n1 'ps aux --sort=-%cpu | head -10'","live-refresh top CPU offenders","SAFE"]
+    ]},
+    {name:"Context switches / scheduler pressure", items:[
+      ["cat /proc/stat","raw ctxt/intr/processes counters since boot","SAFE"],
+      ["cat /proc/interrupts","IRQ counts per CPU per device","SAFE"],
+      ["cat /proc/softirqs","soft IRQ load per CPU","SAFE"],
+      ["pidstat -w 1 5","context-switches per process over time","SAFE"],
+      ["sar -q 1 5","run queue length and load history","SAFE"]
+    ]},
+    {name:"Correlate with systemd/service", items:[
+      ["systemctl status SERVICE","is this PID managed by systemd, and its state","SAFE"],
+      ["systemd-cgtop","live CPU/memory usage per cgroup","SAFE"],
+      ["cat /sys/fs/cgroup/cpu.max","CPU quota/limit applied to this cgroup","SAFE"],
+      ["journalctl _PID=PID","journal entries emitted by exactly this PID","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "4. Memory / RAM investigation",
+  groups: [
+    {name:"Overview", items:[
+      ["free -h","total/used/free/buff-cache/available, human readable","SAFE"],
+      ["free -h -s 2","refresh every 2s, watch trend live","SAFE"],
+      ["cat /proc/meminfo","full raw kernel memory breakdown","SAFE"],
+      ["cat /proc/vmstat","raw kernel virtual-memory event counters","SAFE"],
+      ["sar -r 1 5","historical/live memory utilization","SAFE"],
+      ["top -o %MEM","live view sorted by memory","SAFE"]
+    ]},
+    {name:"Per-process memory", items:[
+      ["ps aux --sort=-%mem | head -20","top 20 RAM consumers","SAFE"],
+      ["ps -o pid,rss,vsz,cmd -p PID","RSS (actual RAM) vs VSZ (virtual) for one PID","SAFE"],
+      ["cat /proc/PID/status | grep -i vm","VmRSS, VmSize, VmSwap for a PID","SAFE"],
+      ["pmap -x PID","full memory map of a process by segment","SAFE"],
+      ["smem -p","accurate PSS, avoids double-counting shared libs","SAFE"],
+      ["cat /proc/PID/smaps_rollup","aggregated smaps summary, fast","SAFE"],
+      ["cat /proc/PID/smaps","per-mapping memory detail (heap, stack, libs)","SAFE"],
+      ["cat /proc/PID/maps","memory address ranges + backing files","SAFE"]
+    ]},
+    {name:"Swap", items:[
+      ["swapon --show","active swap devices/files and usage","SAFE"],
+      ["cat /proc/swaps","raw swap device table","SAFE"],
+      ["vmstat -s","one-shot summary of memory/swap event counters since boot","SAFE"],
+      ["sar -W 1 5","swap page in/out stats over time","SAFE"],
+      ["for f in /proc/[0-9]*/status; do ...; done","per-process swap usage","SAFE"]
+    ]},
+    {name:"OOM killer", items:[
+      ["dmesg -T | grep -i \"out of memory\\|oom\"","kernel OOM events with timestamps","SAFE"],
+      ["journalctl -k | grep -i oom","OOM entries from kernel ring buffer via journal","SAFE"],
+      ["journalctl -u systemd-oomd","systemd-oomd's own decisions (if enabled)","SAFE"],
+      ["cat /proc/PID/oom_score","how likely this PID is to be OOM-killed","SAFE"],
+      ["cat /proc/PID/oom_score_adj","manual bias applied to OOM scoring","SAFE"],
+      ["grep -i \"killed process\" /var/log/syslog","OOM kill log entries (Debian/Ubuntu)","SAFE"]
+    ]},
+    {name:"Cache / buffers", items:[
+      ["free -h (buff/cache column)","page cache + buffer size","SAFE"],
+      ["cat /proc/meminfo | grep -i dirty","dirty pages waiting to be flushed to disk","SAFE"],
+      ["sync; echo 1 > /proc/sys/vm/drop_caches","drop page cache (rare, diagnostic only)","DESTRUCTIVE"],
+      ["cat /proc/sys/vm/swappiness","current swap aggressiveness setting","SAFE"],
+      ["sysctl vm.swappiness","same via sysctl interface","SAFE"]
+    ]},
+    {name:"Cgroup / container memory limits", items:[
+      ["cat /sys/fs/cgroup/memory.max","memory limit for this cgroup","SAFE"],
+      ["cat /sys/fs/cgroup/memory.current","current cgroup memory usage","SAFE"],
+      ["cat /sys/fs/cgroup/memory.events","oom_kill count etc for this cgroup","SAFE"],
+      ["docker stats --no-stream","live per-container memory/CPU usage","SAFE"],
+      ["docker inspect CONTAINER | grep -i memory","configured memory limits","SAFE"],
+      ["cat /sys/fs/cgroup/memory.stat","detailed cgroup memory breakdown (cache, rss, anon, mapped)","SAFE"]
+    ]},
+    {name:"Leak detection / growth over time", items:[
+      ["watch -n5 'ps -o pid,rss,cmd -p PID'","watch one PID's RSS grow over time","SAFE"],
+      ["valgrind --leak-check=full ./app","deep leak detection (dev/staging, not prod)","CAUTION"],
+      ["cat /proc/PID/status | grep VmPeak","peak memory this process ever used","SAFE"],
+      ["pmap -x PID | tail -1","total mapped memory summary line","SAFE"]
+    ]},
+    {name:"Huge pages / NUMA", items:[
+      ["cat /proc/meminfo | grep -i huge","hugepage allocation status","SAFE"],
+      ["numactl --hardware","NUMA node layout and memory per node","SAFE"],
+      ["numastat -p PID","NUMA memory locality for a process","SAFE"]
+    ]},
+    {name:"Slab / kernel memory", items:[
+      ["cat /proc/slabinfo | sort -k3 -n -r | head","largest kernel slab caches","SAFE"],
+      ["slabtop","live kernel slab memory usage","SAFE"],
+      ["cat /proc/meminfo | grep -i slab","total kernel slab memory","SAFE"]
+    ]},
+    {name:"Verification / health classification", items:[
+      ["free -h && cat /proc/loadavg","quick combined memory+load snapshot","SAFE"],
+      ["awk '/MemAvailable/{print $2/1024\" MB\"}' /proc/meminfo","quick available RAM in MB","SAFE"],
+      ["ps -eo pid,pmem,rss,cmd --sort=-rss | head -10","top RSS, human units","SAFE"],
+      ["grep -c ^processor /proc/cpuinfo && free -h","sanity check core count vs heap sizing","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "5. Files / disk / permissions investigation",
+  groups: [
+    {name:"Disk space", items:[
+      ["df -h","filesystem usage, human readable","SAFE"],
+      ["df -i","inode usage per filesystem","SAFE"],
+      ["df -hT","usage with filesystem type shown","SAFE"],
+      ["lsblk","block device tree (disks, partitions, mounts)","SAFE"],
+      ["lsblk -f","same, plus filesystem type and UUID","SAFE"],
+      ["findmnt","mount tree with options","SAFE"],
+      ["findmnt /var","mount detail for one specific path","SAFE"],
+      ["blkid","UUID/label/fstype per block device","SAFE"],
+      ["cat /proc/mounts","raw kernel mount table","SAFE"],
+      ["mount | column -t","currently mounted filesystems, aligned","SAFE"]
+    ]},
+    {name:"Directory usage / large files", items:[
+      ["du -xhd1 / 2>/dev/null | sort -h","per-top-level-dir usage, one filesystem","SAFE"],
+      ["du -xhd1 /var 2>/dev/null | sort -h","drill into /var","SAFE"],
+      ["du -sh /var/log/*","size per log file","SAFE"],
+      ["find / -xdev -type f -size +1G -ls","files over 1GB","SAFE"],
+      ["find / -xdev -type f -size +100M -exec du -h {} \\;","top 20 large files","SAFE"],
+      ["ncdu /","interactive disk usage explorer (if installed)","SAFE"],
+      ["find /var/log -type f -mtime -1 -ls","logs modified in last 24h","SAFE"],
+      ["find / -xdev -mmin -60 -type f","files changed in last hour","SAFE"]
+    ]},
+    {name:"Deleted-but-open files", items:[
+      ["lsof +L1","files deleted but still held open by a process","SAFE"],
+      ["lsof / 2>/dev/null | grep deleted","same, filtered","SAFE"],
+      ["ls -la /proc/*/fd | grep deleted","hunt via /proc directly","SAFE"]
+    ]},
+    {name:"Docker/container storage", items:[
+      ["docker system df","image/container/volume/cache disk usage summary","SAFE"],
+      ["docker system df -v","verbose, per-image/volume breakdown","SAFE"],
+      ["du -sh /var/lib/docker/*","raw docker storage driver usage","SAFE"],
+      ["docker ps -s","per-container writable-layer size","SAFE"]
+    ]},
+    {name:"Core dumps / temp / build artifacts", items:[
+      ["find / -name \"core.*\" -o -name \"core\"","stray core dump files","SAFE"],
+      ["cat /proc/sys/kernel/core_pattern","where core dumps get written","SAFE"],
+      ["find /tmp -type f -mtime +7","stale temp files older than a week","SAFE"],
+      ["du -sh /tmp /var/tmp","temp directory sizes","SAFE"]
+    ]},
+    {name:"Permissions / ownership", items:[
+      ["ls -lah path","permissions, owner, group, size, mtime","SAFE"],
+      ["stat file","full metadata: perms, uid/gid, timestamps, inode","SAFE"],
+      ["namei -l /full/path/to/file","permission check at every path component","SAFE"],
+      ["getfacl file","POSIX ACLs beyond standard rwx","SAFE"],
+      ["setfacl -m u:username:rx file","grant ACL access to a specific user","CAUTION"],
+      ["find / -perm -4000 -type f","SUID binaries (privilege escalation surface)","SAFE"],
+      ["find / -perm -2000 -type f","SGID binaries","SAFE"],
+      ["find / -nouser -o -nogroup","orphaned files (owner deleted)","SAFE"],
+      ["find /path -type f ! -perm 644","files deviating from expected perms","SAFE"],
+      ["lsattr file","extended attributes (immutable, append-only)","SAFE"],
+      ["chattr +i file","make a file immutable","CAUTION"]
+    ]},
+    {name:"SELinux / AppArmor", items:[
+      ["getenforce","SELinux mode (Enforcing/Permissive/Disabled)","SAFE"],
+      ["sestatus","full SELinux status","SAFE"],
+      ["ls -Z file","SELinux context on a file","SAFE"],
+      ["ausearch -m avc -ts recent","recent SELinux denials","SAFE"],
+      ["aa-status","AppArmor profile status (Ubuntu/Debian)","SAFE"],
+      ["dmesg | grep -i apparmor","AppArmor denials in kernel log","SAFE"]
+    ]},
+    {name:"Filesystem health", items:[
+      ["mount | grep -i ro,","filesystems remounted read-only (disk-error symptom)","SAFE"],
+      ["dmesg -T | grep -iE \"ext4|xfs|i/o error\"","filesystem errors in kernel log","SAFE"],
+      ["smartctl -a /dev/sda","disk SMART health data","SAFE"],
+      ["fsck -n /dev/sda1","dry-run filesystem check","CAUTION"],
+      ["tune2fs -l /dev/sda1","ext4 filesystem parameters, last check time","SAFE"],
+      ["xfs_info /mountpoint","XFS filesystem parameters","SAFE"]
+    ]},
+    {name:"I/O activity tied to disk", items:[
+      ["iostat -xz 1 5","per-device IOPS, await, %util","SAFE"],
+      ["iotop -o","live per-process disk I/O","SAFE"],
+      ["lsof +D /path","every process with open files under a directory","SAFE"],
+      ["fuser -vm /mountpoint","what's keeping a mount point busy","SAFE"]
+    ]},
+    {name:"Safe reclaim workflow", items:[
+      ["du -sh /var/log/*.log.[0-9]* | sort -h","identify rotated log candidates before removing","SAFE"],
+      ["logrotate -d /etc/logrotate.conf","dry-run what logrotate WOULD do","SAFE"],
+      ["journalctl --disk-usage","how much disk the systemd journal is using","SAFE"],
+      ["journalctl --vacuum-size=500M","trim journal to a size cap","CAUTION"]
+    ]}
+  ]
+},
+{
+  domain: "6. SSH investigation",
+  groups: [
+    {name:"Client side", items:[
+      ["ssh -vvv -p PORT user@host","maximum verbosity, shows exact failure stage","SAFE"],
+      ["ssh -o ConnectTimeout=5 user@host echo ok","quick reachability + auth test","SAFE"],
+      ["ssh -o BatchMode=yes user@host","test non-interactive auth, fails fast instead of prompting","SAFE"],
+      ["ssh -o PreferredAuthentications=publickey user@host","force key-only auth test","SAFE"],
+      ["ssh -i keyfile -o IdentitiesOnly=yes user@host","test with one specific key only","SAFE"],
+      ["ssh-add -l","keys currently loaded in local ssh-agent","SAFE"],
+      ["ssh-keyscan host","fetch host's public key (verify against known_hosts)","SAFE"],
+      ["cat ~/.ssh/config","client-side per-host overrides","SAFE"],
+      ["ssh -G host","resolve final effective config for a host alias","SAFE"]
+    ]},
+    {name:"Server side — service state", items:[
+      ["systemctl status ssh / sshd","daemon state","SAFE"],
+      ["systemctl is-active sshd","quick active/inactive check","SAFE"],
+      ["journalctl -u sshd --since \"1 hour ago\"","recent daemon activity","SAFE"],
+      ["journalctl -u sshd -f","live tail of SSH daemon logs","SAFE"],
+      ["sshd -T","fully resolved effective sshd config","SAFE"],
+      ["sshd -t","validate sshd_config syntax before restart","SAFE"],
+      ["cat /etc/ssh/sshd_config","raw config: Port, PermitRootLogin, PasswordAuthentication","SAFE"],
+      ["ls /etc/ssh/sshd_config.d/","drop-in config overrides","SAFE"]
+    ]},
+    {name:"Server side — is it even listening", items:[
+      ["ss -lntp | grep :22","confirm sshd bound and to which interface","SAFE"],
+      ["ss -lntp | grep sshd","same, filtered by process name","SAFE"],
+      ["lsof -i :22","process holding port 22","SAFE"],
+      ["fuser -v 22/tcp","alt way to find owner of port 22","SAFE"],
+      ["ss -p '( sport = :22 )'","one-line confirm of exactly which binary owns the SSH socket","SAFE"]
+    ]},
+    {name:"Auth logs / failures", items:[
+      ["grep -i \"failed password\" /var/log/auth.log","failed login attempts (Debian/Ubuntu)","SAFE"],
+      ["grep -i \"failed password\" /var/log/secure","same for RHEL/CentOS","SAFE"],
+      ["grep -i \"accepted\" /var/log/auth.log","successful logins","SAFE"],
+      ["journalctl -u sshd | grep -i \"failed\\|accepted\"","journal-based equivalent","SAFE"],
+      ["lastb | head -20","recent failed login attempts, structured","SAFE"],
+      ["awk '/Failed password/{print $(NF-3)}' ... | sort | uniq -c","top offending source IPs","SAFE"]
+    ]},
+    {name:"Key/permission problems", items:[
+      ["stat -c \"%a %U %G %n\" ~/.ssh","must be 700, owned by the user","SAFE"],
+      ["stat -c \"%a %U %G %n\" ~/.ssh/authorized_keys","must be 600","SAFE"],
+      ["stat -c \"%a %U %G %n\" /home/user","home dir must not be group/world-writable","SAFE"],
+      ["namei -l /home/user/.ssh/authorized_keys","walks every parent dir's perms","SAFE"],
+      ["wc -l ~/.ssh/authorized_keys","quick count of how many keys are trusted","SAFE"],
+      ["md5sum ~/.ssh/authorized_keys","fingerprint the file itself to detect silent corruption/tampering","SAFE"]
+    ]},
+    {name:"Access control", items:[
+      ["grep -iE \"AllowUsers|DenyUsers|AllowGroups|DenyGroups\" sshd_config","user/group allow-lists","SAFE"],
+      ["grep -i PermitRootLogin /etc/ssh/sshd_config","is root SSH login allowed","SAFE"],
+      ["grep -i PasswordAuthentication /etc/ssh/sshd_config","is password auth allowed","SAFE"],
+      ["grep -i \"Match \" /etc/ssh/sshd_config","conditional config blocks","SAFE"],
+      ["ssh -o PreferredAuthentications=none user@host","enumerate which auth methods the server actually offers","SAFE"],
+      ["faillock --user username","check pam_faillock lockout state after failed attempts","SAFE"]
+    ]},
+    {name:"fail2ban / brute-force protection", items:[
+      ["fail2ban-client status sshd","is this IP currently banned","SAFE"],
+      ["fail2ban-client status","all active jails","SAFE"],
+      ["fail2ban-client set sshd unbanip 1.2.3.4","unban a specific IP","CAUTION"],
+      ["iptables -L -n | grep -i f2b","confirm fail2ban's iptables rules are active","SAFE"]
+    ]},
+    {name:"Firewall / cloud security group layer", items:[
+      ["iptables -L -n -v | grep -i 22","local firewall rules for SSH port","SAFE"],
+      ["ufw status | grep 22","Ubuntu firewall status for SSH","SAFE"],
+      ["firewall-cmd --list-services | grep ssh","RHEL firewalld SSH service status","SAFE"],
+      ["(cloud console/CLI)","verify Security Group/NSG allows inbound on SSH port","SAFE"]
+    ]},
+    {name:"Network path", items:[
+      ["traceroute -n -p 22 host","confirm routing path doesn't die before host","SAFE"],
+      ["mtr -P 22 host","live loss/latency per hop to the SSH port","SAFE"],
+      ["dig +short host","confirm DNS resolves to the IP you expect","SAFE"],
+      ["tcpdump -nn -i eth0 port 22","packet-level view: does SYN arrive, is RST sent","SAFE"]
+    ]},
+    {name:"Known_hosts / MITM warnings", items:[
+      ["ssh-keygen -R host","remove a stale/mismatched host key entry","CAUTION"],
+      ["grep host ~/.ssh/known_hosts","check what key is currently trusted for this host","SAFE"],
+      ["diff <(ssh-keyscan host) <(grep host known_hosts)","compare live vs trusted key","SAFE"]
+    ]},
+    {name:"Session/connection limits", items:[
+      ["sysctl net.core.somaxconn","kernel backlog queue limit","SAFE"],
+      ["grep -i MaxStartups /etc/ssh/sshd_config","concurrent unauthenticated connection limit","SAFE"],
+      ["grep -i MaxSessions /etc/ssh/sshd_config","max multiplexed sessions per connection","SAFE"],
+      ["who | wc -l","current active interactive sessions on the box","SAFE"],
+      ["ss -tn state established '(dport=:22 or sport=:22)'","count live SSH connections on the wire","SAFE"]
+    ]}
+  ]
+}
+];
+
+const main = document.getElementById('main');
+let activeTag = 'ALL';
+
+function render(){
+  main.innerHTML = '';
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  DATA.forEach((d, di) => {
+    const domainEl = document.createElement('div');
+    domainEl.className = 'domain' + (di===0 || q ? ' open' : '');
+    let totalShown = 0;
+
+    const head = document.createElement('div');
+    head.className = 'domain-head';
+    head.innerHTML = `<h2>${d.domain}</h2><span class="count"></span><span class="chevron">▶</span>`;
+    head.onclick = () => domainEl.classList.toggle('open');
+    domainEl.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'domain-body';
+
+    d.groups.forEach(g => {
+      const items = g.items.filter(([cmd, desc, tag]) => {
+        const tagMatch = activeTag === 'ALL' || tag === activeTag;
+        const qMatch = !q || cmd.toLowerCase().includes(q) || desc.toLowerCase().includes(q);
+        return tagMatch && qMatch;
+      });
+      if(items.length === 0) return;
+      totalShown += items.length;
+      const groupEl = document.createElement('div');
+      groupEl.className = 'group';
+      groupEl.innerHTML = `<h3>${g.name}</h3>`;
+      const ul = document.createElement('ul');
+      ul.className = 'cmds';
+      items.forEach(([cmd, desc, tag]) => {
+        const li = document.createElement('li');
+        li.className = 'cmd';
+        li.innerHTML = `<code>${cmd}</code><span class="desc">${desc}</span><span class="badge ${tag}">${tag}</span>`;
+        ul.appendChild(li);
+      });
+      groupEl.appendChild(ul);
+      body.appendChild(groupEl);
+    });
+
+    head.querySelector('.count').textContent = totalShown + ' shown';
+    domainEl.appendChild(body);
+    if(totalShown > 0) main.appendChild(domainEl);
+  });
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.querySelectorAll('.tagbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tagbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTag = btn.dataset.tag;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,651 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+--dns-bg:var(--color-background-primary);
+--dns-surface:var(--color-background-secondary);
+--dns-border:var(--color-border-tertiary);
+--dns-border2:var(--color-border-secondary);
+--dns-text:var(--color-text-primary);
+--dns-muted:var(--color-text-secondary);
+--dns-hint:var(--color-text-tertiary);
+--dns-accent:#178A5E;
+--dns-accent2:#1565C0;
+--dns-warn:#B36B00;
+--dns-danger:#A32D2D;
+--dns-mono:var(--font-mono);
+}
+.wrap{font-family:'DM Sans',var(--font-sans);color:var(--dns-text);padding:0 0 2rem}
+.hero{padding:2rem 0 1.5rem;border-bottom:0.5px solid var(--dns-border)}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--color-background-info);color:var(--color-text-info);font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;margin-bottom:12px;letter-spacing:.04em}
+.hero h1{font-size:26px;font-weight:600;line-height:1.2;margin-bottom:6px}
+.hero p{font-size:14px;color:var(--dns-muted);line-height:1.6}
+.tabs{display:flex;gap:2px;padding:1rem 0 0;overflow-x:auto;scrollbar-width:none;border-bottom:0.5px solid var(--dns-border);margin-bottom:1.5rem}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:7px 14px;font-size:13px;font-weight:500;color:var(--dns-muted);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:color .15s,border-color .15s;font-family:inherit}
+.tab:hover{color:var(--dns-text)}
+.tab.active{color:var(--dns-accent);border-bottom-color:var(--dns-accent)}
+.panel{display:none}.panel.active{display:block}
+.section-label{font-size:10px;font-weight:600;letter-spacing:.1em;color:var(--dns-hint);text-transform:uppercase;margin-bottom:8px}
+.card{background:var(--dns-surface);border:0.5px solid var(--dns-border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card p{font-size:13px;color:var(--dns-muted);line-height:1.65}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.tag{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:12px;margin:2px}
+.tag-green{background:#EAF3DE;color:#3B6D11}.tag-blue{background:#E6F1FB;color:#185FA5}
+.tag-amber{background:#FAEEDA;color:#854F0B}.tag-red{background:#FCEBEB;color:#A32D2D}
+.tag-purple{background:#EEEDFE;color:#3C3489}.tag-gray{background:#F1EFE8;color:#5F5E5A}
+.code{font-family:'JetBrains Mono',var(--dns-mono);font-size:12px;background:var(--color-background-tertiary);border:0.5px solid var(--dns-border);border-radius:8px;padding:.75rem 1rem;overflow-x:auto;line-height:1.7;white-space:pre;margin-bottom:10px;color:var(--dns-text)}
+.code .cm{color:var(--dns-hint)}.code .ck{color:#185FA5}.code .cv{color:#178A5E}.code .ch{color:#B36B00}.code .ce{color:#A32D2D}
+.dns-anatomy{position:relative;background:var(--dns-surface);border:0.5px solid var(--dns-border);border-radius:10px;padding:1.5rem;margin-bottom:14px}
+.anatomy-url{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:500;text-align:center;margin-bottom:1.5rem;letter-spacing:.02em}
+.anatomy-parts{display:flex;justify-content:center;gap:2px;flex-wrap:wrap}
+.apart{text-align:center;padding:.5rem .75rem;border-radius:6px;min-width:70px}
+.apart .alabel{font-size:10px;color:var(--dns-muted);margin-bottom:4px}
+.apart .avalue{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600}
+.apart.a-proto{background:#EEEDFE}.apart.a-proto .avalue{color:#3C3489}
+.apart.a-sub{background:#E6F1FB}.apart.a-sub .avalue{color:#185FA5}
+.apart.a-sld{background:#EAF3DE}.apart.a-sld .avalue{color:#3B6D11}
+.apart.a-tld{background:#FAEEDA}.apart.a-tld .avalue{color:#854F0B}
+.apart.a-path{background:#F1EFE8}.apart.a-path .avalue{color:#5F5E5A}
+.record-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:10px}
+.record-table th{text-align:left;font-size:11px;font-weight:600;color:var(--dns-hint);padding:6px 10px;border-bottom:0.5px solid var(--dns-border);letter-spacing:.06em}
+.record-table td{padding:8px 10px;border-bottom:0.5px solid var(--dns-border);vertical-align:top;color:var(--dns-muted);line-height:1.5}
+.record-table td:first-child{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--dns-text)}
+.record-table tr:last-child td{border-bottom:none}
+.record-table tr:hover td{background:var(--dns-surface)}
+.flow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:10px 0}
+.flow-box{background:var(--dns-surface);border:0.5px solid var(--dns-border);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:500}
+.flow-arrow{color:var(--dns-hint);font-size:14px}
+.alert{border-radius:8px;padding:.75rem 1rem;font-size:13px;line-height:1.6;margin-bottom:10px;border-left:3px solid}
+.alert-success{background:#EAF3DE;border-color:#3B6D11;color:#27500A}
+.alert-warn{background:#FAEEDA;border-color:#854F0B;color:#633806}
+.alert-danger{background:#FCEBEB;border-color:#A32D2D;color:#791F1F}
+.alert-info{background:#E6F1FB;border-color:#185FA5;color:#0C447C}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:540px){.two-col{grid-template-columns:1fr}.anatomy-parts{gap:4px}}
+.badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.compare-header{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:6px}
+.compare-cell{padding:.875rem 1rem;border-radius:8px;border:0.5px solid var(--dns-border)}
+.compare-cell.wild{border-color:#3B6D11;background:#EAF3DE}
+.compare-cell.nowild{border-color:#185FA5;background:#E6F1FB}
+.compare-cell h4{font-size:13px;font-weight:600;margin-bottom:6px}
+.compare-cell.wild h4{color:#27500A}.compare-cell.nowild h4{color:#0C447C}
+.compare-cell ul{list-style:none;padding:0}
+.compare-cell ul li{font-size:12px;padding:2px 0;color:var(--dns-muted)}
+.compare-cell ul li::before{content:"→ ";color:var(--dns-hint)}
+.devops-scenario{border:0.5px solid var(--dns-border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.devops-scenario-header{background:var(--dns-surface);padding:.5rem 1rem;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--dns-border)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.dot-green{background:#639922}.dot-amber{background:#BA7517}.dot-red{background:#E24B4A}
+.www-chain{display:flex;flex-direction:column;gap:3px;margin:10px 0}
+.www-step{display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:6px;font-size:12px}
+.www-step-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.www-step.ok{background:#EAF3DE}.www-step.ok .www-step-num{background:#3B6D11;color:white}
+.www-step.fail{background:#FCEBEB}.www-step.fail .www-step-num{background:#A32D2D;color:white}
+.www-step.warn{background:#FAEEDA}.www-step.warn .www-step-num{background:#854F0B;color:white}
+.pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;vertical-align:middle;margin-left:4px}
+.pill-green{background:#C0DD97;color:#27500A}
+.pill-red{background:#F7C1C1;color:#791F1F}
+.pill-amber{background:#FAC775;color:#633806}
+.section-divider{height:0.5px;background:var(--dns-border);margin:1.25rem 0}
+</style>
+
+<div class="wrap">
+<div class="hero">
+  <div class="hero-badge">DevOps DNS Mastery</div>
+  <h1>Domain & DNS — Complete Guide</h1>
+  <p>Wildcard, subdomains, record types, www quirks, and production configs — everything you need.</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('anatomy')">Domain Anatomy</button>
+  <button class="tab" onclick="show('types')">Domain Types</button>
+  <button class="tab" onclick="show('wildcard')">Wildcard vs Non-Wildcard</button>
+  <button class="tab" onclick="show('records')">DNS Record Types</button>
+  <button class="tab" onclick="show('www')">WWW Deep Dive</button>
+  <button class="tab" onclick="show('devops')">DevOps Configs</button>
+  <button class="tab" onclick="show('troubleshoot')">Troubleshoot</button>
+</div>
+
+<div id="anatomy" class="panel active">
+  <div class="section-label">How a domain breaks down</div>
+  <div class="dns-anatomy">
+    <div class="anatomy-url">https://api.shop.example.co.uk/v1/orders</div>
+    <div class="anatomy-parts">
+      <div class="apart a-proto"><div class="alabel">Protocol</div><div class="avalue">https://</div></div>
+      <div class="apart a-sub"><div class="alabel">Subdomain</div><div class="avalue">api</div></div>
+      <div class="apart a-sld"><div class="alabel">SLD + Apex</div><div class="avalue">shop.example</div></div>
+      <div class="apart a-tld"><div class="alabel">TLD / ccTLD</div><div class="avalue">.co.uk</div></div>
+      <div class="apart a-path"><div class="alabel">Path</div><div class="avalue">/v1/orders</div></div>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Root Domain "."</div>
+      <p>The invisible dot at the very top of the DNS hierarchy. All DNS queries ultimately terminate here. DNS resolvers know about 13 root server clusters (a–m.root-servers.net) that answer for the root zone.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">TLD — Top Level Domain</div>
+      <p>The rightmost label: <b>.com</b>, <b>.org</b>, <b>.net</b>. Country codes (ccTLDs) like <b>.uk</b>, <b>.in</b>, <b>.de</b>. New gTLDs like <b>.dev</b>, <b>.app</b>, <b>.cloud</b>. Managed by IANA-assigned registries.</p>
+      <div class="badge-row"><span class="tag tag-blue">.com</span><span class="tag tag-green">.dev</span><span class="tag tag-amber">.in</span><span class="tag tag-purple">.io</span><span class="tag tag-gray">.org</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">SLD — Second Level Domain</div>
+      <p>The name you register: <code>example</code> in <code>example.com</code>. This is what you purchase from a registrar (GoDaddy, Namecheap, Route53). Once registered, you control its entire DNS namespace below it.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Apex / Naked Domain</div>
+      <p>SLD + TLD with no prefix: <code>example.com</code>. Also called the zone apex. Special rules apply — you can't use CNAME here; use A/AAAA or ALIAS/ANAME records instead.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Subdomain</div>
+      <p>Any label to the left of the registered domain. You control them completely without extra cost. Unlimited nesting is technically allowed (max 253 chars total per FQDN, each label max 63 chars).</p>
+      <div class="badge-row"><span class="tag tag-blue">www</span><span class="tag tag-green">api</span><span class="tag tag-purple">app</span><span class="tag tag-amber">mail</span><span class="tag tag-gray">cdn</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">FQDN — Fully Qualified</div>
+      <p>The absolute, complete DNS name ending with a dot: <code>www.example.com.</code> (note trailing dot). In config files (nginx, bind, Route53) you'll often see this. Without it, the name is relative and may be completed by the search domain.</p>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:1rem">DNS Resolution chain</div>
+  <div class="flow">
+    <div class="flow-box">Browser cache</div><div class="flow-arrow">→</div>
+    <div class="flow-box">OS /etc/hosts</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Stub resolver</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Recursive resolver (ISP/8.8.8.8)</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Root servers</div><div class="flow-arrow">→</div>
+    <div class="flow-box">TLD nameservers</div><div class="flow-arrow">→</div>
+    <div class="flow-box">Authoritative NS</div><div class="flow-arrow">→</div>
+    <div class="flow-box">IP returned</div>
+  </div>
+</div>
+
+<div id="types" class="panel">
+  <div class="section-label">All domain categories a DevOps engineer encounters</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title"><span class="tag tag-blue">gTLD</span> Generic TLD</div>
+      <p>.com, .net, .org, .info, .biz. Open to registration globally. ICANN manages the list. .com is the default assumption in most browsers (type "example" → tries example.com).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag tag-amber">ccTLD</span> Country Code</div>
+      <p>.in, .uk, .de, .jp, .au. Managed by national registries. Some are repurposed globally: .io (British Indian Ocean Territory → popular with dev startups), .ai (Anguilla → AI companies), .tv (Tuvalu → streaming).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag tag-green">New gTLD</span> Modern extensions</div>
+      <p>Post-2012 ICANN expansion: .dev, .app, .cloud, .tech, .store, .shop, .online. Many are HTTPS-only preloaded in HSTS lists (.dev, .app force HTTPS in Chrome).</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag tag-purple">sTLD</span> Sponsored TLD</div>
+      <p>.gov (US government only), .edu (accredited US universities), .mil (US military), .aero (aviation), .museum. Require sponsoring organizations for eligibility verification.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag tag-gray">IDN</span> Internationalized</div>
+      <p>Non-ASCII domains using Punycode encoding. "München.de" becomes "xn--mnchen-3ya.de" internally. Browsers display the Unicode form; DNS and servers always see Punycode.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="tag tag-red">Internal</span> Private / RFC2606</div>
+      <p>.local (mDNS/Bonjour), .internal, .corp, .home.arpa. Reserved for internal use. Never route externally. Used in K8s: svc.cluster.local. Split-horizon DNS serves different answers for internal vs external queries.</p>
+    </div>
+  </div>
+
+  <div class="section-label">Subdomain strategies in production</div>
+  <div class="card">
+    <table class="record-table">
+      <tr><th>Subdomain</th><th>Purpose</th><th>Typical target</th></tr>
+      <tr><td>www</td><td>Legacy web convention</td><td>A/CNAME → load balancer</td></tr>
+      <tr><td>api</td><td>REST / GraphQL gateway</td><td>A/CNAME → API gateway</td></tr>
+      <tr><td>app</td><td>SPA / main application</td><td>CNAME → CDN edge (Cloudflare, Vercel)</td></tr>
+      <tr><td>auth</td><td>Identity provider</td><td>CNAME → Keycloak/Auth0/Cognito</td></tr>
+      <tr><td>mail / smtp</td><td>Email MTA</td><td>A record → mail server IP</td></tr>
+      <tr><td>cdn</td><td>Static asset serving</td><td>CNAME → CDN origin</td></tr>
+      <tr><td>status</td><td>Status page</td><td>CNAME → Statuspage.io / Betterstack</td></tr>
+      <tr><td>admin</td><td>Internal dashboard</td><td>A → private IP (VPN required)</td></tr>
+      <tr><td>*.staging</td><td>Preview deployments</td><td>Wildcard → staging cluster IP</td></tr>
+      <tr><td>_acme-challenge</td><td>TLS cert validation (ACME DNS-01)</td><td>TXT record → challenge token</td></tr>
+    </table>
+  </div>
+</div>
+
+<div id="wildcard" class="panel">
+  <div class="section-label">Wildcard vs explicit domain configuration</div>
+  <div class="compare-header">
+    <div class="compare-cell wild">
+      <h4>Wildcard Domain *.example.com</h4>
+      <ul>
+        <li>Matches ANY single-label prefix</li>
+        <li>One DNS record, infinite subdomains</li>
+        <li>Wildcard TLS cert covers all subdomains</li>
+        <li>Used for SaaS tenant routing</li>
+        <li>Preview/feature branch deployments</li>
+        <li>DNS: one A/CNAME record with *</li>
+        <li>Cert: requires DNS-01 ACME challenge</li>
+      </ul>
+    </div>
+    <div class="compare-cell nowild">
+      <h4>Explicit Domain api.example.com</h4>
+      <ul>
+        <li>Matches only exact label</li>
+        <li>Each subdomain needs own record</li>
+        <li>Per-subdomain cert or SAN cert</li>
+        <li>More controlled / auditable</li>
+        <li>Easier to route differently per service</li>
+        <li>Clear separation of concerns</li>
+        <li>Best for stable, known subdomains</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="alert alert-warn">Wildcard <code>*.example.com</code> does NOT match the apex domain <code>example.com</code> itself, nor does it match deeper labels like <code>a.b.example.com</code> — wildcards cover exactly one label level.</div>
+
+  <div class="section-label">Wildcard DNS record</div>
+  <div class="code"><span class="cm"># In your DNS zone file (BIND / Route53 format)</span>
+<span class="ck">*</span>.<span class="cv">example.com</span>.  <span class="ch">300</span>  IN  <span class="ck">A</span>      <span class="cv">203.0.113.10</span>
+<span class="ck">*</span>.<span class="cv">example.com</span>.  <span class="ch">300</span>  IN  <span class="ck">CNAME</span>  <span class="cv">lb.example.com</span>.
+
+<span class="cm"># Nested wildcard — matches *.tenant.example.com</span>
+<span class="ck">*</span>.tenant.<span class="cv">example.com</span>.  <span class="ch">300</span>  IN  <span class="ck">A</span>  <span class="cv">203.0.113.20</span></div>
+
+  <div class="section-label">Wildcard TLS — cert must use DNS-01 challenge</div>
+  <div class="code"><span class="cm"># certbot with Cloudflare DNS plugin</span>
+certbot certonly \
+  --dns-cloudflare \
+  --dns-cloudflare-credentials ~/.secrets/cf.ini \
+  -d <span class="cv">example.com</span> \
+  -d <span class="cv">*.example.com</span>
+
+<span class="cm"># cert-manager in Kubernetes (ClusterIssuer)</span>
+apiVersion: cert-manager.io/v1
+kind: Certificate
+spec:
+  dnsNames:
+    - <span class="cv">example.com</span>
+    - <span class="cv">"*.example.com"</span>
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer</div>
+
+  <div class="section-label">Nginx wildcard routing — SaaS tenant pattern</div>
+  <div class="code">server {
+  listen 443 ssl;
+  server_name <span class="ck">~^(?&lt;tenant&gt;[^.]+)\.example\.com$</span>;
+
+  ssl_certificate     /etc/ssl/wildcard.example.com.crt;
+  ssl_certificate_key /etc/ssl/wildcard.example.com.key;
+
+  location / {
+    proxy_pass http://backend;
+    proxy_set_header <span class="cv">X-Tenant</span> $tenant;  <span class="cm"># pass tenant name upstream</span>
+  }
+}</div>
+
+  <div class="alert alert-info">Wildcard certs are issued per-level. <code>*.example.com</code> covers <code>foo.example.com</code> but NOT <code>bar.foo.example.com</code>. For deeper nesting you need <code>*.foo.example.com</code> as a separate cert or SAN entry.</div>
+</div>
+
+<div id="records" class="panel">
+  <div class="section-label">Every DNS record type — with purpose and DevOps use</div>
+  <div class="card">
+    <table class="record-table">
+      <tr><th>Type</th><th>Name</th><th>Value format</th><th>DevOps use</th></tr>
+      <tr><td>A</td><td>Address</td><td>IPv4 (1.2.3.4)</td><td>Point hostname → server IP. Multiple A records = round-robin LB.</td></tr>
+      <tr><td>AAAA</td><td>IPv6 Address</td><td>IPv6 (2001:db8::1)</td><td>Dual-stack deployments. Required for IPv6-only clusters.</td></tr>
+      <tr><td>CNAME</td><td>Canonical Name</td><td>Another hostname</td><td>Alias to CDN, SaaS, or load balancer FQDN. Cannot be used at zone apex.</td></tr>
+      <tr><td>ALIAS/ANAME</td><td>Flattened CNAME</td><td>Hostname (resolved)</td><td>CNAME-like behavior at apex. Route53 Alias, Cloudflare CNAME flatten.</td></tr>
+      <tr><td>MX</td><td>Mail Exchange</td><td>Priority + hostname</td><td>Routes inbound email. Use with SPF/DKIM/DMARC TXT records.</td></tr>
+      <tr><td>TXT</td><td>Text</td><td>Arbitrary string</td><td>SPF, DKIM, DMARC, domain verification (Google, GitHub), ACME challenges.</td></tr>
+      <tr><td>NS</td><td>Nameserver</td><td>Nameserver hostname</td><td>Delegates zone to specific NS. Changing registrar = updating NS records.</td></tr>
+      <tr><td>SOA</td><td>Start of Authority</td><td>Zone metadata</td><td>Zone serial, refresh, retry, expire, minimum TTL. One per zone.</td></tr>
+      <tr><td>SRV</td><td>Service Locator</td><td>Priority weight port host</td><td>Service discovery: SIP, XMPP, K8s headless services, etcd peers.</td></tr>
+      <tr><td>PTR</td><td>Pointer (Reverse)</td><td>Hostname</td><td>Reverse DNS. IP → hostname. Required for mail servers to pass spam checks.</td></tr>
+      <tr><td>CAA</td><td>Cert Authority Auth</td><td>tag value</td><td>Restricts which CAs can issue certs for your domain. Security hardening.</td></tr>
+      <tr><td>NAPTR</td><td>Name Authority Ptr</td><td>Regex + replacement</td><td>VoIP/SIP service mapping. ENUM (phone→SIP).</td></tr>
+      <tr><td>DS</td><td>Delegation Signer</td><td>Key tag + algorithm</td><td>DNSSEC. Published in parent zone to validate child zone signing key.</td></tr>
+      <tr><td>DNSKEY</td><td>DNS Public Key</td><td>Key flags + public key</td><td>DNSSEC zone signing. Zone apex. ZSK and KSK keys.</td></tr>
+    </table>
+  </div>
+
+  <div class="section-label">TXT record examples DevOps engineers write daily</div>
+  <div class="code"><span class="cm"># SPF — authorize your mail server IPs</span>
+<span class="ck">example.com</span>.  TXT  "<span class="cv">v=spf1 ip4:203.0.113.5 include:sendgrid.net ~all</span>"
+
+<span class="cm"># DKIM — mail signing public key</span>
+<span class="ck">selector._domainkey.example.com</span>.  TXT  "v=DKIM1; k=rsa; p=<span class="cv">MIGfMA0GCSq...</span>"
+
+<span class="cm"># DMARC — policy for failed SPF/DKIM</span>
+<span class="ck">_dmarc.example.com</span>.  TXT  "<span class="cv">v=DMARC1; p=reject; rua=mailto:dmarc@example.com</span>"
+
+<span class="cm"># Google domain verification</span>
+<span class="ck">example.com</span>.  TXT  "google-site-verification=<span class="cv">abc123XYZ</span>"
+
+<span class="cm"># GitHub Pages verification</span>
+<span class="ck">_github-pages-challenge-orgname.example.com</span>.  TXT  "<span class="cv">token123</span>"</div>
+
+  <div class="section-label">CAA record — restrict which CAs can issue your certs</div>
+  <div class="code"><span class="ck">example.com</span>.  CAA  0 issue "letsencrypt.org"
+<span class="ck">example.com</span>.  CAA  0 issue "amazon.com"
+<span class="ck">example.com</span>.  CAA  0 issuewild "letsencrypt.org"  <span class="cm"># wildcard certs</span>
+<span class="ck">example.com</span>.  CAA  0 iodef "mailto:security@example.com"</div>
+</div>
+
+<div id="www" class="panel">
+  <div class="section-label">What is www, and why does it sometimes break?</div>
+  <div class="alert alert-info">www is just a subdomain — a convention from 1991 when servers had specific roles: www, ftp, gopher, mail. Today it carries no special meaning to DNS or HTTP, but billions of users still type it by habit.</div>
+
+  <div class="section-label">The www vs naked domain problem</div>
+  <div class="card">
+    <div class="card-title">Why you need BOTH to work</div>
+    <p>Users type both <code>example.com</code> and <code>www.example.com</code>. They must resolve and ideally redirect to one canonical form. The apex domain (<code>example.com</code>) cannot have a CNAME — this is a DNS spec restriction (RFC 1912). This is the root of most www-related breakage.</p>
+  </div>
+
+  <div class="two-col">
+    <div>
+      <div class="section-label">Correct setup — apex + www both work</div>
+      <div class="www-chain">
+        <div class="www-step ok"><div class="www-step-num">1</div><div>example.com → A record → 203.0.113.1</div></div>
+        <div class="www-step ok"><div class="www-step-num">2</div><div>www.example.com → CNAME → example.com.</div></div>
+        <div class="www-step ok"><div class="www-step-num">3</div><div>Nginx redirects www → example.com (canonical)</div></div>
+        <div class="www-step ok"><div class="www-step-num">4</div><div>TLS cert covers both (SAN)</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Broken setup — common mistakes</div>
+      <div class="www-chain">
+        <div class="www-step fail"><div class="www-step-num">✕</div><div>www is CNAME → CDN, but apex has no record → apex 404</div></div>
+        <div class="www-step fail"><div class="www-step-num">✕</div><div>apex is CNAME → other domain (violates RFC, breaks SOA/MX)</div></div>
+        <div class="www-step fail"><div class="www-step-num">✕</div><div>Cert only covers www, apex gives SSL_ERROR</div></div>
+        <div class="www-step warn"><div class="www-step-num">!</div><div>HSTS on www but not on apex → mixed signals to browsers</div></div>
+        <div class="www-step warn"><div class="www-step-num">!</div><div>Redirect loop: www → apex → www</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">The CNAME-at-apex problem — and solutions</div>
+  <div class="card">
+    <table class="record-table">
+      <tr><th>Solution</th><th>Supported by</th><th>How it works</th></tr>
+      <tr><td>ALIAS record</td><td>Route53, DNSimple</td><td>DNS provider resolves CNAME target, returns A record transparently</td></tr>
+      <tr><td>ANAME record</td><td>DNS Made Easy, Cloudflare</td><td>Same as ALIAS — provider-specific naming</td></tr>
+      <tr><td>CNAME Flattening</td><td>Cloudflare (auto)</td><td>Cloudflare resolves at edge; you set CNAME, they serve A to clients</td></tr>
+      <tr><td>A record (static IP)</td><td>All providers</td><td>Manually point apex A → fixed IP of load balancer</td></tr>
+      <tr><td>www redirect at registrar</td><td>Most registrars</td><td>HTTP 301 redirect from apex to www (or vice versa)</td></tr>
+    </table>
+  </div>
+
+  <div class="section-label">www redirect config — nginx</div>
+  <div class="code"><span class="cm"># Redirect www → apex (naked domain canonical)</span>
+server {
+  listen 443 ssl;
+  server_name <span class="ck">www.example.com</span>;
+  return 301 https://<span class="cv">example.com</span>$request_uri;
+}
+
+server {
+  listen 443 ssl;
+  server_name <span class="ck">example.com</span>;
+  <span class="cm"># your actual app config here</span>
+}
+
+<span class="cm"># Force HTTPS on both — redirect HTTP first</span>
+server {
+  listen 80;
+  server_name example.com www.example.com;
+  return 301 https://<span class="cv">example.com</span>$request_uri;
+}</div>
+
+  <div class="section-label">Why www subdomain sometimes doesn't resolve</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">No DNS record at all</div>
+      <p>www.example.com was never added to the DNS zone. The apex exists but www is missing. Fix: add an A or CNAME record for www explicitly.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Low TTL / propagation lag</div>
+      <p>After adding a new record, old TTL value means recursive resolvers cache the negative (NXDOMAIN) response. Wait for old TTL to expire (can be hours). Use <code>dig +trace www.example.com</code> to verify.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Misconfigured NS delegation</div>
+      <p>Registrar NS still points to old nameservers after migrating to Route53/Cloudflare. The new zone has the record, but resolvers never reach it.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">CDN/proxy not configured for www</div>
+      <p>Cloudflare/Vercel proxy has example.com added but not www.example.com as a hostname. The DNS resolves but the upstream rejects the Host header.</p>
+    </div>
+  </div>
+</div>
+
+<div id="devops" class="panel">
+  <div class="section-label">Production scenarios and configs</div>
+
+  <div class="devops-scenario">
+    <div class="devops-scenario-header"><span class="dot dot-green"></span> Scenario 1 — Multi-tenant SaaS with wildcard</div>
+    <div style="padding:.875rem 1rem">
+      <div class="flow" style="margin-bottom:10px">
+        <div class="flow-box">customer1.app.com</div><div class="flow-arrow">→</div>
+        <div class="flow-box">*.app.com A → 203.0.113.1</div><div class="flow-arrow">→</div>
+        <div class="flow-box">Nginx extracts tenant</div><div class="flow-arrow">→</div>
+        <div class="flow-box">Routes to tenant DB/bucket</div>
+      </div>
+      <div class="code"><span class="cm"># Route53 Terraform — wildcard + apex</span>
+resource "aws_route53_record" "wildcard" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "<span class="ck">*</span>.<span class="cv">${var.domain}</span>"
+  type    = "A"
+  ttl     = 300
+  records = [aws_eip.lb.public_ip]
+}
+
+resource "aws_route53_record" "apex" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "<span class="cv">${var.domain}</span>"
+  type    = "A"
+  alias {
+    name                   = aws_alb.main.dns_name
+    zone_id                = aws_alb.main.zone_id
+    evaluate_target_health = true
+  }
+}</div>
+    </div>
+  </div>
+
+  <div class="devops-scenario">
+    <div class="devops-scenario-header"><span class="dot dot-green"></span> Scenario 2 — Kubernetes Ingress with wildcard cert</div>
+    <div style="padding:.875rem 1rem">
+      <div class="code">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: multi-app-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "<span class="cv">letsencrypt-prod</span>"
+    nginx.ingress.kubernetes.io/ssl-redirect: "<span class="cv">true</span>"
+spec:
+  tls:
+    - hosts:
+        - <span class="ck">*.example.com</span>
+        - <span class="ck">example.com</span>
+      secretName: wildcard-tls
+  rules:
+    - host: <span class="cv">app.example.com</span>
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend-svc
+                port:
+                  number: 80
+    - host: <span class="cv">api.example.com</span>
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-svc
+                port:
+                  number: 8080</div>
+    </div>
+  </div>
+
+  <div class="devops-scenario">
+    <div class="devops-scenario-header"><span class="dot dot-amber"></span> Scenario 3 — Split-horizon DNS (internal vs external)</div>
+    <div style="padding:.875rem 1rem">
+      <p style="font-size:13px;color:var(--dns-muted);margin-bottom:10px">Same domain resolves differently inside VPN vs public internet — critical for private APIs.</p>
+      <div class="code"><span class="cm"># CoreDNS in K8s — rewrite internal names</span>
+.:53 {
+    rewrite name <span class="ck">api.example.com</span> <span class="cv">api-svc.default.svc.cluster.local</span>
+    forward . /etc/resolv.conf
+    cache 30
+}
+
+<span class="cm"># Unbound — split view (VPN clients get internal IP)</span>
+server:
+  private-address: 10.0.0.0/8
+local-zone: "<span class="ck">api.example.com</span>." static
+local-data: "<span class="ck">api.example.com</span>. A <span class="cv">10.10.0.50</span>"  <span class="cm"># internal IP</span></div>
+    </div>
+  </div>
+
+  <div class="devops-scenario">
+    <div class="devops-scenario-header"><span class="dot dot-green"></span> Scenario 4 — Cloudflare Workers with custom subdomain routing</div>
+    <div style="padding:.875rem 1rem">
+      <div class="code"><span class="cm">// Cloudflare Worker — route by subdomain at edge</span>
+export default {
+  async fetch(request: Request): Promise&lt;Response&gt; {
+    const url = new URL(request.url);
+    const sub = url.hostname.split('.')[0];
+
+    const routes: Record&lt;string, string&gt; = {
+      'api'    : 'https://api-origin.example.com',
+      'assets' : 'https://cdn-origin.example.com',
+      'ws'     : 'https://ws-origin.example.com',
+    };
+
+    const origin = routes[sub] ?? routes['api'];
+    return fetch(new Request(origin + url.pathname, request));
+  }
+};</div>
+    </div>
+  </div>
+
+  <div class="section-label">TTL strategy by record type</div>
+  <div class="card">
+    <table class="record-table">
+      <tr><th>Record</th><th>Stable TTL</th><th>During migration</th><th>Why</th></tr>
+      <tr><td>A / AAAA</td><td>3600–86400s</td><td>60–300s</td><td>Lower before planned IP change; raise after stable</td></tr>
+      <tr><td>CNAME</td><td>3600s</td><td>300s</td><td>CDN targets can change — keep reasonably short</td></tr>
+      <tr><td>MX</td><td>3600–86400s</td><td>3600s</td><td>Email queues retry; short TTL not critical but safe</td></tr>
+      <tr><td>TXT (SPF/DKIM)</td><td>3600s</td><td>3600s</td><td>Mail servers check these per message — medium TTL fine</td></tr>
+      <tr><td>NS</td><td>86400s</td><td>3600s before change</td><td>NS changes need time to propagate everywhere</td></tr>
+    </table>
+  </div>
+</div>
+
+<div id="troubleshoot" class="panel">
+  <div class="section-label">Essential DNS diagnostic commands</div>
+  <div class="code"><span class="cm"># Basic lookup — A record</span>
+dig <span class="cv">example.com</span> A
+nslookup <span class="cv">example.com</span>
+
+<span class="cm"># Query specific nameserver (bypass cache)</span>
+dig @<span class="ck">8.8.8.8</span> <span class="cv">example.com</span> A
+dig @<span class="ck">1.1.1.1</span> <span class="cv">www.example.com</span> CNAME
+
+<span class="cm"># Trace full resolution path</span>
+dig +trace <span class="cv">api.example.com</span>
+
+<span class="cm"># Check all record types</span>
+dig <span class="cv">example.com</span> ANY
+dig <span class="cv">example.com</span> MX
+dig <span class="cv">example.com</span> TXT
+dig <span class="cv">example.com</span> NS
+dig <span class="cv">example.com</span> SOA
+dig <span class="cv">example.com</span> CAA
+
+<span class="cm"># Reverse DNS (PTR)</span>
+dig -x <span class="cv">203.0.113.10</span>
+
+<span class="cm"># Check DNSSEC chain</span>
+dig <span class="cv">example.com</span> DNSKEY
+dig <span class="cv">example.com</span> DS
+
+<span class="cm"># Check wildcard resolution</span>
+dig <span class="cv">anything.example.com</span> A
+dig <span class="cv">tenant-xyz.app.example.com</span> A
+
+<span class="cm"># Propagation check (multiple resolvers)</span>
+for ns in 8.8.8.8 1.1.1.1 9.9.9.9 208.67.222.222; do
+  echo -n "$ns: "; dig @$ns <span class="cv">example.com</span> A +short
+done</div>
+
+  <div class="section-label">Common issues and fixes</div>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">NXDOMAIN</div>
+      <p>Record doesn't exist. Check: Is the subdomain in the DNS zone? Is the zone active at the authoritative NS? Use <code>dig +trace</code> to pinpoint where it fails.</p>
+      <div class="badge-row"><span class="tag tag-red">No such domain</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">SERVFAIL</div>
+      <p>Authoritative server error. Common causes: DNSSEC misconfiguration, broken delegation, zone not loaded. Check NS records and zone file syntax on the authoritative server.</p>
+      <div class="badge-row"><span class="tag tag-red">Server failure</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">SSL_ERROR_RX_RECORD_TOO_LONG</div>
+      <p>Browser connected on port 443 but got HTTP (not HTTPS). Usually means nginx/Apache not listening on 443, or cert not configured. Fix: add SSL config or check port 443 listener.</p>
+      <div class="badge-row"><span class="tag tag-amber">TLS mismatch</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">ERR_TOO_MANY_REDIRECTS</div>
+      <p>Redirect loop between www and apex, or between HTTP and HTTPS. Often caused by CloudFlare "Flexible SSL" + nginx redirect combo. Use "Full (strict)" SSL mode in Cloudflare.</p>
+      <div class="badge-row"><span class="tag tag-amber">Redirect loop</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">www works, apex doesn't</div>
+      <p>www has a DNS record (likely CNAME → CDN), but apex has no record or CNAME (invalid at apex). Solution: Add A record or ALIAS/Route53 Alias for the apex domain.</p>
+      <div class="badge-row"><span class="tag tag-amber">Missing apex</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cert invalid for domain</div>
+      <p>TLS cert was issued only for www but request is to apex, or wildcard cert doesn't cover the apex. Fix: Issue SAN cert for both <code>example.com</code> AND <code>www.example.com</code>.</p>
+      <div class="badge-row"><span class="tag tag-red">Cert mismatch</span></div>
+    </div>
+  </div>
+
+  <div class="section-label">DNS propagation reality check</div>
+  <div class="alert alert-warn">DNS changes don't propagate "instantly" — they depend on the TTL of the old record. If you had a 24h TTL (86400s), resolvers that cached the old value will keep using it for up to 24 hours. Best practice: lower TTL to 300s 24–48 hours BEFORE making the change, then restore after the change propagates.</div>
+
+  <div class="section-label">Security checklist for production domains</div>
+  <div class="card">
+    <p style="margin-bottom:8px;font-size:13px;color:var(--dns-muted)">Run through these for every new domain:</p>
+    <div class="badge-row">
+      <span class="tag tag-green">SPF record added</span>
+      <span class="tag tag-green">DKIM configured</span>
+      <span class="tag tag-green">DMARC policy set</span>
+      <span class="tag tag-green">CAA restricts CAs</span>
+      <span class="tag tag-green">DNSSEC enabled</span>
+      <span class="tag tag-green">HSTS preload-ready</span>
+      <span class="tag tag-green">No dangling CNAMEs</span>
+      <span class="tag tag-green">Wildcard cert DNS-01</span>
+      <span class="tag tag-green">PTR for mail IPs</span>
+      <span class="tag tag-green">www → apex redirect</span>
+      <span class="tag tag-amber">Apex ALIAS not CNAME</span>
+      <span class="tag tag-amber">Split-horizon if internal</span>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function show(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>

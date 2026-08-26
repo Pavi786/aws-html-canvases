@@ -1,0 +1,2782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSL/TLS Masterclass — Deep Dive Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050810;
+    --bg2: #080d1a;
+    --bg3: #0d1628;
+    --surface: #111827;
+    --surface2: #1a2540;
+    --border: #1e2d4a;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --accent4: #f59e0b;
+    --accent5: #ef4444;
+    --accent6: #ec4899;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+    --glow2: 0 0 20px rgba(124,58,237,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 260px;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+    border-right: 1px solid var(--border);
+    z-index: 100;
+    overflow-y: auto;
+    padding: 0 0 20px 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+    transition: transform 0.3s ease;
+  }
+
+  #sidebar::-webkit-scrollbar { width: 3px; }
+  #sidebar::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0;
+    background: var(--bg2);
+    z-index: 1;
+  }
+
+  .sidebar-logo {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: var(--accent); text-transform: uppercase;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .sidebar-logo::before {
+    content: '🔐';
+    font-size: 16px;
+  }
+
+  .sidebar-subtitle {
+    font-size: 10px; color: var(--text3); margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-section-title {
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text3); padding: 16px 20px 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 20px;
+    cursor: pointer;
+    font-size: 12px; color: var(--text2);
+    transition: all 0.2s;
+    border-left: 2px solid transparent;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-item:hover { background: rgba(0,212,255,0.05); color: var(--accent); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: rgba(0,212,255,0.08); }
+  .nav-item .page-num { font-size: 9px; color: var(--text3); min-width: 22px; }
+
+  /* ── MAIN CONTENT ── */
+  #main {
+    margin-left: 260px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── PAGE ── */
+  .page {
+    min-height: 100vh;
+    padding: 60px 60px 60px 60px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .page:nth-child(even) { background: rgba(13,22,40,0.5); }
+
+  .page-number {
+    position: absolute; top: 30px; right: 40px;
+    font-size: 10px; color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 2px;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .chapter-tag {
+    display: inline-block;
+    font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent); font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(0,212,255,0.3);
+    padding: 4px 12px; border-radius: 2px;
+    margin-bottom: 16px;
+  }
+
+  .chapter-tag.purple { color: var(--accent2); border-color: rgba(124,58,237,0.3); }
+  .chapter-tag.green { color: var(--accent3); border-color: rgba(16,185,129,0.3); }
+  .chapter-tag.amber { color: var(--accent4); border-color: rgba(245,158,11,0.3); }
+  .chapter-tag.red { color: var(--accent5); border-color: rgba(239,68,68,0.3); }
+  .chapter-tag.pink { color: var(--accent6); border-color: rgba(236,72,153,0.3); }
+
+  h1.page-title {
+    font-size: clamp(32px, 4vw, 56px);
+    font-weight: 800; line-height: 1.1;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  h1.page-title.purple { background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%); -webkit-background-clip: text; background-clip: text; }
+  h1.page-title.green { background: linear-gradient(135deg, #fff 0%, var(--accent3) 100%); -webkit-background-clip: text; background-clip: text; }
+  h1.page-title.amber { background: linear-gradient(135deg, #fff 0%, var(--accent4) 100%); -webkit-background-clip: text; background-clip: text; }
+  h1.page-title.red { background: linear-gradient(135deg, #fff 0%, var(--accent5) 100%); -webkit-background-clip: text; background-clip: text; }
+  h1.page-title.pink { background: linear-gradient(135deg, #fff 0%, var(--accent6) 100%); -webkit-background-clip: text; background-clip: text; }
+
+  .page-subtitle {
+    font-size: 16px; color: var(--text2); margin-bottom: 40px;
+    font-family: 'JetBrains Mono', monospace; line-height: 1.6;
+  }
+
+  h2 {
+    font-size: 22px; font-weight: 700; color: #fff;
+    margin: 32px 0 12px;
+  }
+
+  h3 {
+    font-size: 16px; font-weight: 600; color: var(--accent);
+    margin: 20px 0 8px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  h3.purple { color: var(--accent2); }
+  h3.green { color: var(--accent3); }
+  h3.amber { color: var(--accent4); }
+
+  p {
+    font-size: 15px; color: var(--text2); line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  /* ── CARDS ── */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px; margin: 24px 0;
+  }
+
+  .card-grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .card:hover { transform: translateY(-2px); border-color: rgba(0,212,255,0.4); }
+  .card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+  }
+
+  .card.purple::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.green::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.amber::before { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.red::before { background: linear-gradient(90deg, var(--accent5), transparent); }
+  .card.pink::before { background: linear-gradient(90deg, var(--accent6), transparent); }
+
+  .card-icon { font-size: 32px; margin-bottom: 12px; display: block; }
+  .card-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+  .card-body { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+  /* ── PROS/CONS ── */
+  .pros-cons {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 20px; margin: 24px 0;
+  }
+
+  .pros, .cons {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px;
+  }
+
+  .pros { border-top: 3px solid var(--accent3); }
+  .cons { border-top: 3px solid var(--accent5); }
+
+  .pros-title {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent3); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+  }
+
+  .cons-title {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent5); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 6px;
+  }
+
+  .pro-item, .con-item {
+    display: flex; gap: 10px; align-items: flex-start;
+    margin-bottom: 10px; font-size: 13px; color: var(--text2); line-height: 1.6;
+  }
+
+  .pro-item::before { content: '✓'; color: var(--accent3); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .con-item::before { content: '✗'; color: var(--accent5); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #020408;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; color: #a8b4c8;
+    line-height: 1.8; margin: 16px 0;
+    overflow-x: auto;
+  }
+
+  .code-block .comment { color: var(--text3); }
+  .code-block .key { color: var(--accent); }
+  .code-block .val { color: var(--accent3); }
+  .code-block .warn { color: var(--accent4); }
+  .code-block .err { color: var(--accent5); }
+  .code-block .ok { color: var(--accent3); }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex; align-items: center; gap: 0;
+    flex-wrap: wrap; margin: 24px 0; gap: 0;
+  }
+
+  .flow-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 20px;
+    font-size: 12px; font-family: 'JetBrains Mono', monospace;
+    color: #fff; white-space: nowrap;
+  }
+
+  .flow-box.accent { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+  .flow-box.green { border-color: var(--accent3); color: var(--accent3); background: rgba(16,185,129,0.08); }
+  .flow-box.amber { border-color: var(--accent4); color: var(--accent4); background: rgba(245,158,11,0.08); }
+  .flow-box.red { border-color: var(--accent5); color: var(--accent5); background: rgba(239,68,68,0.08); }
+  .flow-box.purple { border-color: var(--accent2); color: var(--accent2); background: rgba(124,58,237,0.08); }
+
+  .flow-arrow {
+    color: var(--text3); font-size: 18px; padding: 0 8px;
+  }
+
+  /* ── TABLE ── */
+  .data-table {
+    width: 100%; border-collapse: collapse; margin: 20px 0;
+    font-size: 13px;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 1px; text-transform: uppercase;
+    padding: 12px 16px; text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    color: var(--text2); line-height: 1.5;
+  }
+
+  .data-table tr:hover td { background: rgba(0,212,255,0.03); }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    font-weight: 600; letter-spacing: 0.5px;
+  }
+
+  .badge-green { background: rgba(16,185,129,0.15); color: var(--accent3); border: 1px solid rgba(16,185,129,0.3); }
+  .badge-red { background: rgba(239,68,68,0.15); color: var(--accent5); border: 1px solid rgba(239,68,68,0.3); }
+  .badge-amber { background: rgba(245,158,11,0.15); color: var(--accent4); border: 1px solid rgba(245,158,11,0.3); }
+  .badge-blue { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.3); }
+  .badge-purple { background: rgba(124,58,237,0.15); color: var(--accent2); border: 1px solid rgba(124,58,237,0.3); }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: rgba(0,212,255,0.06);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px; padding: 16px 20px;
+    margin: 16px 0; font-size: 14px; color: var(--text2); line-height: 1.7;
+  }
+
+  .callout.warn { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.2); border-left-color: var(--accent4); }
+  .callout.danger { background: rgba(239,68,68,0.06); border-color: rgba(239,68,68,0.2); border-left-color: var(--accent5); }
+  .callout.success { background: rgba(16,185,129,0.06); border-color: rgba(16,185,129,0.2); border-left-color: var(--accent3); }
+  .callout.purple { background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.2); border-left-color: var(--accent2); }
+
+  .callout-title {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+  }
+
+  .callout.warn .callout-title { color: var(--accent4); }
+  .callout.danger .callout-title { color: var(--accent5); }
+  .callout.success .callout-title { color: var(--accent3); }
+  .callout.purple .callout-title { color: var(--accent2); }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(124,58,237,0.1) 0%, transparent 50%),
+                var(--bg);
+    padding: 80px 60px;
+    position: relative; overflow: hidden;
+  }
+
+  .cover-bg-text {
+    position: absolute; bottom: -30px; right: -20px;
+    font-size: 220px; font-weight: 800;
+    color: rgba(0,212,255,0.03);
+    font-family: 'Space Mono', monospace;
+    user-select: none; pointer-events: none;
+    line-height: 1;
+  }
+
+  .cover-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 20px; padding: 6px 16px;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+  }
+
+  .cover h1 {
+    font-size: clamp(48px, 7vw, 88px);
+    font-weight: 800; line-height: 1;
+    background: linear-gradient(135deg, #ffffff 0%, #a8d8ff 40%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+
+  .cover-sub {
+    font-size: 18px; color: var(--text2); max-width: 600px; line-height: 1.6;
+    margin-bottom: 40px; font-family: 'JetBrains Mono', monospace;
+  }
+
+  .cover-stats {
+    display: flex; gap: 40px; flex-wrap: wrap;
+  }
+
+  .cover-stat-num {
+    font-size: 36px; font-weight: 800; color: var(--accent);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .cover-stat-label {
+    font-size: 11px; color: var(--text3); text-transform: uppercase;
+    letter-spacing: 1px; font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── BIG VISUAL DIVIDER ── */
+  .divider {
+    height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 32px 0;
+  }
+
+  /* ── STEP LIST ── */
+  .steps { margin: 20px 0; }
+
+  .step {
+    display: flex; gap: 16px; margin-bottom: 20px; align-items: flex-start;
+  }
+
+  .step-num {
+    min-width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent2), var(--accent));
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+  }
+
+  .step-content .step-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .step-content .step-body { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(124,58,237,0.06));
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 8px; padding: 24px;
+    margin: 20px 0;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block; background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.2);
+    color: var(--accent); border-radius: 3px;
+    padding: 1px 8px; font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .tag.green { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); color: var(--accent3); }
+  .tag.red { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); color: var(--accent5); }
+  .tag.amber { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); color: var(--accent4); }
+  .tag.purple { background: rgba(124,58,237,0.1); border-color: rgba(124,58,237,0.2); color: var(--accent2); }
+
+  /* ── COMPARISON VISUAL ── */
+  .vs-block {
+    display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px;
+    align-items: center; margin: 20px 0;
+  }
+
+  .vs-label {
+    font-size: 18px; font-weight: 800; color: var(--text3);
+    text-align: center; font-family: 'Space Mono', monospace;
+  }
+
+  /* ── TOGGLE SIDEBAR ── */
+  #toggle-btn {
+    position: fixed; left: 260px; top: 20px; z-index: 200;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text2); cursor: pointer;
+    width: 24px; height: 36px; display: flex; align-items: center; justify-content: center;
+    border-left: none; border-radius: 0 4px 4px 0;
+    font-size: 10px; transition: all 0.3s;
+  }
+
+  #toggle-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* responsive */
+  @media (max-width: 900px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    #toggle-btn { left: 0; border-left: 1px solid var(--border); }
+    .page { padding: 40px 24px; }
+    .card-grid-3 { grid-template-columns: 1fr; }
+    .card-grid-2 { grid-template-columns: 1fr; }
+    .pros-cons { grid-template-columns: 1fr; }
+  }
+
+  /* Progress bar */
+  #progress {
+    position: fixed; top: 0; left: 260px; right: 0; height: 2px; z-index: 300;
+    background: var(--border);
+  }
+
+  #progress-bar {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent));
+    width: 0%; transition: width 0.1s;
+  }
+
+  /* Anchor scroll */
+  [id] { scroll-margin-top: 20px; }
+
+  .big-icon {
+    font-size: 64px; margin-bottom: 16px; display: block;
+  }
+
+  .inline-code {
+    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 3px; padding: 1px 6px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent);
+  }
+
+  .mega-number {
+    font-size: 80px; font-weight: 800; line-height: 1;
+    color: rgba(0,212,255,0.1);
+    font-family: 'Space Mono', monospace;
+    position: absolute; top: 40px; right: 50px;
+  }
+</style>
+</head>
+<body>
+
+<!-- PROGRESS BAR -->
+<div id="progress"><div id="progress-bar"></div></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">SSL/TLS Masterclass</div>
+    <div class="sidebar-subtitle">30-page deep dive</div>
+  </div>
+
+  <div class="nav-section-title">Foundation</div>
+  <div class="nav-item" onclick="goTo('p1')"><span class="page-num">01</span> Cover & Overview</div>
+  <div class="nav-item" onclick="goTo('p2')"><span class="page-num">02</span> What is SSL/TLS?</div>
+  <div class="nav-item" onclick="goTo('p3')"><span class="page-num">03</span> How TLS Handshake Works</div>
+  <div class="nav-item" onclick="goTo('p4')"><span class="page-num">04</span> TLS Versions History</div>
+  <div class="nav-item" onclick="goTo('p5')"><span class="page-num">05</span> Encryption Deep Dive</div>
+
+  <div class="nav-section-title">Certificates</div>
+  <div class="nav-item" onclick="goTo('p6')"><span class="page-num">06</span> What is a Certificate?</div>
+  <div class="nav-item" onclick="goTo('p7')"><span class="page-num">07</span> Inside a .crt File</div>
+  <div class="nav-item" onclick="goTo('p8')"><span class="page-num">08</span> Certificate Types</div>
+  <div class="nav-item" onclick="goTo('p9')"><span class="page-num">09</span> Certificate Authority (CA)</div>
+  <div class="nav-item" onclick="goTo('p10')"><span class="page-num">10</span> Full Chain & Trust</div>
+
+  <div class="nav-section-title">Domains & DNS</div>
+  <div class="nav-item" onclick="goTo('p11')"><span class="page-num">11</span> Domain Types Explained</div>
+  <div class="nav-item" onclick="goTo('p12')"><span class="page-num">12</span> Wildcard Certificates</div>
+  <div class="nav-item" onclick="goTo('p13')"><span class="page-num">13</span> SAN Multi-Domain Certs</div>
+  <div class="nav-item" onclick="goTo('p14')"><span class="page-num">14</span> .in vs .com Reality</div>
+
+  <div class="nav-section-title">GoDaddy</div>
+  <div class="nav-item" onclick="goTo('p15')"><span class="page-num">15</span> GoDaddy Overview</div>
+  <div class="nav-item" onclick="goTo('p16')"><span class="page-num">16</span> GoDaddy SSL Flow</div>
+  <div class="nav-item" onclick="goTo('p17')"><span class="page-num">17</span> GoDaddy Pros & Cons</div>
+
+  <div class="nav-section-title">Cloudflare</div>
+  <div class="nav-item" onclick="goTo('p18')"><span class="page-num">18</span> Cloudflare Overview</div>
+  <div class="nav-item" onclick="goTo('p19')"><span class="page-num">19</span> Cloudflare SSL Modes</div>
+  <div class="nav-item" onclick="goTo('p20')"><span class="page-num">20</span> Cloudflare Cert Types</div>
+  <div class="nav-item" onclick="goTo('p21')"><span class="page-num">21</span> Cloudflare vs GoDaddy</div>
+  <div class="nav-item" onclick="goTo('p22')"><span class="page-num">22</span> Cloudflare Pros & Cons</div>
+
+  <div class="nav-section-title">CDN & Architecture</div>
+  <div class="nav-item" onclick="goTo('p23')"><span class="page-num">23</span> What is a CDN?</div>
+  <div class="nav-item" onclick="goTo('p24')"><span class="page-num">24</span> CDN + SSL Flow</div>
+  <div class="nav-item" onclick="goTo('p25')"><span class="page-num">25</span> Edge Locations</div>
+
+  <div class="nav-section-title">Advanced & Security</div>
+  <div class="nav-item" onclick="goTo('p26')"><span class="page-num">26</span> Security Best Practices</div>
+  <div class="nav-item" onclick="goTo('p27')"><span class="page-num">27</span> HSTS Explained</div>
+  <div class="nav-item" onclick="goTo('p28')"><span class="page-num">28</span> Common SSL Errors</div>
+  <div class="nav-item" onclick="goTo('p29')"><span class="page-num">29</span> .in → .com Migration</div>
+  <div class="nav-item" onclick="goTo('p30')"><span class="page-num">30</span> Master Mental Model</div>
+</nav>
+
+<button id="toggle-btn" onclick="toggleSidebar()">‹</button>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- PAGE 1: COVER -->
+<section class="page cover" id="p1">
+  <div class="cover-bg-text">TLS</div>
+  <div class="cover-badge">🔐 Master Reference Guide</div>
+  <h1>SSL / TLS<br>Masterclass</h1>
+  <div class="cover-sub">From Zero to Production-Grade Security.<br>30 pages of deep, layman-friendly knowledge.</div>
+  <div class="cover-stats">
+    <div>
+      <div class="cover-stat-num">30</div>
+      <div class="cover-stat-label">Pages</div>
+    </div>
+    <div>
+      <div class="cover-stat-num">14</div>
+      <div class="cover-stat-label">Core Topics</div>
+    </div>
+    <div>
+      <div class="cover-stat-num">∞</div>
+      <div class="cover-stat-label">Clarity</div>
+    </div>
+  </div>
+
+  <div class="divider" style="margin-top:48px;max-width:600px;"></div>
+
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;">
+    <span class="badge badge-blue">SSL/TLS</span>
+    <span class="badge badge-purple">Certificates</span>
+    <span class="badge badge-green">Cloudflare</span>
+    <span class="badge badge-amber">GoDaddy</span>
+    <span class="badge badge-blue">CDN</span>
+    <span class="badge badge-purple">DNS</span>
+    <span class="badge badge-green">Security</span>
+  </div>
+  <div class="page-number">01 / 30</div>
+</section>
+
+<!-- PAGE 2: WHAT IS SSL/TLS -->
+<section class="page" id="p2">
+  <div class="mega-number">02</div>
+  <div class="chapter-tag">Chapter 01 — Foundation</div>
+  <h1 class="page-title">What is<br>SSL / TLS?</h1>
+  <div class="page-subtitle">The security layer that protects every HTTPS website you visit</div>
+
+  <div class="callout">
+    <div class="callout-title">🍦 Layman Analogy</div>
+    Imagine sending a secret letter. SSL/TLS is like sealing that letter in an unbreakable envelope, stamping it with your verified identity, and tamper-proofing the seal so you know nobody opened it en route.
+  </div>
+
+  <h2>The Simple Truth</h2>
+  <p>SSL (Secure Sockets Layer) is the old name — it's actually deprecated and broken. <strong style="color:#fff">TLS (Transport Layer Security)</strong> is what runs today. But the industry still says "SSL" out of habit. When your browser shows a padlock 🔒, TLS is doing the work.</p>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <span class="card-icon">🔒</span>
+      <div class="card-title">Encryption</div>
+      <div class="card-body">Scrambles your data so only the intended receiver can read it. Even if a hacker intercepts the traffic, they see gibberish — unreadable without the key.</div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">✅</span>
+      <div class="card-title">Authentication</div>
+      <div class="card-body">Proves the server you're talking to is actually who it claims to be. Prevents "man in the middle" attacks where a fake server pretends to be your bank.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">🔁</span>
+      <div class="card-title">Integrity</div>
+      <div class="card-body">Guarantees the data wasn't tampered with in transit. If even one bit changes, TLS detects it and drops the connection immediately.</div>
+    </div>
+  </div>
+
+  <h2>Why It Matters Right Now</h2>
+  <p>Without TLS, everything you send — passwords, credit cards, messages — travels as plain readable text across the internet. Any router or ISP between you and the server can read it. With TLS, even if intercepted, the data is useless without the decryption key.</p>
+
+  <div class="flow" style="gap:8px;">
+    <div class="flow-box red">HTTP (Plain text)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box amber">Anyone can read</div>
+    <div class="flow-arrow" style="margin:0 20px;color:#64748b;">VS</div>
+    <div class="flow-box green">HTTPS (TLS)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box green">Encrypted gibberish</div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <div class="pros-title">✅ With TLS</div>
+      <div class="pro-item">Data is encrypted end-to-end between browser and server</div>
+      <div class="pro-item">Server identity is verified — you know you're on the real site</div>
+      <div class="pro-item">Data integrity is guaranteed — no silent tampering possible</div>
+      <div class="pro-item">Google ranks HTTPS sites higher in search results</div>
+      <div class="pro-item">Browser shows the padlock — builds user trust</div>
+    </div>
+    <div class="cons">
+      <div class="cons-title">❌ Without TLS</div>
+      <div class="con-item">Passwords and credit cards visible to anyone on the network</div>
+      <div class="con-item">Susceptible to man-in-the-middle attacks</div>
+      <div class="con-item">ISPs can inject ads or modify your content</div>
+      <div class="con-item">Modern browsers show "Not Secure" warning</div>
+      <div class="con-item">Google penalizes HTTP sites in rankings</div>
+    </div>
+  </div>
+  <div class="page-number">02 / 30</div>
+</section>
+
+<!-- PAGE 3: TLS HANDSHAKE -->
+<section class="page" id="p3">
+  <div class="mega-number">03</div>
+  <div class="chapter-tag">Chapter 01 — Foundation</div>
+  <h1 class="page-title">The TLS<br>Handshake</h1>
+  <div class="page-subtitle">What actually happens in those milliseconds before a secure connection begins</div>
+
+  <div class="callout purple">
+    <div class="callout-title">🤝 Layman Analogy</div>
+    Imagine two spies meeting. First they verify their identity badges. Then they whisper a secret code to each other through a locked box. From that point on, everything they say uses that code — impossible for eavesdroppers to decode.
+  </div>
+
+  <h2>The 6-Step Secret Handshake</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">ClientHello — "Hey, I want to connect securely"</div>
+        <div class="step-body">Your browser sends the server a list of TLS versions and encryption methods it supports. Think of it like saying: "I speak English, French, or Spanish — which do you prefer?"</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">ServerHello — "Great, let's use THIS method"</div>
+        <div class="step-body">Server picks the strongest common encryption method. Sends back its chosen cipher suite. "Let's speak English with AES-256 encryption."</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Certificate Sent — "Here's my ID"</div>
+        <div class="step-body">Server sends its SSL certificate (containing public key + identity). Browser checks: Is this cert signed by a trusted CA? Is it expired? Does the domain match?</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Key Exchange — The magic moment</div>
+        <div class="step-body">Browser and server perform a mathematical dance (Diffie-Hellman or RSA) to agree on a <strong style="color:#fff">shared secret key</strong> — without ever transmitting it directly. A hacker watching the conversation cannot derive this key.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Session Key Created — Symmetric from now on</div>
+        <div class="step-body">Both sides independently compute the same session key. This symmetric key is much faster than asymmetric crypto and is used for all actual data.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Finished — Secure channel open!</div>
+        <div class="step-body">Both sides send "Finished" messages encrypted with the session key. If both can decrypt each other's Finished message, the secure channel is established. Takes about 1-3 round trips.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="comment"># TLS 1.3 handshake (simplified view)</span>
+Browser  →  Server : <span class="key">ClientHello</span>  [supported ciphers, random nonce]
+Server   →  Browser: <span class="key">ServerHello</span>  [chosen cipher] + <span class="val">Certificate</span> + <span class="val">KeyShare</span>
+Browser  →  Server : <span class="key">Finished</span>     [verify cert, send own KeyShare]
+<span class="comment"># ✅ Connection is now fully encrypted in 1 round-trip!</span>
+<span class="ok"># TLS 1.3 is ~2x faster than TLS 1.2 (which needed 2 round trips)</span>
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">💡 Key Insight</div>
+    The brilliant part: the session key is never transmitted. Both sides independently calculate the same number using math. Even if someone recorded the entire handshake, they cannot recover the session key.
+  </div>
+  <div class="page-number">03 / 30</div>
+</section>
+
+<!-- PAGE 4: TLS VERSIONS -->
+<section class="page" id="p4">
+  <div class="mega-number">04</div>
+  <div class="chapter-tag">Chapter 01 — Foundation</div>
+  <h1 class="page-title amber">TLS Version<br>History</h1>
+  <div class="page-subtitle">How the protocol evolved — and why old versions are dangerous</div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Version</th>
+        <th>Year</th>
+        <th>Status</th>
+        <th>What Changed</th>
+        <th>Should You Use?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>SSL 1.0</strong></td>
+        <td>1994</td>
+        <td><span class="badge badge-red">NEVER RELEASED</span></td>
+        <td>First attempt by Netscape — too buggy to ship</td>
+        <td><span class="badge badge-red">Never</span></td>
+      </tr>
+      <tr>
+        <td><strong>SSL 2.0</strong></td>
+        <td>1995</td>
+        <td><span class="badge badge-red">BROKEN</span></td>
+        <td>First public SSL — POODLE & DROWN attacks</td>
+        <td><span class="badge badge-red">Never</span></td>
+      </tr>
+      <tr>
+        <td><strong>SSL 3.0</strong></td>
+        <td>1996</td>
+        <td><span class="badge badge-red">DEPRECATED</span></td>
+        <td>Better, but POODLE attack killed it in 2014</td>
+        <td><span class="badge badge-red">Never</span></td>
+      </tr>
+      <tr>
+        <td><strong>TLS 1.0</strong></td>
+        <td>1999</td>
+        <td><span class="badge badge-red">DEPRECATED</span></td>
+        <td>Renamed from SSL. BEAST attack vulnerability</td>
+        <td><span class="badge badge-red">Never</span></td>
+      </tr>
+      <tr>
+        <td><strong>TLS 1.1</strong></td>
+        <td>2006</td>
+        <td><span class="badge badge-red">DEPRECATED</span></td>
+        <td>Fixed some TLS 1.0 issues. Deprecated 2021</td>
+        <td><span class="badge badge-red">Never</span></td>
+      </tr>
+      <tr>
+        <td><strong>TLS 1.2</strong></td>
+        <td>2008</td>
+        <td><span class="badge badge-green">ACCEPTABLE</span></td>
+        <td>SHA-256, AEAD ciphers. Still widely used</td>
+        <td><span class="badge badge-amber">Minimum</span></td>
+      </tr>
+      <tr>
+        <td><strong>TLS 1.3</strong></td>
+        <td>2018</td>
+        <td><span class="badge badge-green">BEST</span></td>
+        <td>Removed 200+ weak ciphers. 1-RTT handshake. Perfect forward secrecy mandatory.</td>
+        <td><span class="badge badge-green">Always use</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>What Makes TLS 1.3 So Good?</h2>
+  <div class="card-grid card-grid-2">
+    <div class="card green">
+      <span class="card-icon">⚡</span>
+      <div class="card-title">Faster Connection</div>
+      <div class="card-body">Only 1 round-trip needed for handshake (TLS 1.2 needed 2). For mobile users on high-latency networks, this is a significant improvement in page load times.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">🛡️</span>
+      <div class="card-title">Mandatory Forward Secrecy</div>
+      <div class="card-body">Even if a server's private key leaks in the future, old recorded conversations cannot be decrypted. Each session has its own temporary key that is discarded.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">🗑️</span>
+      <div class="card-title">Removed Weak Algorithms</div>
+      <div class="card-body">TLS 1.3 eliminated MD5, SHA-1, RC4, DES, 3DES, and RSA key exchange — all known to be weak or broken. Only the strongest algorithms remain.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">🔮</span>
+      <div class="card-title">0-RTT Resumption</div>
+      <div class="card-body">If you visited a site before, TLS 1.3 can resume the session with zero extra round trips — data flows from the very first packet. Ultra-fast repeat visits.</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">⚠️ Action Item</div>
+    Configure your server (Nginx/Apache/Cloudflare) to enforce <strong>minimum TLS 1.2</strong> and prefer <strong>TLS 1.3</strong>. Reject all connections below TLS 1.2. This is a 5-minute config change with massive security gains.
+  </div>
+  <div class="page-number">04 / 30</div>
+</section>
+
+<!-- PAGE 5: ENCRYPTION DEEP DIVE -->
+<section class="page" id="p5">
+  <div class="mega-number">05</div>
+  <div class="chapter-tag">Chapter 01 — Foundation</div>
+  <h1 class="page-title purple">Encryption<br>Deep Dive</h1>
+  <div class="page-subtitle">Symmetric vs Asymmetric — the two encryption engines inside TLS</div>
+
+  <div class="callout purple">
+    <div class="callout-title">🔑 Layman Analogy</div>
+    <strong>Asymmetric</strong> = A special padlock with two keys. You give everyone a copy of your padlock (public key). Only YOUR private key opens it. Anyone can lock a message for you — only you can open it.<br><br>
+    <strong>Symmetric</strong> = One shared key — like a house key both roommates have. Faster, but you need to first securely share that key — which is what asymmetric encryption solves!
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card purple">
+      <span class="card-icon">🗝️</span>
+      <div class="card-title">Asymmetric Encryption (RSA / ECC)</div>
+      <div class="card-body">
+        Two mathematically linked keys: <strong>Public Key</strong> (shared with everyone) and <strong>Private Key</strong> (kept secret on server).<br><br>
+        Used during: Certificate signing, key exchange in TLS handshake.<br><br>
+        <span class="tag purple">Slow</span> <span class="tag">Secure key distribution</span><br><br>
+        RSA-2048 or ECC P-256 are most common today.
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-icon">⚡</span>
+      <div class="card-title">Symmetric Encryption (AES)</div>
+      <div class="card-body">
+        One shared key used for both encryption and decryption. Extremely fast — used for ALL actual data transfer after handshake.<br><br>
+        AES-256-GCM is the gold standard. GCM mode provides both encryption AND integrity checking simultaneously.<br><br>
+        <span class="tag green">Very fast</span> <span class="tag green">Bulk data</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>How TLS Combines Both</h2>
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:12px;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="flow-box purple">Asymmetric (RSA/ECC)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Securely exchange session key</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="flow-box green">Symmetric (AES-256)</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Encrypt all actual data</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="flow-box amber">HMAC / AEAD</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-box">Verify data integrity</div>
+    </div>
+  </div>
+
+  <h2>Key Sizes — What's Secure?</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Algorithm</th><th>Key Size</th><th>Security Level</th><th>Use In TLS</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>RSA</td><td>2048-bit</td><td><span class="badge badge-amber">Minimum</span></td><td>Certificate signing</td></tr>
+      <tr><td>RSA</td><td>4096-bit</td><td><span class="badge badge-green">Strong</span></td><td>Certificate signing (slower)</td></tr>
+      <tr><td>ECC (P-256)</td><td>256-bit</td><td><span class="badge badge-green">Equivalent to RSA-3072</span></td><td>Modern certs & key exchange</td></tr>
+      <tr><td>AES</td><td>128-bit</td><td><span class="badge badge-green">Strong</span></td><td>Session data encryption</td></tr>
+      <tr><td>AES</td><td>256-bit</td><td><span class="badge badge-green">Very Strong</span></td><td>Session data encryption</td></tr>
+      <tr><td>ChaCha20</td><td>256-bit</td><td><span class="badge badge-green">Strong</span></td><td>Mobile-optimized alternative</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <div class="callout-title">💡 Why ECC &gt; RSA for Modern Use</div>
+    ECC (Elliptic Curve Cryptography) at 256 bits provides the same security as RSA at 3072 bits — but is much smaller and faster. This is why modern TLS prefers ECDH key exchange and ECDSA certificates.
+  </div>
+  <div class="page-number">05 / 30</div>
+</section>
+
+<!-- PAGE 6: WHAT IS A CERTIFICATE -->
+<section class="page" id="p6">
+  <div class="mega-number">06</div>
+  <div class="chapter-tag">Chapter 02 — Certificates</div>
+  <h1 class="page-title green">What is a<br>Certificate?</h1>
+  <div class="page-subtitle">An SSL certificate is NOT encryption — it's an identity document</div>
+
+  <div class="callout success">
+    <div class="callout-title">🪪 Layman Analogy</div>
+    A certificate is like a passport. It contains your name (domain), your public key (what you look like), who issued it (country/CA), when it expires, and official stamps of verification. The passport itself doesn't protect you — it just proves who you are.
+  </div>
+
+  <h2>The Big Misconception</h2>
+  <p>Most people think the SSL certificate IS the security. <strong style="color:#fff">Wrong.</strong> The certificate is just an identity card. It contains your domain name and public key, signed by a trusted authority. TLS uses the certificate during the handshake to verify identity, then the actual encryption happens separately using session keys.</p>
+
+  <div class="card-grid card-grid-3">
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">What a Cert DOES contain</div>
+      <div class="card-body">
+        <div style="line-height:2.2; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text2);">
+          🌐 Domain name(s)<br>
+          🔑 Public key<br>
+          🏛️ Issuer (CA name)<br>
+          📅 Valid from date<br>
+          📅 Valid until date<br>
+          ✍️ CA's digital signature<br>
+          🔢 Serial number<br>
+          📋 Key usage restrictions
+        </div>
+      </div>
+    </div>
+    <div class="card red">
+      <span class="card-icon">❌</span>
+      <div class="card-title">What a Cert DOES NOT contain</div>
+      <div class="card-body">
+        <div style="line-height:2.2; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text2);">
+          ❌ Private key<br>
+          ❌ Encryption logic<br>
+          ❌ Session keys<br>
+          ❌ User data<br>
+          ❌ Payment info<br>
+          ❌ Your source code<br>
+          ❌ Server config
+        </div>
+      </div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🔐</span>
+      <div class="card-title">Private Key (kept separate!)</div>
+      <div class="card-body">
+        The private key lives ONLY on your server, never in the certificate. It's used to prove you own the cert and to decrypt data encrypted with your public key. NEVER share it — ever.
+      </div>
+    </div>
+  </div>
+
+  <h2>The Certificate File Formats</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Extension</th><th>Format</th><th>Contains</th><th>Used By</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">.pem</span></td><td>Base64 text</td><td>Cert, key, or chain</td><td>Nginx, Apache, Linux</td></tr>
+      <tr><td><span class="tag">.crt</span></td><td>Base64 or DER</td><td>Certificate only</td><td>Nginx, Apache</td></tr>
+      <tr><td><span class="tag">.key</span></td><td>Base64 text</td><td>Private key only</td><td>Nginx, Apache</td></tr>
+      <tr><td><span class="tag">.pfx/.p12</span></td><td>Binary</td><td>Cert + key + chain</td><td>Windows, IIS, Azure</td></tr>
+      <tr><td><span class="tag">.der</span></td><td>Binary</td><td>Certificate (DER)</td><td>Java, Android</td></tr>
+      <tr><td><span class="tag">fullchain.pem</span></td><td>Base64 text</td><td>Cert + all intermediates</td><td>Nginx, Let's Encrypt</td></tr>
+    </tbody>
+  </table>
+  <div class="page-number">06 / 30</div>
+</section>
+
+<!-- PAGE 7: INSIDE A CERT -->
+<section class="page" id="p7">
+  <div class="mega-number">07</div>
+  <div class="chapter-tag">Chapter 02 — Certificates</div>
+  <h1 class="page-title">Inside a<br>.crt File</h1>
+  <div class="page-subtitle">Decode exactly what you're looking at when you open a certificate</div>
+
+  <h2>What a Certificate Looks Like</h2>
+
+  <div class="code-block">
+<span class="comment">-----BEGIN CERTIFICATE-----</span>
+<span class="val">MIIFazCCA1OgAwIBAgIRAIIQz7DSQONZRGPgu2OCiwAwDQYJKoZI...</span>
+<span class="val">...Base64 encoded data...</span>
+<span class="comment">-----END CERTIFICATE-----</span>
+
+<span class="comment"># After decoding with: openssl x509 -in cert.pem -text -noout</span>
+
+Subject: <span class="key">CN=example.com, O=Example Corp, C=US</span>
+  <span class="comment">↑ Who this cert belongs to</span>
+
+Issuer: <span class="key">CN=Let's Encrypt Authority X3, O=Let's Encrypt</span>
+  <span class="comment">↑ Who signed/issued this cert</span>
+
+Not Before: <span class="val">Jan 1 00:00:00 2024 GMT</span>
+Not After : <span class="val">Apr 1 00:00:00 2024 GMT</span>
+  <span class="comment">↑ Valid 90-day window</span>
+
+Subject Alternative Names: <span class="key">DNS:example.com, DNS:www.example.com</span>
+  <span class="comment">↑ All domains this cert is valid for</span>
+
+Public Key Algorithm: <span class="ok">id-ecPublicKey (P-256)</span>
+  <span class="comment">↑ The encryption algorithm used</span>
+
+Signature Algorithm: <span class="ok">sha256WithRSAEncryption</span>
+  <span class="comment">↑ How the CA signed this cert</span>
+  </div>
+
+  <h2>The Critical Fields Explained</h2>
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-title">📋 Common Name (CN) / SAN</div>
+      <div class="card-body">The domain(s) this certificate is valid for. Modern certs use Subject Alternative Names (SAN) which can list multiple domains. CN is now legacy — SANs are what browsers actually check.</div>
+    </div>
+    <div class="card purple">
+      <div class="card-title">✍️ CA Signature</div>
+      <div class="card-body">The most critical part. The CA's digital signature proves the CA vouches for this cert. Your browser verifies this signature against the CA's public key in its trust store. If it validates, the cert is trusted.</div>
+    </div>
+    <div class="card amber">
+      <div class="card-title">📅 Validity Window</div>
+      <div class="card-body">Certificates expire. Google pushes for 90-day certs (more secure, forces automation). Let's Encrypt issues 90-day certs. GoDaddy and commercial CAs typically offer 1-2 year certs.</div>
+    </div>
+    <div class="card green">
+      <div class="card-title">🔑 Public Key</div>
+      <div class="card-body">The certificate's payload. This public key is shared with everyone. Data encrypted with this key can only be decrypted by the matching private key sitting on your server.</div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">⚠️ 2024 Update — 90-day Max Certs Coming</div>
+    Apple (Safari) and Google (Chrome) have announced they will only trust certificates valid for 90 days or less by 2025. This forces automation (certbot, ACME protocol). Plan for automated renewal — not manual.
+  </div>
+  <div class="page-number">07 / 30</div>
+</section>
+
+<!-- PAGE 8: CERT TYPES DV OV EV -->
+<section class="page" id="p8">
+  <div class="mega-number">08</div>
+  <div class="chapter-tag">Chapter 02 — Certificates</div>
+  <h1 class="page-title amber">Certificate<br>Types</h1>
+  <div class="page-subtitle">DV vs OV vs EV — which level of validation do you actually need?</div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <span class="card-icon">🟢</span>
+      <div class="card-title">DV — Domain Validated</div>
+      <div class="card-body">
+        <strong style="color:var(--accent3)">Proves:</strong> You control the domain<br><br>
+        <strong style="color:#fff">How:</strong> CA sends challenge via DNS record or HTTP file. You add it. CA verifies. Done in minutes.<br><br>
+        <strong style="color:#fff">Issued in:</strong> Minutes to hours<br>
+        <strong style="color:#fff">Cost:</strong> Free (Let's Encrypt) to ~$10/yr<br>
+        <strong style="color:#fff">Best for:</strong> Blogs, apps, most websites<br><br>
+        <span class="badge badge-green">90% of certs</span>
+      </div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">🔵</span>
+      <div class="card-title">OV — Organization Validated</div>
+      <div class="card-body">
+        <strong style="color:var(--accent2)">Proves:</strong> Domain + legal organization exists<br><br>
+        <strong style="color:#fff">How:</strong> CA verifies business registration, phone, address. Human review required.<br><br>
+        <strong style="color:#fff">Issued in:</strong> 1-3 business days<br>
+        <strong style="color:#fff">Cost:</strong> $50-$300/yr<br>
+        <strong style="color:#fff">Best for:</strong> Business sites, B2B portals<br><br>
+        <span class="badge badge-purple">Shows org name in cert details</span>
+      </div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🟡</span>
+      <div class="card-title">EV — Extended Validated</div>
+      <div class="card-body">
+        <strong style="color:var(--accent4)">Proves:</strong> Domain + deep legal/financial vetting<br><br>
+        <strong style="color:#fff">How:</strong> Full legal entity verification, legal jurisdiction, operational existence checks.<br><br>
+        <strong style="color:#fff">Issued in:</strong> 1-2 weeks<br>
+        <strong style="color:#fff">Cost:</strong> $200-$1500/yr<br>
+        <strong style="color:#fff">Best for:</strong> Banks, payment processors<br><br>
+        <span class="badge badge-amber">Green bar was removed by Chrome/Firefox</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">⚠️ EV Green Bar is Gone</div>
+    Chrome and Firefox removed the green address bar for EV certs in 2019. Users can no longer visually distinguish EV from DV in the browser. Most security experts now say: DV + strong security practices beats expensive EV certs.
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <div class="pros-title">✅ DV (Recommended for Most)</div>
+      <div class="pro-item">Free via Let's Encrypt — zero cost barrier</div>
+      <div class="pro-item">Automated renewal — no manual work</div>
+      <div class="pro-item">Issued in minutes — instant deployment</div>
+      <div class="pro-item">Cryptographically identical to EV</div>
+      <div class="pro-item">Cloudflare Universal SSL is free DV</div>
+    </div>
+    <div class="cons">
+      <div class="cons-title">❌ Reasons NOT to Pay for OV/EV</div>
+      <div class="con-item">Green bar is gone — users see no difference</div>
+      <div class="con-item">Encryption strength is identical to free DV</div>
+      <div class="con-item">Manual renewal process — risk of expiry</div>
+      <div class="con-item">Costs $200-$1500/yr for no visible user benefit</div>
+      <div class="con-item">Unless regulatory compliance requires it</div>
+    </div>
+  </div>
+  <div class="page-number">08 / 30</div>
+</section>
+
+<!-- PAGE 9: CA -->
+<section class="page" id="p9">
+  <div class="mega-number">09</div>
+  <div class="chapter-tag">Chapter 02 — Certificates</div>
+  <h1 class="page-title pink">Certificate<br>Authority (CA)</h1>
+  <div class="page-subtitle">The trusted middlemen who vouch for the entire internet</div>
+
+  <div class="callout">
+    <div class="callout-title">🏛️ Layman Analogy</div>
+    A CA is like a notary public or passport office. They verify your identity and stamp/sign your documents. Because governments trust the passport office, embassies trust passports. Because browsers trust CAs, browsers trust certificates.
+  </div>
+
+  <h2>The Trust Chain (Most Important Concept)</h2>
+
+  <div style="display:flex;flex-direction:column;align-items:flex-start;gap:0;margin:20px 0;">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="flow-box green" style="min-width:220px;text-align:center;">
+        🌳 Root CA<br>
+        <span style="font-size:10px;color:var(--text3)">Hardcoded in browsers/OS</span>
+      </div>
+      <div style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;">← Trusted by browsers directly</div>
+    </div>
+    <div style="padding-left:30px;color:var(--text3);font-size:20px;">↓</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="flow-box purple" style="min-width:220px;text-align:center;">
+        🌿 Intermediate CA<br>
+        <span style="font-size:10px;color:var(--text3)">Signed by Root CA</span>
+      </div>
+      <div style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;">← Root CA signs this. Not in browsers by default.</div>
+    </div>
+    <div style="padding-left:30px;color:var(--text3);font-size:20px;">↓</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="flow-box accent" style="min-width:220px;text-align:center;">
+        🍃 Your Domain Cert<br>
+        <span style="font-size:10px;color:var(--text3)">Signed by Intermediate CA</span>
+      </div>
+      <div style="font-size:12px;color:var(--text3);font-family:'JetBrains Mono',monospace;">← What your server presents</div>
+    </div>
+  </div>
+
+  <h2>Why Intermediate CAs Exist</h2>
+  <p>Root CA private keys are kept in air-gapped hardware security modules (HSMs) in vaults. They're too precious to use daily. So Root CAs sign Intermediate CA certs, and <em>those</em> CAs do the daily work of signing domain certificates. If an intermediate gets compromised, it's revoked — the Root stays safe.</p>
+
+  <h2>Major Certificate Authorities</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>CA</th><th>Type</th><th>Cost</th><th>Market Share</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Let's Encrypt</strong></td><td>Non-profit, automated</td><td><span class="badge badge-green">Free</span></td><td>~50% of all certs</td></tr>
+      <tr><td><strong>DigiCert</strong></td><td>Enterprise</td><td><span class="badge badge-red">$$$$</span></td><td>Enterprise dominant</td></tr>
+      <tr><td><strong>Sectigo</strong></td><td>Commercial</td><td><span class="badge badge-amber">$$</span></td><td>Large commercial share</td></tr>
+      <tr><td><strong>GoDaddy CA</strong></td><td>Registrar-bundled</td><td><span class="badge badge-amber">$$$</span></td><td>Popular with GoDaddy users</td></tr>
+      <tr><td><strong>Cloudflare CA</strong></td><td>Cloudflare Origin</td><td><span class="badge badge-green">Free</span></td><td>For CF users only</td></tr>
+      <tr><td><strong>ZeroSSL</strong></td><td>ACME-based</td><td><span class="badge badge-green">Free</span></td><td>Growing</td></tr>
+    </tbody>
+  </table>
+  <div class="page-number">09 / 30</div>
+</section>
+
+<!-- PAGE 10: FULL CHAIN -->
+<section class="page" id="p10">
+  <div class="mega-number">10</div>
+  <div class="chapter-tag">Chapter 02 — Certificates</div>
+  <h1 class="page-title">Full Chain<br>Certificate</h1>
+  <div class="page-subtitle">The most common SSL misconfiguration — and how to fix it</div>
+
+  <div class="callout danger">
+    <div class="callout-title">🔴 The Problem Without Full Chain</div>
+    You install your certificate. Works in Chrome on your laptop. But iOS Safari shows "Not Trusted". Android throws errors. Some API clients fail. This is almost always a missing intermediate certificate — the most common SSL mistake.
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">🍱 Layman Analogy</div>
+    Your cert is like a letter of recommendation. But the person reading it doesn't know your recommender. So your recommender needs to include THEIR letter of recommendation from someone famous. The full chain = your cert + everyone's recommendation up to someone the world already trusts.
+  </div>
+
+  <h2>What fullchain.pem Contains</h2>
+
+  <div class="code-block">
+<span class="comment"># fullchain.pem = cert.pem + chain.pem concatenated</span>
+
+<span class="comment">---Block 1: YOUR domain certificate---</span>
+<span class="key">-----BEGIN CERTIFICATE-----</span>
+MIIFazCCA1OgAwIBAgIRAIIQ... <span class="comment">(your domain cert)</span>
+<span class="key">-----END CERTIFICATE-----</span>
+
+<span class="comment">---Block 2: Intermediate CA certificate---</span>
+<span class="val">-----BEGIN CERTIFICATE-----</span>
+MIIEkjCCA3qgAwIBAgIQCgFB... <span class="comment">(intermediate cert)</span>
+<span class="val">-----END CERTIFICATE-----</span>
+
+<span class="comment">---Block 3: Another Intermediate (if exists)---</span>
+<span class="ok">-----BEGIN CERTIFICATE-----</span>
+XKD9z7q2p... <span class="comment">(second intermediate, if needed)</span>
+<span class="ok">-----END CERTIFICATE-----</span>
+
+<span class="comment"># NOTE: Root CA is NOT included (browsers have it built-in)</span>
+
+<span class="comment"># Nginx config:</span>
+ssl_certificate     /etc/ssl/<span class="key">fullchain.pem</span>;  <span class="ok">← USE THIS (not just cert.pem!)</span>
+ssl_certificate_key /etc/ssl/privkey.pem;
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card red">
+      <span class="card-icon">❌</span>
+      <div class="card-title">Only cert.pem (Wrong)</div>
+      <div class="card-body">
+        Chrome (desktop, which caches intermediates): Works ✓<br>
+        Firefox: Might work ✓<br>
+        iOS Safari: FAILS ✗<br>
+        Android (stock): FAILS ✗<br>
+        Curl / API clients: FAILS ✗<br>
+        Java HttpClient: FAILS ✗
+      </div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">fullchain.pem (Correct)</div>
+      <div class="card-body">
+        Chrome: Works ✓<br>
+        Firefox: Works ✓<br>
+        iOS Safari: Works ✓<br>
+        Android: Works ✓<br>
+        Curl / API clients: Works ✓<br>
+        Java HttpClient: Works ✓
+      </div>
+    </div>
+  </div>
+  <div class="page-number">10 / 30</div>
+</section>
+
+<!-- PAGE 11: DOMAIN TYPES -->
+<section class="page" id="p11">
+  <div class="mega-number">11</div>
+  <div class="chapter-tag">Chapter 03 — Domains & DNS</div>
+  <h1 class="page-title green">Domain Types<br>Explained</h1>
+  <div class="page-subtitle">Root domains, subdomains, wildcards, SAN — mastered once and for all</div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <span class="card-icon">🌐</span>
+      <div class="card-title">Root Domain (Apex Domain)</div>
+      <div class="card-body">
+        <span class="tag">example.com</span> &nbsp;<span class="tag">mysite.in</span><br><br>
+        The base domain without any prefix. Also called "naked domain" or "apex domain". DNS-wise, it cannot have a CNAME record (only A/AAAA). Some DNS providers (Cloudflare, Route53) offer CNAME flattening for the apex.
+      </div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">🔗</span>
+      <div class="card-title">Subdomain</div>
+      <div class="card-body">
+        <span class="tag purple">www.example.com</span> &nbsp;<span class="tag purple">api.example.com</span><br><br>
+        Any label before the root domain. www is technically a subdomain (though treated specially). Each subdomain can point to different servers — <span class="inline-code">api.</span> to your API server, <span class="inline-code">cdn.</span> to your CDN, etc.
+      </div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">✱</span>
+      <div class="card-title">Wildcard Domain</div>
+      <div class="card-body">
+        <span class="tag amber">*.example.com</span><br><br>
+        The asterisk matches exactly ONE level of subdomain.<br>
+        ✓ Covers: <span class="inline-code">api.example.com</span>, <span class="inline-code">app.example.com</span><br>
+        ✗ Does NOT cover: <span class="inline-code">example.com</span> (root)<br>
+        ✗ Does NOT cover: <span class="inline-code">a.b.example.com</span><br><br>
+        Needs both <span class="tag amber">*.example.com</span> AND <span class="tag amber">example.com</span> for full coverage.
+      </div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">📋</span>
+      <div class="card-title">SAN — Multi-Domain</div>
+      <div class="card-body">
+        <span class="tag green">example.com</span> <span class="tag green">example.in</span> <span class="tag green">myapp.net</span><br><br>
+        Subject Alternative Names. One certificate that lists multiple completely different domains. Required when you have different TLDs (.com, .in, .net) or completely unrelated domains that need one cert.
+      </div>
+    </div>
+  </div>
+
+  <h2>DNS Record Types That Matter for SSL</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Record</th><th>Purpose</th><th>SSL Relevance</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">A Record</span></td>
+        <td>Domain → IPv4 address</td>
+        <td>Primary — points domain to your server</td>
+      </tr>
+      <tr>
+        <td><span class="tag">AAAA Record</span></td>
+        <td>Domain → IPv6 address</td>
+        <td>IPv6 support</td>
+      </tr>
+      <tr>
+        <td><span class="tag">CNAME Record</span></td>
+        <td>Domain → another domain</td>
+        <td>Used for CDN, Cloudflare, subdomains</td>
+      </tr>
+      <tr>
+        <td><span class="tag amber">TXT Record</span></td>
+        <td>Text data</td>
+        <td><strong>DNS validation for SSL issuance!</strong> CA adds TXT record to verify domain ownership</td>
+      </tr>
+      <tr>
+        <td><span class="tag green">CAA Record</span></td>
+        <td>Which CAs can issue certs</td>
+        <td>Security feature — restricts which CAs can issue for your domain</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <div class="callout-title">🛡️ Pro Security Tip — CAA Records</div>
+    Add a DNS CAA record: <span class="inline-code">example.com CAA 0 issue "letsencrypt.org"</span><br>
+    This tells the internet: "Only Let's Encrypt can issue certs for my domain." Even if a hacker controls a different CA, they cannot fraudulently issue a cert for your domain.
+  </div>
+  <div class="page-number">11 / 30</div>
+</section>
+
+<!-- PAGE 12: WILDCARD -->
+<section class="page" id="p12">
+  <div class="mega-number">12</div>
+  <div class="chapter-tag">Chapter 03 — Domains & DNS</div>
+  <h1 class="page-title amber">Wildcard<br>Certificates</h1>
+  <div class="page-subtitle">The one cert to rule all subdomains — and its surprising limitations</div>
+
+  <div class="callout">
+    <div class="callout-title">🌂 Layman Analogy</div>
+    A wildcard cert is like a hotel master keycard. It opens any room on the floor — 101, 102, 103, 199. But it does NOT open the lobby (root domain) or rooms on other floors (deep subdomains like sub.sub.example.com).
+  </div>
+
+  <h2>What *.example.com Covers</h2>
+  <div class="card-grid card-grid-2">
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">Wildcard DOES cover</div>
+      <div class="card-body">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2.2;color:var(--accent3);">
+          www.example.com<br>
+          api.example.com<br>
+          app.example.com<br>
+          mail.example.com<br>
+          dev.example.com<br>
+          staging.example.com<br>
+          cdn.example.com<br>
+          <em style="color:var(--text3)">Any single-level subdomain</em>
+        </div>
+      </div>
+    </div>
+    <div class="card red">
+      <span class="card-icon">❌</span>
+      <div class="card-title">Wildcard DOES NOT cover</div>
+      <div class="card-body">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:2.2;color:var(--accent5);">
+          example.com (root/apex!)<br>
+          a.b.example.com<br>
+          sub.api.example.com<br>
+          *.example.in (different TLD)<br>
+          example.net<br>
+          example.org<br>
+          <em style="color:var(--text3)">Multi-level subdomains</em>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">⚠️ Critical: Add Root Domain Explicitly</div>
+    When getting a wildcard cert, always add the root domain too. A proper wildcard cert covers: <span class="tag">*.example.com</span> AND <span class="tag">example.com</span> in the SAN field. Without the root domain explicitly listed, <span class="inline-code">https://example.com</span> will show a cert error.
+  </div>
+
+  <h2>Wildcard Cert Validation Challenge</h2>
+  <p>Wildcard certs CANNOT use HTTP file validation. They can only be validated via DNS TXT record. This is why you need DNS access when getting a wildcard cert from Let's Encrypt or any CA.</p>
+
+  <div class="code-block">
+<span class="comment"># DNS challenge for *.example.com (Let's Encrypt / certbot)</span>
+certbot certonly --manual --preferred-challenges dns \
+  -d <span class="key">example.com</span> -d <span class="key">*.example.com</span>
+
+<span class="comment"># Certbot asks you to add a TXT record:</span>
+Please add DNS TXT record:
+  _acme-challenge.example.com → <span class="val">"randomToken123abc..."</span>
+
+<span class="comment"># After adding the record, validation passes and cert is issued</span>
+<span class="ok"># Result: fullchain.pem covers BOTH example.com AND *.example.com</span>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <div class="pros-title">✅ Wildcard Pros</div>
+      <div class="pro-item">One cert for unlimited subdomains — no managing dozens of certs</div>
+      <div class="pro-item">Add new subdomains anytime without new cert</div>
+      <div class="pro-item">Cost effective for commercial CAs</div>
+      <div class="pro-item">Easier management and renewal</div>
+    </div>
+    <div class="cons">
+      <div class="cons-title">❌ Wildcard Cons</div>
+      <div class="con-item">One key compromised = all subdomains compromised</div>
+      <div class="con-item">Cannot use HTTP validation — DNS access required</div>
+      <div class="con-item">Let's Encrypt wildcard renewal harder to automate</div>
+      <div class="con-item">Doesn't cover root domain by default</div>
+    </div>
+  </div>
+  <div class="page-number">12 / 30</div>
+</section>
+
+<!-- PAGE 13: SAN -->
+<section class="page" id="p13">
+  <div class="mega-number">13</div>
+  <div class="chapter-tag">Chapter 03 — Domains & DNS</div>
+  <h1 class="page-title purple">SAN / Multi-Domain<br>Certificates</h1>
+  <div class="page-subtitle">One certificate, many completely different domains</div>
+
+  <div class="callout purple">
+    <div class="callout-title">🎫 Layman Analogy</div>
+    A SAN cert is like a multi-entry visa that lists every country you're allowed to visit. One document, explicitly listing: India ✓, USA ✓, UK ✓. A wildcard visa would cover all cities in one country — SAN covers different countries entirely.
+  </div>
+
+  <h2>When You Need a SAN Cert</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <span class="card-icon">🌍</span>
+      <div class="card-title">Multiple TLDs</div>
+      <div class="card-body">example.com AND example.in AND example.net — completely different domain registrations that need one cert. Neither wildcard nor regular cert covers multiple TLDs.</div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">🏢</span>
+      <div class="card-title">Multiple Brands</div>
+      <div class="card-body">A company running brand-a.com AND brand-b.com AND internal-tool.com — all on the same server. One cert covers them all without managing three separate certs.</div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🔗</span>
+      <div class="card-title">Mixed Coverage</div>
+      <div class="card-body">Combine wildcards and specific domains: *.example.com, example.com, *.example.in, example.in — all in one SAN cert. Maximum coverage with one cert.</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="comment"># Example SAN cert (what the X.509 Subject Alternative Names field contains)</span>
+
+X509v3 Subject Alternative Names:
+    DNS:<span class="key">example.com</span>           <span class="comment"># Root domain</span>
+    DNS:<span class="val">*.example.com</span>         <span class="comment"># All subdomains of .com</span>
+    DNS:<span class="key">example.in</span>           <span class="comment"># Root domain .in</span>
+    DNS:<span class="val">*.example.in</span>         <span class="comment"># All subdomains of .in</span>
+    DNS:<span class="ok">example.net</span>          <span class="comment"># Third TLD</span>
+    DNS:<span class="warn">checkout.external-payment.com</span>  <span class="comment"># Completely different domain</span>
+
+<span class="comment"># One cert file. One private key. All the above domains are trusted.</span>
+  </div>
+
+  <table class="data-table" style="margin-top:20px;">
+    <thead>
+      <tr><th>Scenario</th><th>Solution</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>example.com + all its subdomains</td>
+        <td><span class="tag">Wildcard *.example.com</span></td>
+        <td>Don't forget to add root domain explicitly</td>
+      </tr>
+      <tr>
+        <td>example.com + example.in</td>
+        <td><span class="tag green">SAN cert</span></td>
+        <td>Wildcard cannot cross TLD boundaries</td>
+      </tr>
+      <tr>
+        <td>Single blog/app</td>
+        <td><span class="tag green">DV cert</span></td>
+        <td>Free from Let's Encrypt</td>
+      </tr>
+      <tr>
+        <td>All subdomains + root</td>
+        <td><span class="tag amber">Wildcard + apex SAN</span></td>
+        <td>*.example.com AND example.com</td>
+      </tr>
+      <tr>
+        <td>Unlimited subdomains + other TLDs</td>
+        <td><span class="tag purple">Multi-domain wildcard SAN</span></td>
+        <td>Most expensive, max coverage</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="page-number">13 / 30</div>
+</section>
+
+<!-- PAGE 14: .in vs .com -->
+<section class="page" id="p14">
+  <div class="mega-number">14</div>
+  <div class="chapter-tag">Chapter 03 — Domains & DNS</div>
+  <h1 class="page-title red">.in vs .com<br>Reality Check</h1>
+  <div class="page-subtitle">Why example.in and example.com are completely separate universes</div>
+
+  <div class="callout danger">
+    <div class="callout-title">🚨 The Dangerous Assumption</div>
+    "I have SSL on example.com — so example.in is also covered, right?"<br><br>
+    <strong style="color:#fff">WRONG. Completely, dangerously wrong.</strong> example.in and example.com are as different as apple.com and mango.com. Different registrations, different DNS zones, different SSL certificates, different ownership validation.
+  </div>
+
+  <div class="vs-block">
+    <div class="card red" style="padding:24px;">
+      <div style="font-size:28px;font-weight:800;color:var(--accent5);font-family:'Space Mono',monospace;margin-bottom:12px;">example.in</div>
+      <div class="card-body">
+        Registered with Indian (.in) registrar<br>
+        Separate DNS zone<br>
+        Separate SSL cert required<br>
+        Managed independently<br>
+        Different TXT records for validation<br>
+        <br>
+        <span class="badge badge-red">Cannot share SSL with .com</span>
+      </div>
+    </div>
+    <div class="vs-label">≠</div>
+    <div class="card green" style="padding:24px;">
+      <div style="font-size:28px;font-weight:800;color:var(--accent3);font-family:'Space Mono',monospace;margin-bottom:12px;">example.com</div>
+      <div class="card-body">
+        Registered with any ICANN registrar<br>
+        Completely separate DNS zone<br>
+        Own SSL certificate<br>
+        Independently managed<br>
+        Different validation required<br>
+        <br>
+        <span class="badge badge-green">Separate entity from .in</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Correct Options for .in + .com</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card green">
+      <span class="card-icon">A</span>
+      <div class="card-title">Option A: Separate Certs</div>
+      <div class="card-body">
+        Get individual SSL certs for each domain.<br>
+        DV cert for example.com<br>
+        DV cert for example.in<br><br>
+        Easiest. Free with Let's Encrypt. Works everywhere.
+      </div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">B</span>
+      <div class="card-title">Option B: SAN Cert</div>
+      <div class="card-body">
+        One commercial cert with both domains in SAN:<br>
+        example.com, *.example.com, example.in, *.example.in<br><br>
+        More expensive. Easier to manage. One renewal.
+      </div>
+    </div>
+    <div class="card">
+      <span class="card-icon">C</span>
+      <div class="card-title">Option C: Cloudflare</div>
+      <div class="card-body">
+        Add both domains as separate zones in Cloudflare.<br>
+        Universal SSL activates automatically for each.<br><br>
+        Best for most teams. Free. Auto-renews. Zero config.
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="callout-title">🔄 Best Practice: Redirect .in → .com</div>
+    If .in is just for Indian traffic to find you, redirect it to .com via 301. Configure in Cloudflare Rules → Redirect Rules. Both domains still need valid SSL for the redirect to work securely (HTTPS → HTTPS redirect).
+  </div>
+  <div class="page-number">14 / 30</div>
+</section>
+
+<!-- PAGE 15: GODADDY OVERVIEW -->
+<section class="page" id="p15">
+  <div class="mega-number">15</div>
+  <div class="chapter-tag">Chapter 04 — GoDaddy</div>
+  <h1 class="page-title amber">GoDaddy<br>Overview</h1>
+  <div class="page-subtitle">The traditional path — domain registrar meets certificate authority</div>
+
+  <div class="callout amber">
+    <div class="callout-title">🏪 Layman Analogy</div>
+    GoDaddy is like a one-stop shop: they sell you the land (domain registration), build you a fence (SSL certificate), and you have to physically maintain it yourself each year. Reliable, traditional, but manually intensive and costly.
+  </div>
+
+  <h2>What GoDaddy Actually Does</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card amber">
+      <span class="card-icon">🌐</span>
+      <div class="card-title">Domain Registrar</div>
+      <div class="card-body">Registers and manages domain names under all TLDs (.com, .in, .net, .org). One of the world's largest registrars. Manages your DNS records through their dashboard.</div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🔐</span>
+      <div class="card-title">Certificate Authority</div>
+      <div class="card-body">Issues SSL certificates as a commercial CA. Offers DV, OV, and EV certificates. Acts as an intermediate CA under DigiCert's root. Trusted by all major browsers.</div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🖥️</span>
+      <div class="card-title">Web Hosting & More</div>
+      <div class="card-body">Shared hosting, VPS, managed WordPress, email hosting. SSL certs often bundled with hosting plans. Full service provider for non-technical users.</div>
+    </div>
+  </div>
+
+  <h2>GoDaddy SSL Certificate Products</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Product</th><th>Coverage</th><th>Price/yr</th><th>Validation</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Basic SSL</strong></td>
+        <td>Single domain</td>
+        <td><span class="badge badge-amber">~$70</span></td>
+        <td>DV (DNS/HTTP)</td>
+      </tr>
+      <tr>
+        <td><strong>Deluxe SSL</strong></td>
+        <td>Single domain + www</td>
+        <td><span class="badge badge-amber">~$100</span></td>
+        <td>DV</td>
+      </tr>
+      <tr>
+        <td><strong>Wildcard SSL</strong></td>
+        <td>*.domain.com</td>
+        <td><span class="badge badge-red">~$300</span></td>
+        <td>DV</td>
+      </tr>
+      <tr>
+        <td><strong>EV SSL</strong></td>
+        <td>Single domain</td>
+        <td><span class="badge badge-red">~$180</span></td>
+        <td>EV (manual)</td>
+      </tr>
+      <tr>
+        <td><strong>UCC/SAN SSL</strong></td>
+        <td>Up to 5 domains</td>
+        <td><span class="badge badge-red">~$300+</span></td>
+        <td>DV/OV</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="page-number">15 / 30</div>
+</section>
+
+<!-- PAGE 16: GODADDY SSL FLOW -->
+<section class="page" id="p16">
+  <div class="mega-number">16</div>
+  <div class="chapter-tag">Chapter 04 — GoDaddy</div>
+  <h1 class="page-title amber">GoDaddy SSL<br>Flow</h1>
+  <div class="page-subtitle">Step-by-step: from purchase to installation</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Generate a CSR (Certificate Signing Request)</div>
+        <div class="step-body">On your server, generate a private key and a CSR. The CSR contains your domain info and public key. The private key NEVER leaves your server. <span class="inline-code">openssl req -new -newkey rsa:2048 -nodes -keyout private.key -out domain.csr</span></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Submit CSR to GoDaddy</div>
+        <div class="step-body">Paste the CSR text into GoDaddy's SSL management portal. They extract your domain and public key from the CSR to create your certificate.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Domain Validation</div>
+        <div class="step-body">GoDaddy verifies you own the domain via one of three methods: (a) Add a DNS TXT record, (b) Upload an HTML file to your web root, (c) Receive verification email to admin@yourdomain.com</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Download Certificates</div>
+        <div class="step-body">After validation, download: certificate.crt (your domain cert) + gd_bundle-g2-g1.crt (the intermediate chain). You'll need BOTH files.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <div class="step-title">Install on Server</div>
+        <div class="step-body">Configure Nginx/Apache with your cert, chain file, and private key. Test with <span class="inline-code">nginx -t</span>, then reload. Verify at SSL Labs (ssllabs.com).</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <div class="step-title">Manual Renewal (The Pain)</div>
+        <div class="step-body">Set a calendar reminder 30 days before expiry. Repeat steps 1-5 manually every year. Miss this → your site shows a scary security warning to all visitors.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="comment"># Nginx config with GoDaddy cert</span>
+server {
+    listen 443 ssl;
+    server_name example.com www.example.com;
+
+    ssl_certificate     /etc/ssl/<span class="key">certificate.crt</span>;  <span class="warn">← WRONG: only domain cert</span>
+    ssl_certificate     /etc/ssl/<span class="ok">fullchain.crt</span>;   <span class="ok">← RIGHT: domain + chain</span>
+    ssl_certificate_key /etc/ssl/<span class="key">private.key</span>;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256;
+}
+  </div>
+  <div class="page-number">16 / 30</div>
+</section>
+
+<!-- PAGE 17: GODADDY PROS CONS -->
+<section class="page" id="p17">
+  <div class="mega-number">17</div>
+  <div class="chapter-tag">Chapter 04 — GoDaddy</div>
+  <h1 class="page-title amber">GoDaddy<br>Pros & Cons</h1>
+  <div class="page-subtitle">The honest assessment of when GoDaddy makes sense — and when it doesn't</div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <div class="pros-title">✅ GoDaddy Pros</div>
+      <div class="pro-item"><strong>One-stop shop:</strong> Domain + hosting + SSL in one account. Good for non-technical users who want everything in one place.</div>
+      <div class="pro-item"><strong>Trusted CA:</strong> GoDaddy SSL certs are trusted by all browsers, mobile devices, and legacy systems worldwide.</div>
+      <div class="pro-item"><strong>OV/EV options:</strong> For businesses that need organization-validated certificates for compliance.</div>
+      <div class="pro-item"><strong>Phone support:</strong> 24/7 phone support — rare in the SSL world. Useful for non-developers.</div>
+      <div class="pro-item"><strong>Longer validity:</strong> 1-2 year certs mean less frequent renewals compared to Let's Encrypt's 90-day certs.</div>
+      <div class="pro-item"><strong>Legacy server support:</strong> Better compatibility with very old servers and Java versions.</div>
+    </div>
+    <div class="cons">
+      <div class="cons-title">❌ GoDaddy Cons</div>
+      <div class="con-item"><strong>Expensive:</strong> $70-$300/yr for certs that are cryptographically identical to free Let's Encrypt certs.</div>
+      <div class="con-item"><strong>Manual renewal:</strong> You have to manually renew, re-validate, re-install every year. Miss it → site goes insecure.</div>
+      <div class="con-item"><strong>Manual installation:</strong> You need server access and knowledge to install and configure correctly.</div>
+      <div class="con-item"><strong>Complex certificate chain:</strong> GoDaddy's intermediate chain is occasionally problematic on some clients.</div>
+      <div class="con-item"><strong>No automation:</strong> Doesn't support ACME protocol for automated issuance/renewal like Let's Encrypt.</div>
+      <div class="con-item"><strong>Upsell-heavy:</strong> Dashboard is full of upsell prompts for services you don't need.</div>
+    </div>
+  </div>
+
+  <h2>When GoDaddy SSL Makes Sense</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card amber">
+      <span class="card-icon">🏛️</span>
+      <div class="card-title">Compliance Requirements</div>
+      <div class="card-body">Some enterprises or government contracts require OV or EV certificates from specific commercial CAs. GoDaddy meets those requirements.</div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">📞</span>
+      <div class="card-title">Non-Technical Users</div>
+      <div class="card-body">If your client or team isn't comfortable with terminal commands and needs hand-holding through installation, GoDaddy's support team helps.</div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🏢</span>
+      <div class="card-title">Existing GoDaddy Customers</div>
+      <div class="card-body">If your domain is already at GoDaddy and you're on their managed hosting, using their bundled SSL simplifies the workflow.</div>
+    </div>
+  </div>
+
+  <div class="callout danger">
+    <div class="callout-title">🚨 When NOT to Use GoDaddy SSL</div>
+    Modern startups, dev teams, or anyone with a DevOps practice should use Let's Encrypt (free, automated) or Cloudflare Universal SSL (also free, plus CDN). Paying $300/yr for a wildcard cert that Let's Encrypt provides for free is wasteful, especially when automation eliminates the renewal burden.
+  </div>
+  <div class="page-number">17 / 30</div>
+</section>
+
+<!-- PAGE 18: CLOUDFLARE OVERVIEW -->
+<section class="page" id="p18">
+  <div class="mega-number">18</div>
+  <div class="chapter-tag">Chapter 05 — Cloudflare</div>
+  <h1 class="page-title">Cloudflare<br>Overview</h1>
+  <div class="page-subtitle">The most powerful free security and performance layer on the internet</div>
+
+  <div class="callout">
+    <div class="callout-title">☁️ Layman Analogy</div>
+    Cloudflare is like having a bulletproof security guard, a lightning-fast assistant, and a worldwide delivery network — all for free — standing between your website and the entire internet. They handle SSL, block attacks, cache your content globally, and make everything faster.
+  </div>
+
+  <h2>What Cloudflare Actually Is</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <span class="card-icon">🌐</span>
+      <div class="card-title">DNS Provider (Authoritative)</div>
+      <div class="card-body">Cloudflare is one of the fastest DNS providers in the world. When you proxy through Cloudflare, your origin IP is hidden. Attackers cannot find your server.</div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">⚡</span>
+      <div class="card-title">CDN (Content Delivery Network)</div>
+      <div class="card-body">330+ data centers worldwide. Your static files are cached at the nearest POP to each user. A user in Mumbai gets files from Mumbai's datacenter, not your US server.</div>
+    </div>
+    <div class="card">
+      <span class="card-icon">🛡️</span>
+      <div class="card-title">WAF (Web Application Firewall)</div>
+      <div class="card-body">Blocks SQLi, XSS, CSRF, bad bots, vulnerability scanners before they reach your server. Free plan blocks the most common attack patterns automatically.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">💥</span>
+      <div class="card-title">DDoS Protection</div>
+      <div class="card-body">Cloudflare absorbs massive DDoS attacks (they handle up to 2+ Tbps) without you doing anything. Your server never even sees the attack traffic.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">🔒</span>
+      <div class="card-title">SSL Termination</div>
+      <div class="card-body">Cloudflare handles the SSL handshake at their edge. Your browser connects securely to Cloudflare. CF optionally connects securely to your origin. Zero SSL config on most setups.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">⚙️</span>
+      <div class="card-title">Edge Compute (Workers)</div>
+      <div class="card-body">Run JavaScript at the edge — redirects, A/B tests, authentication, personalization — without hitting your origin server. Ultra-low latency logic globally.</div>
+    </div>
+  </div>
+  <div class="page-number">18 / 30</div>
+</section>
+
+<!-- PAGE 19: CLOUDFLARE SSL MODES -->
+<section class="page" id="p19">
+  <div class="mega-number">19</div>
+  <div class="chapter-tag">Chapter 05 — Cloudflare</div>
+  <h1 class="page-title">Cloudflare<br>SSL Modes</h1>
+  <div class="page-subtitle">The most important setting in your Cloudflare dashboard — get this wrong and you have false security</div>
+
+  <div class="callout danger">
+    <div class="callout-title">🚨 Most Critical Setting</div>
+    The SSL mode in Cloudflare controls encryption between CF↔Origin (your server). Getting this wrong is worse than no Cloudflare at all — it can give you false confidence of security while your data travels unencrypted.
+  </div>
+
+  <div class="card-grid card-grid-2" style="margin-top:24px;">
+    <div class="card red">
+      <span class="card-icon">❌</span>
+      <div class="card-title">Off</div>
+      <div class="card-body">
+        <strong>Browser → CF:</strong> HTTP only<br>
+        <strong>CF → Origin:</strong> HTTP only<br><br>
+        No SSL anywhere. Browser shows "Not Secure". Users see your plain HTTP site. Do not use.<br><br>
+        <span class="badge badge-red">Never Use</span>
+      </div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">⚠️</span>
+      <div class="card-title">Flexible</div>
+      <div class="card-body">
+        <strong>Browser → CF:</strong> HTTPS ✓ (encrypted)<br>
+        <strong>CF → Origin:</strong> HTTP ✗ (plain text!)<br><br>
+        Your user sees HTTPS padlock but data from CF to your server is plain text. Vulnerable to server-side attacks. Only use if you literally cannot get a cert on your origin.<br><br>
+        <span class="badge badge-amber">Last Resort Only</span>
+      </div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🔒</span>
+      <div class="card-title">Full</div>
+      <div class="card-body">
+        <strong>Browser → CF:</strong> HTTPS ✓<br>
+        <strong>CF → Origin:</strong> HTTPS ✓ (but self-signed OK)<br><br>
+        Encrypted end-to-end but CF doesn't verify your origin cert. A self-signed cert or even an expired cert passes. Good but not perfect.<br><br>
+        <span class="badge badge-amber">Acceptable</span>
+      </div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">Full (Strict) ← USE THIS</div>
+      <div class="card-body">
+        <strong>Browser → CF:</strong> HTTPS ✓<br>
+        <strong>CF → Origin:</strong> HTTPS ✓ + cert verified ✓<br><br>
+        Fully encrypted with proper cert validation everywhere. Use Cloudflare Origin Certificate (free, 15 years) on your server. This is the gold standard.<br><br>
+        <span class="badge badge-green">Always Use This</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Why Flexible Mode is Dangerous</h2>
+  <p>When Flexible mode is enabled, user passwords, payment data, and API keys travel unencrypted between Cloudflare's servers and yours. Someone on the same network as your server (or on the path between CF and your data center) can read everything. The user sees a padlock — false security.</p>
+
+  <div class="code-block">
+<span class="comment"># Cloudflare SSL Mode: Full (Strict) setup</span>
+<span class="comment"># Step 1: In CF Dashboard → SSL/TLS → Overview → select "Full (Strict)"</span>
+
+<span class="comment"># Step 2: Get Cloudflare Origin Certificate (free, 15 years)</span>
+CF Dashboard → SSL/TLS → Origin Server → Create Certificate
+→ Download origin.pem + privkey.pem
+
+<span class="comment"># Step 3: Install on your Nginx</span>
+ssl_certificate     /etc/ssl/<span class="ok">origin.pem</span>;
+ssl_certificate_key /etc/ssl/<span class="ok">privkey.pem</span>;
+
+<span class="comment"># ✅ CF verifies this cert. Full encrypted path. Done.</span>
+  </div>
+  <div class="page-number">19 / 30</div>
+</section>
+
+<!-- PAGE 20: CLOUDFLARE CERT TYPES -->
+<section class="page" id="p20">
+  <div class="mega-number">20</div>
+  <div class="chapter-tag">Chapter 05 — Cloudflare</div>
+  <h1 class="page-title purple">Cloudflare<br>Certificate Types</h1>
+  <div class="page-subtitle">Three distinct certs, three different purposes — know which is which</div>
+
+  <div class="card-grid card-grid-3">
+    <div class="card">
+      <span class="card-icon">🌍</span>
+      <div class="card-title">1. Universal SSL</div>
+      <div class="card-body">
+        <strong style="color:var(--accent)">What:</strong> Auto-issued cert covering your root domain + all subdomains<br><br>
+        <strong style="color:#fff">Covers:</strong> example.com, *.example.com<br>
+        <strong style="color:#fff">Cost:</strong> FREE<br>
+        <strong style="color:#fff">Issued by:</strong> Cloudflare's own CA<br>
+        <strong style="color:#fff">Validity:</strong> 90 days, auto-renewed<br>
+        <strong style="color:#fff">Trusted by:</strong> All browsers ✓<br><br>
+        <span class="badge badge-green">Auto — Zero Config</span>
+      </div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">💎</span>
+      <div class="card-title">2. Advanced / Custom SSL</div>
+      <div class="card-body">
+        <strong style="color:var(--accent2)">What:</strong> Upload your own cert or get a wildcard/multi-domain cert<br><br>
+        <strong style="color:#fff">Covers:</strong> Custom SANs, multiple TLDs<br>
+        <strong style="color:#fff">Cost:</strong> Paid (Advanced Certificate Manager $10/mo)<br>
+        <strong style="color:#fff">Use when:</strong> Need wildcard coverage for custom subdomains not covered by Universal<br><br>
+        <span class="badge badge-purple">Paid — For Power Users</span>
+      </div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🔒</span>
+      <div class="card-title">3. Origin Certificate</div>
+      <div class="card-body">
+        <strong style="color:var(--accent4)">What:</strong> A special cert for your origin server ONLY<br><br>
+        <strong style="color:#fff">Trusted by:</strong> Cloudflare ONLY (not browsers directly)<br>
+        <strong style="color:#fff">Cost:</strong> FREE<br>
+        <strong style="color:#fff">Validity:</strong> Up to 15 years<br>
+        <strong style="color:#fff">Use with:</strong> Full (Strict) mode<br><br>
+        <span class="badge badge-amber">Perfect for CF + Origin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">⚠️ Origin Certificate Misuse Warning</div>
+    If you point DNS directly to your server (bypassing Cloudflare) and your server has only an Origin Certificate, browsers will show a security error. Origin certs are ONLY for CF→Origin traffic. Always keep Cloudflare proxying enabled (orange cloud in DNS).
+  </div>
+
+  <h2>The Perfect Setup</h2>
+  <div class="flow" style="flex-direction:column;gap:8px;align-items:flex-start;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="flow-box">🌍 Browser</div>
+      <div class="flow-arrow">─── HTTPS ──→</div>
+      <div class="flow-box accent">Cloudflare Edge<br><span style="font-size:10px">Universal SSL cert</span></div>
+      <div class="flow-arrow">─── HTTPS ──→</div>
+      <div class="flow-box green">Your Server<br><span style="font-size:10px">Origin Certificate (15yr)</span></div>
+    </div>
+  </div>
+  <p style="margin-top:16px;">Browser trusts Cloudflare's Universal SSL. Cloudflare trusts your Origin Certificate (Full Strict mode). Result: fully encrypted end-to-end, zero cost, 15-year origin cert means you never touch it again.</p>
+
+  <div class="page-number">20 / 30</div>
+</section>
+
+<!-- PAGE 21: CLOUDFLARE vs GODADDY -->
+<section class="page" id="p21">
+  <div class="mega-number">21</div>
+  <div class="chapter-tag">Chapter 05 — Cloudflare</div>
+  <h1 class="page-title">Cloudflare<br>vs GoDaddy</h1>
+  <div class="page-subtitle">A head-to-head comparison across every dimension that matters</div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Feature</th><th>Cloudflare</th><th>GoDaddy</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>SSL Cost</strong></td>
+        <td><span class="badge badge-green">Free (Universal SSL)</span></td>
+        <td><span class="badge badge-red">$70-$300/yr</span></td>
+      </tr>
+      <tr>
+        <td><strong>SSL Renewal</strong></td>
+        <td><span class="badge badge-green">Auto (zero work)</span></td>
+        <td><span class="badge badge-red">Manual (every year)</span></td>
+      </tr>
+      <tr>
+        <td><strong>Setup Complexity</strong></td>
+        <td><span class="badge badge-green">Add DNS → done</span></td>
+        <td><span class="badge badge-amber">CSR → validate → install</span></td>
+      </tr>
+      <tr>
+        <td><strong>DDoS Protection</strong></td>
+        <td><span class="badge badge-green">Included (up to Tbps)</span></td>
+        <td><span class="badge badge-red">Not included</span></td>
+      </tr>
+      <tr>
+        <td><strong>CDN</strong></td>
+        <td><span class="badge badge-green">Included (330+ POPs)</span></td>
+        <td><span class="badge badge-red">Not included</span></td>
+      </tr>
+      <tr>
+        <td><strong>WAF</strong></td>
+        <td><span class="badge badge-green">Included (free tier)</span></td>
+        <td><span class="badge badge-red">Not included</span></td>
+      </tr>
+      <tr>
+        <td><strong>Origin IP hiding</strong></td>
+        <td><span class="badge badge-green">Yes (proxied DNS)</span></td>
+        <td><span class="badge badge-red">No</span></td>
+      </tr>
+      <tr>
+        <td><strong>OV/EV certs</strong></td>
+        <td><span class="badge badge-red">Only via Custom (paid)</span></td>
+        <td><span class="badge badge-green">Yes</span></td>
+      </tr>
+      <tr>
+        <td><strong>Browser support</strong></td>
+        <td><span class="badge badge-green">All modern browsers</span></td>
+        <td><span class="badge badge-green">All browsers incl. legacy</span></td>
+      </tr>
+      <tr>
+        <td><strong>Performance</strong></td>
+        <td><span class="badge badge-green">+20-60% faster (CDN+HTTP3)</span></td>
+        <td><span class="badge badge-amber">Depends on your server</span></td>
+      </tr>
+      <tr>
+        <td><strong>Compliance certs</strong></td>
+        <td><span class="badge badge-amber">Limited (paid)</span></td>
+        <td><span class="badge badge-green">Full DV/OV/EV range</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Verdict</h2>
+  <div class="card-grid card-grid-2">
+    <div class="card green">
+      <span class="card-icon">☁️</span>
+      <div class="card-title">Use Cloudflare When...</div>
+      <div class="card-body">You're a modern team. You want free, automated, zero-maintenance SSL. You need CDN performance + DDoS protection. You don't need OV/EV compliance. This covers 95% of all websites.</div>
+    </div>
+    <div class="card amber">
+      <span class="card-icon">🏛️</span>
+      <div class="card-title">Use GoDaddy SSL When...</div>
+      <div class="card-body">You have regulatory requirement for OV/EV cert. Your legacy server needs specific cert format. Your client explicitly requests it. Or you're already deeply invested in the GoDaddy ecosystem.</div>
+    </div>
+  </div>
+  <div class="page-number">21 / 30</div>
+</section>
+
+<!-- PAGE 22: CLOUDFLARE PROS CONS -->
+<section class="page" id="p22">
+  <div class="mega-number">22</div>
+  <div class="chapter-tag">Chapter 05 — Cloudflare</div>
+  <h1 class="page-title">Cloudflare<br>Pros & Cons</h1>
+  <div class="page-subtitle">The complete honest assessment</div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <div class="pros-title">✅ Cloudflare Pros</div>
+      <div class="pro-item"><strong>Free SSL + CDN + WAF + DDoS:</strong> No other platform gives you this value for zero cost. Industry-transforming offer.</div>
+      <div class="pro-item"><strong>Zero-maintenance SSL:</strong> Auto-issued, auto-renewed. You never think about SSL again.</div>
+      <div class="pro-item"><strong>Origin IP hidden:</strong> Attackers can't find your server's real IP. Direct-to-IP attacks are blocked.</div>
+      <div class="pro-item"><strong>Global performance:</strong> 330+ PoPs means low latency for users worldwide. Edge caching reduces origin load by 60-80%.</div>
+      <div class="pro-item"><strong>HTTP/3 and QUIC:</strong> Latest protocols automatically enabled. Faster mobile connections globally.</div>
+      <div class="pro-item"><strong>Redirect rules:</strong> HTTPS redirects, .in → .com redirects — all configured in dashboard, no server config needed.</div>
+      <div class="pro-item"><strong>Analytics:</strong> Free request/threat analytics. See where attacks come from, which countries visit, bandwidth saved.</div>
+      <div class="pro-item"><strong>Cloudflare Workers:</strong> Run serverless code at the edge. Middleware, redirects, auth — without touching your origin.</div>
+    </div>
+    <div class="cons">
+      <div class="cons-title">❌ Cloudflare Cons</div>
+      <div class="con-item"><strong>Single point of failure:</strong> If Cloudflare goes down (it does, rarely), your site can go offline even if your server is fine. Mitigate with health checks.</div>
+      <div class="con-item"><strong>Privacy concern:</strong> Cloudflare terminates your SSL — they can technically read your encrypted traffic. For most use cases this is fine, but note it for sensitive data.</div>
+      <div class="con-item"><strong>Caching complexity:</strong> Aggressive caching can serve stale content. Need to configure Cache-Control headers and purge rules properly.</div>
+      <div class="con-item"><strong>Real IP leaking:</strong> Server logs show Cloudflare IPs, not visitor IPs. Must use CF-Connecting-IP header and configure origin to log it.</div>
+      <div class="con-item"><strong>Free plan limits:</strong> WAF rate limiting, advanced rules, Load Balancing, Workers KV — require paid plans ($20-$200+/mo).</div>
+      <div class="con-item"><strong>Not browser-trusted origin cert:</strong> Cloudflare Origin Certs only work through Cloudflare. Direct server access bypasses trust.</div>
+      <div class="con-item"><strong>Learning curve:</strong> DNS, SSL modes, cache rules, Workers — powerful but takes time to configure correctly.</div>
+    </div>
+  </div>
+  <div class="page-number">22 / 30</div>
+</section>
+
+<!-- PAGE 23: CDN DEEP DIVE -->
+<section class="page" id="p23">
+  <div class="mega-number">23</div>
+  <div class="chapter-tag">Chapter 06 — CDN</div>
+  <h1 class="page-title green">What is<br>a CDN?</h1>
+  <div class="page-subtitle">The internet's invisible performance accelerator — explained</div>
+
+  <div class="callout success">
+    <div class="callout-title">🍕 Layman Analogy</div>
+    Imagine ordering pizza. If there's one central kitchen in New York and you're in Mumbai, your pizza takes 20 hours. But a global pizza chain (CDN) has kitchens in Mumbai, London, Tokyo. Your order goes to the nearest kitchen. Pizza arrives in 20 minutes. The content is the same pizza — just served locally.
+  </div>
+
+  <h2>What a CDN Actually Does</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card green">
+      <span class="card-icon">📦</span>
+      <div class="card-title">Caches Static Content</div>
+      <div class="card-body">Copies your images, CSS, JS, fonts, and video to edge locations worldwide. First request comes from origin. All subsequent requests: served from nearby cache. Origin sees a fraction of traffic.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">⚡</span>
+      <div class="card-title">Reduces Latency</div>
+      <div class="card-body">Physics is the enemy of speed — data cannot travel faster than light. Putting cached content 10ms away instead of 200ms away means pages load 20x faster for that part. Real difference for global users.</div>
+    </div>
+    <div class="card green">
+      <span class="card-icon">💪</span>
+      <div class="card-title">Absorbs Traffic Spikes</div>
+      <div class="card-body">Reddit hug of death? Product Hunt launch? CDN handles 100,000 simultaneous requests without sweating. Your origin server serves only cache misses — typically &lt;5% of total traffic.</div>
+    </div>
+  </div>
+
+  <h2>CDN Request Flow</h2>
+  <div class="code-block">
+User in Mumbai requests: https://example.com/logo.png
+
+<span class="comment">─── First request (Cache MISS) ───</span>
+User → CF Mumbai POP → <span class="warn">Cache MISS</span> → Origin Server (US)
+Origin → CF Mumbai POP → User                     <span class="comment">~200ms</span>
+CF Mumbai stores logo.png in cache 💾
+
+<span class="comment">─── All subsequent requests (Cache HIT) ───</span>
+User2 → CF Mumbai POP → <span class="ok">Cache HIT</span> → served from Mumbai  <span class="ok">~8ms</span>
+User3 → CF Mumbai POP → <span class="ok">Cache HIT</span> → served from Mumbai  <span class="ok">~8ms</span>
+User4 → CF Mumbai POP → <span class="ok">Cache HIT</span> → served from Mumbai  <span class="ok">~8ms</span>
+
+<span class="comment">Origin server is NOT hit for requests 2, 3, 4...</span>
+<span class="ok"># Result: 96% reduction in origin load, 25x faster for Mumbai users</span>
+  </div>
+
+  <h2>What CDN Caches vs What It Doesn't</h2>
+  <div class="card-grid card-grid-2">
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">CDN DOES cache (static)</div>
+      <div class="card-body">Images (jpg, png, gif, webp, svg), CSS files, JavaScript files, Web fonts (.woff2, .ttf), Videos, PDF files, Zip/archive files. Anything with Cache-Control: public max-age headers.</div>
+    </div>
+    <div class="card red">
+      <span class="card-icon">❌</span>
+      <div class="card-title">CDN DOES NOT cache (dynamic)</div>
+      <div class="card-body">HTML pages with personalized content, API responses with unique data, shopping carts, user dashboards, POST/PUT/DELETE requests, content with no-store/no-cache headers, authenticated content.</div>
+    </div>
+  </div>
+  <div class="page-number">23 / 30</div>
+</section>
+
+<!-- PAGE 24: CDN + SSL FLOW -->
+<section class="page" id="p24">
+  <div class="mega-number">24</div>
+  <div class="chapter-tag">Chapter 06 — CDN</div>
+  <h1 class="page-title">CDN + SSL<br>End-to-End Flow</h1>
+  <div class="page-subtitle">Every hop, every encryption layer, completely mapped out</div>
+
+  <h2>The Full Journey of an HTTPS Request</h2>
+
+  <div class="code-block" style="font-size:13px;">
+<span class="comment">═══════════════════════════════════════════════════════</span>
+<span class="comment"> FULL HTTPS + CDN Request Flow (Cloudflare)</span>
+<span class="comment">═══════════════════════════════════════════════════════</span>
+
+1️⃣  User types: https://example.com in browser
+
+2️⃣  DNS Lookup:
+    Browser → DNS → Cloudflare returns CF edge IP (not origin IP)
+    <span class="comment">↑ Your real server IP is hidden from the world</span>
+
+3️⃣  TLS Handshake (Browser ↔ Cloudflare):
+    Browser → CF: <span class="key">ClientHello</span> (TLS 1.3)
+    CF → Browser: <span class="key">ServerHello</span> + <span class="val">Universal SSL Certificate</span>
+    Browser validates cert (trusted CA chain ✓, domain matches ✓)
+    Session key established → <span class="ok">HTTPS channel open</span>
+
+4️⃣  CF checks cache:
+    If static resource + Cache HIT → <span class="ok">Served from edge (fast!)</span>
+    If Cache MISS → continue to step 5
+
+5️⃣  TLS Connection (Cloudflare ↔ Origin):
+    CF → Origin: <span class="key">ClientHello</span>
+    Origin → CF: <span class="key">ServerHello</span> + <span class="val">Origin Certificate</span>
+    CF validates: known origin cert, Full Strict mode ✓
+    Session key established → <span class="ok">HTTPS channel to origin</span>
+
+6️⃣  Request forwarded to your server:
+    CF adds headers: X-Forwarded-For, CF-Connecting-IP, CF-Ray
+    Origin processes request, returns response
+
+7️⃣  Response travels back:
+    Origin → CF (over HTTPS) → User (over HTTPS)
+    CF caches static assets for future requests
+    CF strips server info headers (security)
+
+8️⃣  Browser renders page
+    Padlock shown ✓ | Encrypted ✓ | Fast ✓ | Secure ✓
+  </div>
+
+  <div class="callout success">
+    <div class="callout-title">✅ Key Points in This Flow</div>
+    Two separate TLS connections: browser↔CF and CF↔origin. Neither connection shares keys with the other. CF acts as a trusted intermediary. Your origin IP is never exposed to the user's browser. CF headers let your server see the real user IP.
+  </div>
+  <div class="page-number">24 / 30</div>
+</section>
+
+<!-- PAGE 25: EDGE LOCATIONS -->
+<section class="page" id="p25">
+  <div class="mega-number">25</div>
+  <div class="chapter-tag">Chapter 06 — CDN</div>
+  <h1 class="page-title purple">Edge Locations<br>& PoPs</h1>
+  <div class="page-subtitle">How CDNs achieve global speed through points of presence</div>
+
+  <div class="callout purple">
+    <div class="callout-title">📡 Layman Analogy</div>
+    A Point of Presence (PoP) is like a local branch of a bank. Instead of every transaction going to HQ in New York, there's a branch in your city. Faster, cheaper, more reliable. Your money (data) flows the same — just much closer to you.
+  </div>
+
+  <h2>Cloudflare's Global Network (2024)</h2>
+  <div class="card-grid card-grid-3">
+    <div class="card purple">
+      <span class="card-icon">330+</span>
+      <div class="card-title">Cities Worldwide</div>
+      <div class="card-body">Cloudflare operates in 330+ cities across 100+ countries. Most major internet users are within 50ms of a Cloudflare datacenter. For comparison, the planet's circumference is ~40,000 km.</div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">2Tbps+</span>
+      <div class="card-title">DDoS Capacity</div>
+      <div class="card-body">Cloudflare's network capacity exceeds the largest DDoS attacks ever recorded. It absorbs attacks passively — your site stays up while the attacker's botnet is blocked and rate-limited.</div>
+    </div>
+    <div class="card purple">
+      <span class="card-icon">&lt;20ms</span>
+      <div class="card-title">Average Latency (Global)</div>
+      <div class="card-body">For cache HITs, most users see sub-20ms response times. Without CDN, a server in the US serving an Indian user has ~200ms base latency. CDN eliminates this physics problem.</div>
+    </div>
+  </div>
+
+  <h2>PoP Anatomy — What Runs at Each Edge Location</h2>
+  <div class="card-grid card-grid-2">
+    <div class="card">
+      <div class="card-title">🔒 SSL Termination</div>
+      <div class="card-body">Each PoP handles TLS handshakes locally. Your users complete their HTTPS connection within milliseconds — not waiting for a cross-continental round trip for the handshake.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📦 Content Cache</div>
+      <div class="card-body">Copies of your static assets stored on SSD storage at each PoP. Cache hit ratios of 80-95% are common for content-heavy sites, meaning vast majority of requests never reach origin.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">🛡️ WAF & Bot Detection</div>
+      <div class="card-body">Attack detection and filtering runs at the edge. Malicious requests are blocked before they consume any of your bandwidth or server resources.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Workers Runtime</div>
+      <div class="card-body">Cloudflare Workers JavaScript runs at the edge with ~1ms cold start. Logic executes physically near the user — not round-tripping to your origin for every request.</div>
+    </div>
+  </div>
+
+  <div class="pros-cons">
+    <div class="pros">
+      <div class="pros-title">✅ CDN Benefits</div>
+      <div class="pro-item">50-80% reduction in page load time for global users</div>
+      <div class="pro-item">60-90% reduction in origin server traffic and cost</div>
+      <div class="pro-item">Bandwidth savings — CDN pays for traffic, not you</div>
+      <div class="pro-item">High availability — site works even if origin is briefly down</div>
+    </div>
+    <div class="cons">
+      <div class="cons-title">❌ CDN Challenges</div>
+      <div class="con-item">Cache invalidation — stale content can persist after updates</div>
+      <div class="con-item">Cache bypassing — poorly configured headers defeat caching</div>
+      <div class="con-item">Private content — must ensure authenticated pages bypass cache</div>
+      <div class="con-item">Debugging harder — need to check if issue is at edge or origin</div>
+    </div>
+  </div>
+  <div class="page-number">25 / 30</div>
+</section>
+
+<!-- PAGE 26: SECURITY BEST PRACTICES -->
+<section class="page" id="p26">
+  <div class="mega-number">26</div>
+  <div class="chapter-tag">Chapter 07 — Security</div>
+  <h1 class="page-title red">Security<br>Best Practices</h1>
+  <div class="page-subtitle">The industry-level checklist that separates amateur from production-grade SSL</div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">Must-Have Settings</div>
+      <div class="card-body">
+        <div style="line-height:2.2;font-size:13px;">
+          🔒 Full (Strict) SSL mode on CF<br>
+          🔑 Cloudflare Origin Certificate<br>
+          📢 HSTS enabled (max-age=31536000)<br>
+          🚀 TLS 1.2 minimum (TLS 1.3 preferred)<br>
+          ⚡ HTTP/2 or HTTP/3 enabled<br>
+          🔄 Auto redirect HTTP→HTTPS<br>
+          📋 Security headers configured<br>
+          🔒 CAA DNS records set<br>
+          🗑️ Weak ciphers disabled
+        </div>
+      </div>
+    </div>
+    <div class="card red">
+      <span class="card-icon">❌</span>
+      <div class="card-title">Things to Avoid</div>
+      <div class="card-body">
+        <div style="line-height:2.2;font-size:13px;">
+          ❌ Flexible SSL mode (false security)<br>
+          ❌ Self-signed certs facing the public<br>
+          ❌ Expired certificates (set alerts!)<br>
+          ❌ SSL 3.0 / TLS 1.0 / TLS 1.1<br>
+          ❌ RC4, DES, 3DES cipher suites<br>
+          ❌ Storing private key in the cert<br>
+          ❌ Sharing private keys<br>
+          ❌ Missing intermediate chain<br>
+          ❌ HTTP without redirect to HTTPS
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Essential HTTP Security Headers</h2>
+  <div class="code-block">
+<span class="comment"># Nginx security headers for SSL</span>
+
+<span class="comment"># Force HTTPS for 1 year, include subdomains</span>
+add_header <span class="key">Strict-Transport-Security</span> "max-age=31536000; includeSubDomains; preload";
+
+<span class="comment"># Prevent clickjacking</span>
+add_header <span class="key">X-Frame-Options</span> "SAMEORIGIN";
+
+<span class="comment"># Prevent MIME sniffing</span>
+add_header <span class="key">X-Content-Type-Options</span> "nosniff";
+
+<span class="comment"># Referrer policy</span>
+add_header <span class="key">Referrer-Policy</span> "strict-origin-when-cross-origin";
+
+<span class="comment"># Content Security Policy (most important, prevent XSS)</span>
+add_header <span class="key">Content-Security-Policy</span> "default-src 'self'; script-src 'self' https://cdnjs.cloudflare.com;";
+
+<span class="comment"># Permissions policy</span>
+add_header <span class="key">Permissions-Policy</span> "geolocation=(), microphone=(), camera=()";
+  </div>
+
+  <h2>SSL Rating Test</h2>
+  <p>Test your configuration at <strong style="color:var(--accent)">ssllabs.com/ssltest</strong> — aim for A+ rating. A proper Cloudflare + Full Strict + security headers setup will get A+ out of the box.</p>
+  <div class="page-number">26 / 30</div>
+</section>
+
+<!-- PAGE 27: HSTS -->
+<section class="page" id="p27">
+  <div class="mega-number">27</div>
+  <div class="chapter-tag">Chapter 07 — Security</div>
+  <h1 class="page-title amber">HSTS<br>Explained</h1>
+  <div class="page-subtitle">The header that makes "downgrade attacks" impossible</div>
+
+  <div class="callout amber">
+    <div class="callout-title">🔒 Layman Analogy</div>
+    Normally, if you type "example.com" (without https://), your browser first tries HTTP, then gets redirected to HTTPS. For a fraction of a second, you're on HTTP — vulnerable to attack. HSTS tells your browser: "Never even TRY HTTP for this domain. Go straight to HTTPS. No exceptions."
+  </div>
+
+  <h2>The Problem HSTS Solves</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num" style="background: linear-gradient(135deg, var(--accent5), #dc2626);">!</div>
+      <div class="step-content">
+        <div class="step-title">Without HSTS: The Downgrade Attack Window</div>
+        <div class="step-body">User types "mybank.com". Browser sends HTTP request first. Attacker on same WiFi intercepts the HTTP request, redirects to fake-mybank.com. User never sees HTTPS. Credentials stolen.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num" style="background: linear-gradient(135deg, var(--accent3), #059669);">✓</div>
+      <div class="step-content">
+        <div class="step-title">With HSTS: Zero Window for Attack</div>
+        <div class="step-body">Browser remembers from last visit: "mybank.com ALWAYS uses HTTPS". User types "mybank.com". Browser directly sends HTTPS — never touches HTTP. No attack window exists.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="comment"># HSTS Header breakdown</span>
+Strict-Transport-Security: <span class="key">max-age</span>=<span class="val">31536000</span>; <span class="key">includeSubDomains</span>; <span class="key">preload</span>
+
+<span class="comment"># max-age=31536000  →  1 year (in seconds). Browser won't try HTTP for 1yr.</span>
+<span class="comment"># includeSubDomains →  HSTS applies to ALL subdomains too</span>
+<span class="comment"># preload           →  Opt into browser's hardcoded HSTS list</span>
+
+<span class="comment"># HSTS Preload List: browsers come with this list BUILT-IN</span>
+<span class="comment"># Even on FIRST visit, before you've ever seen the header,</span>
+<span class="comment"># browser goes straight to HTTPS. Submit at: hstspreload.org</span>
+  </div>
+
+  <div class="callout danger">
+    <div class="callout-title">⚠️ HSTS Gotcha — Don't Enable Prematurely</div>
+    Once HSTS is enabled with a long max-age, if you ever need to go back to HTTP (e.g., broken cert during migration), users who received the HSTS header CANNOT access your site over HTTP for the max-age duration. There's no override. Test thoroughly first. Start with a short max-age (300 seconds) before going to 1 year.
+  </div>
+
+  <div class="card-grid card-grid-2">
+    <div class="card green">
+      <span class="card-icon">✅</span>
+      <div class="card-title">HSTS Enables</div>
+      <div class="card-body">Eliminates SSL stripping attacks, HTTP downgrade attacks, eliminates first-visit vulnerability, improves trust score, required for HSTS preload list inclusion, minor performance gain (no redirect hop).</div>
+    </div>
+    <div class="card red">
+      <span class="card-icon">⚠️</span>
+      <div class="card-title">HSTS Risks</div>
+      <div class="card-body">Once set with preload, reverting to HTTP is extremely painful. Affects all subdomains if includeSubDomains is set. Misconfigured cert + HSTS = site completely inaccessible. No exceptions for the max-age duration.</div>
+    </div>
+  </div>
+  <div class="page-number">27 / 30</div>
+</section>
+
+<!-- PAGE 28: COMMON SSL ERRORS -->
+<section class="page" id="p28">
+  <div class="mega-number">28</div>
+  <div class="chapter-tag">Chapter 07 — Security</div>
+  <h1 class="page-title red">Common SSL<br>Errors & Fixes</h1>
+  <div class="page-subtitle">Every SSL error you'll ever see, decoded and solved</div>
+
+  <table class="data-table">
+    <thead>
+      <tr><th>Error</th><th>Browser Message</th><th>Root Cause</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag red">ERR_CERT_AUTHORITY_INVALID</span></td>
+        <td>Your connection is not private</td>
+        <td>Self-signed cert, or missing intermediate CA</td>
+        <td>Use fullchain.pem. Or get cert from trusted CA.</td>
+      </tr>
+      <tr>
+        <td><span class="tag red">ERR_CERT_DATE_INVALID</span></td>
+        <td>Your clock is wrong / Cert expired</td>
+        <td>Certificate expired or system clock wrong</td>
+        <td>Renew cert. Or fix system date. Set up auto-renewal.</td>
+      </tr>
+      <tr>
+        <td><span class="tag red">ERR_CERT_COMMON_NAME_INVALID</span></td>
+        <td>Certificate name mismatch</td>
+        <td>Cert domain ≠ URL domain. www vs non-www mismatch.</td>
+        <td>Get cert that covers both www.domain.com AND domain.com</td>
+      </tr>
+      <tr>
+        <td><span class="tag amber">Mixed Content Warning</span></td>
+        <td>Page shows insecure elements</td>
+        <td>HTTPS page loads HTTP images/scripts</td>
+        <td>Change all asset URLs to HTTPS or use protocol-relative URLs</td>
+      </tr>
+      <tr>
+        <td><span class="tag amber">ERR_TOO_MANY_REDIRECTS</span></td>
+        <td>Redirect loop</td>
+        <td>Cloudflare Flexible + server redirects HTTP→HTTPS = loop</td>
+        <td>Switch CF to Full/Full Strict. Remove server redirect if CF handles it.</td>
+      </tr>
+      <tr>
+        <td><span class="tag amber">525 SSL Handshake Failed</span></td>
+        <td>Cloudflare error page</td>
+        <td>CF can't complete TLS handshake with origin</td>
+        <td>Check origin cert validity. Ensure origin server supports TLS 1.2+.</td>
+      </tr>
+      <tr>
+        <td><span class="tag amber">526 Invalid SSL Certificate</span></td>
+        <td>Cloudflare error page</td>
+        <td>Full Strict mode but origin cert not trusted by CF</td>
+        <td>Install Cloudflare Origin Certificate on your server.</td>
+      </tr>
+      <tr>
+        <td><span class="tag red">ERR_SSL_PROTOCOL_ERROR</span></td>
+        <td>SSL protocol error</td>
+        <td>TLS version mismatch, cipher mismatch</td>
+        <td>Enable TLS 1.2 on server. Disable old SSL versions. Update cipher list.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout danger">
+    <div class="callout-title">🔄 Most Common Issue: Redirect Loop with Cloudflare Flexible</div>
+    Classic trap: You have HTTPS redirect in Nginx/Apache (.htaccess). You also have Cloudflare Flexible mode. Cloudflare sends HTTP to your server → server redirects to HTTPS → Cloudflare sends HTTP again → infinite loop. <br><br><strong>Fix:</strong> Use CF Full mode + remove HTTP→HTTPS redirect from your server config (let CF handle it via Always Use HTTPS rule).
+  </div>
+  <div class="page-number">28 / 30</div>
+</section>
+
+<!-- PAGE 29: .in TO .com MIGRATION -->
+<section class="page" id="p29">
+  <div class="mega-number">29</div>
+  <div class="chapter-tag">Chapter 07 — Security</div>
+  <h1 class="page-title purple">.in → .com<br>Migration Guide</h1>
+  <div class="page-subtitle">The complete SSL-safe migration path from country TLD to global TLD</div>
+
+  <div class="callout purple">
+    <div class="callout-title">🗺️ Scenario</div>
+    You have myapp.in which Indian users have been using. You now want to move to myapp.com globally. Traffic, SEO, and HTTPS must all work correctly during and after migration.
+  </div>
+
+  <h2>Option A — Cloudflare (Recommended)</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">Add both domains to Cloudflare as separate zones</div>
+        <div class="step-body">Add myapp.com zone → Universal SSL activates (free). Add myapp.in zone → Universal SSL activates (free). Both now have valid HTTPS. Takes ~15 minutes.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">Configure Redirect Rule in myapp.in zone</div>
+        <div class="step-body">CF Dashboard → myapp.in zone → Rules → Redirect Rules. Create rule: If hostname is myapp.in → 301 redirect to https://myapp.com. Path-preserving: add <span class="inline-code">${uri}</span> to destination URL.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">Update nameservers for myapp.in to Cloudflare</div>
+        <div class="step-body">Go to your .in registrar, update NS records to Cloudflare's nameservers. DNS propagates within 24hrs. After that, all .in traffic flows through CF and gets redirected.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Verify SSL on both domains</div>
+        <div class="step-body">Test: https://myapp.in (should redirect to https://myapp.com with 301). Test: https://myapp.com (should serve your app). No cert errors. Padlock on both.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Option B — Server-Level Redirect</h2>
+  <div class="code-block">
+<span class="comment"># Nginx: Redirect all myapp.in traffic to myapp.com</span>
+server {
+    listen 443 ssl;
+    server_name myapp.in *.myapp.in;
+
+    ssl_certificate     /etc/ssl/myapp-in-fullchain.pem;  <span class="comment"># .in needs its own cert!</span>
+    ssl_certificate_key /etc/ssl/myapp-in-privkey.pem;
+
+    return 301 https://myapp.com$request_uri;
+    <span class="comment"># Preserves path: /about → https://myapp.com/about</span>
+}
+
+server {
+    listen 443 ssl;
+    server_name myapp.com www.myapp.com;
+    ssl_certificate     /etc/ssl/myapp-com-fullchain.pem;
+    ssl_certificate_key /etc/ssl/myapp-com-privkey.pem;
+    <span class="comment"># your actual site config here</span>
+}
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-title">⚠️ SEO Note on Redirects</div>
+    Use 301 (permanent) not 302 (temporary) for migration. Google transfers most page rank through 301s. Submit the new sitemap in Google Search Console. Update all internal links to .com. Inform backlink sources. Plan 3-6 months for full SEO authority transfer.
+  </div>
+  <div class="page-number">29 / 30</div>
+</section>
+
+<!-- PAGE 30: MASTER MENTAL MODEL -->
+<section class="page" id="p30">
+  <div class="mega-number">30</div>
+  <div class="chapter-tag">Chapter 08 — Summary</div>
+  <h1 class="page-title">Master Mental<br>Model</h1>
+  <div class="page-subtitle">Everything you learned, crystallized into one definitive reference</div>
+
+  <h2>The Core Truths</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Topic</th><th>What It Really Is</th><th>Key Truth</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>SSL/TLS</td>
+        <td>Security protocol</td>
+        <td>TLS is active. SSL is just the old name. Does 3 things: encrypt, authenticate, verify integrity.</td>
+      </tr>
+      <tr>
+        <td>Certificate</td>
+        <td>Identity document</td>
+        <td>NOT encryption itself. Contains domain + public key + CA signature. Private key is separate — never shared.</td>
+      </tr>
+      <tr>
+        <td>CA</td>
+        <td>Trust authority</td>
+        <td>Browsers trust Root CAs. Root CAs sign Intermediate CAs. Intermediates sign your cert. Chain of trust.</td>
+      </tr>
+      <tr>
+        <td>Full Chain</td>
+        <td>Cert + intermediates</td>
+        <td>Always use fullchain.pem not just cert.pem. Missing intermediates breaks iOS/mobile/API clients.</td>
+      </tr>
+      <tr>
+        <td>Wildcard</td>
+        <td>*.example.com cert</td>
+        <td>Covers one level of subdomains only. Does NOT cover root domain. Does NOT cover other TLDs.</td>
+      </tr>
+      <tr>
+        <td>SAN</td>
+        <td>Multi-domain cert</td>
+        <td>One cert, multiple explicitly listed domains. Required for different TLDs (.com + .in).</td>
+      </tr>
+      <tr>
+        <td>.in vs .com</td>
+        <td>Separate domains</td>
+        <td>Completely independent. Different certs, different DNS, different ownership. Never cross-share.</td>
+      </tr>
+      <tr>
+        <td>GoDaddy</td>
+        <td>Traditional CA + registrar</td>
+        <td>Costly, manual, trusted everywhere. Use for OV/EV compliance or legacy needs. Otherwise unnecessary.</td>
+      </tr>
+      <tr>
+        <td>Cloudflare</td>
+        <td>Edge SSL + CDN + WAF</td>
+        <td>Free SSL, auto-renewed, CDN, DDoS, WAF all in one. Always use Full (Strict) mode. Best for modern sites.</td>
+      </tr>
+      <tr>
+        <td>CDN</td>
+        <td>Global cache network</td>
+        <td>Copies static content to 300+ locations. 80-95% of requests served from edge, not origin. Faster + cheaper.</td>
+      </tr>
+      <tr>
+        <td>HSTS</td>
+        <td>Force-HTTPS header</td>
+        <td>Tells browsers to never use HTTP. Eliminates downgrade attacks. Set carefully — hard to undo.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>The Decision Flowchart</h2>
+  <div class="code-block" style="font-size:13px;line-height:2;">
+Do you need SSL? → <span class="ok">YES</span> (always)
+
+Are you using Cloudflare? → <span class="ok">YES</span> → Use Universal SSL (free) + Full Strict mode
+                          → <span class="warn">NO</span>  → Use Let's Encrypt (free, auto-renew)
+
+Multiple TLDs (.com + .in)? → <span class="ok">YES</span> → Separate certs per zone OR SAN cert
+                             → <span class="warn">NO</span>  → Single cert for your domain
+
+Need wildcard? → <span class="ok">YES</span> → Get *.example.com cert (remember: add root domain too!)
+               → <span class="warn">NO</span>  → Specific domain cert sufficient
+
+Need OV/EV compliance? → <span class="ok">YES</span> → Commercial CA (DigiCert/GoDaddy/Sectigo)
+                        → <span class="warn">NO</span>  → Free DV cert (Let's Encrypt / CF Universal)
+
+Origin cert for CF? → <span class="ok">YES</span> → Cloudflare Origin Certificate (free, 15yr)
+</div>
+
+  <div class="highlight" style="margin-top:24px;">
+    <div style="font-size:13px;color:var(--text2);line-height:1.8;font-family:'JetBrains Mono',monospace;">
+      <span style="color:var(--accent);font-weight:700;">// THE GOLDEN RULE</span><br><br>
+      Cloudflare <span style="color:var(--accent3)">replaces</span> traditional SSL complexity, GoDaddy-style cert pain,<br>
+      and manual CDN setup — while <span style="color:var(--accent3)">still respecting</span> TLS trust chains<br>
+      and domain boundaries that you now fully understand.<br><br>
+      <span style="color:var(--accent)">Browser → CF (Universal SSL) → Origin (CF Origin Cert, Full Strict)</span><br>
+      <span style="color:var(--accent3)">= Encrypted everywhere. Free. Fast. Auto-renewed. Secure.</span>
+    </div>
+  </div>
+
+  <div style="margin-top:32px;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:8px;text-align:center;">
+    <div style="font-size:14px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:8px;">YOU NOW UNDERSTAND</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+      <span class="badge badge-blue">TLS Handshake</span>
+      <span class="badge badge-purple">Certificate Trust Chain</span>
+      <span class="badge badge-green">Full Chain Importance</span>
+      <span class="badge badge-amber">Wildcard Limits</span>
+      <span class="badge badge-blue">SAN Certs</span>
+      <span class="badge badge-red">.in vs .com Isolation</span>
+      <span class="badge badge-green">Cloudflare SSL Modes</span>
+      <span class="badge badge-amber">GoDaddy Trade-offs</span>
+      <span class="badge badge-blue">CDN Architecture</span>
+      <span class="badge badge-purple">HSTS Security</span>
+      <span class="badge badge-green">Origin Certificates</span>
+      <span class="badge badge-red">Common SSL Errors</span>
+    </div>
+  </div>
+
+  <div class="page-number">30 / 30</div>
+</section>
+
+</div><!-- end #main -->
+
+<script>
+// ── NAV active state + scroll
+const navItems = document.querySelectorAll('.nav-item');
+const pages = document.querySelectorAll('.page[id]');
+const progressBar = document.getElementById('progress-bar');
+const toggleBtn = document.getElementById('toggle-btn');
+const sidebar = document.getElementById('sidebar');
+
+function goTo(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleSidebar() {
+  const isOpen = sidebar.classList.toggle('open');
+  toggleBtn.textContent = isOpen ? '›' : '‹';
+  const main = document.getElementById('main');
+  if (window.innerWidth > 900) {
+    if (isOpen) {
+      sidebar.style.transform = 'translateX(0)';
+      main.style.marginLeft = '260px';
+      toggleBtn.style.left = '260px';
+    } else {
+      sidebar.style.transform = 'translateX(-100%)';
+      main.style.marginLeft = '0';
+      toggleBtn.style.left = '0';
+    }
+  }
+}
+
+// Progress bar
+window.addEventListener('scroll', () => {
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / docH) * 100;
+  progressBar.style.width = pct + '%';
+
+  // Active nav
+  let current = '';
+  pages.forEach(p => {
+    if (p.getBoundingClientRect().top <= 100) current = p.id;
+  });
+  navItems.forEach(n => {
+    n.classList.remove('active');
+    if (n.getAttribute('onclick')?.includes(current)) n.classList.add('active');
+  });
+});
+
+// Sidebar state init
+if (window.innerWidth <= 900) {
+  toggleBtn.style.left = '0';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SysAdmin Combat Guide - Interactive Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Scrollbar for code blocks */
+        .code-scroll::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .code-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .code-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .code-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Chart Container Strict Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        /* Smooth transitions */
+        .card-hover {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutral (Stone-50) with Tier-specific accents: Blue (Network), Amber (SSH), Violet (Debug) -->
+    <!-- Application Structure Plan: 
+         1. Hero Section: Immediate "Emergency Search" bar.
+         2. Tactical Overview: Dashboard with charts analyzing the toolset composition (Chart.js).
+         3. Command Center: The core interaction area. A filterable grid of cards.
+            - Filters: Tier, Category.
+            - Interaction: Click to copy command, hover for details.
+         4. Scenario Mode: A 'wizard' style interface for common problems (e.g., "I can't connect") that filters the list to relevant tools.
+         Why: SysAdmins need speed. The search is front-and-center. The categorization helps navigation when exploring.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Donut Chart: Shows the balance of the 3 tiers (Network vs SSH vs Debug). Goal: Inform user of the guide's scope.
+         2. Bar Chart: Breakdown of commands by sub-category (e.g., DNS, Firewall). Goal: Show where the depth lies.
+         3. Interactive Grid: The 100 commands. No SVG used. Unicode emojis used for icons.
+         4. JS Logic: Client-side filtering and search for instant response (critical for troubleshooting tools).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-50 text-slate-800 font-sans leading-relaxed selection:bg-blue-100 selection:text-blue-900">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl mr-2">🛠️</span>
+                    <h1 class="text-xl font-bold tracking-tight text-slate-900">SysAdmin <span class="text-blue-600">Combat Guide</span></h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button onclick="scrollToSection('dashboard')" class="text-slate-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors">Overview</button>
+                    <button onclick="scrollToSection('command-center')" class="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-md text-sm font-medium transition-colors shadow-sm">Command Center</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero / Search Section -->
+    <header class="bg-white border-b border-stone-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+            <h2 class="text-4xl font-extrabold text-slate-900 sm:text-5xl mb-4">
+                Rapid Response Protocol
+            </h2>
+            <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-8">
+                100 essential commands for Network, SSH, and Advanced Debugging. 
+                Identify the problem, grab the command, fix the system.
+            </p>
+            
+            <div class="max-w-3xl mx-auto relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <span class="text-gray-400 text-xl">🔍</span>
+                </div>
+                <input type="text" id="global-search" 
+                    class="block w-full pl-10 pr-3 py-4 border border-stone-300 rounded-lg leading-5 bg-stone-50 placeholder-stone-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out shadow-sm text-lg" 
+                    placeholder="Search by keyword (e.g., 'ping', 'firewall', 'port', 'ssh')..."
+                    oninput="handleSearch(this.value)">
+                <div class="mt-2 text-sm text-stone-500 text-left pl-2">
+                    Try searching for: <span class="font-mono text-blue-600 bg-blue-50 px-1 rounded cursor-pointer" onclick="setSearch('mtu')">mtu</span>, 
+                    <span class="font-mono text-amber-600 bg-amber-50 px-1 rounded cursor-pointer" onclick="setSearch('tunnel')">tunnel</span>, 
+                    <span class="font-mono text-purple-600 bg-purple-50 px-1 rounded cursor-pointer" onclick="setSearch('docker')">docker</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Dashboard / Stats Section -->
+    <section id="dashboard" class="py-12 bg-stone-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="mb-8">
+                <h3 class="text-2xl font-bold text-slate-900 mb-2">Tactical Overview</h3>
+                <p class="text-slate-600">Breakdown of the 100-command toolbox by function and tier.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Chart 1: Tier Distribution -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex flex-col items-center">
+                    <h4 class="text-lg font-semibold text-slate-800 mb-4 w-full text-left border-b pb-2">Battle Tiers Distribution</h4>
+                    <div class="chart-container">
+                        <canvas id="tierChart"></canvas>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-4 text-center italic">
+                        The guide is balanced across three core disciplines.
+                    </p>
+                </div>
+
+                <!-- Chart 2: Category Breakdown -->
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex flex-col items-center">
+                    <h4 class="text-lg font-semibold text-slate-800 mb-4 w-full text-left border-b pb-2">Capability Density</h4>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-4 text-center italic">
+                        Focus areas based on command volume.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Command Center -->
+    <section id="command-center" class="py-12 bg-white border-t border-stone-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end md:items-center mb-8 gap-4">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900">Command Grid</h3>
+                    <p class="text-slate-600">Filter by Tier or Scenario to find the right tool.</p>
+                </div>
+                
+                <!-- Filters -->
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="filterGrid('all')" id="btn-all" class="filter-btn active px-4 py-2 rounded-full text-sm font-medium bg-slate-800 text-white transition-all shadow-md">All Ops</button>
+                    <button onclick="filterGrid(1)" id="btn-tier1" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-stone-200 hover:bg-blue-50 hover:text-blue-600 transition-all">🛡️ Network</button>
+                    <button onclick="filterGrid(2)" id="btn-tier2" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-stone-200 hover:bg-amber-50 hover:text-amber-600 transition-all">🔑 SSH</button>
+                    <button onclick="filterGrid(3)" id="btn-tier3" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-white text-slate-600 border border-stone-200 hover:bg-purple-50 hover:text-purple-600 transition-all">🛠️ Debug</button>
+                </div>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="grid-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards will be injected here by JS -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden text-center py-20">
+                <span class="text-4xl">🤷‍♂️</span>
+                <h3 class="mt-4 text-xl font-medium text-slate-900">No commands found</h3>
+                <p class="mt-2 text-slate-500">Try adjusting your search or filters.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-2xl font-bold mb-4">SysAdmin Combat Guide</h2>
+            <p class="text-slate-400 mb-8 max-w-xl mx-auto">
+                Always verify commands before running them in production. This guide is a reference for troubleshooting and administration.
+            </p>
+            <div class="text-sm text-slate-600">
+                Generated based on the provided Combat Guide source material.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data Source ---
+        const sysAdminData = [
+            // Tier 1: Network & MTU
+            { id: 1, tier: 1, category: "Connectivity", cmd: "ip -c addr", desc: "Check IP & Interface (Colorized output)" },
+            { id: 2, tier: 1, category: "Connectivity", cmd: "ip link show", desc: "Check Link Status (See if cable is UP/DOWN)" },
+            { id: 3, tier: 1, category: "Connectivity", cmd: "curl -s ifconfig.me", desc: "Find Public IP (Quickly find egress IP)" },
+            { id: 4, tier: 1, category: "Connectivity", cmd: "ping -i 0.2 <IP>", desc: "Ping with Interval (Faster pings for drops)" },
+            { id: 5, tier: 1, category: "Connectivity", cmd: "ping -w 5 <IP>", desc: "Ping with Timeout (Stop after 5s)" },
+            { id: 6, tier: 1, category: "Connectivity", cmd: "ip route | grep default", desc: "Find Gateway (Identify exit point)" },
+            { id: 7, tier: 1, category: "Connectivity", cmd: "sudo resolvectl flush-caches", desc: "Flush DNS Cache (systemd)" },
+            { id: 8, tier: 1, category: "Connectivity", cmd: "resolvectl statistics", desc: "View DNS Stats" },
+            { id: 9, tier: 1, category: "MTU", cmd: "ping -M do -s 1472 8.8.8.8", desc: "Standard MTU Test (1500 total)" },
+            { id: 10, tier: 1, category: "MTU", cmd: "ping -M do -s 1372 8.8.8.8", desc: "VPN/Azure MTU Test (1400 total)" },
+            { id: 11, tier: 1, category: "MTU", cmd: "for s in {1400..1500}; do ping -c 1 -M do -s $s 8.8.8.8 >/dev/null && echo $s works; done", desc: "Find Max MTU Script" },
+            { id: 12, tier: 1, category: "MTU", cmd: "sudo ip link set dev eth0 mtu 1350", desc: "Set MTU (Temporary)" },
+            { id: 13, tier: 1, category: "MTU", cmd: "ip link | grep mtu", desc: "Check MTU on all interfaces" },
+            { id: 14, tier: 1, category: "MTU", cmd: "sudo nano /etc/netplan/01-netcfg.yaml", desc: "Persistent MTU (Netplan edit)" },
+            { id: 15, tier: 1, category: "MTU", cmd: "ss -i", desc: "Check MSS (Max Segment Size in TCP stats)" },
+            { id: 16, tier: 1, category: "Routing", cmd: "traceroute -I <IP>", desc: "Trace with ICMP" },
+            { id: 17, tier: 1, category: "Routing", cmd: "traceroute -T -p 80 <IP>", desc: "Trace with TCP (Bypass Firewalls)" },
+            { id: 18, tier: 1, category: "Routing", cmd: "traceroute -U -p 53 <IP>", desc: "Trace with UDP" },
+            { id: 19, tier: 1, category: "Routing", cmd: "mtr -rw <IP>", desc: "Live Path Monitor" },
+            { id: 20, tier: 1, category: "Routing", cmd: "ip route get 8.8.8.8", desc: "Show Route for Specific IP" },
+            { id: 21, tier: 1, category: "Routing", cmd: "sudo ip route add 10.0.0.0/24 via 192.168.1.1", desc: "Add Static Route" },
+            { id: 22, tier: 1, category: "Routing", cmd: "sudo ip route del 10.0.0.0/24", desc: "Delete Route" },
+            { id: 23, tier: 1, category: "Routing", cmd: "ip neighbor", desc: "ARP Table (See local MACs)" },
+            { id: 24, tier: 1, category: "Routing", cmd: "sudo ip neighbor flush all", desc: "Clear ARP Cache" },
+            { id: 25, tier: 1, category: "DNS", cmd: "dig <domain> +short", desc: "Simple DNS Lookup" },
+            { id: 26, tier: 1, category: "DNS", cmd: "dig <domain> +trace", desc: "Detailed DNS Path" },
+            { id: 27, tier: 1, category: "DNS", cmd: "dig -x <IP>", desc: "Reverse Lookup" },
+            { id: 28, tier: 1, category: "DNS", cmd: "dig <domain> MX", desc: "Check MX Records" },
+            { id: 29, tier: 1, category: "DNS", cmd: "dig <domain> TXT", desc: "Check TXT/SPF" },
+            { id: 30, tier: 1, category: "DNS", cmd: "dig @8.8.8.8 <domain>", desc: "Query Specific DNS Server" },
+            { id: 31, tier: 1, category: "DNS", cmd: "whois <domain>", desc: "WHOIS Info" },
+            { id: 32, tier: 1, category: "DNS", cmd: "watch -n 60 dig <domain>", desc: "Check DNS Propagation" },
+            { id: 33, tier: 1, category: "Web", cmd: "curl -I <URL>", desc: "Header Check" },
+            { id: 34, tier: 1, category: "Web", cmd: "curl -L <URL>", desc: "Follow Redirects" },
+            { id: 35, tier: 1, category: "Web", cmd: "curl -k <URL>", desc: "Ignore SSL Errors" },
+
+            // Tier 2: SSH
+            { id: 36, tier: 2, category: "Access", cmd: "ssh -vvv <user>@<IP>", desc: "Maximum Debug Mode" },
+            { id: 37, tier: 2, category: "Access", cmd: "ssh -i ~/.ssh/id_ed25519 <user>@<IP>", desc: "Specify Key File" },
+            { id: 38, tier: 2, category: "Access", cmd: "ssh -o StrictHostKeyChecking=no <user>@<IP>", desc: "Bypass Known Hosts" },
+            { id: 39, tier: 2, category: "Access", cmd: "ssh-copy-id -i ~/.ssh/id_rsa.pub <user>@<IP>", desc: "Copy SSH Key to Server" },
+            { id: 40, tier: 2, category: "Access", cmd: "ssh-keygen -t ed25519 -C \"admin@work\"", desc: "Generate Ed25519 Key" },
+            { id: 41, tier: 2, category: "Access", cmd: "ssh-keygen -p -f ~/.ssh/id_rsa", desc: "Change Key Passphrase" },
+            { id: 42, tier: 2, category: "Access", cmd: "ssh-add -l", desc: "List Key Fingerprints" },
+            { id: 43, tier: 2, category: "Access", cmd: "ssh-keygen -R <IP>", desc: "Remove Host Fingerprint" },
+            { id: 44, tier: 2, category: "Tunneling", cmd: "ssh -L 8080:localhost:80 <user>@<IP>", desc: "Local Port Forward (Access remote web)" },
+            { id: 45, tier: 2, category: "Tunneling", cmd: "ssh -R 9000:localhost:3000 <user>@<IP>", desc: "Remote Port Forward (Expose local app)" },
+            { id: 46, tier: 2, category: "Tunneling", cmd: "ssh -D 1080 <user>@<IP>", desc: "Dynamic Forward (SOCKS Proxy)" },
+            { id: 47, tier: 2, category: "Tunneling", cmd: "ssh -J <jump_host> <target_host>", desc: "Jump Host (ProxyJump)" },
+            { id: 48, tier: 2, category: "Tunneling", cmd: "ssh -J <u1>@j1,<u2>@j2 <u3>@target", desc: "Double Jump Host" },
+            { id: 49, tier: 2, category: "Tunneling", cmd: "ssh -X <user>@<IP>", desc: "X11 Forwarding (GUI)" },
+            { id: 50, tier: 2, category: "Config", cmd: "nano ~/.ssh/config", desc: "Edit SSH Config" },
+            { id: 51, tier: 2, category: "Config", cmd: "ServerAliveInterval 60", desc: "Keep-Alive Config Setting" },
+            { id: 52, tier: 2, category: "Config", cmd: "ControlMaster auto", desc: "Multiplexing Setting" },
+            { id: 53, tier: 2, category: "Config", cmd: "ssh -p 2222 <user>@<IP>", desc: "SSH via Specific Port" },
+            { id: 54, tier: 2, category: "Config", cmd: "ssh <user>@<IP> 'ls -la /var/log'", desc: "Run Command without Shell" },
+            { id: 55, tier: 2, category: "Config", cmd: "cat script.sh | ssh <user>@<IP> 'bash'", desc: "Pipe Local Script to Remote" },
+            { id: 56, tier: 2, category: "Config", cmd: "sshd -t", desc: "Check Config Syntax" },
+            { id: 57, tier: 2, category: "Security", cmd: "grep \"Failed password\" /var/log/auth.log", desc: "Check Failed Logins" },
+            { id: 58, tier: 2, category: "Security", cmd: "who", desc: "List Active SSH Sessions" },
+            { id: 59, tier: 2, category: "Security", cmd: "journalctl -u ssh", desc: "See SSH Service Logs" },
+            { id: 60, tier: 2, category: "Security", cmd: "pkill -u $USER ssh", desc: "Kill all my SSH processes" },
+            { id: 61, tier: 2, category: "Security", cmd: "sudo sed -i 's/PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config", desc: "Disable Password Auth" },
+            { id: 62, tier: 2, category: "Security", cmd: "sudo systemctl reload ssh", desc: "Reload SSH Service" },
+            { id: 63, tier: 2, category: "Security", cmd: "AllowUsers bob admin", desc: "Restrict by User (Config)" },
+            { id: 64, tier: 2, category: "Transfer", cmd: "scp file.txt <user>@<IP>:/tmp/", desc: "Copy to Remote" },
+            { id: 65, tier: 2, category: "Transfer", cmd: "scp -r ./data <user>@<IP>:/tmp/", desc: "Copy Folder to Remote" },
+            { id: 66, tier: 2, category: "Transfer", cmd: "scp <user>@<IP>:/var/log/syslog ./", desc: "Copy from Remote" },
+            { id: 67, tier: 2, category: "Transfer", cmd: "scp -l 1000 file.txt <user>@<IP>:/tmp/", desc: "Limited Bandwidth Copy (1Mbps)" },
+            { id: 68, tier: 2, category: "Transfer", cmd: "reput", desc: "Resume SFTP Transfer (in prompt)" },
+            { id: 69, tier: 2, category: "Transfer", cmd: "sshfs <user>@<IP>:/path /local/mount", desc: "Mount Remote via SSH" },
+            { id: 70, tier: 2, category: "Transfer", cmd: "rsync -avz -e ssh ./local <user>@<IP>:/rem", desc: "Rsync over SSH" },
+
+            // Tier 3: Advanced Debugging
+            { id: 71, tier: 3, category: "Sniffing", cmd: "sudo tcpdump -i eth0", desc: "Listen on Interface" },
+            { id: 72, tier: 3, category: "Sniffing", cmd: "sudo tcpdump -i eth0 -w capture.pcap", desc: "Capture to File" },
+            { id: 73, tier: 3, category: "Sniffing", cmd: "tcpdump -r capture.pcap", desc: "Read Capture File" },
+            { id: 74, tier: 3, category: "Sniffing", cmd: "sudo tcpdump src <IP>", desc: "Filter by Source IP" },
+            { id: 75, tier: 3, category: "Sniffing", cmd: "sudo tcpdump port 443", desc: "Filter by Port" },
+            { id: 76, tier: 3, category: "Sniffing", cmd: "sudo tcpdump -X port 80", desc: "Hex and ASCII Output" },
+            { id: 77, tier: 3, category: "Sniffing", cmd: "nc -zv <IP> 22", desc: "Check Port (Netcat)" },
+            { id: 78, tier: 3, category: "Sniffing", cmd: "nc -l 4444", desc: "Listen on Port (Netcat)" },
+            { id: 79, tier: 3, category: "Sniffing", cmd: "nc -l 4444 > file.txt", desc: "Receive File via NC" },
+            { id: 80, tier: 3, category: "Health", cmd: "htop", desc: "Process Monitor" },
+            { id: 81, tier: 3, category: "Health", cmd: "free -m", desc: "Memory Usage (MB)" },
+            { id: 82, tier: 3, category: "Health", cmd: "df -h", desc: "Disk Space" },
+            { id: 83, tier: 3, category: "Health", cmd: "iostat -xz 1", desc: "Disk I/O Monitor" },
+            { id: 84, tier: 3, category: "Health", cmd: "pstree -p", desc: "Process Tree" },
+            { id: 85, tier: 3, category: "Health", cmd: "kill -9 <PID>", desc: "Kill Unresponsive Process" },
+            { id: 86, tier: 3, category: "Health", cmd: "lsof -p <PID>", desc: "List Open Files by Process" },
+            { id: 87, tier: 3, category: "Health", cmd: "lsof -i :80", desc: "Find which process uses a port" },
+            { id: 88, tier: 3, category: "Health", cmd: "strace -p <PID>", desc: "Trace System Calls" },
+            { id: 89, tier: 3, category: "Health", cmd: "ltrace -p <PID>", desc: "Trace Library Calls" },
+            { id: 90, tier: 3, category: "Firewall", cmd: "sudo ufw status numbered", desc: "Show Firewall Status" },
+            { id: 91, tier: 3, category: "Firewall", cmd: "sudo ufw allow 2262/tcp", desc: "Allow Port" },
+            { id: 92, tier: 3, category: "Firewall", cmd: "sudo ufw deny from <IP>", desc: "Deny IP" },
+            { id: 93, tier: 3, category: "Firewall", cmd: "sudo iptables -L -n -v", desc: "Iptables List" },
+            { id: 94, tier: 3, category: "Firewall", cmd: "tail -f /var/log/syslog", desc: "Watch Syslog Live" },
+            { id: 95, tier: 3, category: "Firewall", cmd: "journalctl -p err..emerg", desc: "Journald Error Search" },
+            { id: 96, tier: 3, category: "Firewall", cmd: "journalctl -b", desc: "Journald since Boot" },
+            { id: 97, tier: 3, category: "Docker", cmd: "docker inspect <container> | grep IPAddress", desc: "Container Network Inspect" },
+            { id: 98, tier: 3, category: "Docker", cmd: "docker logs --tail 50 -f <container>", desc: "Live Container Logs" },
+            { id: 99, tier: 3, category: "Docker", cmd: "docker exec -it <container> /bin/bash", desc: "Shell in Container" },
+            { id: 100, tier: 3, category: "Docker", cmd: "docker stats --no-stream", desc: "Resource Usage" }
+        ];
+
+        // --- State Management ---
+        let currentFilter = 'all'; // 'all', 1, 2, 3
+        let searchQuery = '';
+
+        // --- DOM Elements ---
+        const gridContainer = document.getElementById('grid-container');
+        const emptyState = document.getElementById('empty-state');
+        const searchInput = document.getElementById('global-search');
+
+        // --- Initial Render ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderCharts();
+            renderGrid();
+        });
+
+        // --- Rendering Logic ---
+        function renderGrid() {
+            gridContainer.innerHTML = '';
+            
+            const filteredData = sysAdminData.filter(item => {
+                const matchesFilter = currentFilter === 'all' || item.tier === currentFilter;
+                const matchesSearch = item.cmd.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                      item.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                      item.category.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filteredData.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            } else {
+                emptyState.classList.add('hidden');
+            }
+
+            filteredData.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'card-hover bg-white rounded-xl border border-stone-200 overflow-hidden flex flex-col h-full';
+                
+                // Color coding based on Tier
+                let accentColor = 'bg-stone-500';
+                let tierIcon = '🛡️';
+                let tierName = 'Network';
+                if(item.tier === 1) { accentColor = 'bg-blue-500'; tierIcon='🛡️'; tierName='Network'; }
+                if(item.tier === 2) { accentColor = 'bg-amber-500'; tierIcon='🔑'; tierName='SSH'; }
+                if(item.tier === 3) { accentColor = 'bg-purple-600'; tierIcon='🛠️'; tierName='Debug'; }
+
+                card.innerHTML = `
+                    <div class="p-5 flex-grow">
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset ring-gray-500/10 ${accentColor} text-white opacity-90">
+                                ${tierIcon} ${tierName}
+                            </span>
+                            <span class="text-xs font-semibold text-stone-500 bg-stone-100 px-2 py-1 rounded-md">
+                                ${item.category}
+                            </span>
+                        </div>
+                        <h4 class="text-md font-semibold text-slate-900 mb-2">${item.desc}</h4>
+                    </div>
+                    <div class="bg-slate-900 p-4 border-t border-slate-800 relative group">
+                        <code class="text-sm font-mono text-green-400 block overflow-x-auto code-scroll pb-2 whitespace-nowrap">${escapeHtml(item.cmd)}</code>
+                        <button onclick="copyCommand('${escapeHtml(item.cmd).replace(/'/g, "\\'")}')" 
+                                class="absolute top-2 right-2 p-1.5 bg-slate-700 hover:bg-slate-600 rounded text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                            Copy
+                        </button>
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+
+        // --- Interaction Handlers ---
+        function filterGrid(tier) {
+            currentFilter = tier;
+            
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white', 'shadow-md');
+                btn.classList.add('bg-white', 'text-slate-600', 'border', 'border-stone-200');
+            });
+
+            const activeBtnId = tier === 'all' ? 'btn-all' : `btn-tier${tier}`;
+            const activeBtn = document.getElementById(activeBtnId);
+            activeBtn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-stone-200');
+            activeBtn.classList.add('bg-slate-800', 'text-white', 'shadow-md');
+
+            renderGrid();
+        }
+
+        function handleSearch(val) {
+            searchQuery = val;
+            renderGrid();
+        }
+
+        function setSearch(term) {
+            searchInput.value = term;
+            handleSearch(term);
+            scrollToSection('command-center');
+        }
+
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function copyCommand(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                // Could show toast here, but for simplicity, we trust the action.
+                // Optionally change button text temporarily
+                const activeElement = document.activeElement;
+                if(activeElement && activeElement.tagName === 'BUTTON') {
+                    const original = activeElement.innerText;
+                    activeElement.innerText = "Copied!";
+                    setTimeout(() => activeElement.innerText = original, 1000);
+                }
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+        }
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // --- Charts ---
+        function renderCharts() {
+            // Data Prep
+            const tierCounts = [0, 0, 0];
+            const categoryCounts = {};
+
+            sysAdminData.forEach(item => {
+                // Tier Index 0 = Tier 1, etc.
+                tierCounts[item.tier - 1]++;
+                
+                // Category
+                if(categoryCounts[item.category]) {
+                    categoryCounts[item.category]++;
+                } else {
+                    categoryCounts[item.category] = 1;
+                }
+            });
+
+            // Sort Categories
+            const sortedCategories = Object.entries(categoryCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8); // Top 8
+
+            // Chart 1: Donut
+            const ctx1 = document.getElementById('tierChart').getContext('2d');
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Network & MTU', 'SSH Mastery', 'Adv Debugging'],
+                    datasets: [{
+                        data: tierCounts,
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#7c3aed'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Chart 2: Bar
+            const ctx2 = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: sortedCategories.map(i => i[0]),
+                    datasets: [{
+                        label: 'Commands Count',
+                        data: sortedCategories.map(i => i[1]),
+                        backgroundColor: '#64748b',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

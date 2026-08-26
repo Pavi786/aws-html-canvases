@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL PITR — DevOps Field Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111520;
+    --card: #161c2e;
+    --border: #1e2d4a;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #39ff14;
+    --accent4: #ffd700;
+    --danger: #ff4444;
+    --success: #00ff88;
+    --text: #e2e8f0;
+    --muted: #7a8aa0;
+    --code-bg: #0d1117;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  .hero {
+    position: relative;
+    padding: 60px 40px 50px;
+    background: linear-gradient(135deg, #0a0d14 0%, #0f1829 50%, #0a1220 100%);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -100px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,212,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: 'PITR';
+    position: absolute;
+    right: 40px; top: 20px;
+    font-family: 'Syne', sans-serif;
+    font-size: 120px;
+    font-weight: 800;
+    color: rgba(0,212,255,0.04);
+    letter-spacing: -4px;
+    user-select: none;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 2px;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 15px; max-width: 600px; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+
+  /* ── SECTION HEADER ── */
+  .sec-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .sec-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    padding: 4px 8px;
+    border-radius: 2px;
+  }
+  .sec-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  /* ── LAYMAN EXPLAINER ── */
+  .layman-box {
+    background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(255,107,53,0.03));
+    border: 1px solid rgba(255,107,53,0.25);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .layman-box::before {
+    content: '🎬';
+    position: absolute;
+    right: 20px; top: 16px;
+    font-size: 40px;
+    opacity: 0.3;
+  }
+  .layman-box h3 {
+    font-family: 'Syne', sans-serif;
+    color: var(--accent2);
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+  .analogy-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .analogy-item {
+    background: rgba(0,0,0,0.3);
+    border-radius: 6px;
+    padding: 16px;
+    border-left: 3px solid var(--accent2);
+  }
+  .analogy-item .emoji { font-size: 24px; margin-bottom: 8px; }
+  .analogy-item .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .analogy-item .val { font-weight: 500; font-size: 14px; color: var(--text); margin-top: 4px; }
+
+  /* ── TIMELINE ── */
+  .timeline-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .timeline-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    color: var(--accent4);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .timeline {
+    position: relative;
+    padding-left: 0;
+  }
+  .tl-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .tl-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 130px;
+    flex: 1;
+    position: relative;
+  }
+  .tl-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .tl-item.safe:not(:last-child)::after { background: linear-gradient(90deg, #00ff88, #00ff88); }
+  .tl-item.danger:not(:last-child)::after { background: linear-gradient(90deg, #ff4444, #ff4444); }
+  .tl-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    z-index: 1;
+    position: relative;
+    margin-bottom: 10px;
+    border: 2px solid transparent;
+  }
+  .tl-item.safe .tl-dot { background: rgba(0,255,136,0.15); border-color: var(--success); }
+  .tl-item.danger .tl-dot { background: rgba(255,68,68,0.15); border-color: var(--danger); }
+  .tl-item.recover .tl-dot { background: rgba(0,212,255,0.15); border-color: var(--accent); }
+  .tl-item.warn .tl-dot { background: rgba(255,215,0,0.15); border-color: var(--accent4); }
+  .tl-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .tl-label {
+    font-size: 11px;
+    color: var(--text);
+    text-align: center;
+    max-width: 110px;
+    line-height: 1.4;
+  }
+  .tl-sub {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  /* ── SCENARIO BOX ── */
+  .scenario {
+    background: linear-gradient(135deg, rgba(255,68,68,0.08), rgba(255,68,68,0.03));
+    border: 1px solid rgba(255,68,68,0.3);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 32px;
+  }
+  .scenario h3 {
+    font-family: 'Syne', sans-serif;
+    color: var(--danger);
+    font-size: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scenario p { color: var(--text); font-size: 14px; line-height: 1.7; }
+  .scenario strong { color: var(--accent4); }
+
+  /* ── CODE BLOCKS ── */
+  .cmd-card {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .cmd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--border);
+  }
+  .cmd-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cmd-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cmd-tag.shell { background: rgba(57,255,20,0.1); color: var(--accent3); }
+  .cmd-tag.yaml { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .cmd-tag.sql { background: rgba(255,215,0,0.1); color: var(--accent4); }
+  .cmd-tag.critical { background: rgba(255,68,68,0.1); color: var(--danger); }
+  pre {
+    padding: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: #abb2bf;
+  }
+  .kw { color: #c678dd; }
+  .str { color: #98c379; }
+  .cm { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .fn { color: #61afef; }
+  .var { color: #e06c75; }
+  .ok { color: var(--success); }
+  .warn-text { color: var(--accent4); }
+  .err { color: var(--danger); }
+  .hl { background: rgba(0,212,255,0.06); border-left: 3px solid var(--accent); display: block; padding-left: 8px; margin-left: -8px; }
+
+  /* ── FLOW STEPS ── */
+  .flow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .flow-step {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .flow-step:hover { border-color: rgba(0,212,255,0.3); }
+  .flow-step .step-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 800;
+    color: rgba(0,212,255,0.06);
+    position: absolute;
+    right: 12px;
+    top: 4px;
+  }
+  .flow-step h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .flow-step p { font-size: 13px; color: var(--muted); }
+  .flow-step code {
+    display: block;
+    margin-top: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent3);
+    background: rgba(0,0,0,0.4);
+    padding: 8px 12px;
+    border-radius: 4px;
+    border-left: 2px solid var(--accent3);
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .comp-table { width: 100%; border-collapse: collapse; margin-bottom: 32px; }
+  .comp-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    background: rgba(255,255,255,0.02);
+  }
+  .comp-table td {
+    padding: 12px 16px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+  }
+  .comp-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pill.green { background: rgba(0,255,136,0.1); color: var(--success); }
+  .pill.red { background: rgba(255,68,68,0.1); color: var(--danger); }
+  .pill.yellow { background: rgba(255,215,0,0.1); color: var(--accent4); }
+  .pill.blue { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .rec-row td { background: rgba(0,255,136,0.03); }
+  .rec-row td:first-child { border-left: 3px solid var(--success); }
+
+  /* ── YAML SECTION ── */
+  .yaml-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 40px;
+  }
+
+  /* ── ALERT BOXES ── */
+  .alert {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+  .alert.info { background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.2); }
+  .alert.warn { background: rgba(255,215,0,0.07); border: 1px solid rgba(255,215,0,0.2); }
+  .alert.danger { background: rgba(255,68,68,0.07); border: 1px solid rgba(255,68,68,0.2); }
+  .alert.success { background: rgba(0,255,136,0.07); border: 1px solid rgba(0,255,136,0.2); }
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── TAG ── */
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 3px;
+    background: rgba(0,212,255,0.08);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,0.2);
+    margin-right: 6px;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  .footer code {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  @media (max-width: 640px) {
+    .hero { padding: 40px 20px 36px; }
+    .hero::after { display: none; }
+    .container { padding: 28px 16px; }
+    .tl-track { gap: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="badge">DEVOPS FIELD GUIDE · MYSQL</div>
+  <h1>Point-In-Time Recovery<br><span>for MySQL</span></h1>
+  <p>Full PITR guide — Kubernetes, Docker, Bare Metal. Scenario-driven. Command-accurate. Production-ready.</p>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 0: LAYMAN EXPLANATION          -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">00</span>
+    <h2>What is PITR? (Layman Explanation 🎬)</h2>
+  </div>
+
+  <div class="layman-box">
+    <h3>🎬 Think of it like a DVR / Video Recorder for your Database</h3>
+    <p style="font-size:14px; color:var(--muted); line-height:1.8;">
+      Imagine your database is a movie being recorded 24/7. MySQL constantly writes a <strong style="color:var(--accent)">binlog</strong> (binary log) — it's like a <em>frame-by-frame recording of every change ever made</em>.<br><br>
+      Every <code style="background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:3px; font-family:JetBrains Mono, monospace; color:var(--accent3)">INSERT</code>, <code style="background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:3px; font-family:JetBrains Mono, monospace; color:var(--accent3)">UPDATE</code>, and <code style="background:rgba(0,0,0,0.4); padding:2px 6px; border-radius:3px; font-family:JetBrains Mono, monospace; color:var(--accent4)">DELETE</code> is recorded in sequence with a timestamp. 
+      A full backup (mysqldump) is like a <em>snapshot photo</em> of the movie at a certain time. 
+      Together → you can rewind to <strong style="color:var(--accent2)">any point in time</strong>.
+    </p>
+    <div class="analogy-grid">
+      <div class="analogy-item">
+        <div class="emoji">📸</div>
+        <div class="label">Full Backup</div>
+        <div class="val">Snapshot at 2 AM daily</div>
+      </div>
+      <div class="analogy-item">
+        <div class="emoji">🎞️</div>
+        <div class="label">Binlog</div>
+        <div class="val">Frame-by-frame recording of all changes</div>
+      </div>
+      <div class="analogy-item">
+        <div class="emoji">⏪</div>
+        <div class="label">PITR</div>
+        <div class="val">Restore snapshot + replay binlog up to exact timestamp</div>
+      </div>
+      <div class="analogy-item">
+        <div class="emoji">🧨</div>
+        <div class="label">Problem</div>
+        <div class="val">Someone deleted all orders at 11:00 AM</div>
+      </div>
+      <div class="analogy-item">
+        <div class="emoji">🎯</div>
+        <div class="label">Goal</div>
+        <div class="val">Recover DB state at 10:59:59 AM</div>
+      </div>
+      <div class="analogy-item">
+        <div class="emoji">✅</div>
+        <div class="label">Result</div>
+        <div class="val">All data before deletion is back, deletion is gone</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 1: THE 11 AM SCENARIO          -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <h2>🚨 The 11 AM Disaster Scenario</h2>
+  </div>
+
+  <div class="scenario">
+    <h3>💥 What Happened?</h3>
+    <p>
+      It's <strong>11:00:23 AM</strong>. A dev runs <code style="font-family:JetBrains Mono,monospace; background:rgba(0,0,0,0.4); padding:2px 8px; border-radius:3px; color:var(--danger)">DELETE FROM orders;</code> — <strong>without a WHERE clause</strong>. 
+      Your entire orders table — <strong>50,000 rows, 3 months of data</strong> — gone in 0.3 seconds.
+      Last full backup was taken at <strong>2:00 AM</strong> that morning.
+      <br><br>
+      <strong>Your mission:</strong> Restore to exactly <strong>10:59:59 AM</strong> — just 1 second before the DELETE.
+    </p>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline-wrap">
+    <div class="timeline-title">⏱️ Timeline — How PITR sees this event</div>
+    <div class="tl-track">
+      <div class="tl-item safe">
+        <div class="tl-dot">📸</div>
+        <div class="tl-time">02:00 AM</div>
+        <div class="tl-label">Full Backup</div>
+        <div class="tl-sub">mysqldump snapshot</div>
+      </div>
+      <div class="tl-item safe">
+        <div class="tl-dot">🟢</div>
+        <div class="tl-time">09:00 AM</div>
+        <div class="tl-label">Normal ops</div>
+        <div class="tl-sub">binlog recording</div>
+      </div>
+      <div class="tl-item safe">
+        <div class="tl-dot">🟢</div>
+        <div class="tl-time">10:59:59</div>
+        <div class="tl-label">Last safe state</div>
+        <div class="tl-sub">← RECOVER TO HERE</div>
+      </div>
+      <div class="tl-item danger">
+        <div class="tl-dot">💥</div>
+        <div class="tl-time">11:00:23</div>
+        <div class="tl-label">DELETE disaster</div>
+        <div class="tl-sub">50k rows gone</div>
+      </div>
+      <div class="tl-item warn">
+        <div class="tl-dot">🚨</div>
+        <div class="tl-time">11:05 AM</div>
+        <div class="tl-label">Alert fires</div>
+        <div class="tl-sub">you notice the issue</div>
+      </div>
+      <div class="tl-item recover">
+        <div class="tl-dot">⚡</div>
+        <div class="tl-time">NOW</div>
+        <div class="tl-label">Start recovery</div>
+        <div class="tl-sub">PITR begins</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 2: PREREQS — BINLOG CONFIG     -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <h2>⚙️ Prerequisites — Enable Binlog</h2>
+  </div>
+
+  <div class="alert info">
+    <span class="alert-icon">💡</span>
+    <div>Binlog must be enabled BEFORE disaster happens. You cannot recover without it. Think of it as your flight recorder — it must be running before the crash.</div>
+  </div>
+
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">📄 /etc/mysql/mysql.conf.d/mysqld.cnf — MySQL Config</span>
+      <span class="cmd-tag yaml">CONFIG</span>
+    </div>
+    <pre><span class="cm"># ── BINLOG MUST-HAVE SETTINGS ────────────────────</span>
+[mysqld]
+<span class="kw">server-id</span>               = <span class="num">1</span>
+<span class="kw">log_bin</span>                 = <span class="str">/var/lib/mysql/mysql-bin</span>   <span class="cm"># binlog path</span>
+<span class="kw">binlog_format</span>           = <span class="str">ROW</span>                        <span class="cm"># ROW = exact data captured</span>
+<span class="kw">expire_logs_days</span>        = <span class="num">7</span>                          <span class="cm"># keep 7 days of logs</span>
+<span class="kw">max_binlog_size</span>         = <span class="str">100M</span>
+<span class="kw">sync_binlog</span>             = <span class="num">1</span>                          <span class="cm"># flush every commit (safest)</span>
+<span class="kw">innodb_flush_log_at_trx_commit</span> = <span class="num">1</span>                  <span class="cm"># durability guaranteed</span></pre>
+  </div>
+
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">🔍 Verify binlog is ON</span>
+      <span class="cmd-tag sql">SQL</span>
+    </div>
+    <pre><span class="cm">-- Run inside MySQL to verify</span>
+<span class="fn">SHOW VARIABLES</span> <span class="kw">LIKE</span> <span class="str">'log_bin'</span>;
+<span class="cm">-- Should show: log_bin = ON</span>
+
+<span class="fn">SHOW BINARY LOGS</span>;
+<span class="cm">-- Lists all binlog files with their sizes</span>
+
+<span class="fn">SHOW MASTER STATUS</span>\G
+<span class="cm">-- Shows current binlog file and position</span></pre>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 3: PRODUCTION METHOD CHOICE    -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">03</span>
+    <h2>🏆 Which Method for Production?</h2>
+  </div>
+
+  <table class="comp-table">
+    <tr>
+      <th>Method</th>
+      <th>Binlog Support</th>
+      <th>PITR</th>
+      <th>Scalability</th>
+      <th>Complexity</th>
+      <th>Verdict</th>
+    </tr>
+    <tr>
+      <td><strong>Bare Metal / VM</strong></td>
+      <td><span class="pill green">Full</span></td>
+      <td><span class="pill green">Native</span></td>
+      <td><span class="pill red">Manual</span></td>
+      <td><span class="pill yellow">Medium</span></td>
+      <td>Good for legacy</td>
+    </tr>
+    <tr>
+      <td><strong>Docker</strong></td>
+      <td><span class="pill green">Full</span></td>
+      <td><span class="pill green">Yes</span></td>
+      <td><span class="pill yellow">Limited</span></td>
+      <td><span class="pill green">Low</span></td>
+      <td>Dev/staging only</td>
+    </tr>
+    <tr class="rec-row">
+      <td><strong>☆ Kubernetes (K8s)</strong></td>
+      <td><span class="pill green">Full</span></td>
+      <td><span class="pill green">Yes + PVC</span></td>
+      <td><span class="pill green">Auto-scale</span></td>
+      <td><span class="pill yellow">Medium</span></td>
+      <td><span class="pill green">✅ Production Best</span></td>
+    </tr>
+    <tr>
+      <td><strong>RDS / Cloud DB</strong></td>
+      <td><span class="pill blue">Managed</span></td>
+      <td><span class="pill green">1-click</span></td>
+      <td><span class="pill green">Excellent</span></td>
+      <td><span class="pill green">Low</span></td>
+      <td>Best if cloud-native</td>
+    </tr>
+  </table>
+
+  <div class="alert success">
+    <span class="alert-icon">🏆</span>
+    <div><strong>Recommendation for Production:</strong> Kubernetes with PersistentVolumeClaim for binlog storage + CronJob for nightly mysqldump + binlog shipping to S3/NFS. This guide focuses on this setup.</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 4: KUBERNETES YAML             -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <h2>📦 Production Kubernetes YAML (Single File)</h2>
+  </div>
+
+  <div class="yaml-section">
+    <div class="cmd-card">
+      <div class="cmd-header">
+        <span class="cmd-title">📄 mysql-pitr-full.yaml — Complete Production Setup</span>
+        <span class="cmd-tag yaml">YAML</span>
+      </div>
+      <pre><span class="cm">### ════════════════════════════════════════════════════════
+### 1. NAMESPACE
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Namespace
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql-pitr</span>
+---
+<span class="cm">### ════════════════════════════════════════════════════════
+### 2. SECRET — MySQL Root Password
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Secret
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql-secret</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">type</span>: Opaque
+<span class="kw">stringData</span>:
+  <span class="kw">MYSQL_ROOT_PASSWORD</span>: <span class="str">"StrongP@ssw0rd!"</span>  <span class="cm"># change this</span>
+---
+<span class="cm">### ════════════════════════════════════════════════════════
+### 3. CONFIGMAP — MySQL config with binlog enabled
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: ConfigMap
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql-config</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">data</span>:
+  <span class="kw">my.cnf</span>: |
+    [mysqld]
+    server-id               = 1
+    <span class="hl">log_bin                 = /var/lib/mysql/mysql-bin</span>
+    <span class="hl">binlog_format           = ROW</span>
+    expire_logs_days        = 7
+    max_binlog_size         = 100M
+    sync_binlog             = 1
+    innodb_flush_log_at_trx_commit = 1
+    default_authentication_plugin = mysql_native_password
+---
+<span class="cm">### ════════════════════════════════════════════════════════
+### 4. PERSISTENTVOLUMECLAIM — Data + Binlog storage
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: PersistentVolumeClaim
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql-data-pvc</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">spec</span>:
+  <span class="kw">accessModes</span>: [<span class="str">ReadWriteOnce</span>]
+  <span class="kw">resources</span>:
+    <span class="kw">requests</span>:
+      <span class="kw">storage</span>: <span class="num">50Gi</span>
+  <span class="kw">storageClassName</span>: <span class="str">standard</span>  <span class="cm"># adjust to your cluster</span>
+---
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: PersistentVolumeClaim
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql-backup-pvc</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">spec</span>:
+  <span class="kw">accessModes</span>: [<span class="str">ReadWriteOnce</span>]
+  <span class="kw">resources</span>:
+    <span class="kw">requests</span>:
+      <span class="kw">storage</span>: <span class="num">20Gi</span>
+  <span class="kw">storageClassName</span>: <span class="str">standard</span>
+---
+<span class="cm">### ════════════════════════════════════════════════════════
+### 5. STATEFULSET — MySQL with binlog PVC mounts
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: apps/v1
+<span class="kw">kind</span>: StatefulSet
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">spec</span>:
+  <span class="kw">serviceName</span>: <span class="str">mysql</span>
+  <span class="kw">replicas</span>: <span class="num">1</span>
+  <span class="kw">selector</span>:
+    <span class="kw">matchLabels</span>:
+      <span class="kw">app</span>: <span class="str">mysql</span>
+  <span class="kw">template</span>:
+    <span class="kw">metadata</span>:
+      <span class="kw">labels</span>:
+        <span class="kw">app</span>: <span class="str">mysql</span>
+    <span class="kw">spec</span>:
+      <span class="kw">containers</span>:
+      - <span class="kw">name</span>: <span class="str">mysql</span>
+        <span class="kw">image</span>: <span class="str">mysql:8.0</span>
+        <span class="kw">env</span>:
+        - <span class="kw">name</span>: <span class="str">MYSQL_ROOT_PASSWORD</span>
+          <span class="kw">valueFrom</span>:
+            <span class="kw">secretKeyRef</span>:
+              <span class="kw">name</span>: <span class="str">mysql-secret</span>
+              <span class="kw">key</span>: <span class="str">MYSQL_ROOT_PASSWORD</span>
+        <span class="kw">ports</span>:
+        - <span class="kw">containerPort</span>: <span class="num">3306</span>
+        <span class="kw">volumeMounts</span>:
+        - <span class="kw">name</span>: <span class="str">mysql-data</span>
+          <span class="kw">mountPath</span>: <span class="str">/var/lib/mysql</span>   <span class="cm"># binlogs live here too</span>
+        - <span class="kw">name</span>: <span class="str">mysql-backup</span>
+          <span class="kw">mountPath</span>: <span class="str">/backup</span>
+        - <span class="kw">name</span>: <span class="str">mysql-config-vol</span>
+          <span class="kw">mountPath</span>: <span class="str">/etc/mysql/conf.d</span>
+        <span class="kw">resources</span>:
+          <span class="kw">requests</span>:
+            <span class="kw">memory</span>: <span class="str">"512Mi"</span>
+            <span class="kw">cpu</span>: <span class="str">"500m"</span>
+          <span class="kw">limits</span>:
+            <span class="kw">memory</span>: <span class="str">"2Gi"</span>
+            <span class="kw">cpu</span>: <span class="str">"2000m"</span>
+        <span class="kw">livenessProbe</span>:
+          <span class="kw">exec</span>:
+            <span class="kw">command</span>: [<span class="str">"mysqladmin"</span>, <span class="str">"ping"</span>, <span class="str">"-h"</span>, <span class="str">"localhost"</span>]
+          <span class="kw">initialDelaySeconds</span>: <span class="num">30</span>
+          <span class="kw">periodSeconds</span>: <span class="num">10</span>
+      <span class="kw">volumes</span>:
+      - <span class="kw">name</span>: <span class="str">mysql-data</span>
+        <span class="kw">persistentVolumeClaim</span>:
+          <span class="kw">claimName</span>: <span class="str">mysql-data-pvc</span>
+      - <span class="kw">name</span>: <span class="str">mysql-backup</span>
+        <span class="kw">persistentVolumeClaim</span>:
+          <span class="kw">claimName</span>: <span class="str">mysql-backup-pvc</span>
+      - <span class="kw">name</span>: <span class="str">mysql-config-vol</span>
+        <span class="kw">configMap</span>:
+          <span class="kw">name</span>: <span class="str">mysql-config</span>
+---
+<span class="cm">### ════════════════════════════════════════════════════════
+### 6. SERVICE — ClusterIP for internal access
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: v1
+<span class="kw">kind</span>: Service
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">spec</span>:
+  <span class="kw">selector</span>:
+    <span class="kw">app</span>: <span class="str">mysql</span>
+  <span class="kw">ports</span>:
+  - <span class="kw">port</span>: <span class="num">3306</span>
+    <span class="kw">targetPort</span>: <span class="num">3306</span>
+  <span class="kw">clusterIP</span>: <span class="str">None</span>  <span class="cm"># headless — StatefulSet best practice</span>
+---
+<span class="cm">### ════════════════════════════════════════════════════════
+### 7. CRONJOB — Nightly full backup at 2 AM
+### ════════════════════════════════════════════════════════</span>
+<span class="kw">apiVersion</span>: batch/v1
+<span class="kw">kind</span>: CronJob
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="str">mysql-backup</span>
+  <span class="kw">namespace</span>: <span class="str">mysql-pitr</span>
+<span class="kw">spec</span>:
+  <span class="kw">schedule</span>: <span class="str">"0 2 * * *"</span>   <span class="cm"># every night at 2 AM</span>
+  <span class="kw">jobTemplate</span>:
+    <span class="kw">spec</span>:
+      <span class="kw">template</span>:
+        <span class="kw">spec</span>:
+          <span class="kw">restartPolicy</span>: <span class="str">OnFailure</span>
+          <span class="kw">containers</span>:
+          - <span class="kw">name</span>: <span class="str">backup</span>
+            <span class="kw">image</span>: <span class="str">mysql:8.0</span>
+            <span class="kw">env</span>:
+            - <span class="kw">name</span>: <span class="str">MYSQL_PWD</span>
+              <span class="kw">valueFrom</span>:
+                <span class="kw">secretKeyRef</span>:
+                  <span class="kw">name</span>: <span class="str">mysql-secret</span>
+                  <span class="kw">key</span>: <span class="str">MYSQL_ROOT_PASSWORD</span>
+            <span class="kw">command</span>:
+            - <span class="str">/bin/sh</span>
+            - <span class="str">-c</span>
+            - |
+              DATE=$(date +%Y%m%d_%H%M%S)
+              <span class="hl">mysqldump -h mysql.mysql-pitr.svc.cluster.local \</span>
+              <span class="hl">  -u root --all-databases \</span>
+              <span class="hl">  --single-transaction --master-data=2 \</span>
+              <span class="hl">  --flush-logs --events --routines \</span>
+              <span class="hl">  > /backup/full_${DATE}.sql</span>
+              echo "Backup done: /backup/full_${DATE}.sql"
+            <span class="kw">volumeMounts</span>:
+            - <span class="kw">name</span>: <span class="str">backup-vol</span>
+              <span class="kw">mountPath</span>: <span class="str">/backup</span>
+          <span class="kw">volumes</span>:
+          - <span class="kw">name</span>: <span class="str">backup-vol</span>
+            <span class="kw">persistentVolumeClaim</span>:
+              <span class="kw">claimName</span>: <span class="str">mysql-backup-pvc</span></pre>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 5: THE ACTUAL RECOVERY FLOW    -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">05</span>
+    <h2>🔥 Full Recovery Flow — Step by Step</h2>
+  </div>
+
+  <div class="alert danger">
+    <span class="alert-icon">🚨</span>
+    <div><strong>STOP!</strong> First thing — flush binlogs NOW to capture everything up to this moment, and STOP writes to the database before doing anything else.</div>
+  </div>
+
+  <!-- STEP GRID -->
+  <div class="flow-grid">
+    <div class="flow-step">
+      <div class="step-num">1</div>
+      <h4>🚨 Stop the bleeding</h4>
+      <p>Immediately stop writes. Scale down app pods to prevent further changes.</p>
+      <code>kubectl scale deploy app-deploy --replicas=0 -n production</code>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">2</div>
+      <h4>💾 Flush current binlogs</h4>
+      <p>Force MySQL to close the current binlog file so we can copy it safely.</p>
+      <code>mysql -u root -p -e "FLUSH LOGS;"</code>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">3</div>
+      <h4>📋 Find backup + binlogs</h4>
+      <p>Identify the last full backup and list all binlog files created after it.</p>
+      <code>ls -lth /backup/*.sql | head -5</code>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">4</div>
+      <h4>⏰ Find exact timestamp</h4>
+      <p>Use mysqlbinlog to find the exact time/position just before the DELETE.</p>
+      <code>mysqlbinlog --read-from-remote-server ...</code>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">5</div>
+      <h4>♻️ Restore full backup</h4>
+      <p>Load the last mysqldump backup into a restored MySQL instance.</p>
+      <code>mysql -u root -p &lt; full_20241201_020000.sql</code>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">6</div>
+      <h4>⏪ Replay binlogs to 10:59:59</h4>
+      <p>Apply binlogs from backup time up to one second BEFORE the disaster.</p>
+      <code>mysqlbinlog ... --stop-datetime="2024-12-01 10:59:59"</code>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 6: THE COMMANDS (EXACT)        -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">06</span>
+    <h2>⌨️ The Exact Commands — Copy & Run</h2>
+  </div>
+
+  <!-- CMD 1 -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">STEP 1 — Exec into MySQL pod + flush logs</span>
+      <span class="cmd-tag shell">SHELL</span>
+    </div>
+    <pre><span class="cm"># Get into the MySQL pod</span>
+<span class="fn">kubectl</span> exec -it mysql-0 -n mysql-pitr -- bash
+
+<span class="cm"># Inside pod: flush binlogs (creates a fresh binlog file)</span>
+<span class="fn">mysql</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> -e <span class="str">"FLUSH BINARY LOGS;"</span>
+
+<span class="cm"># List all binlog files</span>
+<span class="fn">ls</span> -lth /var/lib/mysql/mysql-bin.*</pre>
+  </div>
+
+  <!-- CMD 2 -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">STEP 2 — Read binlogs to find the DELETE event (with human-readable time)</span>
+      <span class="cmd-tag shell">SHELL</span>
+    </div>
+    <pre><span class="cm"># See ALL events with timestamps — find the DELETE</span>
+<span class="fn">mysqlbinlog</span> \
+  --base64-output=DECODE-ROWS \
+  --verbose \
+  /var/lib/mysql/mysql-bin.000003 \
+  | <span class="fn">grep</span> -A 5 <span class="str">"DELETE"</span>
+
+<span class="cm"># Output will look like this:</span>
+<span class="cm"># # at 4891</span>
+<span class="cm"># #241201 11:00:23 server id 1  end_log_pos 4960</span>
+<span class="err"># DELETE FROM `orders`</span>
+<span class="cm"># WHERE</span>
+<span class="cm">#   @1=1001 ...</span>
+
+<span class="cm"># The timestamp: 2024-12-01 11:00:23 ← THIS IS YOUR DISASTER TIME</span>
+<span class="cm"># You want to recover to: 2024-12-01 10:59:59 ← 1 second before</span></pre>
+  </div>
+
+  <!-- CMD 3 -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">STEP 3 — Restore full backup (from 2 AM snapshot)</span>
+      <span class="cmd-tag shell">SHELL</span>
+    </div>
+    <pre><span class="cm"># Copy backup from backup pod to your local or restore pod</span>
+<span class="fn">kubectl</span> cp mysql-pitr/mysql-0:/backup/full_20241201_020000.sql ./full_backup.sql
+
+<span class="cm"># Create a RESTORE pod (do NOT overwrite production yet!)</span>
+<span class="fn">kubectl</span> run mysql-restore --image=mysql:8.0 --restart=Never \
+  --env=<span class="str">"MYSQL_ROOT_PASSWORD=StrongP@ssw0rd!"</span> \
+  --command -- sleep <span class="num">3600</span>
+
+<span class="cm"># Restore the dump into the restore pod</span>
+<span class="fn">kubectl</span> cp full_backup.sql mysql-pitr/mysql-restore:/tmp/full_backup.sql
+
+<span class="fn">kubectl</span> exec -it mysql-restore -n mysql-pitr -- \
+  <span class="fn">mysql</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> &lt; /tmp/full_backup.sql
+
+<span class="ok">✔ Full backup restored — DB is now at 2:00 AM state</span></pre>
+  </div>
+
+  <!-- CMD 4 — THE KEY ONE -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">STEP 4 — ⭐ THE KEY COMMAND: Apply binlogs UP TO 10:59:59 (stop before DELETE)</span>
+      <span class="cmd-tag critical">CRITICAL</span>
+    </div>
+    <pre><span class="cm"># Copy binlog files from MySQL pod</span>
+<span class="fn">kubectl</span> cp mysql-pitr/mysql-0:/var/lib/mysql/mysql-bin.000001 ./
+<span class="fn">kubectl</span> cp mysql-pitr/mysql-0:/var/lib/mysql/mysql-bin.000002 ./
+<span class="fn">kubectl</span> cp mysql-pitr/mysql-0:/var/lib/mysql/mysql-bin.000003 ./
+
+<span class="cm"># ─── MAGIC COMMAND: replay binlogs, STOP at 10:59:59 ───</span>
+<span class="hl"><span class="fn">mysqlbinlog</span> \</span>
+<span class="hl">  --start-datetime=<span class="str">"2024-12-01 02:00:00"</span> \   <span class="cm"># from backup time</span></span>
+<span class="hl">  --stop-datetime=<span class="str">"2024-12-01 10:59:59"</span> \    <span class="cm"># STOP 1 sec before DELETE</span></span>
+<span class="hl">  mysql-bin.000001 mysql-bin.000002 mysql-bin.000003 \</span>
+<span class="hl">  | <span class="fn">mysql</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> -h 127.0.0.1</span>
+
+<span class="cm"># Alternative: stop at exact binlog POSITION instead of time</span>
+<span class="fn">mysqlbinlog</span> \
+  --start-position=<span class="num">154</span> \       <span class="cm"># position from --master-data=2 in backup</span>
+  --stop-position=<span class="num">4890</span> \       <span class="cm"># position just BEFORE the DELETE event</span>
+  mysql-bin.000003 \
+  | <span class="fn">mysql</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> -h 127.0.0.1
+
+<span class="ok">✔ All changes from 2 AM to 10:59:59 replayed
+✔ The 11:00:23 DELETE was NEVER applied
+✔ All 50,000 orders are BACK!</span></pre>
+  </div>
+
+  <!-- CMD 5 -->
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">STEP 5 — Verify data + swap production</span>
+      <span class="cmd-tag sql">SQL</span>
+    </div>
+    <pre><span class="cm">-- Verify the recovered data looks correct</span>
+<span class="fn">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> orders;
+<span class="cm">-- Should return 50000 (or whatever your count was at 10:59 AM)</span>
+
+<span class="fn">SELECT</span> * <span class="kw">FROM</span> orders <span class="kw">ORDER BY</span> created_at <span class="kw">DESC LIMIT</span> <span class="num">5</span>;
+<span class="cm">-- Verify the latest records look right — none after 10:59:59</span>
+
+<span class="fn">SELECT</span> MAX(created_at) <span class="kw">FROM</span> orders;
+<span class="cm">-- Should show a time before 11:00:23</span></pre>
+  </div>
+
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">STEP 6 — Point production to recovered instance</span>
+      <span class="cmd-tag shell">SHELL</span>
+    </div>
+    <pre><span class="cm"># Option A: Dump recovered instance and reimport into production</span>
+<span class="fn">mysqldump</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> \
+  --all-databases --single-transaction \
+  > recovered_final.sql
+
+<span class="fn">mysql</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> \
+  -h mysql.mysql-pitr.svc.cluster.local &lt; recovered_final.sql
+
+<span class="cm"># Option B: Use kubectl rollout (if you used a separate StatefulSet)</span>
+<span class="fn">kubectl</span> rollout restart statefulset/mysql -n mysql-pitr
+
+<span class="cm"># Scale app back up</span>
+<span class="fn">kubectl</span> scale deploy app-deploy --replicas=3 -n production
+
+<span class="ok">✔ PRODUCTION RESTORED. Data is back. Crisis over.</span></pre>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 7: CHEATSHEET                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <hr class="divider">
+  <div class="sec-header">
+    <span class="sec-num">07</span>
+    <h2>📋 DevOps PITR Cheatsheet</h2>
+  </div>
+
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">Quick Reference — All Key Commands</span>
+      <span class="cmd-tag shell">CHEATSHEET</span>
+    </div>
+    <pre><span class="cm"># ── DAILY BACKUP (cron: 0 2 * * *) ────────────────────────────────</span>
+<span class="fn">mysqldump</span> -u root -p \
+  --all-databases \
+  <span class="hl">--single-transaction \    <span class="cm"># no table locks (InnoDB)</span></span>
+  <span class="hl">--master-data=2 \         <span class="cm"># records binlog position in dump</span></span>
+  <span class="hl">--flush-logs \            <span class="cm"># start a new binlog file after dump</span></span>
+  --events --routines \
+  > /backup/full_$(date +%Y%m%d_%H%M%S).sql
+
+<span class="cm"># ── CHECK BINLOG FILES ─────────────────────────────────────────────</span>
+<span class="fn">mysql</span> -e <span class="str">"SHOW BINARY LOGS;"</span>
+<span class="fn">mysql</span> -e <span class="str">"SHOW MASTER STATUS\G"</span>
+
+<span class="cm"># ── READ BINLOG WITH TIMESTAMPS ───────────────────────────────────</span>
+<span class="fn">mysqlbinlog</span> --base64-output=DECODE-ROWS --verbose mysql-bin.000003
+
+<span class="cm"># ── FILTER BINLOG BY TIME RANGE ───────────────────────────────────</span>
+<span class="fn">mysqlbinlog</span> \
+  --start-datetime=<span class="str">"2024-12-01 02:00:00"</span> \
+  --stop-datetime=<span class="str">"2024-12-01 10:59:59"</span> \
+  mysql-bin.0000* | <span class="fn">mysql</span> -u root -p
+
+<span class="cm"># ── FILTER BINLOG BY POSITION (MORE PRECISE) ──────────────────────</span>
+<span class="fn">mysqlbinlog</span> \
+  --start-position=<span class="num">154</span> \
+  --stop-position=<span class="num">4890</span> \
+  mysql-bin.000003 | <span class="fn">mysql</span> -u root -p
+
+<span class="cm"># ── SKIP SPECIFIC EVENT (SKIP JUST THE DELETE) ────────────────────</span>
+<span class="fn">mysqlbinlog</span> \
+  --start-datetime=<span class="str">"2024-12-01 02:00:00"</span> \
+  --stop-position=<span class="num">4890</span> \      <span class="cm"># stop just before DELETE</span>
+  mysql-bin.0000* | <span class="fn">mysql</span> -u root -p
+
+<span class="fn">mysqlbinlog</span> \
+  --start-position=<span class="num">4961</span> \    <span class="cm"># resume AFTER the DELETE</span>
+  mysql-bin.000003 | <span class="fn">mysql</span> -u root -p   <span class="cm"># apply everything after</span>
+
+<span class="cm"># ── APPLY TO KUBERNETES MYSQL POD ─────────────────────────────────</span>
+<span class="fn">kubectl</span> exec -i mysql-0 -n mysql-pitr -- \
+  <span class="fn">mysql</span> -u root -p<span class="str">'StrongP@ssw0rd!'</span> &lt; recovery.sql
+
+<span class="cm"># ── COPY BINLOGS OUT OF POD ───────────────────────────────────────</span>
+<span class="fn">kubectl</span> cp mysql-pitr/mysql-0:/var/lib/mysql/mysql-bin.000003 ./mysql-bin.000003</pre>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SECTION 8: SKIP JUST THE DELETE        -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="sec-header">
+    <span class="sec-num">08</span>
+    <h2>🎯 Advanced: Skip Only The Bad Event (Keep Data After 11 AM)</h2>
+  </div>
+
+  <div class="alert warn">
+    <span class="alert-icon">⚠️</span>
+    <div>What if you had good transactions AFTER the DELETE? (e.g., new orders came in at 11:30 AM). Use position-based recovery to <strong>skip only the DELETE</strong> and keep everything else.</div>
+  </div>
+
+  <div class="cmd-card">
+    <div class="cmd-header">
+      <span class="cmd-title">Skip only the DELETE event — keep data before AND after it</span>
+      <span class="cmd-tag critical">SURGICAL RECOVERY</span>
+    </div>
+    <pre><span class="cm"># Step 1: Find exact position of DELETE event</span>
+<span class="fn">mysqlbinlog</span> --base64-output=DECODE-ROWS --verbose mysql-bin.000003 \
+  | grep -B3 -A10 <span class="str">"DELETE FROM.*orders"</span>
+
+<span class="cm"># Output shows:
+# at 4891    ← start of DELETE
+# ...
+# end_log_pos 4960    ← end of DELETE</span>
+
+<span class="cm"># Step 2: Apply BEFORE the DELETE</span>
+<span class="fn">mysqlbinlog</span> \
+  --start-position=<span class="num">154</span> \
+  <span class="hl">--stop-position=<span class="num">4890</span> \   <span class="cm"># 1 byte BEFORE DELETE starts</span></span>
+  mysql-bin.000003 | <span class="fn">mysql</span> -u root -p
+
+<span class="cm"># Step 3: Apply AFTER the DELETE (skip it!)</span>
+<span class="fn">mysqlbinlog</span> \
+  <span class="hl">--start-position=<span class="num">4961</span> \  <span class="cm"># 1 byte AFTER DELETE ends</span></span>
+  mysql-bin.000003 mysql-bin.000004 | <span class="fn">mysql</span> -u root -p
+
+<span class="ok">✔ The DELETE is surgically removed from history
+✔ Everything before AND after it is preserved!</span></pre>
+  </div>
+
+  <!-- FINAL TIPS -->
+  <div class="sec-header">
+    <span class="sec-num">09</span>
+    <h2>🛡️ Production Checklist</h2>
+  </div>
+
+  <div class="flow-grid">
+    <div class="flow-step">
+      <div class="step-num">✓</div>
+      <h4>🕐 Binlog Retention</h4>
+      <p>Keep at least 7 days of binlogs. Store on a separate PVC or S3 bucket, NOT the same disk as data.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">✓</div>
+      <h4>📸 Backup Frequency</h4>
+      <p>Full backup nightly. Test restores weekly — a backup never tested is not a backup.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">✓</div>
+      <h4>🔒 Read-Only Replica</h4>
+      <p>Run a MySQL replica. Disasters rarely hit both primary and replica simultaneously.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">✓</div>
+      <h4>⏱️ RTO/RPO Targets</h4>
+      <p>Know your numbers. RPO = max data loss (aim for &lt;1min). RTO = max downtime (aim for &lt;30min).</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">✓</div>
+      <h4>🚨 Monitoring</h4>
+      <p>Alert on missing binlogs, backup job failures, and disk space. Use Prometheus + Alertmanager.</p>
+    </div>
+    <div class="flow-step">
+      <div class="step-num">✓</div>
+      <h4>📝 Runbook</h4>
+      <p>Document your exact recovery commands. During a crisis, you CANNOT think — you execute from runbook.</p>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>MySQL PITR · DevOps Field Guide</span>
+  <span>K8s + binlog + mysqlbinlog · <code>--stop-datetime</code> is your time machine</span>
+</div>
+
+</body>
+</html>

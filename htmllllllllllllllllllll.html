@@ -1,0 +1,72 @@
+<pre>visaas-sit      visaas-status-update-service              NodePort       10.105.213.38    &lt;none&gt;        8080:30867/TCP                   2d22h
+visaas-sit      visaas-storage-service                    NodePort       10.102.66.226    &lt;none&gt;        8080:30809/TCP                   2d22h
+visaas-sit      visaas-super-admin-ui                     NodePort       10.96.46.168     &lt;none&gt;        80:30992/TCP                     2d22h
+visaas-sit      visaas-tbo-air-india-service              NodePort       10.106.180.241   &lt;none&gt;        8080:31046/TCP                   2d22h
+visaas-sit      visaas-transit-nodejs-service             NodePort       10.106.237.130   &lt;none&gt;        8080:32516/TCP                   2d22h
+visaas-sit      visaas-translate-nodejs-service           NodePort       10.109.124.162   &lt;none&gt;        2317:30701/TCP                   2d22h
+visaas-sit      vizsaas-admin-service                     NodePort       10.96.122.229    &lt;none&gt;        8080:31003/TCP                   2d22h
+zoho-sit        zoho-credit                               NodePort       10.104.24.170    &lt;none&gt;        8080:31900/TCP                   2d22h
+zoho-sit        zoho-crm-service                          NodePort       10.106.101.7     &lt;none&gt;        8080:31540/TCP                   2d22h
+zoho-sit        zoho-crm-ui                               NodePort       10.103.71.248    &lt;none&gt;        80:30215/TCP                     5d20h
+zoho-sit        zoho-dashboard-ui                         NodePort       10.97.61.212     &lt;none&gt;        80:31373/TCP                     5d20h
+zoho-sit        zoho-visaas                               NodePort       10.96.54.132     &lt;none&gt;        8080:30526/TCP                   2d22h
+NAME         STATUS   ROLES           AGE     VERSION    INTERNAL-IP       EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+master-dev   Ready    control-plane   7d18h   v1.28.15   103.176.85.82     &lt;none&gt;        Ubuntu 24.04.4 LTS   6.8.0-101-generic   containerd://2.2.1
+slave1-dev   Ready    &lt;none&gt;          7d18h   v1.28.15   103.176.85.83     &lt;none&gt;        Ubuntu 24.04.4 LTS   6.8.0-101-generic   containerd://2.2.1
+slave2-dev   Ready    &lt;none&gt;          7d18h   v1.28.15   103.176.85.84     &lt;none&gt;        Ubuntu 24.04.4 LTS   6.8.0-101-generic   containerd://2.2.1
+slave3-dev   Ready    &lt;none&gt;          7d18h   v1.28.15   103.160.145.164   &lt;none&gt;        Ubuntu 24.04.4 LTS   6.8.0-101-generic   containerd://2.2.1
+slave4-dev   Ready    &lt;none&gt;          7d18h   v1.28.15   166.0.242.11      &lt;none&gt;        Ubuntu 24.04.4 LTS   6.8.0-101-generic   containerd://2.2.1
+root@master-dev:~/dns-fixer# kubectl get pods -n kube-system -o wide
+kubectl logs -n kube-system kube-proxy-hnnn8
+NAME                                 READY   STATUS    RESTARTS         AGE     IP                NODE         NOMINATED NODE   READINESS GATES
+coredns-5dd5756b68-8st4q             1/1     Running   1 (5d13h ago)    7d18h   10.244.4.5        slave4-dev   &lt;none&gt;           &lt;none&gt;
+coredns-5dd5756b68-qkrcp             1/1     Running   1 (5d13h ago)    7d18h   10.244.4.4        slave4-dev   &lt;none&gt;           &lt;none&gt;
+etcd-master-dev                      1/1     Running   67 (4d20h ago)   7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-apiserver-master-dev            1/1     Running   70 (4d20h ago)   7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-controller-manager-master-dev   1/1     Running   25 (5d ago)      7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-5kqlx                     1/1     Running   1 (5d13h ago)    7d18h   166.0.242.11      slave4-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-hnnn8                     0/1     Error     1                7d18h   103.176.85.83     slave1-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-pf8lc                     1/1     Running   1 (5d13h ago)    7d18h   103.176.85.84     slave2-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-wcrn7                     1/1     Running   4                7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-ww489                     1/1     Running   1 (5d13h ago)    7d18h   103.160.145.164   slave3-dev   &lt;none&gt;           &lt;none&gt;
+kube-scheduler-master-dev            1/1     Running   25 (5d ago)      7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+error: You must be logged in to the server (the server has asked for the client to provide credentials ( pods/log kube-proxy-hnnn8))
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# 
+root@master-dev:~/dns-fixer# kubectl get pods -n kube-system -o wide
+NAME                                 READY   STATUS    RESTARTS         AGE     IP                NODE         NOMINATED NODE   READINESS GATES
+coredns-5dd5756b68-8st4q             1/1     Running   1 (5d13h ago)    7d18h   10.244.4.5        slave4-dev   &lt;none&gt;           &lt;none&gt;
+coredns-5dd5756b68-qkrcp             1/1     Running   1 (5d13h ago)    7d18h   10.244.4.4        slave4-dev   &lt;none&gt;           &lt;none&gt;
+etcd-master-dev                      1/1     Running   67 (4d20h ago)   7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-apiserver-master-dev            1/1     Running   70 (4d20h ago)   7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-controller-manager-master-dev   1/1     Running   25 (5d ago)      7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-5kqlx                     1/1     Running   1 (5d13h ago)    7d18h   166.0.242.11      slave4-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-hnnn8                     0/1     Error     1                7d18h   103.176.85.83     slave1-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-pf8lc                     1/1     Running   1 (5d13h ago)    7d18h   103.176.85.84     slave2-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-wcrn7                     1/1     Running   4                7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+kube-proxy-ww489                     1/1     Running   1 (5d13h ago)    7d18h   103.160.145.164   slave3-dev   &lt;none&gt;           &lt;none&gt;
+kube-scheduler-master-dev            1/1     Running   25 (5d ago)      7d18h   103.176.85.82     master-dev   &lt;none&gt;           &lt;none&gt;
+root@master-dev:~/dns-fixer# 
+
+</pre>

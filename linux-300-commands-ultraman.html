@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINUX 300+ COMMANDS — ULTRAMAN MASTER GUIDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#FF1A1A; --silver:#C8D8E8; --gold:#FFD700; --blue:#00AAFF;
+  --green:#00FF88; --purple:#BB66FF; --orange:#FF8800;
+  --dark:#050A14; --panel:#0A1428; --panel2:#0D1A30;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:var(--silver);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,170,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,170,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* SCAN */
+.scan{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--blue),transparent);animation:scanh 3s linear infinite;z-index:99;opacity:0.5;}
+@keyframes scanh{0%{top:-10px}100%{top:100%}}
+
+.wrap{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:20px;}
+
+/* HERO */
+.hero{text-align:center;padding:30px 0 16px;}
+.title{font-family:'Black Ops One',cursive;font-size:clamp(22px,5vw,52px);background:linear-gradient(135deg,#FF1A1A,#FFD700,#00AAFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;letter-spacing:2px;}
+.subtitle{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:4px;margin-top:6px;opacity:.8;}
+.badge-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0;}
+.badge{font-family:'Black Ops One',cursive;font-size:10px;padding:5px 14px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.badge.red{background:var(--red);color:#fff;}
+.badge.gold{background:var(--gold);color:var(--dark);}
+.badge.blue{background:var(--blue);color:var(--dark);}
+.badge.green{background:var(--green);color:var(--dark);}
+
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin:16px 0;align-items:center;}
+.search-bar input{flex:1;background:var(--panel);border:1px solid rgba(0,170,255,0.3);border-radius:4px;padding:10px 16px;color:var(--silver);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border .2s;}
+.search-bar input:focus{border-color:var(--blue);box-shadow:0 0 12px rgba(0,170,255,0.2);}
+.search-bar input::placeholder{color:rgba(200,216,232,0.3);}
+.count-badge{font-family:'Share Tech Mono',monospace;font-size:11px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);padding:8px 16px;border-radius:4px;white-space:nowrap;}
+
+/* FILTER TABS */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.ftab{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;cursor:pointer;border:1px solid rgba(0,170,255,0.2);background:var(--panel);color:rgba(200,216,232,0.5);letter-spacing:1px;transition:all .15s;}
+.ftab:hover,.ftab.active{background:rgba(0,170,255,0.15);color:var(--blue);border-color:var(--blue);}
+.ftab.active{box-shadow:0 0 8px rgba(0,170,255,0.2);}
+
+/* SECTION */
+.section{margin-bottom:28px;}
+.sec-head{font-family:'Black Ops One',cursive;font-size:15px;padding:10px 16px;margin-bottom:2px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;border-radius:4px 4px 0 0;}
+.sec-head::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.sec-head .sec-count{font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 10px;border-radius:2px;margin-left:auto;}
+
+/* Category color themes */
+.cat-fs .sec-head{background:rgba(0,170,255,0.1);color:var(--blue);}
+.cat-fs .sec-head::after{background:var(--blue);}
+.cat-fs .sec-head .sec-count{background:rgba(0,170,255,0.2);color:var(--blue);}
+.cat-fs .cmd-tag{color:var(--blue);}
+
+.cat-proc .sec-head{background:rgba(255,26,26,0.1);color:var(--red);}
+.cat-proc .sec-head::after{background:var(--red);}
+.cat-proc .sec-head .sec-count{background:rgba(255,26,26,0.2);color:var(--red);}
+.cat-proc .cmd-tag{color:var(--red);}
+
+.cat-net .sec-head{background:rgba(0,255,136,0.08);color:var(--green);}
+.cat-net .sec-head::after{background:var(--green);}
+.cat-net .sec-head .sec-count{background:rgba(0,255,136,0.15);color:var(--green);}
+.cat-net .cmd-tag{color:var(--green);}
+
+.cat-sys .sec-head{background:rgba(255,215,0,0.08);color:var(--gold);}
+.cat-sys .sec-head::after{background:var(--gold);}
+.cat-sys .sec-head .sec-count{background:rgba(255,215,0,0.15);color:var(--gold);}
+.cat-sys .cmd-tag{color:var(--gold);}
+
+.cat-txt .sec-head{background:rgba(187,102,255,0.1);color:var(--purple);}
+.cat-txt .sec-head::after{background:var(--purple);}
+.cat-txt .sec-head .sec-count{background:rgba(187,102,255,0.2);color:var(--purple);}
+.cat-txt .cmd-tag{color:var(--purple);}
+
+.cat-arc .sec-head{background:rgba(255,136,0,0.1);color:var(--orange);}
+.cat-arc .sec-head::after{background:var(--orange);}
+.cat-arc .sec-head .sec-count{background:rgba(255,136,0,0.2);color:var(--orange);}
+.cat-arc .cmd-tag{color:var(--orange);}
+
+.cat-usr .sec-head{background:rgba(0,170,255,0.08);color:#44CCFF;}
+.cat-usr .sec-head::after{background:#44CCFF;}
+.cat-usr .cmd-tag{color:#44CCFF;}
+
+.cat-perm .sec-head{background:rgba(255,26,26,0.08);color:#FF6688;}
+.cat-perm .sec-head::after{background:#FF6688;}
+.cat-perm .cmd-tag{color:#FF6688;}
+
+.cat-disk .sec-head{background:rgba(255,215,0,0.06);color:#FFAA44;}
+.cat-disk .sec-head::after{background:#FFAA44;}
+.cat-disk .cmd-tag{color:#FFAA44;}
+
+.cat-mon .sec-head{background:rgba(0,255,136,0.06);color:#44FFAA;}
+.cat-mon .sec-head::after{background:#44FFAA;}
+.cat-mon .cmd-tag{color:#44FFAA;}
+
+.cat-ssh .sec-head{background:rgba(187,102,255,0.08);color:#DD88FF;}
+.cat-ssh .sec-head::after{background:#DD88FF;}
+.cat-ssh .cmd-tag{color:#DD88FF;}
+
+.cat-pkg .sec-head{background:rgba(255,136,0,0.08);color:#FFBB55;}
+.cat-pkg .sec-head::after{background:#FFBB55;}
+.cat-pkg .cmd-tag{color:#FFBB55;}
+
+.cat-find .sec-head{background:rgba(0,170,255,0.06);color:#66DDFF;}
+.cat-find .sec-head::after{background:#66DDFF;}
+.cat-find .cmd-tag{color:#66DDFF;}
+
+.cat-env .sec-head{background:rgba(255,215,0,0.06);color:#EEcc44;}
+.cat-env .sec-head::after{background:#EEcc44;}
+.cat-env .cmd-tag{color:#EEcc44;}
+
+.cat-svc .sec-head{background:rgba(0,255,136,0.06);color:#55EEBB;}
+.cat-svc .sec-head::after{background:#55EEBB;}
+.cat-svc .cmd-tag{color:#55EEBB;}
+
+/* COMMAND TABLE */
+.cmd-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid rgba(255,255,255,0.05);}
+.cmd-table tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background .1s;}
+.cmd-table tr:hover{background:rgba(0,170,255,0.04);}
+.cmd-table td{padding:8px 12px;vertical-align:top;}
+.cmd-table td:first-child{width:36%;}
+.cmd-tag{font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;white-space:pre-wrap;line-height:1.5;}
+.cmd-desc{font-size:13px;color:rgba(200,216,232,0.75);line-height:1.5;}
+.cmd-desc strong{color:var(--silver);font-weight:700;}
+
+/* HIDDEN */
+.section.hidden,.cmd-table tr.hidden{display:none;}
+
+/* FOOTER */
+.footer{text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(200,216,232,0.2);letter-spacing:3px;padding:24px 0 32px;border-top:1px solid rgba(255,255,255,0.04);margin-top:16px;}
+.footer span{color:var(--red);animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+.no-results{text-align:center;padding:60px;font-family:'Share Tech Mono',monospace;color:rgba(200,216,232,0.2);display:none;}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="title">LINUX 300+ COMMANDS<br>ULTRAMAN MASTER BIBLE</div>
+  <div class="subtitle">⚡ DEEP-DIVE DEVOPS COMBAT EDITION — BUDDY SPECIAL ⚡</div>
+  <div class="badge-row">
+    <div class="badge red">300+ COMMANDS</div>
+    <div class="badge gold">15 CATEGORIES</div>
+    <div class="badge blue">FLAGS INCLUDED</div>
+    <div class="badge green">DEVOPS FOCUSED</div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="⚡ Search any command, flag or description... (e.g. curl, pid, cron)">
+  <div class="count-badge" id="countBadge">300+ CMDS</div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters" id="filterBar">
+  <div class="ftab active" data-cat="all">ALL</div>
+  <div class="ftab" data-cat="fs">📁 FILE SYSTEM</div>
+  <div class="ftab" data-cat="proc">⚙️ PROCESS</div>
+  <div class="ftab" data-cat="net">🌐 NETWORK</div>
+  <div class="ftab" data-cat="sys">💻 SYSTEM INFO</div>
+  <div class="ftab" data-cat="txt">📝 TEXT OPS</div>
+  <div class="ftab" data-cat="arc">📦 ARCHIVE</div>
+  <div class="ftab" data-cat="disk">💾 DISK</div>
+  <div class="ftab" data-cat="mon">📊 MONITORING</div>
+  <div class="ftab" data-cat="perm">🔒 PERMISSIONS</div>
+  <div class="ftab" data-cat="usr">👤 USER/GROUP</div>
+  <div class="ftab" data-cat="ssh">🔐 SSH/SCP</div>
+  <div class="ftab" data-cat="pkg">📥 PACKAGE</div>
+  <div class="ftab" data-cat="find">🔍 FIND/LOCATE</div>
+  <div class="ftab" data-cat="env">🌿 ENV/SHELL</div>
+  <div class="ftab" data-cat="svc">🚀 SERVICES</div>
+</div>
+
+<div id="noResults" class="no-results">⚡ NO COMMANDS FOUND — TRY ANOTHER SEARCH ⚡</div>
+
+<!-- =================== FILE SYSTEM =================== -->
+<div class="section cat-fs" data-cat="fs">
+<div class="sec-head">📁 FILE SYSTEM &amp; NAVIGATION<div class="sec-count">28 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ls</span></td><td><span class="cmd-desc">Basic directory listing</span></td></tr>
+<tr><td><span class="cmd-tag">ls -l</span></td><td><span class="cmd-desc">Long format: permissions, owner, size, date</span></td></tr>
+<tr><td><span class="cmd-tag">ls -la</span></td><td><span class="cmd-desc">Long format including hidden files (dotfiles)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lh</span></td><td><span class="cmd-desc">Human-readable sizes (KB, MB, GB)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lt</span></td><td><span class="cmd-desc">Sort by modification time (newest first)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lS</span></td><td><span class="cmd-desc">Sort by file size (largest first)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lR</span></td><td><span class="cmd-desc">Recursive listing of all subdirectories</span></td></tr>
+<tr><td><span class="cmd-tag">ls -ld /path</span></td><td><span class="cmd-desc">Show info about directory itself (not contents)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -1</span></td><td><span class="cmd-desc">One file per line (great for scripting)</span></td></tr>
+<tr><td><span class="cmd-tag">cd -</span></td><td><span class="cmd-desc">Go back to previous directory (toggle)</span></td></tr>
+<tr><td><span class="cmd-tag">cd ~</span></td><td><span class="cmd-desc">Go to home directory</span></td></tr>
+<tr><td><span class="cmd-tag">pwd</span></td><td><span class="cmd-desc">Print working (current) directory</span></td></tr>
+<tr><td><span class="cmd-tag">mkdir -p a/b/c</span></td><td><span class="cmd-desc">Create nested directories in one command</span></td></tr>
+<tr><td><span class="cmd-tag">mkdir -m 755 dir</span></td><td><span class="cmd-desc">Create directory with specific permissions</span></td></tr>
+<tr><td><span class="cmd-tag">cp -r src/ dst/</span></td><td><span class="cmd-desc">Copy directory recursively</span></td></tr>
+<tr><td><span class="cmd-tag">cp -p file dst</span></td><td><span class="cmd-desc">Copy preserving timestamps, permissions, owner</span></td></tr>
+<tr><td><span class="cmd-tag">cp -a src/ dst/</span></td><td><span class="cmd-desc">Archive copy — preserves everything (best for backups)</span></td></tr>
+<tr><td><span class="cmd-tag">cp -u src dst</span></td><td><span class="cmd-desc">Copy only if source is newer than destination</span></td></tr>
+<tr><td><span class="cmd-tag">mv -i src dst</span></td><td><span class="cmd-desc">Move with prompt before overwrite (safe)</span></td></tr>
+<tr><td><span class="cmd-tag">mv -n src dst</span></td><td><span class="cmd-desc">Move — never overwrite existing files</span></td></tr>
+<tr><td><span class="cmd-tag">rm -rf /path</span></td><td><span class="cmd-desc"><strong>DANGER:</strong> Force delete directory recursively (no undo!)</span></td></tr>
+<tr><td><span class="cmd-tag">rm -i file</span></td><td><span class="cmd-desc">Interactive delete — asks before each removal</span></td></tr>
+<tr><td><span class="cmd-tag">touch file</span></td><td><span class="cmd-desc">Create empty file or update timestamps</span></td></tr>
+<tr><td><span class="cmd-tag">touch -t 202401010000 f</span></td><td><span class="cmd-desc">Set specific timestamp on file (YYYYMMDDHHMM)</span></td></tr>
+<tr><td><span class="cmd-tag">ln -s /target link</span></td><td><span class="cmd-desc">Create symbolic (soft) link</span></td></tr>
+<tr><td><span class="cmd-tag">ln /file hardlink</span></td><td><span class="cmd-desc">Create hard link (shares inode with original)</span></td></tr>
+<tr><td><span class="cmd-tag">readlink -f /link</span></td><td><span class="cmd-desc">Show the full real path a symlink points to</span></td></tr>
+<tr><td><span class="cmd-tag">tree -L 2</span></td><td><span class="cmd-desc">Visual directory tree, 2 levels deep</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== PROCESS =================== -->
+<div class="section cat-proc" data-cat="proc">
+<div class="sec-head">⚙️ PROCESS MANAGEMENT<div class="sec-count">30 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ps aux</span></td><td><span class="cmd-desc">Show ALL running processes with CPU/MEM usage</span></td></tr>
+<tr><td><span class="cmd-tag">ps aux | grep nginx</span></td><td><span class="cmd-desc">Find specific process by name</span></td></tr>
+<tr><td><span class="cmd-tag">ps -ef</span></td><td><span class="cmd-desc">Full-format listing: PPID, CMD, etc.</span></td></tr>
+<tr><td><span class="cmd-tag">ps -p 1234 -o pid,cmd,%cpu</span></td><td><span class="cmd-desc">Show specific PID with custom columns</span></td></tr>
+<tr><td><span class="cmd-tag">ps --forest</span></td><td><span class="cmd-desc">Show process tree with parent-child hierarchy</span></td></tr>
+<tr><td><span class="cmd-tag">pstree -p</span></td><td><span class="cmd-desc">Visual tree of processes with PIDs</span></td></tr>
+<tr><td><span class="cmd-tag">pgrep nginx</span></td><td><span class="cmd-desc">Get PID of process by name (no grep needed)</span></td></tr>
+<tr><td><span class="cmd-tag">pgrep -u root</span></td><td><span class="cmd-desc">Find all processes owned by root</span></td></tr>
+<tr><td><span class="cmd-tag">pidof apache2</span></td><td><span class="cmd-desc">Get PID(s) of running program</span></td></tr>
+<tr><td><span class="cmd-tag">kill PID</span></td><td><span class="cmd-desc">Send SIGTERM (graceful stop) to process</span></td></tr>
+<tr><td><span class="cmd-tag">kill -9 PID</span></td><td><span class="cmd-desc">Send SIGKILL (force kill) — immediate terminate</span></td></tr>
+<tr><td><span class="cmd-tag">kill -HUP PID</span></td><td><span class="cmd-desc">Send SIGHUP — reload config without restart</span></td></tr>
+<tr><td><span class="cmd-tag">killall nginx</span></td><td><span class="cmd-desc">Kill all processes with given name</span></td></tr>
+<tr><td><span class="cmd-tag">pkill -f "python script"</span></td><td><span class="cmd-desc">Kill process matching full command pattern</span></td></tr>
+<tr><td><span class="cmd-tag">nice -n 10 cmd</span></td><td><span class="cmd-desc">Start process with lower CPU priority (nice=10)</span></td></tr>
+<tr><td><span class="cmd-tag">renice -n 5 -p PID</span></td><td><span class="cmd-desc">Change priority of running process</span></td></tr>
+<tr><td><span class="cmd-tag">nohup cmd &amp;</span></td><td><span class="cmd-desc">Run command immune to hangup (persists after logout)</span></td></tr>
+<tr><td><span class="cmd-tag">cmd &amp;</span></td><td><span class="cmd-desc">Run command in background</span></td></tr>
+<tr><td><span class="cmd-tag">jobs -l</span></td><td><span class="cmd-desc">List all background/suspended jobs with PID</span></td></tr>
+<tr><td><span class="cmd-tag">fg %1</span></td><td><span class="cmd-desc">Bring background job 1 to foreground</span></td></tr>
+<tr><td><span class="cmd-tag">bg %1</span></td><td><span class="cmd-desc">Resume suspended job in background</span></td></tr>
+<tr><td><span class="cmd-tag">ls -l /proc/PID/cwd</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Show working directory of a running process</span></td></tr>
+<tr><td><span class="cmd-tag">ls -l /proc/PID/fd</span></td><td><span class="cmd-desc">List all open file descriptors of a process</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/cmdline</span></td><td><span class="cmd-desc">Show exact command that started the process</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/environ</span></td><td><span class="cmd-desc">Show environment variables of a running process</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/status</span></td><td><span class="cmd-desc">Detailed process status: state, mem, threads</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/limits</span></td><td><span class="cmd-desc">Show resource limits (files, memory) for process</span></td></tr>
+<tr><td><span class="cmd-tag">lsof -p PID</span></td><td><span class="cmd-desc">List all files/sockets opened by a process</span></td></tr>
+<tr><td><span class="cmd-tag">strace -p PID</span></td><td><span class="cmd-desc">Trace system calls of a running process (debugging)</span></td></tr>
+<tr><td><span class="cmd-tag">timeout 30 cmd</span></td><td><span class="cmd-desc">Run command and auto-kill after 30 seconds</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== NETWORK =================== -->
+<div class="section cat-net" data-cat="net">
+<div class="sec-head">🌐 NETWORK COMMANDS<div class="sec-count">40 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">curl URL</span></td><td><span class="cmd-desc">Fetch URL and print to stdout</span></td></tr>
+<tr><td><span class="cmd-tag">curl -I URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Fetch only HTTP headers (HEAD request)</span></td></tr>
+<tr><td><span class="cmd-tag">curl -L URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Follow HTTP redirects automatically</span></td></tr>
+<tr><td><span class="cmd-tag">curl -O URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Download file keeping original filename</span></td></tr>
+<tr><td><span class="cmd-tag">curl -o file URL</span></td><td><span class="cmd-desc">Download to specific filename</span></td></tr>
+<tr><td><span class="cmd-tag">curl -IL URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Headers only, following all redirects</span></td></tr>
+<tr><td><span class="cmd-tag">curl -X POST -d '{}' URL</span></td><td><span class="cmd-desc">Send POST request with JSON body</span></td></tr>
+<tr><td><span class="cmd-tag">curl -H "Auth: token" URL</span></td><td><span class="cmd-desc">Add custom HTTP header to request</span></td></tr>
+<tr><td><span class="cmd-tag">curl -u user:pass URL</span></td><td><span class="cmd-desc">HTTP Basic Authentication</span></td></tr>
+<tr><td><span class="cmd-tag">curl -k URL</span></td><td><span class="cmd-desc">Skip SSL certificate verification (insecure)</span></td></tr>
+<tr><td><span class="cmd-tag">curl -v URL</span></td><td><span class="cmd-desc">Verbose output — see full request/response</span></td></tr>
+<tr><td><span class="cmd-tag">curl -s URL</span></td><td><span class="cmd-desc">Silent mode — no progress output (for scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">curl --retry 3 URL</span></td><td><span class="cmd-desc">Retry up to 3 times on failure</span></td></tr>
+<tr><td><span class="cmd-tag">curl -w "%{http_code}" URL</span></td><td><span class="cmd-desc">Print HTTP status code after request</span></td></tr>
+<tr><td><span class="cmd-tag">curl --limit-rate 1M URL</span></td><td><span class="cmd-desc">Limit download speed to 1MB/s</span></td></tr>
+<tr><td><span class="cmd-tag">curl -C - -O URL</span></td><td><span class="cmd-desc">Resume interrupted download</span></td></tr>
+<tr><td><span class="cmd-tag">curl --proxy host:port URL</span></td><td><span class="cmd-desc">Use proxy server for request</span></td></tr>
+<tr><td><span class="cmd-tag">wget URL</span></td><td><span class="cmd-desc">Download file from URL</span></td></tr>
+<tr><td><span class="cmd-tag">wget -c URL</span></td><td><span class="cmd-desc">Continue/resume incomplete download</span></td></tr>
+<tr><td><span class="cmd-tag">wget -r URL</span></td><td><span class="cmd-desc">Recursive download of website</span></td></tr>
+<tr><td><span class="cmd-tag">wget -q URL</span></td><td><span class="cmd-desc">Quiet mode — no output (for scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">ping -c 4 host</span></td><td><span class="cmd-desc">Ping host exactly 4 times</span></td></tr>
+<tr><td><span class="cmd-tag">ping -i 0.2 host</span></td><td><span class="cmd-desc">Ping every 0.2 seconds (faster)</span></td></tr>
+<tr><td><span class="cmd-tag">traceroute host</span></td><td><span class="cmd-desc">Show network hops to destination</span></td></tr>
+<tr><td><span class="cmd-tag">tracepath host</span></td><td><span class="cmd-desc">Traceroute alternative (no root needed)</span></td></tr>
+<tr><td><span class="cmd-tag">netstat -tulnp</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Show all listening ports with PIDs</span></td></tr>
+<tr><td><span class="cmd-tag">netstat -an | grep :80</span></td><td><span class="cmd-desc">Check which connections are on port 80</span></td></tr>
+<tr><td><span class="cmd-tag">ss -tulnp</span></td><td><span class="cmd-desc">Modern replacement for netstat — faster</span></td></tr>
+<tr><td><span class="cmd-tag">ss -s</span></td><td><span class="cmd-desc">Socket summary statistics</span></td></tr>
+<tr><td><span class="cmd-tag">ss -an | grep ESTABLISHED</span></td><td><span class="cmd-desc">Show all established connections</span></td></tr>
+<tr><td><span class="cmd-tag">ip addr show</span></td><td><span class="cmd-desc">Show all network interfaces and IPs</span></td></tr>
+<tr><td><span class="cmd-tag">ip route show</span></td><td><span class="cmd-desc">Show routing table</span></td></tr>
+<tr><td><span class="cmd-tag">ip link set eth0 up/down</span></td><td><span class="cmd-desc">Bring network interface up or down</span></td></tr>
+<tr><td><span class="cmd-tag">nslookup domain</span></td><td><span class="cmd-desc">DNS lookup for domain</span></td></tr>
+<tr><td><span class="cmd-tag">dig domain</span></td><td><span class="cmd-desc">Detailed DNS information</span></td></tr>
+<tr><td><span class="cmd-tag">dig +short domain</span></td><td><span class="cmd-desc">Just the IP for a domain (clean output)</span></td></tr>
+<tr><td><span class="cmd-tag">dig domain MX</span></td><td><span class="cmd-desc">Lookup MX (mail exchange) records</span></td></tr>
+<tr><td><span class="cmd-tag">host domain</span></td><td><span class="cmd-desc">Simple DNS lookup (hostname to IP)</span></td></tr>
+<tr><td><span class="cmd-tag">nc -zv host port</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Test if port is open on remote host</span></td></tr>
+<tr><td><span class="cmd-tag">nc -l 9999</span></td><td><span class="cmd-desc">Start a listening server on port 9999 (quick test)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== SYSTEM INFO =================== -->
+<div class="section cat-sys" data-cat="sys">
+<div class="sec-head">💻 SYSTEM INFORMATION<div class="sec-count">25 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">uname -a</span></td><td><span class="cmd-desc">All system info: kernel, hostname, arch</span></td></tr>
+<tr><td><span class="cmd-tag">uname -r</span></td><td><span class="cmd-desc">Just the kernel version</span></td></tr>
+<tr><td><span class="cmd-tag">uname -m</span></td><td><span class="cmd-desc">Machine architecture (x86_64, arm64, etc.)</span></td></tr>
+<tr><td><span class="cmd-tag">hostnamectl</span></td><td><span class="cmd-desc">System hostname, OS, kernel full info</span></td></tr>
+<tr><td><span class="cmd-tag">lscpu</span></td><td><span class="cmd-desc">Detailed CPU info: cores, threads, speed, cache</span></td></tr>
+<tr><td><span class="cmd-tag">lsmem</span></td><td><span class="cmd-desc">List memory ranges</span></td></tr>
+<tr><td><span class="cmd-tag">lsblk</span></td><td><span class="cmd-desc">Block devices list (disks, partitions, mount points)</span></td></tr>
+<tr><td><span class="cmd-tag">lsblk -f</span></td><td><span class="cmd-desc">Block devices with filesystem types and UUIDs</span></td></tr>
+<tr><td><span class="cmd-tag">lspci</span></td><td><span class="cmd-desc">List all PCI hardware devices</span></td></tr>
+<tr><td><span class="cmd-tag">lsusb</span></td><td><span class="cmd-desc">List all USB devices</span></td></tr>
+<tr><td><span class="cmd-tag">dmidecode -t memory</span></td><td><span class="cmd-desc">Physical RAM details from DMI/BIOS</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/cpuinfo</span></td><td><span class="cmd-desc">Full CPU details from kernel</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/meminfo</span></td><td><span class="cmd-desc">Detailed RAM usage from kernel</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/version</span></td><td><span class="cmd-desc">Kernel version and build info</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/uptime</span></td><td><span class="cmd-desc">System uptime in seconds</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/loadavg</span></td><td><span class="cmd-desc">System load averages (1m, 5m, 15m)</span></td></tr>
+<tr><td><span class="cmd-tag">uptime</span></td><td><span class="cmd-desc">How long system running + load averages</span></td></tr>
+<tr><td><span class="cmd-tag">w</span></td><td><span class="cmd-desc">Who is logged in + what they're doing</span></td></tr>
+<tr><td><span class="cmd-tag">who</span></td><td><span class="cmd-desc">Currently logged in users</span></td></tr>
+<tr><td><span class="cmd-tag">last -n 20</span></td><td><span class="cmd-desc">Last 20 login history records</span></td></tr>
+<tr><td><span class="cmd-tag">lastlog</span></td><td><span class="cmd-desc">Last login of every user</span></td></tr>
+<tr><td><span class="cmd-tag">date</span></td><td><span class="cmd-desc">Current date and time</span></td></tr>
+<tr><td><span class="cmd-tag">date +"%Y-%m-%d %H:%M:%S"</span></td><td><span class="cmd-desc">Format date for log filenames in scripts</span></td></tr>
+<tr><td><span class="cmd-tag">timedatectl</span></td><td><span class="cmd-desc">System timezone and NTP sync status</span></td></tr>
+<tr><td><span class="cmd-tag">cal</span></td><td><span class="cmd-desc">Display calendar month</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== TEXT OPS =================== -->
+<div class="section cat-txt" data-cat="txt">
+<div class="sec-head">📝 TEXT PROCESSING — grep, awk, sed, cut<div class="sec-count">30 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">grep "pattern" file</span></td><td><span class="cmd-desc">Search for pattern in file</span></td></tr>
+<tr><td><span class="cmd-tag">grep -i "pattern" file</span></td><td><span class="cmd-desc">Case-insensitive search</span></td></tr>
+<tr><td><span class="cmd-tag">grep -r "pattern" /dir</span></td><td><span class="cmd-desc">Recursive search in directory</span></td></tr>
+<tr><td><span class="cmd-tag">grep -n "pattern" file</span></td><td><span class="cmd-desc">Show line numbers with matches</span></td></tr>
+<tr><td><span class="cmd-tag">grep -v "pattern" file</span></td><td><span class="cmd-desc">Invert match — lines NOT matching</span></td></tr>
+<tr><td><span class="cmd-tag">grep -c "pattern" file</span></td><td><span class="cmd-desc">Count matching lines only</span></td></tr>
+<tr><td><span class="cmd-tag">grep -l "pattern" /dir/*</span></td><td><span class="cmd-desc">List filenames that contain match</span></td></tr>
+<tr><td><span class="cmd-tag">grep -A 3 -B 3 "err" log</span></td><td><span class="cmd-desc">Show 3 lines After and Before match (context)</span></td></tr>
+<tr><td><span class="cmd-tag">grep -E "err|warn|crit" log</span></td><td><span class="cmd-desc">Extended regex — match multiple patterns</span></td></tr>
+<tr><td><span class="cmd-tag">grep -o "pattern" file</span></td><td><span class="cmd-desc">Print only the matched part (not full line)</span></td></tr>
+<tr><td><span class="cmd-tag">grep -P "\d{3}" file</span></td><td><span class="cmd-desc">Perl-compatible regex</span></td></tr>
+<tr><td><span class="cmd-tag">sed 's/old/new/g' file</span></td><td><span class="cmd-desc">Replace all occurrences of old with new</span></td></tr>
+<tr><td><span class="cmd-tag">sed -i 's/old/new/g' file</span></td><td><span class="cmd-desc">Edit file in-place (modifies the file)</span></td></tr>
+<tr><td><span class="cmd-tag">sed -n '5,10p' file</span></td><td><span class="cmd-desc">Print only lines 5 to 10</span></td></tr>
+<tr><td><span class="cmd-tag">sed '/pattern/d' file</span></td><td><span class="cmd-desc">Delete lines matching pattern</span></td></tr>
+<tr><td><span class="cmd-tag">sed -n '/ERROR/p' log</span></td><td><span class="cmd-desc">Print only lines matching pattern</span></td></tr>
+<tr><td><span class="cmd-tag">awk '{print $1}' file</span></td><td><span class="cmd-desc">Print first column (space-delimited)</span></td></tr>
+<tr><td><span class="cmd-tag">awk -F: '{print $1}' /etc/passwd</span></td><td><span class="cmd-desc">Print first field, using : as delimiter</span></td></tr>
+<tr><td><span class="cmd-tag">awk 'NR==5' file</span></td><td><span class="cmd-desc">Print only line 5</span></td></tr>
+<tr><td><span class="cmd-tag">awk '/ERROR/{print NR,$0}' log</span></td><td><span class="cmd-desc">Print line number + content for ERROR lines</span></td></tr>
+<tr><td><span class="cmd-tag">awk '{sum+=$3} END{print sum}' f</span></td><td><span class="cmd-desc">Sum of column 3 across all lines</span></td></tr>
+<tr><td><span class="cmd-tag">cut -d: -f1 /etc/passwd</span></td><td><span class="cmd-desc">Cut column 1 using : delimiter</span></td></tr>
+<tr><td><span class="cmd-tag">cut -c1-10 file</span></td><td><span class="cmd-desc">Cut first 10 characters of each line</span></td></tr>
+<tr><td><span class="cmd-tag">sort file</span></td><td><span class="cmd-desc">Sort lines alphabetically</span></td></tr>
+<tr><td><span class="cmd-tag">sort -n file</span></td><td><span class="cmd-desc">Sort numerically</span></td></tr>
+<tr><td><span class="cmd-tag">sort -r file</span></td><td><span class="cmd-desc">Sort in reverse order</span></td></tr>
+<tr><td><span class="cmd-tag">sort -k2 file</span></td><td><span class="cmd-desc">Sort by second column</span></td></tr>
+<tr><td><span class="cmd-tag">uniq -c file</span></td><td><span class="cmd-desc">Count duplicate adjacent lines</span></td></tr>
+<tr><td><span class="cmd-tag">wc -l file</span></td><td><span class="cmd-desc">Count lines in file</span></td></tr>
+<tr><td><span class="cmd-tag">wc -w file</span></td><td><span class="cmd-desc">Count words in file</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== ARCHIVE =================== -->
+<div class="section cat-arc" data-cat="arc">
+<div class="sec-head">📦 ARCHIVE &amp; COMPRESSION<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">tar -cvf archive.tar dir/</span></td><td><span class="cmd-desc">Create tar archive of directory</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xvf archive.tar</span></td><td><span class="cmd-desc">Extract tar archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -czvf arch.tar.gz dir/</span></td><td><span class="cmd-desc">Create gzip-compressed tar archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xzvf arch.tar.gz</span></td><td><span class="cmd-desc">Extract gzip-compressed tar archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -cjvf arch.tar.bz2 dir/</span></td><td><span class="cmd-desc">Create bzip2-compressed archive (smaller)</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xjvf arch.tar.bz2</span></td><td><span class="cmd-desc">Extract bzip2 archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -cJvf arch.tar.xz dir/</span></td><td><span class="cmd-desc">Create xz-compressed archive (best ratio)</span></td></tr>
+<tr><td><span class="cmd-tag">tar -tvf archive.tar</span></td><td><span class="cmd-desc">List contents of archive without extracting</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xvf arch.tar -C /path</span></td><td><span class="cmd-desc">Extract to specific directory</span></td></tr>
+<tr><td><span class="cmd-tag">tar --exclude='*.log' -czf a.tgz dir</span></td><td><span class="cmd-desc">Create archive excluding specific files</span></td></tr>
+<tr><td><span class="cmd-tag">gzip file</span></td><td><span class="cmd-desc">Compress file (replaces original with .gz)</span></td></tr>
+<tr><td><span class="cmd-tag">gzip -d file.gz</span></td><td><span class="cmd-desc">Decompress .gz file</span></td></tr>
+<tr><td><span class="cmd-tag">gzip -k file</span></td><td><span class="cmd-desc">Compress keeping original file</span></td></tr>
+<tr><td><span class="cmd-tag">gunzip file.gz</span></td><td><span class="cmd-desc">Decompress .gz file (same as gzip -d)</span></td></tr>
+<tr><td><span class="cmd-tag">zcat file.gz</span></td><td><span class="cmd-desc">View .gz file without extracting</span></td></tr>
+<tr><td><span class="cmd-tag">zip -r archive.zip dir/</span></td><td><span class="cmd-desc">Create zip archive of directory</span></td></tr>
+<tr><td><span class="cmd-tag">unzip archive.zip</span></td><td><span class="cmd-desc">Extract zip archive</span></td></tr>
+<tr><td><span class="cmd-tag">unzip -l archive.zip</span></td><td><span class="cmd-desc">List zip contents without extracting</span></td></tr>
+<tr><td><span class="cmd-tag">unzip archive.zip -d /path</span></td><td><span class="cmd-desc">Extract zip to specific directory</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz src/ dst/</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Sync files — only transfers changes</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== DISK =================== -->
+<div class="section cat-disk" data-cat="disk">
+<div class="sec-head">💾 DISK &amp; STORAGE<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">df -h</span></td><td><span class="cmd-desc">Disk usage of all filesystems (human-readable)</span></td></tr>
+<tr><td><span class="cmd-tag">df -hT</span></td><td><span class="cmd-desc">Disk usage with filesystem type</span></td></tr>
+<tr><td><span class="cmd-tag">df -i</span></td><td><span class="cmd-desc">Inode usage (important when inode exhaustion)</span></td></tr>
+<tr><td><span class="cmd-tag">du -sh /dir</span></td><td><span class="cmd-desc">Total size of directory (human-readable)</span></td></tr>
+<tr><td><span class="cmd-tag">du -sh /*</span></td><td><span class="cmd-desc">Size of each item in root directory</span></td></tr>
+<tr><td><span class="cmd-tag">du -ah /dir | sort -rh | head -20</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Find top 20 largest files/dirs</span></td></tr>
+<tr><td><span class="cmd-tag">du --max-depth=1 -h /</span></td><td><span class="cmd-desc">Disk usage one level deep only</span></td></tr>
+<tr><td><span class="cmd-tag">lsblk -o NAME,SIZE,TYPE,MOUNTPOINT</span></td><td><span class="cmd-desc">Block devices with custom columns</span></td></tr>
+<tr><td><span class="cmd-tag">fdisk -l</span></td><td><span class="cmd-desc">List disk partition table</span></td></tr>
+<tr><td><span class="cmd-tag">parted -l</span></td><td><span class="cmd-desc">Detailed partition info (GPT support)</span></td></tr>
+<tr><td><span class="cmd-tag">mount</span></td><td><span class="cmd-desc">Show all mounted filesystems</span></td></tr>
+<tr><td><span class="cmd-tag">mount /dev/sdb1 /mnt/data</span></td><td><span class="cmd-desc">Mount disk partition to directory</span></td></tr>
+<tr><td><span class="cmd-tag">umount /mnt/data</span></td><td><span class="cmd-desc">Unmount a filesystem</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/fstab</span></td><td><span class="cmd-desc">View auto-mount configuration</span></td></tr>
+<tr><td><span class="cmd-tag">blkid</span></td><td><span class="cmd-desc">Show UUIDs and types of block devices</span></td></tr>
+<tr><td><span class="cmd-tag">iostat -x 2</span></td><td><span class="cmd-desc">Extended disk I/O stats every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">iotop</span></td><td><span class="cmd-desc">Real-time disk I/O usage per process</span></td></tr>
+<tr><td><span class="cmd-tag">dd if=/dev/zero of=f bs=1G count=1</span></td><td><span class="cmd-desc">Test disk write speed</span></td></tr>
+<tr><td><span class="cmd-tag">sync</span></td><td><span class="cmd-desc">Flush filesystem caches to disk</span></td></tr>
+<tr><td><span class="cmd-tag">ncdu /</span></td><td><span class="cmd-desc">Interactive disk usage analyzer (ncurses)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== MONITORING =================== -->
+<div class="section cat-mon" data-cat="mon">
+<div class="sec-head">📊 MONITORING &amp; PERFORMANCE<div class="sec-count">22 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">top</span></td><td><span class="cmd-desc">Real-time process monitor (CPU, MEM)</span></td></tr>
+<tr><td><span class="cmd-tag">top -b -n 1</span></td><td><span class="cmd-desc">Batch mode top — single snapshot for scripts</span></td></tr>
+<tr><td><span class="cmd-tag">top -p PID</span></td><td><span class="cmd-desc">Monitor specific PID only</span></td></tr>
+<tr><td><span class="cmd-tag">htop</span></td><td><span class="cmd-desc">Interactive colorful process monitor (better top)</span></td></tr>
+<tr><td><span class="cmd-tag">vmstat 2 5</span></td><td><span class="cmd-desc">VM stats every 2s, 5 times (CPU, mem, swap, IO)</span></td></tr>
+<tr><td><span class="cmd-tag">vmstat -s</span></td><td><span class="cmd-desc">Memory stats summary</span></td></tr>
+<tr><td><span class="cmd-tag">free -h</span></td><td><span class="cmd-desc">RAM and swap usage (human-readable)</span></td></tr>
+<tr><td><span class="cmd-tag">free -h -s 2</span></td><td><span class="cmd-desc">Refresh free output every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">sar -u 2 5</span></td><td><span class="cmd-desc">CPU usage every 2s, 5 times (sysstat)</span></td></tr>
+<tr><td><span class="cmd-tag">sar -r 2 5</span></td><td><span class="cmd-desc">Memory usage stats over time</span></td></tr>
+<tr><td><span class="cmd-tag">sar -n DEV 2 5</span></td><td><span class="cmd-desc">Network usage stats per interface</span></td></tr>
+<tr><td><span class="cmd-tag">sar -d 2 5</span></td><td><span class="cmd-desc">Disk activity stats over time</span></td></tr>
+<tr><td><span class="cmd-tag">mpstat -P ALL 2</span></td><td><span class="cmd-desc">CPU stats per core every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">nload eth0</span></td><td><span class="cmd-desc">Real-time network bandwidth monitor</span></td></tr>
+<tr><td><span class="cmd-tag">nethogs</span></td><td><span class="cmd-desc">Network usage per process (like htop for network)</span></td></tr>
+<tr><td><span class="cmd-tag">dstat</span></td><td><span class="cmd-desc">Combined CPU, disk, net, memory stats</span></td></tr>
+<tr><td><span class="cmd-tag">perf stat cmd</span></td><td><span class="cmd-desc">Performance counters for a command</span></td></tr>
+<tr><td><span class="cmd-tag">watch -n 2 "df -h"</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Run any command every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">watch -d "netstat -tulnp"</span></td><td><span class="cmd-desc">Watch command — highlight differences</span></td></tr>
+<tr><td><span class="cmd-tag">pidstat -u 2</span></td><td><span class="cmd-desc">CPU usage per process every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">pidstat -d 2</span></td><td><span class="cmd-desc">Disk I/O per process every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">atop</span></td><td><span class="cmd-desc">Advanced system monitor with historical data</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== PERMISSIONS =================== -->
+<div class="section cat-perm" data-cat="perm">
+<div class="sec-head">🔒 PERMISSIONS &amp; OWNERSHIP<div class="sec-count">18 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">chmod 755 file</span></td><td><span class="cmd-desc">Set rwxr-xr-x permissions (owner:rwx, others:rx)</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 644 file</span></td><td><span class="cmd-desc">Set rw-r--r-- (owner:rw, others:r) for files</span></td></tr>
+<tr><td><span class="cmd-tag">chmod +x script.sh</span></td><td><span class="cmd-desc">Make file executable for everyone</span></td></tr>
+<tr><td><span class="cmd-tag">chmod -R 755 /dir</span></td><td><span class="cmd-desc">Set permissions recursively on directory</span></td></tr>
+<tr><td><span class="cmd-tag">chmod u+x,g-w file</span></td><td><span class="cmd-desc">Symbolic mode: add exec for user, remove write for group</span></td></tr>
+<tr><td><span class="cmd-tag">chown user:group file</span></td><td><span class="cmd-desc">Change owner and group of file</span></td></tr>
+<tr><td><span class="cmd-tag">chown -R user /dir</span></td><td><span class="cmd-desc">Change owner recursively</span></td></tr>
+<tr><td><span class="cmd-tag">chgrp group file</span></td><td><span class="cmd-desc">Change group ownership only</span></td></tr>
+<tr><td><span class="cmd-tag">stat file</span></td><td><span class="cmd-desc">Full file info: inode, perms, times, size</span></td></tr>
+<tr><td><span class="cmd-tag">umask</span></td><td><span class="cmd-desc">Show default permission mask for new files</span></td></tr>
+<tr><td><span class="cmd-tag">umask 022</span></td><td><span class="cmd-desc">Set default mask (new files get 644, dirs 755)</span></td></tr>
+<tr><td><span class="cmd-tag">getfacl file</span></td><td><span class="cmd-desc">Get extended ACL permissions</span></td></tr>
+<tr><td><span class="cmd-tag">setfacl -m u:bob:rw file</span></td><td><span class="cmd-desc">Give user bob read-write via ACL</span></td></tr>
+<tr><td><span class="cmd-tag">lsattr file</span></td><td><span class="cmd-desc">List extended file attributes</span></td></tr>
+<tr><td><span class="cmd-tag">chattr +i file</span></td><td><span class="cmd-desc">Make file immutable (even root can't delete)</span></td></tr>
+<tr><td><span class="cmd-tag">chattr -i file</span></td><td><span class="cmd-desc">Remove immutable attribute</span></td></tr>
+<tr><td><span class="cmd-tag">chattr +a logfile</span></td><td><span class="cmd-desc">Append-only attribute (can only add, not delete)</span></td></tr>
+<tr><td><span class="cmd-tag">sudo -u user cmd</span></td><td><span class="cmd-desc">Run command as another user</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== USER/GROUP =================== -->
+<div class="section cat-usr" data-cat="usr">
+<div class="sec-head">👤 USER &amp; GROUP MANAGEMENT<div class="sec-count">18 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">id</span></td><td><span class="cmd-desc">Show current user UID, GID and groups</span></td></tr>
+<tr><td><span class="cmd-tag">id username</span></td><td><span class="cmd-desc">Show UID, GID and groups for specific user</span></td></tr>
+<tr><td><span class="cmd-tag">whoami</span></td><td><span class="cmd-desc">Print current username</span></td></tr>
+<tr><td><span class="cmd-tag">useradd -m -s /bin/bash user</span></td><td><span class="cmd-desc">Create user with home dir and bash shell</span></td></tr>
+<tr><td><span class="cmd-tag">useradd -G sudo,docker user</span></td><td><span class="cmd-desc">Create user and add to groups</span></td></tr>
+<tr><td><span class="cmd-tag">usermod -aG docker user</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Add existing user to group (no overwrite)</span></td></tr>
+<tr><td><span class="cmd-tag">usermod -s /bin/bash user</span></td><td><span class="cmd-desc">Change user's default shell</span></td></tr>
+<tr><td><span class="cmd-tag">usermod -L user</span></td><td><span class="cmd-desc">Lock user account</span></td></tr>
+<tr><td><span class="cmd-tag">usermod -U user</span></td><td><span class="cmd-desc">Unlock user account</span></td></tr>
+<tr><td><span class="cmd-tag">passwd user</span></td><td><span class="cmd-desc">Change user password</span></td></tr>
+<tr><td><span class="cmd-tag">passwd -e user</span></td><td><span class="cmd-desc">Force user to change password at next login</span></td></tr>
+<tr><td><span class="cmd-tag">userdel -r user</span></td><td><span class="cmd-desc">Delete user and their home directory</span></td></tr>
+<tr><td><span class="cmd-tag">groupadd devteam</span></td><td><span class="cmd-desc">Create a new group</span></td></tr>
+<tr><td><span class="cmd-tag">groupdel groupname</span></td><td><span class="cmd-desc">Delete a group</span></td></tr>
+<tr><td><span class="cmd-tag">groups user</span></td><td><span class="cmd-desc">List all groups a user belongs to</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/passwd</span></td><td><span class="cmd-desc">List all user accounts</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/group</span></td><td><span class="cmd-desc">List all groups</span></td></tr>
+<tr><td><span class="cmd-tag">su - username</span></td><td><span class="cmd-desc">Switch to another user (full login shell)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== SSH/SCP =================== -->
+<div class="section cat-ssh" data-cat="ssh">
+<div class="sec-head">🔐 SSH &amp; SCP<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ssh user@host</span></td><td><span class="cmd-desc">Connect to remote server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -p 2222 user@host</span></td><td><span class="cmd-desc">Connect on custom SSH port</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -i key.pem user@host</span></td><td><span class="cmd-desc">Connect using PEM key file (AWS EC2 style)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -v user@host</span></td><td><span class="cmd-desc">Verbose — debug connection issues</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -X user@host</span></td><td><span class="cmd-desc">Enable X11 forwarding (GUI apps remotely)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -L 8080:localhost:80 user@host</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> SSH local port forwarding (tunnel)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -R 9000:localhost:3000 user@host</span></td><td><span class="cmd-desc">SSH reverse tunnel (expose local port remotely)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -N -f -L 3306:db:3306 user@host</span></td><td><span class="cmd-desc">Background tunnel (no command, fork to bg)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -o StrictHostKeyChecking=no</span></td><td><span class="cmd-desc">Skip host key verification (CI/CD scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host "cmd"</span></td><td><span class="cmd-desc">Run command on remote host non-interactively</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -t ed25519</span></td><td><span class="cmd-desc">Generate modern ED25519 key pair</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -t rsa -b 4096</span></td><td><span class="cmd-desc">Generate RSA 4096-bit key pair</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-copy-id user@host</span></td><td><span class="cmd-desc">Copy public key to remote for passwordless login</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-add ~/.ssh/id_ed25519</span></td><td><span class="cmd-desc">Add key to SSH agent</span></td></tr>
+<tr><td><span class="cmd-tag">eval $(ssh-agent -s)</span></td><td><span class="cmd-desc">Start SSH agent in current shell</span></td></tr>
+<tr><td><span class="cmd-tag">scp file user@host:/path</span></td><td><span class="cmd-desc">Copy local file to remote server</span></td></tr>
+<tr><td><span class="cmd-tag">scp user@host:/path file</span></td><td><span class="cmd-desc">Copy file from remote server to local</span></td></tr>
+<tr><td><span class="cmd-tag">scp -r dir/ user@host:/path</span></td><td><span class="cmd-desc">Copy directory recursively to remote</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz -e ssh src/ user@host:/dst/</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Sync files over SSH (efficient)</span></td></tr>
+<tr><td><span class="cmd-tag">rsync --delete src/ user@host:/dst/</span></td><td><span class="cmd-desc">Sync and delete files not in source (mirror)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== PACKAGE =================== -->
+<div class="section cat-pkg" data-cat="pkg">
+<div class="sec-head">📥 PACKAGE MANAGEMENT<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">apt update</span></td><td><span class="cmd-desc">Refresh package list from repositories</span></td></tr>
+<tr><td><span class="cmd-tag">apt upgrade -y</span></td><td><span class="cmd-desc">Upgrade all packages without confirmation</span></td></tr>
+<tr><td><span class="cmd-tag">apt install -y nginx</span></td><td><span class="cmd-desc">Install package without confirmation prompt</span></td></tr>
+<tr><td><span class="cmd-tag">apt remove nginx</span></td><td><span class="cmd-desc">Remove package (keep config files)</span></td></tr>
+<tr><td><span class="cmd-tag">apt purge nginx</span></td><td><span class="cmd-desc">Remove package AND all config files</span></td></tr>
+<tr><td><span class="cmd-tag">apt autoremove</span></td><td><span class="cmd-desc">Remove unused dependency packages</span></td></tr>
+<tr><td><span class="cmd-tag">apt search nginx</span></td><td><span class="cmd-desc">Search packages by name/description</span></td></tr>
+<tr><td><span class="cmd-tag">apt show nginx</span></td><td><span class="cmd-desc">Show package info: version, deps, description</span></td></tr>
+<tr><td><span class="cmd-tag">apt list --installed</span></td><td><span class="cmd-desc">List all installed packages</span></td></tr>
+<tr><td><span class="cmd-tag">dpkg -l | grep nginx</span></td><td><span class="cmd-desc">Check if package is installed (Debian/Ubuntu)</span></td></tr>
+<tr><td><span class="cmd-tag">dpkg -L nginx</span></td><td><span class="cmd-desc">List all files installed by a package</span></td></tr>
+<tr><td><span class="cmd-tag">dpkg -S /usr/bin/curl</span></td><td><span class="cmd-desc">Find which package owns a file</span></td></tr>
+<tr><td><span class="cmd-tag">yum install nginx -y</span></td><td><span class="cmd-desc">Install on RHEL/CentOS (older)</span></td></tr>
+<tr><td><span class="cmd-tag">dnf install nginx -y</span></td><td><span class="cmd-desc">Install on RHEL8/CentOS8/Fedora (modern)</span></td></tr>
+<tr><td><span class="cmd-tag">dnf update -y</span></td><td><span class="cmd-desc">Update all packages on RHEL/Fedora</span></td></tr>
+<tr><td><span class="cmd-tag">rpm -qa | grep nginx</span></td><td><span class="cmd-desc">Query all installed RPM packages</span></td></tr>
+<tr><td><span class="cmd-tag">rpm -ql nginx</span></td><td><span class="cmd-desc">List files installed by RPM package</span></td></tr>
+<tr><td><span class="cmd-tag">snap install code</span></td><td><span class="cmd-desc">Install snap package</span></td></tr>
+<tr><td><span class="cmd-tag">snap list</span></td><td><span class="cmd-desc">List installed snap packages</span></td></tr>
+<tr><td><span class="cmd-tag">pip install requests --break-system-packages</span></td><td><span class="cmd-desc">Install Python package (modern systems)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== FIND/LOCATE =================== -->
+<div class="section cat-find" data-cat="find">
+<div class="sec-head">🔍 FIND &amp; LOCATE<div class="sec-count">22 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">find / -name "*.log"</span></td><td><span class="cmd-desc">Find all .log files from root</span></td></tr>
+<tr><td><span class="cmd-tag">find /var -name "*.log" -mtime +7</span></td><td><span class="cmd-desc">Find logs not modified in last 7 days</span></td></tr>
+<tr><td><span class="cmd-tag">find /tmp -name "*.tmp" -delete</span></td><td><span class="cmd-desc">Find and delete tmp files in one command</span></td></tr>
+<tr><td><span class="cmd-tag">find / -type f -size +100M</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Find files larger than 100MB</span></td></tr>
+<tr><td><span class="cmd-tag">find / -type d -name "config"</span></td><td><span class="cmd-desc">Find directories named config</span></td></tr>
+<tr><td><span class="cmd-tag">find / -perm 777</span></td><td><span class="cmd-desc">Find files with 777 permissions (security check)</span></td></tr>
+<tr><td><span class="cmd-tag">find / -perm /4000</span></td><td><span class="cmd-desc">Find SUID files (security audit)</span></td></tr>
+<tr><td><span class="cmd-tag">find / -user root -writable</span></td><td><span class="cmd-desc">Find root-owned writable files</span></td></tr>
+<tr><td><span class="cmd-tag">find . -name "*.py" -exec grep -l "TODO" {} \;</span></td><td><span class="cmd-desc">Find .py files containing TODO</span></td></tr>
+<tr><td><span class="cmd-tag">find . -newer reference_file</span></td><td><span class="cmd-desc">Find files newer than a reference file</span></td></tr>
+<tr><td><span class="cmd-tag">find . -empty</span></td><td><span class="cmd-desc">Find all empty files and directories</span></td></tr>
+<tr><td><span class="cmd-tag">find . -maxdepth 2 -name "*.conf"</span></td><td><span class="cmd-desc">Find at max 2 directory levels deep</span></td></tr>
+<tr><td><span class="cmd-tag">find . \( -name "*.py" -o -name "*.sh" \)</span></td><td><span class="cmd-desc">Find .py OR .sh files</span></td></tr>
+<tr><td><span class="cmd-tag">find . ! -name "*.log"</span></td><td><span class="cmd-desc">Find all files EXCEPT .log files</span></td></tr>
+<tr><td><span class="cmd-tag">locate filename</span></td><td><span class="cmd-desc">Fast file search using database index</span></td></tr>
+<tr><td><span class="cmd-tag">updatedb</span></td><td><span class="cmd-desc">Update locate database (run before locate)</span></td></tr>
+<tr><td><span class="cmd-tag">which python3</span></td><td><span class="cmd-desc">Find path of executable in PATH</span></td></tr>
+<tr><td><span class="cmd-tag">whereis nginx</span></td><td><span class="cmd-desc">Find binary, source, man page locations</span></td></tr>
+<tr><td><span class="cmd-tag">type curl</span></td><td><span class="cmd-desc">Show if command is alias, function, or binary</span></td></tr>
+<tr><td><span class="cmd-tag">command -v python3</span></td><td><span class="cmd-desc">Check if command exists (great in scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">xargs find . -name "*.log" | xargs rm</span></td><td><span class="cmd-desc">Pipe find results to rm (bulk delete)</span></td></tr>
+<tr><td><span class="cmd-tag">find . -name "*.log" | xargs grep "ERROR"</span></td><td><span class="cmd-desc">Search all .log files for ERROR</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== ENV/SHELL =================== -->
+<div class="section cat-env" data-cat="env">
+<div class="sec-head">🌿 ENV, SHELL &amp; SCRIPTING<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">echo $PATH</span></td><td><span class="cmd-desc">Print PATH environment variable</span></td></tr>
+<tr><td><span class="cmd-tag">echo $HOME</span></td><td><span class="cmd-desc">Print home directory path</span></td></tr>
+<tr><td><span class="cmd-tag">echo $?</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Exit code of last command (0=success)</span></td></tr>
+<tr><td><span class="cmd-tag">echo $$</span></td><td><span class="cmd-desc">PID of current shell/script</span></td></tr>
+<tr><td><span class="cmd-tag">env</span></td><td><span class="cmd-desc">List all environment variables</span></td></tr>
+<tr><td><span class="cmd-tag">export VAR=value</span></td><td><span class="cmd-desc">Set environment variable for session</span></td></tr>
+<tr><td><span class="cmd-tag">export -p</span></td><td><span class="cmd-desc">List all exported variables</span></td></tr>
+<tr><td><span class="cmd-tag">unset VAR</span></td><td><span class="cmd-desc">Remove environment variable</span></td></tr>
+<tr><td><span class="cmd-tag">source ~/.bashrc</span></td><td><span class="cmd-desc">Reload shell config without restarting</span></td></tr>
+<tr><td><span class="cmd-tag">. ./script.sh</span></td><td><span class="cmd-desc">Source script in current shell (same as source)</span></td></tr>
+<tr><td><span class="cmd-tag">alias ll='ls -la'</span></td><td><span class="cmd-desc">Create command alias</span></td></tr>
+<tr><td><span class="cmd-tag">alias</span></td><td><span class="cmd-desc">List all current aliases</span></td></tr>
+<tr><td><span class="cmd-tag">unalias ll</span></td><td><span class="cmd-desc">Remove alias</span></td></tr>
+<tr><td><span class="cmd-tag">history</span></td><td><span class="cmd-desc">Show command history</span></td></tr>
+<tr><td><span class="cmd-tag">history | grep ssh</span></td><td><span class="cmd-desc">Search command history for ssh commands</span></td></tr>
+<tr><td><span class="cmd-tag">!!  </span></td><td><span class="cmd-desc">Re-run last command</span></td></tr>
+<tr><td><span class="cmd-tag">!123</span></td><td><span class="cmd-desc">Re-run history command #123</span></td></tr>
+<tr><td><span class="cmd-tag">CTRL+R</span></td><td><span class="cmd-desc">Reverse search through command history</span></td></tr>
+<tr><td><span class="cmd-tag">set -e</span></td><td><span class="cmd-desc"><strong>Script Key:</strong> Exit immediately on any error</span></td></tr>
+<tr><td><span class="cmd-tag">set -x</span></td><td><span class="cmd-desc"><strong>Script Debug:</strong> Print each command before executing</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== SERVICES =================== -->
+<div class="section cat-svc" data-cat="svc">
+<div class="sec-head">🚀 SERVICES — systemctl, journald, cron<div class="sec-count">22 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">systemctl start nginx</span></td><td><span class="cmd-desc">Start a service</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl stop nginx</span></td><td><span class="cmd-desc">Stop a service</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl restart nginx</span></td><td><span class="cmd-desc">Restart a service</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl reload nginx</span></td><td><span class="cmd-desc">Reload config without full restart</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl status nginx</span></td><td><span class="cmd-desc">Check service status + recent logs</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl enable nginx</span></td><td><span class="cmd-desc">Enable service to start on boot</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl disable nginx</span></td><td><span class="cmd-desc">Disable service from starting on boot</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl is-active nginx</span></td><td><span class="cmd-desc">Returns "active" or "inactive" (great in scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl is-enabled nginx</span></td><td><span class="cmd-desc">Check if service is enabled on boot</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl list-units --type=service</span></td><td><span class="cmd-desc">List all active services</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl list-units --failed</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Show all failed services</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl daemon-reload</span></td><td><span class="cmd-desc">Reload systemd config after editing unit files</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl cat nginx</span></td><td><span class="cmd-desc">Show contents of service unit file</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u nginx</span></td><td><span class="cmd-desc">View logs for specific service</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u nginx -f</span></td><td><span class="cmd-desc">Follow/tail service logs live</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u nginx --since "1 hour ago"</span></td><td><span class="cmd-desc">Logs from last 1 hour</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -p err -b</span></td><td><span class="cmd-desc">Show error-level logs since last boot</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl --disk-usage</span></td><td><span class="cmd-desc">Show how much disk journals use</span></td></tr>
+<tr><td><span class="cmd-tag">crontab -e</span></td><td><span class="cmd-desc">Edit cron jobs for current user</span></td></tr>
+<tr><td><span class="cmd-tag">crontab -l</span></td><td><span class="cmd-desc">List current user's cron jobs</span></td></tr>
+<tr><td><span class="cmd-tag">crontab -u user -l</span></td><td><span class="cmd-desc">List cron jobs for specific user</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/crontab</span></td><td><span class="cmd-desc">View system-wide cron schedule</span></td></tr>
+</tbody></table></div>
+
+<div class="footer">
+  ⚡ LINUX ULTRAMAN MASTER BIBLE — 300+ COMMANDS ⚡ &nbsp;|&nbsp; KEEP TRAINING BUDDY &nbsp;|&nbsp; <span>█</span>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const searchInput = document.getElementById('searchInput');
+const countBadge = document.getElementById('countBadge');
+const noResults = document.getElementById('noResults');
+const filterTabs = document.querySelectorAll('.ftab');
+let activecat = 'all';
+
+function updateCount() {
+  const visible = document.querySelectorAll('.cmd-table tr:not(.hidden)').length;
+  countBadge.textContent = visible + ' CMDS';
+}
+
+function filterAll() {
+  const q = searchInput.value.toLowerCase().trim();
+  let sections = document.querySelectorAll('.section');
+  let anyVisible = false;
+
+  sections.forEach(sec => {
+    const cat = sec.getAttribute('data-cat');
+    const catMatch = activecat === 'all' || activecat === cat;
+    if (!catMatch) { sec.classList.add('hidden'); return; }
+    sec.classList.remove('hidden');
+
+    let secHasVisible = false;
+    sec.querySelectorAll('tbody tr').forEach(row => {
+      if (!q) { row.classList.remove('hidden'); secHasVisible = true; return; }
+      const text = row.textContent.toLowerCase();
+      if (text.includes(q)) { row.classList.remove('hidden'); secHasVisible = true; }
+      else row.classList.add('hidden');
+    });
+
+    if (!secHasVisible && q) sec.classList.add('hidden');
+    else if (secHasVisible) anyVisible = true;
+  });
+
+  noResults.style.display = (q && !anyVisible) ? 'block' : 'none';
+  updateCount();
+}
+
+searchInput.addEventListener('input', filterAll);
+
+filterTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    filterTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activecat = tab.getAttribute('data-cat');
+    filterAll();
+  });
+});
+
+updateCount();
+</script>
+</body>
+</html>

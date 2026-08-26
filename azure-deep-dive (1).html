@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Core Services — Deep Dive</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azure: #0078D4;
+    --azure-light: #50B0F0;
+    --azure-dim: #003A6B;
+    --accent: #00D4AA;
+    --warn: #FF6B35;
+    --danger: #FF3B5C;
+    --bg: #050C14;
+    --surface: #0A1628;
+    --surface2: #0F1E35;
+    --surface3: #162844;
+    --border: rgba(0,120,212,0.2);
+    --border-bright: rgba(0,212,170,0.4);
+    --text: #E8F4FF;
+    --text-muted: #6B8CAE;
+    --text-dim: #3A5A7C;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Syne', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,120,212,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,120,212,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    padding: 60px 0 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--azure-light), transparent);
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    border: 1px solid var(--border-bright);
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 24px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .header-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(36px, 6vw, 72px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, var(--azure-light) 50%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+
+  .header-sub {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Nav */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(5,12,20,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    overflow-x: auto;
+  }
+
+  nav ul {
+    display: flex;
+    gap: 0;
+    list-style: none;
+    max-width: 1400px;
+    margin: 0 auto;
+    white-space: nowrap;
+  }
+
+  nav a {
+    display: block;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+  }
+
+  nav a:hover {
+    color: var(--azure-light);
+    border-bottom-color: var(--azure);
+  }
+
+  /* Main layout */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Section */
+  .section {
+    margin-top: 64px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .section-title {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .section-subtitle {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* Cards grid */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .card:hover {
+    border-color: rgba(0,120,212,0.4);
+    transform: translateY(-2px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--azure), var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  /* Do/Don't cards */
+  .do-card {
+    background: rgba(0,212,170,0.04);
+    border-color: rgba(0,212,170,0.2);
+  }
+
+  .do-card .card-title { color: var(--accent); }
+
+  .dont-card {
+    background: rgba(255,59,92,0.04);
+    border-color: rgba(255,59,92,0.2);
+  }
+
+  .dont-card .card-title { color: var(--danger); }
+
+  .warn-card {
+    background: rgba(255,107,53,0.04);
+    border-color: rgba(255,107,53,0.2);
+  }
+
+  .warn-card .card-title { color: var(--warn); }
+
+  /* Code block */
+  .code-block {
+    background: #020810;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 12px 0;
+    position: relative;
+  }
+
+  .code-block .comment { color: #3A6B8A; }
+  .code-block .key { color: var(--azure-light); }
+  .code-block .val { color: var(--accent); }
+  .code-block .str { color: #FFD580; }
+  .code-block .kw { color: #FF6B9D; }
+  .code-block .num { color: #FF9F43; }
+  .code-block .cmd { color: #fff; }
+  .code-block .flag { color: var(--warn); }
+
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+
+  /* Tag pills */
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .tag-azure { background: rgba(0,120,212,0.15); color: var(--azure-light); border: 1px solid rgba(0,120,212,0.3); }
+  .tag-accent { background: rgba(0,212,170,0.12); color: var(--accent); border: 1px solid rgba(0,212,170,0.25); }
+  .tag-warn { background: rgba(255,107,53,0.12); color: var(--warn); border: 1px solid rgba(255,107,53,0.25); }
+  .tag-danger { background: rgba(255,59,92,0.12); color: var(--danger); border: 1px solid rgba(255,59,92,0.25); }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    font-family: var(--mono);
+    margin: 16px 0;
+  }
+
+  .data-table th {
+    background: var(--surface2);
+    color: var(--azure-light);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .data-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid rgba(0,120,212,0.08);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+
+  .data-table tr:hover td { background: rgba(0,120,212,0.04); }
+
+  .data-table td:first-child { color: var(--text); font-weight: 600; }
+
+  /* Metric badge */
+  .metric {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+
+  .metric-val {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--azure-light);
+  }
+
+  .metric-unit {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px;
+    margin: 16px 0;
+    display: flex;
+    gap: 0;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .arch-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 20px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    min-width: 120px;
+    position: relative;
+  }
+
+  .arch-node .node-icon { font-size: 22px; display: block; margin-bottom: 6px; }
+  .arch-node .node-label { color: var(--text-muted); font-size: 10px; margin-top: 2px; }
+
+  .arch-arrow {
+    color: var(--azure);
+    font-size: 20px;
+    margin: 0 8px;
+    flex-shrink: 0;
+  }
+
+  /* Checklist */
+  .checklist { list-style: none; }
+  .checklist li {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(0,120,212,0.06);
+  }
+
+  .checklist li::before {
+    content: '▸';
+    color: var(--azure);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .checklist.do li::before { color: var(--accent); content: '✓'; }
+  .checklist.dont li::before { color: var(--danger); content: '✗'; }
+
+  /* Highlight box */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,120,212,0.08), rgba(0,212,170,0.04));
+    border: 1px solid rgba(0,120,212,0.25);
+    border-left: 3px solid var(--azure);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+  }
+
+  .highlight-box strong { color: var(--azure-light); }
+
+  .tip-box {
+    border-left-color: var(--accent);
+    background: linear-gradient(135deg, rgba(0,212,170,0.06), transparent);
+    border-color: rgba(0,212,170,0.2);
+  }
+
+  .warn-box {
+    border-left-color: var(--warn);
+    background: linear-gradient(135deg, rgba(255,107,53,0.06), transparent);
+    border-color: rgba(255,107,53,0.2);
+  }
+
+  /* Tier comparison */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .tier-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 16px;
+    text-align: center;
+  }
+
+  .tier-card.recommended {
+    border-color: var(--accent);
+    background: rgba(0,212,170,0.05);
+  }
+
+  .tier-name {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .tier-price {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--azure-light);
+  }
+
+  .tier-note {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* Separator */
+  .sep {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 48px 0;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .arch-diagram { flex-direction: column; }
+    .arch-arrow { transform: rotate(90deg); }
+  }
+
+  /* Scroll animation */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 24px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    position: relative;
+    z-index: 1;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-badge">Azure Cloud Platform · Pro DevOps Reference</div>
+  <h1>Azure Core Services<br>Deep Dive</h1>
+  <p class="header-sub">VMs · Functions · VNet · Blob · App Service · Cosmos DB · Cost Optimization</p>
+</header>
+
+<nav>
+  <ul>
+    <li><a href="#vms">⚙ Virtual Machines</a></li>
+    <li><a href="#functions">λ Functions</a></li>
+    <li><a href="#vnet">🔗 VNet</a></li>
+    <li><a href="#blob">💾 Blob Storage</a></li>
+    <li><a href="#appservice">🌐 App Service</a></li>
+    <li><a href="#cosmosdb">🌌 Cosmos DB</a></li>
+    <li><a href="#devops">🚀 DevOps</a></li>
+    <li><a href="#cost">💰 Cost Optimization</a></li>
+  </ul>
+</nav>
+
+<main>
+
+  <!-- ─── VIRTUAL MACHINES ─── -->
+  <section class="section fade-in" id="vms">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,120,212,0.15);">⚙️</div>
+      <div>
+        <div class="section-title">Azure Virtual Machines</div>
+        <div class="section-subtitle">IaaS Compute · Series Selection · Scaling · Best Practices</div>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">General Purpose</div>
+        <p>D-series (Dv5, Dsv5). Balanced CPU/RAM ratio. Best for web servers, dev/test, small databases.</p>
+        <div class="tags"><span class="tag tag-azure">D-series</span><span class="tag tag-accent">vCPU:RAM 1:4</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Compute Optimized</div>
+        <p>F-series (Fsv2). High CPU:RAM ratio. Ideal for batch processing, gaming servers, web analytics.</p>
+        <div class="tags"><span class="tag tag-azure">F-series</span><span class="tag tag-accent">vCPU:RAM 1:2</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Memory Optimized</div>
+        <p>E-series, M-series. High RAM for in-memory databases (SAP HANA), large caches, real-time analytics.</p>
+        <div class="tags"><span class="tag tag-azure">E/M-series</span><span class="tag tag-accent">Up to 12TB RAM</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">GPU / HPC</div>
+        <p>NC, ND, NV series for ML training, inference, rendering, and HPC workloads.</p>
+        <div class="tags"><span class="tag tag-azure">NC/ND/NV</span><span class="tag tag-warn">Premium pricing</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Provision with Azure CLI</div>
+        <div class="code-block">
+<span class="comment"># Create a production-grade VM with managed disks</span>
+<span class="cmd">az vm create \</span>
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--name</span> <span class="str">api-vm-01</span> \
+  <span class="flag">--image</span> <span class="str">Ubuntu2204</span> \
+  <span class="flag">--size</span> <span class="str">Standard_D4s_v5</span> \
+  <span class="flag">--authentication-type</span> <span class="str">ssh</span> \
+  <span class="flag">--generate-ssh-keys</span> \
+  <span class="flag">--os-disk-size-gb</span> <span class="num">128</span> \
+  <span class="flag">--os-disk-delete-option</span> <span class="str">Delete</span> \
+  <span class="flag">--storage-sku</span> <span class="str">Premium_LRS</span> \
+  <span class="flag">--nsg-rule</span> <span class="str">SSH</span> \
+  <span class="flag">--zones</span> <span class="num">1</span>
+
+<span class="comment"># Enable accelerated networking (critical for performance)</span>
+<span class="cmd">az network nic update \</span>
+  <span class="flag">--name</span> <span class="str">api-vm-01VMNic</span> \
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--accelerated-networking</span> <span class="kw">true</span>
+        </div>
+      </div>
+      <div>
+        <div class="code-label">VMSS Auto-scaling Policy (ARM snippet)</div>
+        <div class="code-block">
+<span class="comment">// Scale-out when CPU > 75% for 5 min</span>
+{
+  <span class="key">"profiles"</span>: [{
+    <span class="key">"capacity"</span>: {
+      <span class="key">"minimum"</span>: <span class="str">"2"</span>,
+      <span class="key">"maximum"</span>: <span class="str">"20"</span>,
+      <span class="key">"default"</span>: <span class="str">"2"</span>
+    },
+    <span class="key">"rules"</span>: [{
+      <span class="key">"metricTrigger"</span>: {
+        <span class="key">"metricName"</span>: <span class="str">"Percentage CPU"</span>,
+        <span class="key">"threshold"</span>: <span class="num">75</span>,
+        <span class="key">"timeWindow"</span>: <span class="str">"PT5M"</span>,
+        <span class="key">"operator"</span>: <span class="str">"GreaterThan"</span>
+      },
+      <span class="key">"scaleAction"</span>: {
+        <span class="key">"direction"</span>: <span class="str">"Increase"</span>,
+        <span class="key">"value"</span>: <span class="str">"2"</span>,
+        <span class="key">"cooldown"</span>: <span class="str">"PT5M"</span>
+      }
+    }]
+  }]
+}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ VM Do's</div>
+        <ul class="checklist do">
+          <li>Always use <strong>Availability Zones</strong> for production (spread across ≥2 zones)</li>
+          <li>Use <strong>Premium SSD v2</strong> for latency-sensitive IOPS workloads</li>
+          <li>Enable <strong>Azure Backup</strong> with a Recovery Services Vault on day one</li>
+          <li>Use <strong>Managed Identities</strong> — never store credentials in VMs</li>
+          <li>Enable <strong>Accelerated Networking</strong> for all D/E/F series VMs (massive perf boost)</li>
+          <li>Patch with <strong>Azure Update Manager</strong> — schedule maintenance windows</li>
+          <li>Use <strong>Spot VMs</strong> for stateless, fault-tolerant batch workloads (up to 90% cheaper)</li>
+          <li>Use <strong>VMSS Flexible orchestration</strong> for new deployments</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ VM Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't expose port 22/3389 to the internet — use <strong>Azure Bastion</strong></li>
+          <li>Don't use Standard HDD in production — latency spikes will hurt SLAs</li>
+          <li>Don't skip VM extensions — use for monitoring, security agents, config mgmt</li>
+          <li>Don't leave VMs running 24/7 in dev/test — use <strong>auto-shutdown schedules</strong></li>
+          <li>Don't ignore <strong>proximity placement groups</strong> for latency-sensitive clusters</li>
+          <li>Don't overlook <strong>ephemeral OS disks</strong> — faster boot, no extra storage cost</li>
+          <li>Don't mix generations (v3 vs v5) in the same VMSS — inconsistent performance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:16px;">
+      <strong>Pro Tip — Ephemeral OS Disks:</strong> For stateless VMSS nodes, use ephemeral OS disks (<code>--ephemeral-os-disk true</code>). They live in VM cache/temp storage, boot 2-3× faster, and are free. Pair with a shared image for golden AMI-style deployments.
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── AZURE FUNCTIONS ─── -->
+  <section class="section fade-in" id="functions">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,212,170,0.1);">λ</div>
+      <div>
+        <div class="section-title">Azure Functions</div>
+        <div class="section-subtitle">Serverless Compute · Triggers · Durable Functions · Cold Starts</div>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr><th>Plan</th><th>Cold Start</th><th>Max Duration</th><th>Scaling</th><th>Best For</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Consumption</td><td>~1–3s</td><td>10 min</td><td>Auto (0→∞)</td><td>Sporadic, event-driven workloads</td></tr>
+        <tr><td>Premium (EP)</td><td>Pre-warmed (0ms)</td><td>Unlimited</td><td>Auto (min instances)</td><td>Production APIs, VNet integration</td></tr>
+        <tr><td>Dedicated (ASP)</td><td>None</td><td>Unlimited</td><td>Manual / VMSS</td><td>Predictable, long-running tasks</td></tr>
+        <tr><td>Container Apps</td><td>Variable</td><td>Unlimited</td><td>KEDA-based</td><td>Custom runtimes, microservices</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Durable Function — Fan-out/Fan-in Pattern</div>
+        <div class="code-block">
+<span class="comment">// Orchestrator: parallel execution of N activities</span>
+[<span class="kw">FunctionName</span>(<span class="str">"ParallelPipeline"</span>)]
+<span class="kw">public static async</span> Task&lt;<span class="kw">string</span>[]&gt; RunOrchestrator(
+  [<span class="kw">OrchestrationTrigger</span>] IDurableOrchestrationContext ctx)
+{
+  <span class="kw">var</span> tasks = <span class="kw">new</span> List&lt;Task&lt;<span class="kw">string</span>&gt;&gt;();
+  <span class="kw">var</span> items = ctx.GetInput&lt;List&lt;<span class="kw">string</span>&gt;&gt;();
+
+  <span class="kw">foreach</span> (<span class="kw">var</span> item <span class="kw">in</span> items)
+    tasks.Add(ctx.CallActivityAsync&lt;<span class="kw">string</span>&gt;(
+      <span class="str">"ProcessItem"</span>, item));       <span class="comment">// Fan-out</span>
+
+  <span class="kw">return await</span> Task.WhenAll(tasks); <span class="comment">// Fan-in</span>
+}
+
+[<span class="kw">FunctionName</span>(<span class="str">"ProcessItem"</span>)]
+<span class="kw">public static async</span> Task&lt;<span class="kw">string</span>&gt; ProcessItem(
+  [<span class="kw">ActivityTrigger</span>] <span class="kw">string</span> item,
+  ILogger log) {
+  <span class="comment">// Idempotent processing logic here</span>
+  <span class="kw">return await</span> DoWork(item);
+}
+        </div>
+      </div>
+      <div>
+        <div class="code-label">host.json — Production Tuning</div>
+        <div class="code-block">
+{
+  <span class="key">"version"</span>: <span class="str">"2.0"</span>,
+  <span class="key">"functionTimeout"</span>: <span class="str">"00:10:00"</span>,
+  <span class="key">"concurrency"</span>: {
+    <span class="key">"dynamicConcurrencyEnabled"</span>: <span class="kw">true</span>,
+    <span class="key">"snapshotPersistenceEnabled"</span>: <span class="kw">true</span>
+  },
+  <span class="key">"extensions"</span>: {
+    <span class="key">"serviceBus"</span>: {
+      <span class="key">"prefetchCount"</span>: <span class="num">20</span>,
+      <span class="key">"maxConcurrentCalls"</span>: <span class="num">16</span>,
+      <span class="key">"autoCompleteMessages"</span>: <span class="kw">false</span>
+    },
+    <span class="key">"durableTask"</span>: {
+      <span class="key">"storageProvider"</span>: {
+        <span class="key">"type"</span>: <span class="str">"mssql"</span>  <span class="comment">// Use MSSQL for scale</span>
+      },
+      <span class="key">"maxConcurrentActivityFunctions"</span>: <span class="num">10</span>,
+      <span class="key">"maxConcurrentOrchestratorFunctions"</span>: <span class="num">5</span>
+    }
+  },
+  <span class="key">"logging"</span>: {
+    <span class="key">"applicationInsights"</span>: {
+      <span class="key">"samplingSettings"</span>: {
+        <span class="key">"isEnabled"</span>: <span class="kw">true</span>,
+        <span class="key">"maxTelemetryItemsPerSecond"</span>: <span class="num">20</span>
+      }
+    }
+  }
+}
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ Functions Do's</div>
+        <ul class="checklist do">
+          <li>Use <strong>Premium Plan</strong> for VNet-integrated, production APIs — eliminates cold starts</li>
+          <li>Design activities to be <strong>idempotent</strong> — retries are guaranteed in Durable</li>
+          <li>Use <strong>App Configuration + Key Vault references</strong> for settings — never hardcode</li>
+          <li>Instrument with <strong>Application Insights</strong> — use structured logging (ILogger)</li>
+          <li>Set <strong>WEBSITE_RUN_FROM_PACKAGE=1</strong> for faster, atomic deployments</li>
+          <li>Use <strong>Durable Functions</strong> for workflows > 10 min — HTTP is not enough</li>
+          <li>Implement <strong>dead-letter queue</strong> handling for all message-triggered functions</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ Functions Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't use Consumption Plan for latency-sensitive, customer-facing APIs</li>
+          <li>Don't store state in static variables — Functions can scale to many instances</li>
+          <li>Don't ignore <strong>function chaining anti-pattern</strong> — use Durable instead</li>
+          <li>Don't call functions directly from other functions via HTTP — use queues/Durable</li>
+          <li>Don't neglect <strong>max scale-out limits</strong> — check downstream service limits first</li>
+          <li>Don't let Durable orchestrators call external services directly — use activities</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── VNET ─── -->
+  <section class="section fade-in" id="vnet">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,120,212,0.15);">🔗</div>
+      <div>
+        <div class="section-title">Azure Virtual Network (VNet)</div>
+        <div class="section-subtitle">Network Topology · NSGs · Peering · Private Endpoints · Zero Trust</div>
+      </div>
+    </div>
+
+    <div class="arch-diagram">
+      <div class="arch-node">
+        <span class="node-icon">🌍</span>
+        Internet
+        <div class="node-label">Public Traffic</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="border-color:rgba(0,120,212,0.5);">
+        <span class="node-icon">🛡️</span>
+        Azure Firewall
+        <div class="node-label">Hub VNet</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node" style="border-color:rgba(0,212,170,0.5);">
+        <span class="node-icon">🌐</span>
+        App Gateway + WAF
+        <div class="node-label">DMZ Subnet</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <span class="node-icon">⚙️</span>
+        App Tier
+        <div class="node-label">Private Subnet</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <span class="node-icon">🗄️</span>
+        Data Tier
+        <div class="node-label">Isolated Subnet</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Hub-Spoke Network via Bicep</div>
+        <div class="code-block">
+<span class="comment">// Hub VNet with forced tunneling</span>
+<span class="kw">resource</span> <span class="val">hubVnet</span> <span class="str">'Microsoft.Network/virtualNetworks@2023-04-01'</span> = {
+  name: <span class="str">'hub-vnet-prod'</span>
+  location: <span class="val">location</span>
+  properties: {
+    addressSpace: { addressPrefixes: [<span class="str">'10.0.0.0/16'</span>] }
+    subnets: [
+      { name: <span class="str">'AzureFirewallSubnet'</span>
+        properties: { addressPrefix: <span class="str">'10.0.1.0/26'</span> } }
+      { name: <span class="str">'GatewaySubnet'</span>
+        properties: { addressPrefix: <span class="str">'10.0.2.0/27'</span> } }
+      { name: <span class="str">'AzureBastionSubnet'</span>
+        properties: { addressPrefix: <span class="str">'10.0.3.0/27'</span> } }
+    ]
+    enableDdosProtection: <span class="kw">true</span>
+    ddosProtectionPlan: { id: ddosPlan.id }
+  }
+}
+
+<span class="comment">// Spoke peering — use AllowGatewayTransit on hub</span>
+<span class="kw">resource</span> <span class="val">peering</span> <span class="str">'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2023-04-01'</span> = {
+  name: <span class="str">'hub-to-app-spoke'</span>
+  parent: <span class="val">hubVnet</span>
+  properties: {
+    allowGatewayTransit: <span class="kw">true</span>
+    allowForwardedTraffic: <span class="kw">true</span>
+    remoteVirtualNetwork: { id: <span class="val">spokeVnet</span>.id }
+  }
+}
+        </div>
+      </div>
+      <div>
+        <div class="code-label">NSG Rule — Zero-Trust Micro-segmentation</div>
+        <div class="code-block">
+<span class="comment"># Allow only app-tier to data-tier on 5432 (PostgreSQL)</span>
+<span class="cmd">az network nsg rule create \</span>
+  <span class="flag">--nsg-name</span> <span class="str">data-tier-nsg</span> \
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--name</span> <span class="str">Allow-AppTier-DB</span> \
+  <span class="flag">--priority</span> <span class="num">200</span> \
+  <span class="flag">--source-address-prefixes</span> <span class="str">10.1.10.0/24</span> \
+  <span class="flag">--destination-address-prefixes</span> <span class="str">10.1.20.0/24</span> \
+  <span class="flag">--destination-port-ranges</span> <span class="num">5432</span> \
+  <span class="flag">--access</span> <span class="kw">Allow</span> \
+  <span class="flag">--protocol</span> <span class="kw">Tcp</span>
+
+<span class="comment"># Deny all other inbound to data tier (explicit deny-all)</span>
+<span class="cmd">az network nsg rule create \</span>
+  <span class="flag">--nsg-name</span> <span class="str">data-tier-nsg</span> \
+  <span class="flag">--name</span> <span class="str">DenyAllInbound</span> \
+  <span class="flag">--priority</span> <span class="num">4000</span> \
+  <span class="flag">--access</span> <span class="kw">Deny</span> \
+  <span class="flag">--direction</span> <span class="kw">Inbound</span> \
+  <span class="flag">--source-address-prefixes</span> <span class="str">'*'</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ VNet Do's</div>
+        <ul class="checklist do">
+          <li>Design <strong>Hub-Spoke topology</strong> — centralize firewall, DNS, gateways in Hub</li>
+          <li>Use <strong>Private Endpoints</strong> for all PaaS services (Storage, SQL, Cosmos, Key Vault)</li>
+          <li>Enable <strong>Azure DDoS Protection Standard</strong> on public VNets</li>
+          <li>Use <strong>Azure DNS Private Zones</strong> linked to hub for private name resolution</li>
+          <li>Log all NSG flow logs to a Storage Account + enable <strong>Traffic Analytics</strong></li>
+          <li>Use <strong>Service Endpoints</strong> only when Private Endpoints are not viable</li>
+          <li>Plan CIDR blocks carefully — leave room to grow without re-IPing</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ VNet Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't use overlapping CIDR ranges — peering and VPN will silently fail</li>
+          <li>Don't allow PaaS services on public endpoints in production — always use Private Endpoints</li>
+          <li>Don't skip <strong>UDRs (User Defined Routes)</strong> — traffic won't traverse the hub firewall</li>
+          <li>Don't peer spokes directly — all traffic must route through hub (NVA/Firewall)</li>
+          <li>Don't forget <strong>Azure Firewall DNAT rules</strong> for inbound app traffic</li>
+          <li>Don't neglect <strong>subnet delegation</strong> for App Service, Functions, and AKS</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── BLOB STORAGE ─── -->
+  <section class="section fade-in" id="blob">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(80,176,240,0.12);">💾</div>
+      <div>
+        <div class="section-title">Azure Blob Storage</div>
+        <div class="section-subtitle">Tiers · Lifecycle · Security · Performance · ADLS Gen2</div>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">Hot Tier</div>
+        <div class="metric"><span class="metric-val">~$0.018</span><span class="metric-unit">/GB/mo</span></div>
+        <p style="margin-top:8px;">Frequent access. Low latency. Highest storage cost, lowest access cost.</p>
+        <div class="tags"><span class="tag tag-azure">Active data</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Cool Tier</div>
+        <div class="metric"><span class="metric-val">~$0.010</span><span class="metric-unit">/GB/mo</span></div>
+        <p style="margin-top:8px;">Infrequent access (≥30 days). Higher per-operation cost. Good for backups.</p>
+        <div class="tags"><span class="tag tag-azure">30+ day data</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Cold Tier</div>
+        <div class="metric"><span class="metric-val">~$0.004</span><span class="metric-unit">/GB/mo</span></div>
+        <p style="margin-top:8px;">Rarely accessed (≥90 days). Minimum 90-day storage. High retrieval cost.</p>
+        <div class="tags"><span class="tag tag-warn">90+ day data</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Archive Tier</div>
+        <div class="metric"><span class="metric-val">~$0.001</span><span class="metric-unit">/GB/mo</span></div>
+        <p style="margin-top:8px;">Offline storage. Rehydration takes hours. 180-day minimum. Compliance archives.</p>
+        <div class="tags"><span class="tag tag-danger">180+ day data</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Lifecycle Management Policy (JSON)</div>
+        <div class="code-block">
+{
+  <span class="key">"rules"</span>: [{
+    <span class="key">"name"</span>: <span class="str">"AutoTierRule"</span>,
+    <span class="key">"type"</span>: <span class="str">"Lifecycle"</span>,
+    <span class="key">"definition"</span>: {
+      <span class="key">"filters"</span>: {
+        <span class="key">"blobTypes"</span>: [<span class="str">"blockBlob"</span>],
+        <span class="key">"prefixMatch"</span>: [<span class="str">"logs/"</span>, <span class="str">"backups/"</span>]
+      },
+      <span class="key">"actions"</span>: {
+        <span class="key">"baseBlob"</span>: {
+          <span class="key">"tierToCool"</span>:    { <span class="key">"daysAfterModificationGreaterThan"</span>: <span class="num">30</span>  },
+          <span class="key">"tierToCold"</span>:    { <span class="key">"daysAfterModificationGreaterThan"</span>: <span class="num">90</span>  },
+          <span class="key">"tierToArchive"</span>: { <span class="key">"daysAfterModificationGreaterThan"</span>: <span class="num">180</span> },
+          <span class="key">"delete"</span>:        { <span class="key">"daysAfterModificationGreaterThan"</span>: <span class="num">730</span> }
+        },
+        <span class="key">"snapshot"</span>: {
+          <span class="key">"delete"</span>: { <span class="key">"daysAfterCreationGreaterThan"</span>: <span class="num">90</span> }
+        }
+      }
+    }
+  }]
+}
+        </div>
+      </div>
+      <div>
+        <div class="code-label">Secure SAS Token (scoped, expiring)</div>
+        <div class="code-block">
+<span class="comment"># User delegation SAS — uses AAD, not account key</span>
+<span class="comment"># Get delegation key first (max 7 days)</span>
+<span class="cmd">az storage blob generate-sas \</span>
+  <span class="flag">--account-name</span> <span class="str">prodstorageacc</span> \
+  <span class="flag">--container-name</span> <span class="str">uploads</span> \
+  <span class="flag">--name</span> <span class="str">report-2025.pdf</span> \
+  <span class="flag">--permissions</span> <span class="str">r</span> \
+  <span class="flag">--expiry</span> <span class="str">2025-12-31T00:00:00Z</span> \
+  <span class="flag">--auth-mode</span> <span class="kw">login</span> \
+  <span class="flag">--as-user</span> \
+  <span class="flag">--https-only</span>
+
+<span class="comment"># Enable soft delete + versioning (protect from accidents)</span>
+<span class="cmd">az storage account blob-service-properties update \</span>
+  <span class="flag">--account-name</span> <span class="str">prodstorageacc</span> \
+  <span class="flag">--enable-delete-retention</span> <span class="kw">true</span> \
+  <span class="flag">--delete-retention-days</span> <span class="num">30</span> \
+  <span class="flag">--enable-versioning</span> <span class="kw">true</span> \
+  <span class="flag">--enable-change-feed</span> <span class="kw">true</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ Blob Storage Do's</div>
+        <ul class="checklist do">
+          <li>Enable <strong>Soft Delete + Versioning + Change Feed</strong> for all production accounts</li>
+          <li>Use <strong>User Delegation SAS</strong> instead of account-key SAS — revocable via AAD</li>
+          <li>Use <strong>GRS or RA-GZRS</strong> for disaster recovery — know your RTO/RPO</li>
+          <li>Enable <strong>Lifecycle Policies</strong> to automatically tier data down — huge cost savings</li>
+          <li>Use <strong>Hierarchical Namespace (ADLS Gen2)</strong> for big data / analytics workloads</li>
+          <li>Set <strong>immutability policies</strong> for compliance data (WORM)</li>
+          <li>Use <strong>Azure CDN / Front Door</strong> to serve static assets globally with cache</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ Blob Storage Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't use <strong>account keys</strong> in application code — use Managed Identity + RBAC</li>
+          <li>Don't enable public container access — use SAS or Private Endpoints</li>
+          <li>Don't store sensitive data in Hot tier without lifecycle rules — costs balloon</li>
+          <li>Don't ignore <strong>storage firewall rules</strong> — restrict to known VNet subnets/IPs</li>
+          <li>Don't use LRS in production if data loss is unacceptable — at minimum ZRS</li>
+          <li>Don't mix Block/Page/Append blobs in the same container — plan access patterns first</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── APP SERVICE ─── -->
+  <section class="section fade-in" id="appservice">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,212,170,0.1);">🌐</div>
+      <div>
+        <div class="section-title">Azure App Service</div>
+        <div class="section-subtitle">Plans · Slots · Scaling · VNet Integration · Configuration Best Practices</div>
+      </div>
+    </div>
+
+    <div class="tier-grid">
+      <div class="tier-card">
+        <div class="tier-name" style="color:var(--text-muted)">Free/Shared</div>
+        <div class="tier-price">$0</div>
+        <div class="tier-note">Dev only. No SLA. No custom domains.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name" style="color:var(--azure-light)">Basic (B-series)</div>
+        <div class="tier-price">~$13</div>
+        <div class="tier-note">/mo. Manual scale. No slots.</div>
+      </div>
+      <div class="tier-card recommended">
+        <div class="tier-name" style="color:var(--accent)">Standard (S-series) ★</div>
+        <div class="tier-price">~$73</div>
+        <div class="tier-note">/mo. Auto-scale. 5 slots. SSL.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name" style="color:var(--azure-light)">Premium (P-series)</div>
+        <div class="tier-price">~$195</div>
+        <div class="tier-note">/mo. VNet integration. 20 slots.</div>
+      </div>
+      <div class="tier-card">
+        <div class="tier-name" style="color:var(--warn)">Isolated (ASEv3)</div>
+        <div class="tier-price">~$890</div>
+        <div class="tier-note">/mo. Dedicated. Full isolation.</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Blue-Green Deployment with Slots</div>
+        <div class="code-block">
+<span class="comment"># Deploy to staging slot (zero downtime)</span>
+<span class="cmd">az webapp deployment source config-zip \</span>
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--name</span> <span class="str">myapp</span> \
+  <span class="flag">--slot</span> <span class="str">staging</span> \
+  <span class="flag">--src</span> <span class="str">app.zip</span>
+
+<span class="comment"># Warm up staging — run smoke tests here</span>
+<span class="cmd">curl -f https://myapp-staging.azurewebsites.net/health</span>
+
+<span class="comment"># Atomic swap: staging → production</span>
+<span class="cmd">az webapp deployment slot swap \</span>
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--name</span> <span class="str">myapp</span> \
+  <span class="flag">--slot</span> <span class="str">staging</span> \
+  <span class="flag">--target-slot</span> <span class="str">production</span>
+
+<span class="comment"># Instant rollback if needed</span>
+<span class="cmd">az webapp deployment slot swap \</span>
+  <span class="flag">--slot</span> <span class="str">production</span> \
+  <span class="flag">--target-slot</span> <span class="str">staging</span>
+        </div>
+      </div>
+      <div>
+        <div class="code-label">App Service Environment (ASEv3) — Key Settings</div>
+        <div class="code-block">
+<span class="comment"># Slot settings — NEVER swapped (env-specific)</span>
+<span class="cmd">az webapp config appsettings set \</span>
+  <span class="flag">--name</span> <span class="str">myapp</span> \
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--slot-settings</span> \
+    <span class="str">DATABASE_URL=@Microsoft.KeyVault(SecretUri=...)</span> \
+    <span class="str">APPLICATIONINSIGHTS_CONNECTION_STRING=...</span> \
+    <span class="str">ENVIRONMENT=production</span>
+
+<span class="comment"># Enable VNet integration (P-series+)</span>
+<span class="cmd">az webapp vnet-integration add \</span>
+  <span class="flag">--name</span> <span class="str">myapp</span> \
+  <span class="flag">--resource-group</span> <span class="str">prod-rg</span> \
+  <span class="flag">--vnet</span> <span class="str">spoke-vnet-prod</span> \
+  <span class="flag">--subnet</span> <span class="str">app-service-subnet</span>
+
+<span class="comment"># Force all outbound through VNet (route table required)</span>
+<span class="cmd">az webapp config appsettings set \</span>
+  <span class="flag">--settings</span> <span class="str">WEBSITE_VNET_ROUTE_ALL=1</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ App Service Do's</div>
+        <ul class="checklist do">
+          <li>Use <strong>Deployment Slots</strong> for every production deployment — zero-downtime swaps</li>
+          <li>Mark connection strings and secrets as <strong>Slot Settings</strong> so they don't swap</li>
+          <li>Enable <strong>Always On</strong> (Standard+) — prevents cold start on long-idle apps</li>
+          <li>Use <strong>Health check path</strong> to automatically remove unhealthy instances</li>
+          <li>Use <strong>Key Vault references</strong> in app settings — never store secrets in portal</li>
+          <li>Configure <strong>Auto-scale rules</strong> on multiple metrics (CPU + HTTP queue)</li>
+          <li>Enable <strong>App Service Authentication (EasyAuth)</strong> for B2C/AAD protected APIs</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ App Service Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't use Free/Shared plans for anything beyond experimenting — no SLA</li>
+          <li>Don't deploy directly to production slot — always use staging → swap</li>
+          <li>Don't share App Service Plans across wildly different apps — noisy neighbor effect</li>
+          <li>Don't skip <strong>HTTPS-only enforcement</strong> and <strong>TLS 1.2 minimum</strong> in config</li>
+          <li>Don't disable <strong>Application Insights</strong> — you're flying blind in production</li>
+          <li>Don't use SCM (Kudu) in production — disable remote debugging</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── COSMOS DB ─── -->
+  <section class="section fade-in" id="cosmosdb">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,212,170,0.08);">🌌</div>
+      <div>
+        <div class="section-title">Azure Cosmos DB</div>
+        <div class="section-subtitle">Partition Keys · Consistency Levels · RU Modeling · Multi-Region</div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <strong>The Cardinal Rule of Cosmos DB:</strong> Everything — performance, cost, scalability, and hotspot avoidance — flows from your <strong>Partition Key</strong> choice. Get this wrong and no amount of RU provisioning will save you. Choose a key with high cardinality and even distribution.
+    </div>
+
+    <table class="data-table" style="margin-bottom:20px;">
+      <thead>
+        <tr><th>Consistency Level</th><th>Staleness</th><th>Perf Impact</th><th>Use Case</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Strong</td><td>None (linearizable)</td><td>Highest latency</td><td>Financial transactions, inventory</td></tr>
+        <tr><td>Bounded Staleness</td><td>K ops or T seconds</td><td>High</td><td>Leaderboards, IoT aggregation</td></tr>
+        <tr><td>Session ★</td><td>Monotonic per session</td><td>Medium</td><td>User profiles, shopping carts (default)</td></tr>
+        <tr><td>Consistent Prefix</td><td>Ordered, not latest</td><td>Low</td><td>Social feeds, event logs</td></tr>
+        <tr><td>Eventual</td><td>Possible divergence</td><td>Lowest</td><td>Counters, non-critical analytics</td></tr>
+      </tbody>
+    </table>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Optimal Partition Key Design Pattern</div>
+        <div class="code-block">
+<span class="comment">// ❌ BAD: Low cardinality, hot partition</span>
+{
+  <span class="key">"id"</span>: <span class="str">"order-123"</span>,
+  <span class="key">"partitionKey"</span>: <span class="str">"orders"</span>  <span class="comment">// ALL data on one partition!</span>
+}
+
+<span class="comment">// ❌ BAD: Too many small partitions</span>
+{ <span class="key">"partitionKey"</span>: <span class="str">"2025-01-15T14:32:00Z"</span> }
+
+<span class="comment">// ✅ GOOD: Synthetic partition key</span>
+<span class="comment">// High cardinality + even distribution</span>
+{
+  <span class="key">"id"</span>: <span class="str">"order-123"</span>,
+  <span class="key">"partitionKey"</span>: <span class="str">"user:u-4829"</span>,  <span class="comment">// tenantId:userId</span>
+  <span class="key">"userId"</span>: <span class="str">"u-4829"</span>,
+  <span class="key">"tenantId"</span>: <span class="str">"acme-corp"</span>,
+  <span class="key">"status"</span>: <span class="str">"pending"</span>,
+  <span class="key">"_ts"</span>: <span class="num">1736025600</span>
+}
+
+<span class="comment">// Hierarchical partition key (up to 3 levels)</span>
+<span class="comment">// /tenantId → /userId → /orderId</span>
+<span class="comment">// Enables efficient cross-partition queries within tenant</span>
+        </div>
+      </div>
+      <div>
+        <div class="code-label">RU Estimation & Autopilot Configuration</div>
+        <div class="code-block">
+<span class="comment"># RU Cheat Sheet:
+# 1 RU  = 1KB point read
+# 5 RU  = 1KB write
+# 2.5 RU = 1KB upsert
+# Queries: base 2.3 RU + per-doc scanned</span>
+
+<span class="comment"># Enable Autoscale (recommended for variable workloads)</span>
+<span class="comment"># Scales 10%→100% of max RU, pay for max reached/hr</span>
+<span class="cmd">az cosmosdb sql container create \</span>
+  <span class="flag">--account-name</span> <span class="str">prod-cosmos</span> \
+  <span class="flag">--database-name</span> <span class="str">AppDB</span> \
+  <span class="flag">--name</span> <span class="str">Orders</span> \
+  <span class="flag">--partition-key-path</span> <span class="str">"/partitionKey"</span> \
+  <span class="flag">--max-throughput</span> <span class="num">4000</span>
+
+<span class="comment"># Multi-region write (Multi-master)</span>
+<span class="cmd">az cosmosdb update \</span>
+  <span class="flag">--name</span> <span class="str">prod-cosmos</span> \
+  <span class="flag">--enable-multiple-write-locations</span> <span class="kw">true</span> \
+  <span class="flag">--locations</span> <span class="str">eastus=0 westeurope=1 southeastasia=2</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ Cosmos DB Do's</div>
+        <ul class="checklist do">
+          <li>Model data as <strong>single-document aggregates</strong> — denormalize to avoid cross-partition reads</li>
+          <li>Use <strong>Autoscale throughput</strong> for unpredictable traffic patterns (10%→100% RU/s)</li>
+          <li>Use <strong>Integrated Cache</strong> for repeated reads — 0 RU cost, sub-ms latency</li>
+          <li>Enable <strong>Analytical Store</strong> for reporting/analytics — no RU cost for OLAP queries</li>
+          <li>Use <strong>Change Feed</strong> to drive downstream event processing and materialized views</li>
+          <li>Set a <strong>TTL</strong> on transient documents — automatic cleanup, free operation</li>
+          <li>Use <strong>Transactional batch</strong> for multi-document ACID operations within a partition</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ Cosmos DB Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't use <strong>cross-partition queries</strong> for hot paths — they fan out to every partition</li>
+          <li>Don't use <code>SELECT *</code> — project only fields needed; unused fields still cost RUs</li>
+          <li>Don't ignore the <strong>RU charge header</strong> (x-ms-request-charge) — log it every request</li>
+          <li>Don't enable Strong consistency globally — <strong>Session</strong> is almost always sufficient</li>
+          <li>Don't store binary large objects in documents — use Blob Storage with a reference URI</li>
+          <li>Don't design unbounded arrays in documents — they grow forever and explode document size</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── DEVOPS ─── -->
+  <section class="section fade-in" id="devops">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(255,107,53,0.1);">🚀</div>
+      <div>
+        <div class="section-title">Pro-Level DevOps Concepts</div>
+        <div class="section-subtitle">IaC · CI/CD · GitOps · Observability · Secrets Management</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">GitHub Actions — Production Deployment Pipeline</div>
+        <div class="code-block">
+<span class="key">name</span>: <span class="str">Production Deploy</span>
+<span class="key">on</span>:
+  <span class="key">push</span>:
+    <span class="key">branches</span>: [<span class="str">main</span>]
+
+<span class="key">jobs</span>:
+  <span class="key">deploy</span>:
+    <span class="key">runs-on</span>: <span class="str">ubuntu-latest</span>
+    <span class="key">environment</span>: <span class="str">production</span>  <span class="comment"># Requires approval</span>
+    <span class="key">permissions</span>:
+      <span class="key">id-token</span>: <span class="str">write</span>      <span class="comment"># OIDC — no secrets!</span>
+      <span class="key">contents</span>: <span class="str">read</span>
+
+    <span class="key">steps</span>:
+      - <span class="key">uses</span>: <span class="str">actions/checkout@v4</span>
+
+      - <span class="key">name</span>: <span class="str">Azure OIDC Login</span>
+        <span class="key">uses</span>: <span class="str">azure/login@v2</span>
+        <span class="key">with</span>:
+          <span class="key">client-id</span>: <span class="str">${{ secrets.AZURE_CLIENT_ID }}</span>
+          <span class="key">tenant-id</span>: <span class="str">${{ secrets.AZURE_TENANT_ID }}</span>
+          <span class="key">subscription-id</span>: <span class="str">${{ secrets.AZURE_SUB_ID }}</span>
+
+      - <span class="key">name</span>: <span class="str">Deploy Bicep IaC</span>
+        <span class="key">run</span>: |
+          az deployment group create \
+            --resource-group prod-rg \
+            --template-file infra/main.bicep \
+            --parameters @infra/prod.params.json \
+            --mode Incremental
+
+      - <span class="key">name</span>: <span class="str">Deploy App to Staging Slot</span>
+        <span class="key">run</span>: |
+          az webapp deploy --slot staging ...
+          az webapp deployment slot swap \
+            --slot staging --target-slot production
+        </div>
+      </div>
+      <div>
+        <div class="code-label">Bicep — Modular IaC Pattern</div>
+        <div class="code-block">
+<span class="comment">// main.bicep — orchestrates modules</span>
+<span class="kw">targetScope</span> = <span class="str">'subscription'</span>
+
+<span class="kw">param</span> <span class="val">env</span> <span class="key">string</span>
+<span class="kw">param</span> <span class="val">location</span> <span class="key">string</span> = <span class="str">'eastus'</span>
+
+<span class="kw">resource</span> <span class="val">rg</span> <span class="str">'Microsoft.Resources/resourceGroups@2023-07-01'</span> = {
+  name: <span class="str">'${env}-rg'</span>
+  location: <span class="val">location</span>
+}
+
+<span class="kw">module</span> <span class="val">network</span> <span class="str">'./modules/networking.bicep'</span> = {
+  name: <span class="str">'networkDeploy'</span>
+  scope: <span class="val">rg</span>
+  params: { env: <span class="val">env</span>, location: <span class="val">location</span> }
+}
+
+<span class="kw">module</span> <span class="val">app</span> <span class="str">'./modules/app-service.bicep'</span> = {
+  name: <span class="str">'appDeploy'</span>
+  scope: <span class="val">rg</span>
+  dependsOn: [<span class="val">network</span>]
+  params: {
+    env: <span class="val">env</span>
+    subnetId: <span class="val">network</span>.outputs.<span class="val">appSubnetId</span>
+    kvUri: <span class="val">keyvault</span>.outputs.<span class="val">kvUri</span>
+  }
+}
+
+<span class="comment">// Use What-If before every deployment</span>
+<span class="comment">// az deployment group what-if ...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:16px;">
+      <div class="card">
+        <div class="card-title" style="color:var(--azure-light)">🔍 Observability Stack</div>
+        <ul class="checklist">
+          <li><strong>Application Insights</strong> — distributed tracing, dependency maps, live metrics</li>
+          <li><strong>Log Analytics Workspace</strong> — centralized KQL-queryable log sink</li>
+          <li><strong>Azure Monitor Alerts</strong> — metric + log-based alerting with Action Groups</li>
+          <li><strong>Azure Monitor Workbooks</strong> — custom dashboards without Grafana license</li>
+          <li><strong>OpenTelemetry SDK</strong> — vendor-neutral instrumentation that exports to App Insights</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--accent)">🔐 Secrets Management</div>
+        <ul class="checklist">
+          <li>All secrets in <strong>Azure Key Vault</strong> — apps reference via Managed Identity</li>
+          <li>Rotate secrets on a schedule using <strong>KV automatic rotation</strong></li>
+          <li>Never store secrets in source code, environment files, or pipeline variables in plain text</li>
+          <li>Use <strong>OIDC / Workload Identity Federation</strong> for CI/CD — no service principal secrets needed</li>
+          <li>Audit KV access with <strong>Diagnostic Logs</strong> to Log Analytics</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title" style="color:var(--warn)">🛡️ Security Posture</div>
+        <ul class="checklist">
+          <li>Enable <strong>Microsoft Defender for Cloud</strong> — free tier for basic posture assessment</li>
+          <li>Apply <strong>Azure Policy</strong> to enforce guardrails (e.g., require Private Endpoints)</li>
+          <li>Use <strong>PIM (Privileged Identity Management)</strong> for JIT admin access</li>
+          <li>Run <strong>Microsoft Defender for Containers</strong> on every AKS cluster</li>
+          <li>Enable <strong>Entra ID Conditional Access</strong> — require MFA + compliant device</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="warn-box" style="margin-top:16px;">
+      <strong style="color:var(--warn);">⚠ GitOps Warning:</strong> When using GitOps (Flux/ArgoCD) with Azure, ensure your repo is the single source of truth. Never make out-of-band changes in the portal — they will be reconciled away. Use <strong>What-If</strong> and <strong>Deployment Stacks</strong> (GA in Bicep) to prevent drift in non-GitOps environments.
+    </div>
+  </section>
+
+  <div class="sep"></div>
+
+  <!-- ─── COST OPTIMIZATION ─── -->
+  <section class="section fade-in" id="cost">
+    <div class="section-header">
+      <div class="section-icon" style="background:rgba(0,212,170,0.1);">💰</div>
+      <div>
+        <div class="section-title">Cost Optimization</div>
+        <div class="section-subtitle">Reservations · Savings Plans · Governance · FinOps Practices</div>
+      </div>
+    </div>
+
+    <div class="grid-4" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-title">Reserved Instances</div>
+        <div class="metric"><span class="metric-val">~72%</span><span class="metric-unit">max savings</span></div>
+        <p style="margin-top:8px;">1-year or 3-year commitment on VMs, SQL, App Service. Best for stable baseline workloads.</p>
+        <div class="tags"><span class="tag tag-accent">Commitment</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Savings Plans</div>
+        <div class="metric"><span class="metric-val">~65%</span><span class="metric-unit">max savings</span></div>
+        <p style="margin-top:8px;">Flexible commitment on hourly spend (not VM size/region). More flexible than RIs.</p>
+        <div class="tags"><span class="tag tag-accent">Flexible</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Spot VMs</div>
+        <div class="metric"><span class="metric-val">~90%</span><span class="metric-unit">max savings</span></div>
+        <p style="margin-top:8px;">Preemptible excess capacity. Use for batch, CI/CD workers, stateless workloads.</p>
+        <div class="tags"><span class="tag tag-warn">Interruptible</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Azure Hybrid Benefit</div>
+        <div class="metric"><span class="metric-val">~40%</span><span class="metric-unit">max savings</span></div>
+        <p style="margin-top:8px;">Use existing Windows Server / SQL Server licenses on Azure VMs. Stack with RIs.</p>
+        <div class="tags"><span class="tag tag-azure">License reuse</span></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="code-label">Cost Governance with Azure Policy + Budgets</div>
+        <div class="code-block">
+<span class="comment"># Create budget with email + action group alert</span>
+<span class="cmd">az consumption budget create \</span>
+  <span class="flag">--budget-name</span> <span class="str">MonthlyBudget</span> \
+  <span class="flag">--amount</span> <span class="num">5000</span> \
+  <span class="flag">--time-grain</span> <span class="str">Monthly</span> \
+  <span class="flag">--start-date</span> <span class="str">2025-01-01</span> \
+  <span class="flag">--end-date</span>   <span class="str">2026-01-01</span> \
+  <span class="flag">--notifications</span> '{
+    "Forecast80": {
+      "enabled": true, "operator": "GreaterThan",
+      "threshold": 80, "thresholdType": "Forecasted",
+      "contactEmails": ["finops@company.com"]
+    },
+    "Actual100": {
+      "enabled": true, "operator": "GreaterThan",
+      "threshold": 100, "thresholdType": "Actual",
+      "contactEmails": ["cto@company.com"],
+      "contactRoles": ["Owner"]
+    }
+  }'
+
+<span class="comment"># Enforce tagging via Policy (assign at management group)</span>
+<span class="cmd">az policy assignment create \</span>
+  <span class="flag">--policy</span> <span class="str">require-tag-on-resources</span> \
+  <span class="flag">--params</span> '{"tagName":{"value":"CostCenter"}}' \
+  <span class="flag">--enforcement-mode</span> <span class="kw">Default</span>
+        </div>
+      </div>
+      <div>
+        <div class="code-label">FinOps Checklist — Monthly Actions</div>
+        <div class="code-block">
+<span class="comment">── Weekly ──────────────────────────────────────
+✓ Review Azure Cost Management anomaly alerts
+✓ Check Advisor cost recommendations (right-size)
+✓ Verify no unattached managed disks/NICs/IPs
+  az disk list --query "[?diskState=='Unattached']"
+  az network public-ip list --query "[?ipAddress==null]"
+
+── Monthly ─────────────────────────────────────
+✓ RI utilization > 90%? Adjust scope/split
+✓ Tag coverage report — untagged resources spike
+✓ Review idle VMs (avg CPU &lt; 5% for 7 days)
+  (Azure Advisor flags these automatically)
+✓ Dev/test VMs using DevTest Labs pricing?
+✓ Storage: enforce lifecycle policies on all accounts
+✓ Review egress costs — largest hidden cost driver
+
+── Quarterly ───────────────────────────────────
+✓ Renegotiate EA commitment if over/under consuming
+✓ Evaluate Savings Plan vs RI mix
+✓ Review Premium SSD vs Standard SSD candidates
+✓ Archive completed project resource groups</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3" style="margin-top:16px;">
+      <div class="card do-card">
+        <div class="card-title">✓ Cost Do's</div>
+        <ul class="checklist do">
+          <li>Tag everything: <code>CostCenter</code>, <code>Env</code>, <code>Team</code>, <code>Project</code> from day one</li>
+          <li>Set up <strong>Budgets + Anomaly Alerts</strong> at subscription AND resource group level</li>
+          <li>Use <strong>Dev/Test subscription pricing</strong> for non-prod environments</li>
+          <li>Right-size VMs monthly using <strong>Azure Advisor</strong> recommendations</li>
+          <li>Auto-shutdown dev VMs at 7pm with <strong>Azure DevTest Labs</strong> schedules</li>
+          <li>Use <strong>Shared Image Gallery</strong> to reduce redundant OS disk costs across VMSS</li>
+        </ul>
+      </div>
+      <div class="card dont-card">
+        <div class="card-title">✗ Cost Don'ts</div>
+        <ul class="checklist dont">
+          <li>Don't leave <strong>unattached disks, NICs, Public IPs</strong> — they silently bill</li>
+          <li>Don't run dev/staging environments 24/7 — use start/stop automation</li>
+          <li>Don't overlook <strong>data egress costs</strong> — the #1 surprise bill for growing teams</li>
+          <li>Don't use Premium storage for non-IOPS-sensitive workloads (logs, archives)</li>
+          <li>Don't buy RIs without analyzing baseline utilization for ≥30 days first</li>
+          <li>Don't skip <strong>Cost Management exports</strong> to Storage — your FinOps team needs raw data</li>
+        </ul>
+      </div>
+      <div class="card warn-card">
+        <div class="card-title">⚡ Hidden Cost Traps</div>
+        <ul class="checklist">
+          <li><strong>Egress charges:</strong> data leaving Azure region (~$0.08/GB)</li>
+          <li><strong>Snapshot sprawl:</strong> old VM snapshots accumulate silently</li>
+          <li><strong>Log Analytics retention:</strong> default 90 days; every GB counts</li>
+          <li><strong>Premium Functions plan:</strong> minimum 1 pre-warmed instance always running</li>
+          <li><strong>Cosmos DB provisioned RU/s:</strong> billed whether used or not — use Autoscale</li>
+          <li><strong>Public IP (Standard SKU):</strong> billed even when unassigned</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tip-box" style="margin-top:16px;">
+      <strong>🏆 FinOps Pro Move — Stack Discounts:</strong> Combine <strong>Azure Hybrid Benefit</strong> (bring your Windows Server license) + <strong>3-year Reserved Instance</strong> on D-series VMs + <strong>Savings Plan</strong> for compute overage. You can realistically hit 75–80% off pay-as-you-go pricing while retaining flexibility for burst capacity.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Azure Core Services Deep Dive · Claude · Built for Pro DevOps Engineers · © 2025
+</footer>
+
+<script>
+  // Intersection Observer for fade-in animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>

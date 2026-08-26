@@ -1,0 +1,2622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Ingress Controller — Master Study Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0d14;
+  --bg2: #0f1420;
+  --bg3: #141928;
+  --bg4: #1a2035;
+  --border: #1e2840;
+  --border2: #273354;
+  --accent: #4d9eff;
+  --accent2: #7b5ea7;
+  --accent3: #00d4aa;
+  --accent4: #ff6b6b;
+  --accent5: #ffa500;
+  --text: #e8ecf4;
+  --text2: #8a9bc4;
+  --text3: #5a6a8a;
+  --aws: #ff9900;
+  --azure: #0078d4;
+  --kubeadm: #326ce5;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --code-bg: #080b12;
+  --tag-bg: #1a2035;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Syne', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg2);
+  z-index: 10;
+}
+
+.sidebar-header h1 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1.4;
+}
+
+.sidebar-header p {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.nav-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text3);
+  padding: 14px 20px 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 20px;
+  font-size: 12px;
+  color: var(--text2);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+  text-decoration: none;
+  line-height: 1.4;
+}
+
+.nav-item:hover { background: var(--bg3); color: var(--text); border-left-color: var(--border2); }
+.nav-item.active { background: rgba(77,158,255,0.08); color: var(--accent); border-left-color: var(--accent); }
+
+.nav-item .tag {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.tag-aws { background: rgba(255,153,0,0.15); color: var(--aws); }
+.tag-azure { background: rgba(0,120,212,0.15); color: var(--azure); }
+.tag-k8s { background: rgba(50,108,229,0.15); color: var(--kubeadm); }
+.tag-all { background: rgba(0,212,170,0.12); color: var(--accent3); }
+
+/* ── MAIN CONTENT ── */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) transparent;
+}
+
+.page-hero {
+  background: linear-gradient(135deg, #0a0d14 0%, #0f1729 50%, #0a1220 100%);
+  padding: 60px 60px 50px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.page-hero::before {
+  content: '';
+  position: absolute;
+  top: -100px; right: -100px;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(77,158,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.page-hero::after {
+  content: 'INGRESS';
+  position: absolute;
+  right: 40px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 120px;
+  font-weight: 800;
+  color: rgba(77,158,255,0.04);
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  font-family: 'Syne', sans-serif;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent3);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.hero-title {
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.1;
+  background: linear-gradient(135deg, #ffffff 0%, #8ab8ff 60%, #4d9eff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+
+.hero-sub {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 600px;
+  line-height: 1.7;
+}
+
+.hero-badges {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.hero-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hb-kubeadm { background: rgba(50,108,229,0.15); color: #6b9eff; border: 1px solid rgba(50,108,229,0.3); }
+.hb-aws { background: rgba(255,153,0,0.12); color: var(--aws); border: 1px solid rgba(255,153,0,0.25); }
+.hb-azure { background: rgba(0,120,212,0.12); color: #4da6ff; border: 1px solid rgba(0,120,212,0.3); }
+.hb-pages { background: rgba(0,212,170,0.1); color: var(--accent3); border: 1px solid rgba(0,212,170,0.25); }
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  height: 2px;
+  background: var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--kubeadm), var(--accent), var(--accent3));
+  width: 0%;
+  transition: width 0.1s;
+}
+
+/* ── SECTION ── */
+.section {
+  padding: 52px 60px;
+  border-bottom: 1px solid var(--border);
+  scroll-margin-top: 0;
+}
+
+.section:nth-child(even) { background: rgba(15,20,32,0.5); }
+
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.section-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 6px;
+  min-width: 36px;
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.section-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-top: 8px;
+  display: inline-block;
+}
+
+.sb-aws { background: rgba(255,153,0,0.12); color: var(--aws); border: 1px solid rgba(255,153,0,0.2); }
+.sb-azure { background: rgba(0,120,212,0.12); color: #4da6ff; border: 1px solid rgba(0,120,212,0.2); }
+.sb-k8s { background: rgba(50,108,229,0.12); color: var(--kubeadm); border: 1px solid rgba(50,108,229,0.2); }
+.sb-all { background: rgba(0,212,170,0.08); color: var(--accent3); border: 1px solid rgba(0,212,170,0.2); }
+
+.prose { font-size: 14.5px; color: var(--text2); line-height: 1.85; max-width: 820px; }
+.prose p { margin-bottom: 14px; }
+.prose strong { color: var(--text); font-weight: 600; }
+.prose em { color: var(--accent); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 13px; background: rgba(77,158,255,0.08); padding: 1px 5px; border-radius: 3px; }
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 18px 0;
+  max-width: 820px;
+}
+
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+}
+
+.code-lang {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--accent3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.code-file {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+.code-body {
+  padding: 18px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  line-height: 1.8;
+  color: #c9d1e0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.code-body .kw { color: #c792ea; }
+.code-body .str { color: #a5d6a7; }
+.code-body .cm { color: #546e7a; font-style: italic; }
+.code-body .num { color: #f78c6c; }
+.code-body .key { color: #80cbc4; }
+.code-body .val { color: #a5d6a7; }
+.code-body .op { color: #89ddff; }
+.code-body .ann { color: #ffcb6b; }
+.code-body .hl { background: rgba(77,158,255,0.12); display: block; margin: 0 -20px; padding: 0 20px; }
+
+/* ── CALLOUT BOXES ── */
+.callout {
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin: 18px 0;
+  max-width: 820px;
+  display: flex;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.7;
+}
+
+.callout-icon { font-size: 16px; margin-top: 1px; flex-shrink: 0; }
+.callout-info { background: rgba(77,158,255,0.08); border: 1px solid rgba(77,158,255,0.2); color: #a8c8ff; }
+.callout-warn { background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.2); color: #fcd34d; }
+.callout-tip  { background: rgba(0,212,170,0.07); border: 1px solid rgba(0,212,170,0.2); color: #7eecd9; }
+.callout-danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #fca5a5; }
+
+/* ── TABLES ── */
+.data-table {
+  width: 100%;
+  max-width: 820px;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.data-table th {
+  background: var(--bg3);
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+}
+
+.data-table td {
+  padding: 10px 14px;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.6;
+}
+
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: rgba(77,158,255,0.04); }
+.data-table code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  background: rgba(77,158,255,0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ── GRID CARDS ── */
+.card-grid { display: grid; gap: 14px; margin: 18px 0; max-width: 820px; }
+.card-grid-2 { grid-template-columns: 1fr 1fr; }
+.card-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.card-body { font-size: 12.5px; color: var(--text2); line-height: 1.7; }
+
+.card-aws { border-top: 2px solid var(--aws); }
+.card-azure { border-top: 2px solid var(--azure); }
+.card-k8s { border-top: 2px solid var(--kubeadm); }
+
+/* ── ARCH DIAGRAM ── */
+.arch-diagram {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px;
+  margin: 18px 0;
+  max-width: 820px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #8090b0;
+  line-height: 1.9;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── STEP LIST ── */
+.step-list { list-style: none; max-width: 820px; margin: 18px 0; }
+.step-item {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.step-item:last-child { border-bottom: none; }
+
+.step-num {
+  width: 28px; height: 28px;
+  background: rgba(77,158,255,0.12);
+  border: 1px solid rgba(77,158,255,0.25);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-content { flex: 1; }
+.step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.step-desc { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+/* ── ANNOTATION BAR ── */
+.anno-bar {
+  display: flex;
+  align-items: stretch;
+  max-width: 820px;
+  margin: 18px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.anno-bar-strip { width: 4px; background: var(--accent); flex-shrink: 0; }
+.anno-bar-strip.aws { background: var(--aws); }
+.anno-bar-strip.azure { background: var(--azure); }
+.anno-bar-strip.k8s { background: var(--kubeadm); }
+.anno-bar-strip.green { background: var(--green); }
+
+.anno-bar-body { padding: 14px 16px; background: var(--bg3); flex: 1; }
+.anno-bar-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text3); margin-bottom: 4px; }
+.anno-bar-text { font-size: 13.5px; color: var(--text2); line-height: 1.6; }
+
+/* ── SECTION DIVIDER ── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 60px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.divider-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text3);
+  white-space: nowrap;
+}
+
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── INLINE CODE ── */
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: rgba(77,158,255,0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--accent);
+}
+
+/* ── TAG LIST ── */
+.tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.tag-pill {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--tag-bg);
+  border: 1px solid var(--border2);
+  color: var(--text2);
+}
+
+/* ── h3 ── */
+h3.subsection {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 28px 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+h3.subsection::before {
+  content: '▸';
+  font-size: 10px;
+  color: var(--accent3);
+}
+
+h4.sub2 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 20px 0 8px;
+  letter-spacing: 0.04em;
+}
+
+/* ── COMPARISON TABLE ── */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 820px;
+  margin: 18px 0;
+}
+
+.compare-cell {
+  background: var(--bg3);
+  padding: 14px 16px;
+}
+
+.compare-header {
+  background: var(--bg4);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.compare-label {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  margin-bottom: 4px;
+}
+
+.compare-value {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+
+/* ── STATUS PILLS ── */
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sp-green { background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+.sp-red { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+.sp-yellow { background: rgba(234,179,8,0.1); color: var(--yellow); border: 1px solid rgba(234,179,8,0.2); }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ── FOOTER ── */
+.canvas-footer {
+  padding: 40px 60px;
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+@media print {
+  #sidebar { display: none; }
+  #main { overflow: visible; }
+  .section { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR NAV -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <h1>K8s Ingress<br>Master Canvas</h1>
+    <p>35 sections · kubeadm · AWS · Azure</p>
+  </div>
+
+  <div class="nav-group-label">Fundamentals</div>
+  <a class="nav-item active" href="#s1">01 What is Ingress? <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s2">02 Ingress vs LoadBalancer <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s3">03 How Ingress Works <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s4">04 Ingress Resources <span class="tag tag-k8s">K8s</span></a>
+  <a class="nav-item" href="#s5">05 Controller Architecture <span class="tag tag-all">ALL</span></a>
+
+  <div class="nav-group-label">kubeadm Setup</div>
+  <a class="nav-item" href="#s6">06 kubeadm Cluster Prep <span class="tag tag-k8s">K8s</span></a>
+  <a class="nav-item" href="#s7">07 NGINX Ingress Install <span class="tag tag-k8s">K8s</span></a>
+  <a class="nav-item" href="#s8">08 MetalLB for Bare Metal <span class="tag tag-k8s">K8s</span></a>
+  <a class="nav-item" href="#s9">09 NodePort Exposure <span class="tag tag-k8s">K8s</span></a>
+  <a class="nav-item" href="#s10">10 Path-based Routing <span class="tag tag-k8s">K8s</span></a>
+
+  <div class="nav-group-label">AWS EKS</div>
+  <a class="nav-item" href="#s11">11 EKS Networking Model <span class="tag tag-aws">AWS</span></a>
+  <a class="nav-item" href="#s12">12 AWS Load Balancer Ctrl <span class="tag tag-aws">AWS</span></a>
+  <a class="nav-item" href="#s13">13 ALB Ingress on EKS <span class="tag tag-aws">AWS</span></a>
+  <a class="nav-item" href="#s14">14 NLB vs ALB Decision <span class="tag tag-aws">AWS</span></a>
+  <a class="nav-item" href="#s15">15 IAM Roles for EKS <span class="tag tag-aws">AWS</span></a>
+
+  <div class="nav-group-label">Azure AKS</div>
+  <a class="nav-item" href="#s16">16 AKS Networking Overview <span class="tag tag-azure">AZ</span></a>
+  <a class="nav-item" href="#s17">17 App Gateway Ingress <span class="tag tag-azure">AZ</span></a>
+  <a class="nav-item" href="#s18">18 AGIC Installation <span class="tag tag-azure">AZ</span></a>
+  <a class="nav-item" href="#s19">19 Azure NGINX on AKS <span class="tag tag-azure">AZ</span></a>
+  <a class="nav-item" href="#s20">20 Workload Identity AKS <span class="tag tag-azure">AZ</span></a>
+
+  <div class="nav-group-label">TLS & Security</div>
+  <a class="nav-item" href="#s21">21 TLS Termination <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s22">22 cert-manager Setup <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s23">23 Let's Encrypt + ACME <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s24">24 mTLS & Backend TLS <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s25">25 WAF Integration <span class="tag tag-aws">AWS</span></a>
+
+  <div class="nav-group-label">Advanced Config</div>
+  <a class="nav-item" href="#s26">26 Annotations Deep Dive <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s27">27 Rate Limiting & Policies <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s28">28 Canary Deployments <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s29">29 IngressClass Resources <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s30">30 Multi-tenant Ingress <span class="tag tag-all">ALL</span></a>
+
+  <div class="nav-group-label">Operations</div>
+  <a class="nav-item" href="#s31">31 Monitoring & Metrics <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s32">32 Troubleshooting Guide <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s33">33 HA & Scaling Ingress <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s34">34 Migration Strategies <span class="tag tag-all">ALL</span></a>
+  <a class="nav-item" href="#s35">35 Best Practices Cheatsheet <span class="tag tag-all">ALL</span></a>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main id="main">
+
+  <!-- Progress -->
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <!-- Hero -->
+  <div class="page-hero">
+    <div class="hero-eyebrow">// kubernetes networking mastery</div>
+    <h1 class="hero-title">Ingress Controller<br>Master Canvas</h1>
+    <p class="hero-sub">A comprehensive 35-section study reference covering Kubernetes Ingress Controllers across kubeadm bare-metal, AWS EKS, and Azure AKS environments — from fundamentals to production operations.</p>
+    <div class="hero-badges">
+      <span class="hero-badge hb-kubeadm">⬡ kubeadm</span>
+      <span class="hero-badge hb-aws">⬡ AWS EKS</span>
+      <span class="hero-badge hb-azure">⬡ Azure AKS</span>
+      <span class="hero-badge hb-pages">35 Sections</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">Fundamentals</span><div class="divider-line"></div></div>
+
+  <!-- S1 -->
+  <section class="section" id="s1">
+    <div class="section-header">
+      <span class="section-num">01 /</span>
+      <div>
+        <div class="section-title">What is an Ingress Controller?</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose">
+      <p>An <strong>Ingress Controller</strong> is a specialized load balancer for Kubernetes that manages external access to services inside a cluster. It acts as the entry point for HTTP and HTTPS traffic, reading <em>Ingress</em> resources and configuring its underlying load balancer accordingly.</p>
+      <p>Unlike a Service of type LoadBalancer (which provisions one cloud load balancer per service), an Ingress Controller can route traffic to <strong>many services</strong> through a single IP and port, using host-based or path-based routing rules.</p>
+    </div>
+
+    <div class="arch-diagram">Internet
+    │
+    ▼
+┌─────────────────────────────────────────────────────────┐
+│                   Ingress Controller                     │
+│   (NGINX / Traefik / HAProxy / AWS ALB / AGIC)          │
+│                                                          │
+│  Rules:                                                  │
+│  api.example.com/v1  ──────▶  Service: api-svc:80       │
+│  api.example.com/v2  ──────▶  Service: api-v2-svc:80    │
+│  app.example.com     ──────▶  Service: frontend-svc:80  │
+└─────────────────────────────────────────────────────────┘
+    │                   │                   │
+    ▼                   ▼                   ▼
+ Pod (api)         Pod (api-v2)        Pod (frontend)</div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ</span>
+      <div>The <strong>Ingress resource</strong> (the YAML you write) and the <strong>Ingress Controller</strong> (the software running in the cluster) are two distinct things. Kubernetes does not ship with a default Ingress Controller — you must install one.</div>
+    </div>
+
+    <h3 class="subsection">Why Ingress Controllers Exist</h3>
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:#4d9eff"></span>Cost Efficiency</div>
+        <div class="card-body">One cloud load balancer instead of one per service. Critical at scale — without Ingress, 50 services = 50 LBs.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:#00d4aa"></span>Smart Routing</div>
+        <div class="card-body">Host-based, path-based, header-based, and weighted routing rules in a single declarative resource.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:#c792ea"></span>TLS Termination</div>
+        <div class="card-body">Centralized SSL/TLS management. cert-manager automates Let's Encrypt certificate issuance and renewal.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S2 -->
+  <section class="section" id="s2">
+    <div class="section-header">
+      <span class="section-num">02 /</span>
+      <div>
+        <div class="section-title">Ingress vs LoadBalancer vs NodePort</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>Understanding when to use each Service type is foundational. Each solves a different problem at a different layer.</p></div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>NodePort</th>
+          <th>LoadBalancer</th>
+          <th>Ingress</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Layer</td><td>L4 (TCP/UDP)</td><td>L4 (TCP/UDP)</td><td>L7 (HTTP/HTTPS)</td></tr>
+        <tr><td>External IP</td><td>Node IP + port</td><td>Dedicated cloud LB IP</td><td>Single IP, multiple hosts</td></tr>
+        <tr><td>Cost (cloud)</td><td>Free (node)</td><td>1 LB per service $$</td><td>1 LB for all services $</td></tr>
+        <tr><td>Host routing</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>Path routing</td><td>No</td><td>No</td><td>Yes</td></tr>
+        <tr><td>TLS termination</td><td>No</td><td>Possible</td><td>Yes (native)</td></tr>
+        <tr><td>Port range</td><td>30000–32767</td><td>Any</td><td>80, 443 (standard)</td></tr>
+        <tr><td>Best for</td><td>Dev / testing</td><td>Non-HTTP, single svc</td><td>Production HTTP(S)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✦</span>
+      <div><strong>Rule of thumb:</strong> Use <em>LoadBalancer</em> for TCP/UDP services (databases, gRPC, game servers). Use <em>Ingress</em> for any HTTP/HTTPS workload with multiple routes or TLS.</div>
+    </div>
+  </section>
+
+  <!-- S3 -->
+  <section class="section" id="s3">
+    <div class="section-header">
+      <span class="section-num">03 /</span>
+      <div>
+        <div class="section-title">How Ingress Actually Works</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>Understanding the control loop is critical for debugging. The Ingress Controller is a reconciliation loop that watches Ingress resources and configures its proxy.</p></div>
+
+    <div class="arch-diagram">                    ┌──────────────────┐
+                    │   kube-apiserver  │
+                    └────────┬─────────┘
+                             │ Watch Ingress/Secret/Service
+                             ▼
+                    ┌──────────────────┐
+                    │ Ingress Controller│◀─── Runs as Pod(s)
+                    │   (Control Loop) │     in kube-system
+                    └────────┬─────────┘     or ingress-nginx ns
+                             │ Generates config
+                             ▼
+                    ┌──────────────────┐
+                    │  Proxy Process   │  e.g. nginx.conf
+                    │  (NGINX / Envoy) │      haproxy.cfg
+                    └────────┬─────────┘
+                             │
+              ┌──────────────┼──────────────┐
+              ▼              ▼              ▼
+         Service A      Service B      Service C
+          (ClusterIP)   (ClusterIP)   (ClusterIP)
+              │              │              │
+            Pods           Pods           Pods</div>
+
+    <h3 class="subsection">Request Flow — Step by Step</h3>
+    <ol class="step-list">
+      <li class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">DNS Resolution</div>
+          <div class="step-desc">Client resolves <code>api.example.com</code> → the IP of the cloud LoadBalancer (or Node IP on bare-metal). This is configured in your DNS provider pointing to the Ingress Controller's external IP.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">L4 Load Balancer → Node</div>
+          <div class="step-desc">The cloud LB (AWS NLB/ALB or Azure LB) forwards the TCP connection to one of the cluster nodes, landing on the NodePort of the Ingress Controller Service.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Ingress Controller Pod Receives Request</div>
+          <div class="step-desc">kube-proxy routes the NodePort traffic to an Ingress Controller pod (NGINX, Traefik, etc.) where the HTTP request is fully parsed.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Rule Matching</div>
+          <div class="step-desc">The controller matches the request's <em>Host</em> header and <em>path</em> against rules in all Ingress resources. The most specific match wins.</div>
+        </div>
+      </li>
+      <li class="step-item">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Upstream Proxy to Service</div>
+          <div class="step-desc">The controller proxies the request to the matched backend Service. It reads the Endpoints object directly (bypassing kube-proxy) for efficient pod selection.</div>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <!-- S4 -->
+  <section class="section" id="s4">
+    <div class="section-header">
+      <span class="section-num">04 /</span>
+      <div>
+        <div class="section-title">Ingress Resource — Full Anatomy</div>
+        <span class="section-badge sb-k8s">Kubernetes</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>The Ingress resource is the API object you create to define routing rules. Since Kubernetes 1.19, it is stable as <em>networking.k8s.io/v1</em>.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">ingress.yaml</span></div>
+      <div class="code-body"><span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Ingress</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">my-app-ingress</span>
+  <span class="kw">namespace</span>: <span class="val">production</span>
+  <span class="kw">annotations</span>:
+    <span class="ann">nginx.ingress.kubernetes.io/rewrite-target</span>: <span class="val">/</span>
+    <span class="ann">nginx.ingress.kubernetes.io/ssl-redirect</span>: <span class="str">"true"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/use-regex</span>: <span class="str">"true"</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">nginx</span>             <span class="cm"># Selects the controller</span>
+  <span class="kw">tls</span>:
+    - <span class="kw">hosts</span>:
+        - <span class="val">api.example.com</span>
+        - <span class="val">app.example.com</span>
+      <span class="kw">secretName</span>: <span class="val">tls-secret</span>          <span class="cm"># kubernetes.io/tls Secret</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">api.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/v1(/|$)(.*)</span>
+            <span class="kw">pathType</span>: <span class="val">ImplementationSpecific</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>:
+                <span class="kw">name</span>: <span class="val">api-v1-svc</span>
+                <span class="kw">port</span>:
+                  <span class="kw">number</span>: <span class="num">80</span>
+          - <span class="kw">path</span>: <span class="val">/v2(/|$)(.*)</span>
+            <span class="kw">pathType</span>: <span class="val">ImplementationSpecific</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>:
+                <span class="kw">name</span>: <span class="val">api-v2-svc</span>
+                <span class="kw">port</span>:
+                  <span class="kw">number</span>: <span class="num">80</span>
+    - <span class="kw">host</span>: <span class="val">app.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>:
+                <span class="kw">name</span>: <span class="val">frontend-svc</span>
+                <span class="kw">port</span>:
+                  <span class="kw">number</span>: <span class="num">3000</span></div>
+    </div>
+
+    <h3 class="subsection">PathType Values</h3>
+    <table class="data-table">
+      <thead><tr><th>PathType</th><th>Behavior</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>Exact</code></td><td>URL must match exactly — no trailing slash variants</td><td><code>/api/v1</code> only</td></tr>
+        <tr><td><code>Prefix</code></td><td>Matches path and all sub-paths</td><td><code>/api</code> matches <code>/api/users</code></td></tr>
+        <tr><td><code>ImplementationSpecific</code></td><td>Controller interprets the path (can be regex with NGINX)</td><td><code>/v1(/|$)(.*)</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- S5 -->
+  <section class="section" id="s5">
+    <div class="section-header">
+      <span class="section-num">05 /</span>
+      <div>
+        <div class="section-title">Ingress Controller Architecture Patterns</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>Different environments deploy Ingress Controllers differently. Understanding deployment topology prevents critical misconfiguration.</p></div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card card-k8s">
+        <div class="card-title"><span class="card-dot" style="background:var(--kubeadm)"></span>DaemonSet Pattern</div>
+        <div class="card-body">Controller runs on <strong>every node</strong>. Traffic enters via each node's IP. Best for bare-metal (kubeadm) where you want maximum throughput without cloud LB. MetalLB or external DNS handles distribution.</div>
+      </div>
+      <div class="card card-k8s">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent)"></span>Deployment Pattern</div>
+        <div class="card-body">Controller runs as 2–3 replicas. Paired with a Service of type LoadBalancer. Standard for cloud environments (EKS, AKS). Cloud provider provisions an LB that targets the controller pods.</div>
+      </div>
+      <div class="card card-aws">
+        <div class="card-title"><span class="card-dot" style="background:var(--aws)"></span>AWS ALB Pattern</div>
+        <div class="card-body">AWS Load Balancer Controller provisions an <strong>Application Load Balancer</strong> per Ingress (or shared). The controller is just a Kubernetes operator — the actual proxy is in AWS infrastructure.</div>
+      </div>
+      <div class="card card-azure">
+        <div class="card-title"><span class="card-dot" style="background:var(--azure)"></span>AGIC Pattern</div>
+        <div class="card-body">Application Gateway Ingress Controller watches Ingress resources and configures Azure Application Gateway. The gateway runs outside the AKS cluster as a managed Azure resource.</div>
+      </div>
+    </div>
+
+    <h3 class="subsection">Popular Controllers Comparison</h3>
+    <table class="data-table">
+      <thead><tr><th>Controller</th><th>Proxy Engine</th><th>Best Platform</th><th>Config Reload</th><th>Performance</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ingress-nginx</strong></td><td>NGINX</td><td>All</td><td>~1s graceful</td><td>High</td></tr>
+        <tr><td><strong>Traefik</strong></td><td>Custom Go</td><td>All</td><td>Hot reload (0s)</td><td>High</td></tr>
+        <tr><td><strong>HAProxy Ingress</strong></td><td>HAProxy</td><td>On-prem</td><td>Hitless reload</td><td>Very High</td></tr>
+        <tr><td><strong>AWS ALB Controller</strong></td><td>AWS ALB</td><td>EKS only</td><td>AWS API async</td><td>AWS-native</td></tr>
+        <tr><td><strong>AGIC</strong></td><td>Azure AppGW</td><td>AKS only</td><td>Azure API async</td><td>Azure-native</td></tr>
+        <tr><td><strong>Contour (Envoy)</strong></td><td>Envoy</td><td>All</td><td>xDS streaming</td><td>Very High</td></tr>
+        <tr><td><strong>Kong</strong></td><td>NGINX + LuaJIT</td><td>All</td><td>~1s graceful</td><td>High + API GW</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">kubeadm Setup</span><div class="divider-line"></div></div>
+
+  <!-- S6 -->
+  <section class="section" id="s6">
+    <div class="section-header">
+      <span class="section-num">06 /</span>
+      <div>
+        <div class="section-title">kubeadm Cluster Prerequisites</div>
+        <span class="section-badge sb-k8s">kubeadm</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>Before installing an Ingress Controller on a kubeadm cluster, ensure your cluster meets these requirements. Bare-metal clusters need special handling since there's no cloud provider integration.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">verify-cluster.sh</span></div>
+      <div class="code-body"><span class="cm"># Check Kubernetes version (1.19+ required for stable Ingress API)</span>
+kubectl version --short
+
+<span class="cm"># Verify nodes are Ready</span>
+kubectl get nodes -o wide
+
+<span class="cm"># Check CNI is running (calico/flannel/weave)</span>
+kubectl get pods -n kube-system | grep -E "calico|flannel|weave|cilium"
+
+<span class="cm"># Ensure storage class exists (for cert-manager if needed)</span>
+kubectl get storageclass
+
+<span class="cm"># Check available resources</span>
+kubectl top nodes  <span class="cm"># requires metrics-server</span></div>
+    </div>
+
+    <h3 class="subsection">CNI Requirements</h3>
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <div>The Ingress Controller pods need network connectivity to backend pods. Ensure your CNI (Calico, Flannel, Cilium) is healthy. <strong>Flannel</strong> uses VXLAN overlay which works with NGINX Ingress. <strong>Calico</strong> in BGP mode requires node-level routing is working. <strong>Cilium</strong> may need eBPF bypass config when using ingress-nginx.</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">install-calico.sh</span></div>
+      <div class="code-body"><span class="cm"># Install Calico (recommended for kubeadm)</span>
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/calico.yaml
+
+<span class="cm"># Wait for calico-node DaemonSet to be fully ready</span>
+kubectl rollout status daemonset/calico-node -n kube-system --timeout=120s
+
+<span class="cm"># Verify pod CIDR matches kubeadm init --pod-network-cidr</span>
+kubectl get configmap kubeadm-config -n kube-system -o yaml | grep podSubnet</div>
+    </div>
+  </section>
+
+  <!-- S7 -->
+  <section class="section" id="s7">
+    <div class="section-header">
+      <span class="section-num">07 /</span>
+      <div>
+        <div class="section-title">NGINX Ingress Controller Installation</div>
+        <span class="section-badge sb-k8s">kubeadm</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>The <strong>ingress-nginx</strong> controller (maintained by Kubernetes) is the most widely used. There are two important Helm charts — the community one and the one maintained by NGINX Inc. — ensure you use the correct one.</p></div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <div><strong>Two different projects:</strong> <code>kubernetes/ingress-nginx</code> (community, uses NGINX OSS) vs <code>nginxinc/kubernetes-ingress</code> (NGINX Inc, uses NGINX Plus). This guide covers the community version.</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">install-nginx-ingress.sh</span></div>
+      <div class="code-body"><span class="cm"># Method 1: Helm (recommended)</span>
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+
+<span class="cm"># Install with custom values for bare-metal</span>
+helm install ingress-nginx ingress-nginx/ingress-nginx \
+  --namespace ingress-nginx \
+  --create-namespace \
+  --set controller.service.type=LoadBalancer \
+  --set controller.service.externalTrafficPolicy=Local \
+  --set controller.replicaCount=2 \
+  --set controller.nodeSelector."kubernetes\.io/os"=linux \
+  --set defaultBackend.enabled=true \
+  --version 4.9.1
+
+<span class="cm"># Method 2: Bare-metal manifest (NodePort)</span>
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.4/deploy/static/provider/baremetal/deploy.yaml
+
+<span class="cm"># Verify installation</span>
+kubectl get pods -n ingress-nginx
+kubectl get svc -n ingress-nginx</div>
+    </div>
+
+    <h3 class="subsection">Helm Values for Production</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">nginx-values.yaml</span></div>
+      <div class="code-body"><span class="kw">controller</span>:
+  <span class="kw">replicaCount</span>: <span class="num">3</span>
+  <span class="kw">minAvailable</span>: <span class="num">2</span>                 <span class="cm"># PodDisruptionBudget</span>
+  <span class="kw">resources</span>:
+    <span class="kw">requests</span>:
+      <span class="kw">cpu</span>: <span class="val">100m</span>
+      <span class="kw">memory</span>: <span class="val">90Mi</span>
+    <span class="kw">limits</span>:
+      <span class="kw">cpu</span>: <span class="val">500m</span>
+      <span class="kw">memory</span>: <span class="val">512Mi</span>
+  <span class="kw">autoscaling</span>:
+    <span class="kw">enabled</span>: <span class="val">true</span>
+    <span class="kw">minReplicas</span>: <span class="num">2</span>
+    <span class="kw">maxReplicas</span>: <span class="num">10</span>
+    <span class="kw">targetCPUUtilizationPercentage</span>: <span class="num">70</span>
+  <span class="kw">config</span>:
+    <span class="kw">use-gzip</span>: <span class="str">"true"</span>
+    <span class="kw">gzip-level</span>: <span class="str">"5"</span>
+    <span class="kw">keep-alive</span>: <span class="str">"75"</span>
+    <span class="kw">proxy-body-size</span>: <span class="str">"50m"</span>
+    <span class="kw">worker-processes</span>: <span class="str">"auto"</span>
+    <span class="kw">max-worker-connections</span>: <span class="str">"16384"</span>
+    <span class="kw">enable-real-ip</span>: <span class="str">"true"</span>
+    <span class="kw">forwarded-for-header</span>: <span class="str">"X-Forwarded-For"</span>
+  <span class="kw">metrics</span>:
+    <span class="kw">enabled</span>: <span class="val">true</span>
+    <span class="kw">serviceMonitor</span>:
+      <span class="kw">enabled</span>: <span class="val">true</span>            <span class="cm"># Prometheus ServiceMonitor</span>
+  <span class="kw">affinity</span>:
+    <span class="kw">podAntiAffinity</span>:
+      <span class="kw">requiredDuringSchedulingIgnoredDuringExecution</span>:
+        - <span class="kw">labelSelector</span>:
+            <span class="kw">matchLabels</span>:
+              <span class="kw">app.kubernetes.io/name</span>: <span class="val">ingress-nginx</span>
+          <span class="kw">topologyKey</span>: <span class="val">kubernetes.io/hostname</span>
+<span class="kw">defaultBackend</span>:
+  <span class="kw">enabled</span>: <span class="val">true</span>
+  <span class="kw">image</span>:
+    <span class="kw">repository</span>: <span class="val">registry.k8s.io/defaultbackend-amd64</span>
+    <span class="kw">tag</span>: <span class="str">"1.5"</span></div>
+    </div>
+  </section>
+
+  <!-- S8 -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num">08 /</span>
+      <div>
+        <div class="section-title">MetalLB — LoadBalancer for Bare Metal</div>
+        <span class="section-badge sb-k8s">kubeadm</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>On bare-metal kubeadm clusters, Services of type <em>LoadBalancer</em> stay in <em>Pending</em> state because there's no cloud provider. <strong>MetalLB</strong> provides a network load balancer implementation that assigns real IP addresses from a pool you define.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">install-metallb.sh</span></div>
+      <div class="code-body"><span class="cm"># Install MetalLB</span>
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.3/config/manifests/metallb-native.yaml
+
+<span class="cm"># Wait for MetalLB to be ready</span>
+kubectl wait --namespace metallb-system \
+  --for=condition=ready pod \
+  --selector=app=metallb \
+  --timeout=90s</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">metallb-config.yaml</span></div>
+      <div class="code-body"><span class="cm"># Layer 2 mode (ARP) — simplest, works on most networks</span>
+<span class="kw">apiVersion</span>: <span class="val">metallb.io/v1beta1</span>
+<span class="kw">kind</span>: <span class="val">IPAddressPool</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">first-pool</span>
+  <span class="kw">namespace</span>: <span class="val">metallb-system</span>
+<span class="kw">spec</span>:
+  <span class="kw">addresses</span>:
+    - <span class="val">192.168.1.200-192.168.1.250</span>   <span class="cm"># IPs on your LAN</span>
+---
+<span class="kw">apiVersion</span>: <span class="val">metallb.io/v1beta1</span>
+<span class="kw">kind</span>: <span class="val">L2Advertisement</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">l2-advert</span>
+  <span class="kw">namespace</span>: <span class="val">metallb-system</span>
+<span class="kw">spec</span>:
+  <span class="kw">ipAddressPools</span>:
+    - <span class="val">first-pool</span></div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ</span>
+      <div><strong>BGP mode</strong> is preferred in production data centers — it distributes traffic more evenly by announcing the VIP through BGP sessions with your router. Requires a BGP-capable router and more configuration (<em>BGPPeer</em> resources). L2 mode is simpler but fails over slower (ARP cache timeout ~10s).</div>
+    </div>
+  </section>
+
+  <!-- S9 -->
+  <section class="section" id="s9">
+    <div class="section-header">
+      <span class="section-num">09 /</span>
+      <div>
+        <div class="section-title">NodePort Exposure Strategy</div>
+        <span class="section-badge sb-k8s">kubeadm</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>When MetalLB is not available or appropriate, NodePort is the fallback. An external load balancer (HAProxy, nginx on a VM, Keepalived) or cloud NLB can then forward port 80/443 to the NodePort range.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">nginx-nodeport-svc.yaml</span></div>
+      <div class="code-body"><span class="kw">apiVersion</span>: <span class="val">v1</span>
+<span class="kw">kind</span>: <span class="val">Service</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">ingress-nginx-controller</span>
+  <span class="kw">namespace</span>: <span class="val">ingress-nginx</span>
+<span class="kw">spec</span>:
+  <span class="kw">type</span>: <span class="val">NodePort</span>
+  <span class="kw">externalTrafficPolicy</span>: <span class="val">Local</span>     <span class="cm"># Preserves client IP</span>
+  <span class="kw">selector</span>:
+    <span class="kw">app.kubernetes.io/name</span>: <span class="val">ingress-nginx</span>
+  <span class="kw">ports</span>:
+    - <span class="kw">name</span>: <span class="val">http</span>
+      <span class="kw">port</span>: <span class="num">80</span>
+      <span class="kw">nodePort</span>: <span class="num">30080</span>        <span class="cm"># Static NodePort</span>
+      <span class="kw">protocol</span>: <span class="val">TCP</span>
+    - <span class="kw">name</span>: <span class="val">https</span>
+      <span class="kw">port</span>: <span class="num">443</span>
+      <span class="kw">nodePort</span>: <span class="num">30443</span>        <span class="cm"># Static NodePort</span>
+      <span class="kw">protocol</span>: <span class="val">TCP</span></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">NGINX</span><span class="code-file">/etc/nginx/nginx.conf (external VM)</span></div>
+      <div class="code-body"><span class="cm"># External NGINX acting as TCP LB to K8s NodePorts</span>
+stream {
+  upstream k8s_http {
+    least_conn;
+    server 10.0.0.10:30080;   <span class="cm"># node-1</span>
+    server 10.0.0.11:30080;   <span class="cm"># node-2</span>
+    server 10.0.0.12:30080;   <span class="cm"># node-3</span>
+  }
+  upstream k8s_https {
+    least_conn;
+    server 10.0.0.10:30443;
+    server 10.0.0.11:30443;
+    server 10.0.0.12:30443;
+  }
+  server {
+    listen 80;
+    proxy_pass k8s_http;
+    proxy_protocol on;        <span class="cm"># Forward real IP</span>
+  }
+  server {
+    listen 443;
+    proxy_pass k8s_https;
+    proxy_protocol on;
+  }
+}</div>
+    </div>
+  </section>
+
+  <!-- S10 -->
+  <section class="section" id="s10">
+    <div class="section-header">
+      <span class="section-num">10 /</span>
+      <div>
+        <div class="section-title">Path-based & Host-based Routing Examples</div>
+        <span class="section-badge sb-k8s">kubeadm</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">path-routing.yaml</span></div>
+      <div class="code-body"><span class="cm"># Path-based routing — single host, multiple backends</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">app.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/api</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">api-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">8080</span> } }
+          - <span class="kw">path</span>: <span class="val">/static</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">static-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">80</span> } }
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">frontend-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">3000</span> } }
+---
+<span class="cm"># Host-based routing — multiple domains, separate backends</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">api.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">api-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">80</span> } }
+    - <span class="kw">host</span>: <span class="val">docs.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">docs-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">80</span> } }
+    - <span class="kw">host</span>: <span class="val">admin.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">admin-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">8080</span> } }</div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✦</span>
+      <div><strong>Path precedence:</strong> NGINX matches paths in order of specificity — longer paths take priority. <code>/api/v2</code> beats <code>/api</code>. When two paths have the same length, the one defined first in the Ingress YAML wins.</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">AWS EKS</span><div class="divider-line"></div></div>
+
+  <!-- S11 -->
+  <section class="section" id="s11">
+    <div class="section-header">
+      <span class="section-num">11 /</span>
+      <div>
+        <div class="section-title">EKS Networking Model</div>
+        <span class="section-badge sb-aws">AWS EKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>EKS uses the <strong>Amazon VPC CNI Plugin</strong> (aws-node DaemonSet) by default. Every pod gets a real VPC IP address — not an overlay network. This has profound implications for Ingress Controller design.</p></div>
+
+    <div class="arch-diagram">VPC: 10.0.0.0/16
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│  Public Subnets (tagged kubernetes.io/role/elb: "1")      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │  AZ: us-e-1a │  │  AZ: us-e-1b │  │  AZ: us-e-1c │    │
+│  │ 10.0.1.0/24  │  │ 10.0.2.0/24  │  │ 10.0.3.0/24  │    │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘    │
+│         │                  │                  │            │
+│         └──────────────────┴──────────────────┘            │
+│                        ALB (public)                        │
+│                                                            │
+│  Private Subnets (tagged kubernetes.io/role/internal-elb) │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐    │
+│  │  Node Group  │  │  Node Group  │  │  Node Group  │    │
+│  │  (EC2/Fargate│  │              │  │              │    │
+│  │  10.0.4.0/24 │  │ 10.0.5.0/24  │  │ 10.0.6.0/24  │    │
+│  │  Pods: real  │  │  Pods: real  │  │  Pods: real  │    │
+│  │  VPC IPs     │  │  VPC IPs     │  │  VPC IPs     │    │
+│  └──────────────┘  └──────────────┘  └──────────────┘    │
+│                                                            │
+└────────────────────────────────────────────────────────────┘
+                       Internet Gateway
+                            │
+                            ▼
+                         Internet</div>
+
+    <h3 class="subsection">Required VPC Subnet Tags</h3>
+    <table class="data-table">
+      <thead><tr><th>Tag Key</th><th>Tag Value</th><th>Subnet Type</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>kubernetes.io/cluster/&lt;cluster-name&gt;</code></td><td><code>owned</code> or <code>shared</code></td><td>Both</td><td>LBC discovers subnets</td></tr>
+        <tr><td><code>kubernetes.io/role/elb</code></td><td><code>1</code></td><td>Public</td><td>Internet-facing ALB/NLB</td></tr>
+        <tr><td><code>kubernetes.io/role/internal-elb</code></td><td><code>1</code></td><td>Private</td><td>Internal ALB/NLB</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- S12 -->
+  <section class="section" id="s12">
+    <div class="section-header">
+      <span class="section-num">12 /</span>
+      <div>
+        <div class="section-title">AWS Load Balancer Controller Installation</div>
+        <span class="section-badge sb-aws">AWS EKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>The <strong>AWS Load Balancer Controller</strong> (formerly ALB Ingress Controller) provisions AWS ALBs and NLBs from Kubernetes Ingress and Service resources. It requires IAM permissions via IRSA (IAM Roles for Service Accounts).</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">install-aws-lbc.sh</span></div>
+      <div class="code-body"><span class="cm"># Step 1: Create IAM Policy</span>
+curl -O https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.7.0/docs/install/iam_policy.json
+
+aws iam create-policy \
+  --policy-name AWSLoadBalancerControllerIAMPolicy \
+  --policy-document file://iam_policy.json
+
+<span class="cm"># Step 2: Create IRSA (IAM Role for Service Account)</span>
+eksctl create iamserviceaccount \
+  --cluster=my-cluster \
+  --namespace=kube-system \
+  --name=aws-load-balancer-controller \
+  --role-name AmazonEKSLoadBalancerControllerRole \
+  --attach-policy-arn=arn:aws:iam::ACCOUNT_ID:policy/AWSLoadBalancerControllerIAMPolicy \
+  --approve
+
+<span class="cm"># Step 3: Install via Helm</span>
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
+  -n kube-system \
+  --set clusterName=my-cluster \
+  --set serviceAccount.create=false \
+  --set serviceAccount.name=aws-load-balancer-controller \
+  --set image.repository=602401143452.dkr.ecr.eu-west-1.amazonaws.com/amazon/aws-load-balancer-controller
+
+<span class="cm"># Verify</span>
+kubectl get deployment -n kube-system aws-load-balancer-controller</div>
+    </div>
+  </section>
+
+  <!-- S13 -->
+  <section class="section" id="s13">
+    <div class="section-header">
+      <span class="section-num">13 /</span>
+      <div>
+        <div class="section-title">ALB Ingress on EKS — Full Example</div>
+        <span class="section-badge sb-aws">AWS EKS</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">alb-ingress.yaml</span></div>
+      <div class="code-body"><span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Ingress</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">app-ingress</span>
+  <span class="kw">annotations</span>:
+    <span class="ann">kubernetes.io/ingress.class</span>: <span class="val">alb</span>
+    <span class="ann">alb.ingress.kubernetes.io/scheme</span>: <span class="val">internet-facing</span>
+    <span class="ann">alb.ingress.kubernetes.io/target-type</span>: <span class="val">ip</span>
+    <span class="ann">alb.ingress.kubernetes.io/certificate-arn</span>: <span class="val">arn:aws:acm:us-east-1:123:certificate/abc</span>
+    <span class="ann">alb.ingress.kubernetes.io/listen-ports</span>: <span class="str">'[{"HTTP": 80}, {"HTTPS":443}]'</span>
+    <span class="ann">alb.ingress.kubernetes.io/ssl-redirect</span>: <span class="str">'443'</span>
+    <span class="ann">alb.ingress.kubernetes.io/load-balancer-name</span>: <span class="val">my-app-alb</span>
+    <span class="ann">alb.ingress.kubernetes.io/tags</span>: <span class="val">Environment=prod,Team=platform</span>
+    <span class="ann">alb.ingress.kubernetes.io/group.name</span>: <span class="val">shared-alb</span>   <span class="cm"># Share ALB</span>
+    <span class="ann">alb.ingress.kubernetes.io/healthcheck-path</span>: <span class="val">/health</span>
+    <span class="ann">alb.ingress.kubernetes.io/healthcheck-interval-seconds</span>: <span class="str">"30"</span>
+    <span class="ann">alb.ingress.kubernetes.io/success-codes</span>: <span class="str">"200-399"</span>
+    <span class="ann">alb.ingress.kubernetes.io/wafv2-acl-arn</span>: <span class="val">arn:aws:wafv2:...</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">alb</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">api.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>:
+                <span class="kw">name</span>: <span class="val">api-svc</span>
+                <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">8080</span> }</div>
+    </div>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ</span>
+      <div><strong>target-type: ip vs instance:</strong> Use <code>ip</code> mode to route directly to pod IPs (requires VPC CNI). Use <code>instance</code> mode to route to node IPs via NodePort — needed for Fargate or when pods aren't directly addressable. <code>ip</code> mode is faster (one fewer hop) and preserves source IP.</div>
+    </div>
+  </section>
+
+  <!-- S14 -->
+  <section class="section" id="s14">
+    <div class="section-header">
+      <span class="section-num">14 /</span>
+      <div>
+        <div class="section-title">AWS: NLB vs ALB Decision Guide</div>
+        <span class="section-badge sb-aws">AWS EKS</span>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Criterion</th><th>ALB (L7)</th><th>NLB (L4)</th></tr></thead>
+      <tbody>
+        <tr><td>Protocol</td><td>HTTP, HTTPS, gRPC (via HTTP/2)</td><td>TCP, UDP, TLS</td></tr>
+        <tr><td>Routing</td><td>Host, path, header, query, method</td><td>Port only</td></tr>
+        <tr><td>TLS termination</td><td>Yes (ACM certificates)</td><td>Yes (TLS passthrough too)</td></tr>
+        <tr><td>WebSocket</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Latency</td><td>~1-5ms overhead</td><td>Ultra-low (~μs)</td></tr>
+        <tr><td>Static IP</td><td>No (DNS-based)</td><td>Yes (per-AZ Elastic IP)</td></tr>
+        <tr><td>Client IP preservation</td><td>Via X-Forwarded-For</td><td>Native (proxy protocol)</td></tr>
+        <tr><td>WAF integration</td><td>Yes (AWS WAF)</td><td>No</td></tr>
+        <tr><td>Kubernetes Ingress</td><td>Yes (native)</td><td>Via Service annotations</td></tr>
+        <tr><td>Use for</td><td>Web apps, microservices, APIs</td><td>Databases, game servers, IoT</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- S15 -->
+  <section class="section" id="s15">
+    <div class="section-header">
+      <span class="section-num">15 /</span>
+      <div>
+        <div class="section-title">IAM Roles for Service Accounts (IRSA)</div>
+        <span class="section-badge sb-aws">AWS EKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>IRSA enables Kubernetes Service Accounts to assume IAM roles via OIDC federation. The LBC, cert-manager (for Route53 DNS challenges), and ExternalDNS all require IRSA.</p></div>
+
+    <div class="arch-diagram">Pod (aws-load-balancer-controller)
+  │
+  │  Uses projected ServiceAccount token
+  ▼
+EKS OIDC Provider  ──verify JWT──▶  AWS STS
+                                       │
+                              AssumeRoleWithWebIdentity
+                                       │
+                                       ▼
+                                  IAM Role
+                                  (LBC permissions)
+                                       │
+                              ec2:*, elasticloadbalancing:*
+                                       │
+                                       ▼
+                              AWS API (Create/Update ALB)</div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">irsa-setup.sh</span></div>
+      <div class="code-body"><span class="cm"># Get OIDC issuer URL</span>
+aws eks describe-cluster --name my-cluster \
+  --query "cluster.identity.oidc.issuer" --output text
+
+<span class="cm"># Associate OIDC provider with cluster (one-time)</span>
+eksctl utils associate-iam-oidc-provider \
+  --cluster my-cluster \
+  --approve
+
+<span class="cm"># Verify OIDC provider in IAM</span>
+aws iam list-open-id-connect-providers | grep oidc</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">JSON</span><span class="code-file">trust-policy.json</span></div>
+      <div class="code-body">{
+  <span class="key">"Version"</span>: <span class="str">"2012-10-17"</span>,
+  <span class="key">"Statement"</span>: [{
+    <span class="key">"Effect"</span>: <span class="str">"Allow"</span>,
+    <span class="key">"Principal"</span>: {
+      <span class="key">"Federated"</span>: <span class="str">"arn:aws:iam::ACCOUNT:oidc-provider/OIDC_URL"</span>
+    },
+    <span class="key">"Action"</span>: <span class="str">"sts:AssumeRoleWithWebIdentity"</span>,
+    <span class="key">"Condition"</span>: {
+      <span class="key">"StringEquals"</span>: {
+        <span class="key">"OIDC_URL:sub"</span>: <span class="str">"system:serviceaccount:kube-system:aws-load-balancer-controller"</span>,
+        <span class="key">"OIDC_URL:aud"</span>: <span class="str">"sts.amazonaws.com"</span>
+      }
+    }
+  }]
+}</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">Azure AKS</span><div class="divider-line"></div></div>
+
+  <!-- S16 -->
+  <section class="section" id="s16">
+    <div class="section-header">
+      <span class="section-num">16 /</span>
+      <div>
+        <div class="section-title">AKS Networking Overview</div>
+        <span class="section-badge sb-azure">Azure AKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>AKS supports multiple network plugins. The choice directly affects Ingress Controller behavior and performance.</p></div>
+
+    <table class="data-table">
+      <thead><tr><th>Plugin</th><th>Pod IPs</th><th>Scalability</th><th>Network Policy</th><th>Ingress Impact</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Kubenet</strong></td><td>Overlay (UDR-based)</td><td>Limited (400 nodes)</td><td>Via Calico</td><td>Works, but extra hop</td></tr>
+        <tr><td><strong>Azure CNI</strong></td><td>Real VNet IPs</td><td>High (consumes IPs)</td><td>Azure Network Policy</td><td>Direct pod routing</td></tr>
+        <tr><td><strong>Azure CNI Overlay</strong></td><td>Overlay + VNet edge</td><td>Very High</td><td>Cilium</td><td>Best of both</td></tr>
+        <tr><td><strong>Cilium</strong></td><td>Azure CNI powered</td><td>Very High</td><td>Cilium native</td><td>eBPF L7 policies</td></tr>
+      </tbody>
+    </table>
+
+    <div class="arch-diagram">Azure
+┌─────────────────────────────────────────────────────────────────┐
+│  Resource Group                                                  │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Virtual Network (10.0.0.0/8)                            │  │
+│  │                                                          │  │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  │  │
+│  │  │  AKS Subnet  │  │  AppGW Subnet│  │ Internal LB   │  │  │
+│  │  │10.240.0.0/16 │  │10.0.0.0/24   │  │ Subnet        │  │  │
+│  │  │              │  │              │  │               │  │  │
+│  │  │ Worker Nodes │  │ App Gateway  │  │               │  │  │
+│  │  │   + Pods     │  │  (AGIC)      │  │               │  │  │
+│  │  └──────────────┘  └──────────────┘  └───────────────┘  │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+              │                    │
+         Public IP           Public IP
+          (AKS LB)          (App Gateway)</div>
+  </section>
+
+  <!-- S17 -->
+  <section class="section" id="s17">
+    <div class="section-header">
+      <span class="section-num">17 /</span>
+      <div>
+        <div class="section-title">Azure Application Gateway Ingress Controller</div>
+        <span class="section-badge sb-azure">Azure AKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>AGIC (Application Gateway Ingress Controller) bridges Kubernetes Ingress resources with Azure Application Gateway. Unlike NGINX-in-cluster, the actual proxy runs as a managed Azure resource — offloading WAF, SSL offload, and autoscaling to Azure.</p></div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card card-azure">
+        <div class="card-title"><span class="card-dot" style="background:var(--azure)"></span>Advantages</div>
+        <div class="card-body">No in-cluster proxy overhead. Native WAF (OWASP 3.2), Azure Monitor integration, autoscaling built-in. Certificates managed by Key Vault. Private Link support.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent4)"></span>Limitations</div>
+        <div class="card-body">Azure-only. Configuration propagation is async (~30s). Limited annotation support vs NGINX. No TCP/UDP ingress. Single AppGW per AGIC instance.</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">agic-ingress.yaml</span></div>
+      <div class="code-body"><span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Ingress</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">app-ingress</span>
+  <span class="kw">annotations</span>:
+    <span class="ann">kubernetes.io/ingress.class</span>: <span class="val">azure/application-gateway</span>
+    <span class="ann">appgw.ingress.kubernetes.io/ssl-redirect</span>: <span class="str">"true"</span>
+    <span class="ann">appgw.ingress.kubernetes.io/connection-draining</span>: <span class="str">"true"</span>
+    <span class="ann">appgw.ingress.kubernetes.io/connection-draining-timeout</span>: <span class="str">"30"</span>
+    <span class="ann">appgw.ingress.kubernetes.io/request-timeout</span>: <span class="str">"60"</span>
+    <span class="ann">appgw.ingress.kubernetes.io/backend-hostname</span>: <span class="val">myapi.internal</span>
+    <span class="ann">appgw.ingress.kubernetes.io/waf-policy-for-path</span>: <span class="val">/subscriptions/.../wafpolicies/my-waf</span>
+<span class="kw">spec</span>:
+  <span class="kw">tls</span>:
+    - <span class="kw">hosts</span>: [<span class="val">app.example.com</span>]
+      <span class="kw">secretName</span>: <span class="val">tls-secret</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">app.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>:
+                <span class="kw">name</span>: <span class="val">app-svc</span>
+                <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">80</span> }</div>
+    </div>
+  </section>
+
+  <!-- S18 -->
+  <section class="section" id="s18">
+    <div class="section-header">
+      <span class="section-num">18 /</span>
+      <div>
+        <div class="section-title">AGIC Installation — Helm & Add-on</div>
+        <span class="section-badge sb-azure">Azure AKS</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">install-agic.sh</span></div>
+      <div class="code-body"><span class="cm"># Method 1: AKS Managed Add-on (recommended)</span>
+<span class="cm"># Create Application Gateway first</span>
+az network application-gateway create \
+  --name my-app-gw \
+  --resource-group my-rg \
+  --sku Standard_v2 \
+  --capacity 2 \
+  --vnet-name my-vnet \
+  --subnet appgw-subnet \
+  --public-ip-address my-appgw-pip \
+  --priority 100
+
+<span class="cm"># Enable AGIC add-on on existing AKS cluster</span>
+APPGW_ID=$(az network application-gateway show \
+  --name my-app-gw \
+  --resource-group my-rg \
+  --query id --output tsv)
+
+az aks enable-addons \
+  --name my-aks-cluster \
+  --resource-group my-rg \
+  --addons ingress-appgw \
+  --appgw-id $APPGW_ID
+
+<span class="cm"># Method 2: Helm install</span>
+helm repo add application-gateway-kubernetes-ingress \
+  https://appgwingress.blob.core.windows.net/ingress-azure-helm-package/
+helm repo update
+
+helm install ingress-azure \
+  application-gateway-kubernetes-ingress/ingress-azure \
+  --namespace default \
+  --set appgw.name=my-app-gw \
+  --set appgw.resourceGroup=my-rg \
+  --set appgw.subscriptionId=SUBSCRIPTION_ID \
+  --set appgw.shared=false \
+  --set armAuth.type=workloadIdentity \
+  --set armAuth.identityClientID=CLIENT_ID \
+  --set rbac.enabled=true</div>
+    </div>
+  </section>
+
+  <!-- S19 -->
+  <section class="section" id="s19">
+    <div class="section-header">
+      <span class="section-num">19 /</span>
+      <div>
+        <div class="section-title">NGINX Ingress on AKS</div>
+        <span class="section-badge sb-azure">Azure AKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>For teams wanting full NGINX control on AKS, deploy ingress-nginx with Azure-specific configurations. AKS automatically provisions an Azure Load Balancer.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">nginx-aks-values.yaml</span></div>
+      <div class="code-body"><span class="kw">controller</span>:
+  <span class="kw">service</span>:
+    <span class="kw">annotations</span>:
+      <span class="cm"># Use internal Azure LB (private IP from VNet)</span>
+      <span class="ann">service.beta.kubernetes.io/azure-load-balancer-internal</span>: <span class="str">"true"</span>
+      <span class="ann">service.beta.kubernetes.io/azure-load-balancer-internal-subnet</span>: <span class="str">"aks-internal-subnet"</span>
+
+      <span class="cm"># OR: Use Standard SKU with specific static IP</span>
+      <span class="ann">service.beta.kubernetes.io/azure-load-balancer-resource-group</span>: <span class="str">"my-rg"</span>
+      <span class="ann">service.beta.kubernetes.io/azure-pip-name</span>: <span class="str">"my-static-pip"</span>
+
+      <span class="cm"># Health probe settings</span>
+      <span class="ann">service.beta.kubernetes.io/azure-load-balancer-health-probe-request-path</span>: <span class="str">"/healthz"</span>
+
+  <span class="kw">replicaCount</span>: <span class="num">3</span>
+  <span class="kw">nodeSelector</span>:
+    <span class="kw">agentpool</span>: <span class="val">ingress</span>         <span class="cm"># Dedicated node pool</span>
+  <span class="kw">tolerations</span>:
+    - <span class="kw">key</span>: <span class="val">ingress</span>
+      <span class="kw">operator</span>: <span class="val">Equal</span>
+      <span class="kw">value</span>: <span class="str">"true"</span>
+      <span class="kw">effect</span>: <span class="val">NoSchedule</span></div>
+    </div>
+  </section>
+
+  <!-- S20 -->
+  <section class="section" id="s20">
+    <div class="section-header">
+      <span class="section-num">20 /</span>
+      <div>
+        <div class="section-title">Azure Workload Identity for AKS</div>
+        <span class="section-badge sb-azure">Azure AKS</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>Azure Workload Identity (successor to AAD Pod Identity / aad-pod-identity) allows Kubernetes pods to authenticate to Azure services. Required for AGIC, ExternalDNS, cert-manager DNS challenges against Azure DNS.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">workload-identity.sh</span></div>
+      <div class="code-body"><span class="cm"># Enable OIDC issuer and Workload Identity on AKS</span>
+az aks update \
+  --name my-aks \
+  --resource-group my-rg \
+  --enable-oidc-issuer \
+  --enable-workload-identity
+
+<span class="cm"># Get OIDC issuer URL</span>
+OIDC_ISSUER=$(az aks show --name my-aks --resource-group my-rg \
+  --query "oidcIssuerProfile.issuerUrl" --output tsv)
+
+<span class="cm"># Create Managed Identity</span>
+az identity create --name agic-identity --resource-group my-rg
+CLIENT_ID=$(az identity show --name agic-identity \
+  --resource-group my-rg --query clientId --output tsv)
+
+<span class="cm"># Federate the identity</span>
+az identity federated-credential create \
+  --name agic-fed-credential \
+  --identity-name agic-identity \
+  --resource-group my-rg \
+  --issuer $OIDC_ISSUER \
+  --subject "system:serviceaccount:default:ingress-azure" \
+  --audience api://AzureADTokenExchange
+
+<span class="cm"># Assign Contributor role on AppGW resource group</span>
+az role assignment create \
+  --assignee $CLIENT_ID \
+  --role "Contributor" \
+  --scope "/subscriptions/SUB_ID/resourceGroups/my-rg"</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">TLS & Security</span><div class="divider-line"></div></div>
+
+  <!-- S21 -->
+  <section class="section" id="s21">
+    <div class="section-header">
+      <span class="section-num">21 /</span>
+      <div>
+        <div class="section-title">TLS Termination Patterns</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>TLS can be terminated at different layers. The choice affects security, performance, and certificate management complexity.</p></div>
+
+    <div class="card-grid card-grid-3">
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent3)"></span>Edge Termination</div>
+        <div class="card-body">TLS ends at the Ingress Controller. Traffic to backends is plain HTTP. Simplest, but unencrypted within cluster network. Default approach.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent5)"></span>Re-encryption</div>
+        <div class="card-body">Ingress terminates TLS, then establishes new TLS to backend. Backend needs a certificate. More complex but end-to-end encryption.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent2)"></span>TLS Passthrough</div>
+        <div class="card-body">Ingress passes TLS stream directly to backend. Backend handles TLS. No inspection possible. Required for SNI-based routing without termination.</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">create-tls-secret.sh</span></div>
+      <div class="code-body"><span class="cm"># Create TLS Secret from existing certs</span>
+kubectl create secret tls tls-secret \
+  --cert=tls.crt \
+  --key=tls.key \
+  --namespace=production
+
+<span class="cm"># Verify secret structure</span>
+kubectl get secret tls-secret -o yaml
+<span class="cm"># Must have: tls.crt and tls.key keys</span>
+
+<span class="cm"># NGINX annotation for backend TLS (re-encryption)</span>
+<span class="cm"># nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"</span>
+<span class="cm"># nginx.ingress.kubernetes.io/proxy-ssl-secret: "ns/backend-tls"</span>
+
+<span class="cm"># NGINX TLS passthrough (SNI routing)</span>
+<span class="cm"># nginx.ingress.kubernetes.io/ssl-passthrough: "true"</span></div>
+    </div>
+  </section>
+
+  <!-- S22 -->
+  <section class="section" id="s22">
+    <div class="section-header">
+      <span class="section-num">22 /</span>
+      <div>
+        <div class="section-title">cert-manager — Automated Certificate Management</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p><strong>cert-manager</strong> automates the lifecycle of TLS certificates — requesting, renewing, and storing them as Kubernetes Secrets. It integrates with Let's Encrypt, Vault, Venafi, and self-signed CAs.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">install-cert-manager.sh</span></div>
+      <div class="code-body"><span class="cm"># Install cert-manager</span>
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --create-namespace \
+  --set installCRDs=true \
+  --set global.leaderElection.namespace=cert-manager \
+  --version v1.14.0
+
+<span class="cm"># Verify</span>
+kubectl get pods -n cert-manager
+kubectl get crd | grep cert-manager</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">cluster-issuer.yaml</span></div>
+      <div class="code-body"><span class="cm"># Production ClusterIssuer (Let's Encrypt)</span>
+<span class="kw">apiVersion</span>: <span class="val">cert-manager.io/v1</span>
+<span class="kw">kind</span>: <span class="val">ClusterIssuer</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">letsencrypt-prod</span>
+<span class="kw">spec</span>:
+  <span class="kw">acme</span>:
+    <span class="kw">server</span>: <span class="val">https://acme-v02.api.letsencrypt.org/directory</span>
+    <span class="kw">email</span>: <span class="val">admin@example.com</span>
+    <span class="kw">privateKeySecretRef</span>:
+      <span class="kw">name</span>: <span class="val">letsencrypt-prod-key</span>
+    <span class="kw">solvers</span>:
+      - <span class="kw">http01</span>:                  <span class="cm"># HTTP-01 challenge</span>
+          <span class="kw">ingress</span>:
+            <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+      - <span class="kw">selector</span>:
+          <span class="kw">dnsZones</span>: [<span class="val">"example.com"</span>]
+        <span class="kw">dns01</span>:                   <span class="cm"># DNS-01 for wildcards</span>
+          <span class="kw">route53</span>:              <span class="cm"># AWS Route53</span>
+            <span class="kw">region</span>: <span class="val">us-east-1</span>
+            <span class="kw">hostedZoneID</span>: <span class="val">Z1234567890</span>
+            <span class="kw">role</span>: <span class="val">arn:aws:iam::123:role/cert-manager-route53</span></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">ingress-with-cert.yaml</span></div>
+      <div class="code-body"><span class="kw">metadata</span>:
+  <span class="kw">annotations</span>:
+    <span class="ann">cert-manager.io/cluster-issuer</span>: <span class="str">"letsencrypt-prod"</span>
+<span class="kw">spec</span>:
+  <span class="kw">tls</span>:
+    - <span class="kw">hosts</span>: [<span class="val">app.example.com</span>]
+      <span class="kw">secretName</span>: <span class="val">app-tls</span>      <span class="cm"># cert-manager auto-creates this</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">app.example.com</span>
+      <span class="cm"># ... paths</span></div>
+    </div>
+  </section>
+
+  <!-- S23 -->
+  <section class="section" id="s23">
+    <div class="section-header">
+      <span class="section-num">23 /</span>
+      <div>
+        <div class="section-title">Let's Encrypt ACME Challenge Types</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Challenge</th><th>Mechanism</th><th>Requirements</th><th>Supports Wildcards</th></tr></thead>
+      <tbody>
+        <tr><td><strong>HTTP-01</strong></td><td>Serves token at <code>/.well-known/acme-challenge/TOKEN</code></td><td>Port 80 publicly accessible</td><td>No</td></tr>
+        <tr><td><strong>DNS-01</strong></td><td>Creates <code>_acme-challenge.domain</code> TXT record</td><td>DNS API access (Route53, Azure DNS, Cloudflare)</td><td>Yes <code>*.domain</code></td></tr>
+        <tr><td><strong>TLS-ALPN-01</strong></td><td>TLS handshake with special ALPN</td><td>Port 443 accessible</td><td>No</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✦</span>
+      <div>Use <strong>DNS-01</strong> for wildcard certificates (<code>*.example.com</code>) and for private clusters where Let's Encrypt can't reach your ingress. AWS Route53, Azure DNS, and Cloudflare are well-supported. cert-manager uses IRSA/Workload Identity to authenticate to the DNS API.</div>
+    </div>
+  </section>
+
+  <!-- S24 -->
+  <section class="section" id="s24">
+    <div class="section-header">
+      <span class="section-num">24 /</span>
+      <div>
+        <div class="section-title">mTLS and Backend TLS</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">mtls-ingress.yaml</span></div>
+      <div class="code-body"><span class="kw">metadata</span>:
+  <span class="kw">annotations</span>:
+    <span class="cm"># mTLS: Require client certificate</span>
+    <span class="ann">nginx.ingress.kubernetes.io/auth-tls-verify-client</span>: <span class="str">"on"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/auth-tls-secret</span>: <span class="str">"production/ca-secret"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/auth-tls-verify-depth</span>: <span class="str">"1"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/auth-tls-pass-certificate-to-upstream</span>: <span class="str">"true"</span>
+
+    <span class="cm"># Backend TLS: NGINX re-encrypts to backend</span>
+    <span class="ann">nginx.ingress.kubernetes.io/backend-protocol</span>: <span class="str">"HTTPS"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/proxy-ssl-verify</span>: <span class="str">"on"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/proxy-ssl-secret</span>: <span class="str">"production/backend-tls"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/proxy-ssl-server-name</span>: <span class="str">"on"</span></div>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">⚠</span>
+      <div><strong>mTLS CA Secret format:</strong> The secret referenced by <em>auth-tls-secret</em> must have a <code>ca.crt</code> key containing the PEM-encoded CA certificate (not a TLS secret). Create with: <code>kubectl create secret generic ca-secret --from-file=ca.crt=./ca.crt</code></div>
+    </div>
+  </section>
+
+  <!-- S25 -->
+  <section class="section" id="s25">
+    <div class="section-header">
+      <span class="section-num">25 /</span>
+      <div>
+        <div class="section-title">WAF Integration (AWS WAFv2)</div>
+        <span class="section-badge sb-aws">AWS EKS</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">waf-ingress.yaml</span></div>
+      <div class="code-body"><span class="kw">metadata</span>:
+  <span class="kw">annotations</span>:
+    <span class="cm"># Attach WAF ACL to ALB</span>
+    <span class="ann">alb.ingress.kubernetes.io/wafv2-acl-arn</span>: <span class="val">arn:aws:wafv2:us-east-1:123:regional/webacl/my-waf/id</span>
+    
+    <span class="cm"># AWS Shield Advanced</span>
+    <span class="ann">alb.ingress.kubernetes.io/shield-advanced-protection</span>: <span class="str">"true"</span>
+    
+    <span class="cm"># AWS Cognito authentication</span>
+    <span class="ann">alb.ingress.kubernetes.io/auth-type</span>: <span class="val">cognito</span>
+    <span class="ann">alb.ingress.kubernetes.io/auth-idp-cognito</span>: <span class="val">'{"UserPoolArn":"arn:..","UserPoolClientId":"...","UserPoolDomain":"..."}'</span>
+    <span class="ann">alb.ingress.kubernetes.io/auth-on-unauthenticated-request</span>: <span class="val">authenticate</span></div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">create-waf.sh</span></div>
+      <div class="code-body"><span class="cm"># Create WAF ACL with AWS Managed Rules</span>
+aws wafv2 create-web-acl \
+  --name my-waf \
+  --scope REGIONAL \
+  --region us-east-1 \
+  --default-action Allow={} \
+  --rules '[
+    {
+      "Name": "AWSManagedRulesCommonRuleSet",
+      "Priority": 1,
+      "OverrideAction": {"None": {}},
+      "Statement": {
+        "ManagedRuleGroupStatement": {
+          "VendorName": "AWS",
+          "Name": "AWSManagedRulesCommonRuleSet"
+        }
+      },
+      "VisibilityConfig": {
+        "SampledRequestsEnabled": true,
+        "CloudWatchMetricsEnabled": true,
+        "MetricName": "CommonRules"
+      }
+    }
+  ]'</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">Advanced Configuration</span><div class="divider-line"></div></div>
+
+  <!-- S26 -->
+  <section class="section" id="s26">
+    <div class="section-header">
+      <span class="section-num">26 /</span>
+      <div>
+        <div class="section-title">NGINX Ingress Annotations Deep Dive</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>Annotation</th><th>Description</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>rewrite-target</code></td><td>Rewrite URL path before forwarding</td><td><code>/</code></td></tr>
+        <tr><td><code>use-regex</code></td><td>Enable regex in path matching</td><td><code>"true"</code></td></tr>
+        <tr><td><code>proxy-body-size</code></td><td>Max request body size</td><td><code>100m</code></td></tr>
+        <tr><td><code>proxy-read-timeout</code></td><td>Backend read timeout (seconds)</td><td><code>300</code></td></tr>
+        <tr><td><code>proxy-send-timeout</code></td><td>Backend send timeout</td><td><code>300</code></td></tr>
+        <tr><td><code>proxy-connect-timeout</code></td><td>Backend connection timeout</td><td><code>10</code></td></tr>
+        <tr><td><code>enable-cors</code></td><td>Add CORS headers</td><td><code>"true"</code></td></tr>
+        <tr><td><code>cors-allow-origin</code></td><td>CORS allowed origins</td><td><code>https://app.com</code></td></tr>
+        <tr><td><code>affinity</code></td><td>Session stickiness</td><td><code>cookie</code></td></tr>
+        <tr><td><code>session-cookie-name</code></td><td>Cookie name for affinity</td><td><code>SERVERID</code></td></tr>
+        <tr><td><code>session-cookie-max-age</code></td><td>Cookie max age (seconds)</td><td><code>172800</code></td></tr>
+        <tr><td><code>whitelist-source-range</code></td><td>IP whitelist (CIDR)</td><td><code>10.0.0.0/8,1.2.3.4</code></td></tr>
+        <tr><td><code>from-to-www-redirect</code></td><td>Redirect www ↔ apex</td><td><code>"true"</code></td></tr>
+        <tr><td><code>force-ssl-redirect</code></td><td>Force HTTPS redirect</td><td><code>"true"</code></td></tr>
+        <tr><td><code>configuration-snippet</code></td><td>Raw NGINX config injection</td><td>Custom headers etc.</td></tr>
+        <tr><td><code>server-snippet</code></td><td>NGINX server{} block snippet</td><td>Extra directives</td></tr>
+        <tr><td><code>upstream-hash-by</code></td><td>Consistent hashing key</td><td><code>$request_uri</code></td></tr>
+        <tr><td><code>load-balance</code></td><td>LB algorithm</td><td><code>round_robin</code>, <code>ewma</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- S27 -->
+  <section class="section" id="s27">
+    <div class="section-header">
+      <span class="section-num">27 /</span>
+      <div>
+        <div class="section-title">Rate Limiting & Traffic Policies</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">rate-limit-ingress.yaml</span></div>
+      <div class="code-body"><span class="kw">metadata</span>:
+  <span class="kw">annotations</span>:
+    <span class="cm"># Global rate limiting (per IP)</span>
+    <span class="ann">nginx.ingress.kubernetes.io/limit-rps</span>: <span class="str">"100"</span>        <span class="cm"># req/sec</span>
+    <span class="ann">nginx.ingress.kubernetes.io/limit-rpm</span>: <span class="str">"1000"</span>       <span class="cm"># req/min</span>
+    <span class="ann">nginx.ingress.kubernetes.io/limit-connections</span>: <span class="str">"50"</span>  <span class="cm"># concurrent</span>
+
+    <span class="cm"># Burst allowance</span>
+    <span class="ann">nginx.ingress.kubernetes.io/limit-burst-multiplier</span>: <span class="str">"5"</span>
+
+    <span class="cm"># Whitelist IPs from rate limiting</span>
+    <span class="ann">nginx.ingress.kubernetes.io/limit-whitelist</span>: <span class="val">10.0.0.0/8</span>
+
+    <span class="cm"># Custom limit key (default is $binary_remote_addr)</span>
+    <span class="ann">nginx.ingress.kubernetes.io/limit-req-status-code</span>: <span class="str">"429"</span>
+
+    <span class="cm"># Global ConfigMap approach (preferred for shared limits)</span>
+    <span class="ann">nginx.ingress.kubernetes.io/global-rate-limit</span>: <span class="str">"100r/s"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/global-rate-limit-key</span>: <span class="str">"${remote_addr}"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/global-rate-limit-window</span>: <span class="str">"1s"</span></div>
+    </div>
+
+    <h3 class="subsection">Circuit Breaker Pattern</h3>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">circuit-breaker-snippet.yaml</span></div>
+      <div class="code-body"><span class="kw">metadata</span>:
+  <span class="kw">annotations</span>:
+    <span class="ann">nginx.ingress.kubernetes.io/upstream-vhost</span>: <span class="val">my-service</span>
+    <span class="ann">nginx.ingress.kubernetes.io/configuration-snippet</span>: |
+      <span class="cm"># Passive health checks (circuit breaker)</span>
+      proxy_next_upstream error timeout http_502 http_503;
+      proxy_next_upstream_tries 3;
+      proxy_next_upstream_timeout 10s;</div>
+    </div>
+  </section>
+
+  <!-- S28 -->
+  <section class="section" id="s28">
+    <div class="section-header">
+      <span class="section-num">28 /</span>
+      <div>
+        <div class="section-title">Canary Deployments with Ingress</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>NGINX Ingress supports canary deployments natively — route a percentage of traffic to a new version alongside the stable version.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">canary-ingress.yaml</span></div>
+      <div class="code-body"><span class="cm"># Main Ingress (stable - 90% traffic)</span>
+<span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Ingress</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">app-stable</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">app.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">app-stable-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">80</span> } }
+---
+<span class="cm"># Canary Ingress (v2 - 10% traffic by weight)</span>
+<span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Ingress</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">app-canary</span>
+  <span class="kw">annotations</span>:
+    <span class="ann">nginx.ingress.kubernetes.io/canary</span>: <span class="str">"true"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/canary-weight</span>: <span class="str">"10"</span>    <span class="cm"># 10%</span>
+    <span class="cm"># OR by header:</span>
+    <span class="ann">nginx.ingress.kubernetes.io/canary-by-header</span>: <span class="str">"X-Canary"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/canary-by-header-value</span>: <span class="str">"always"</span>
+    <span class="cm"># OR by cookie:</span>
+    <span class="ann">nginx.ingress.kubernetes.io/canary-by-cookie</span>: <span class="str">"canary"</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">app.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>: { <span class="kw">name</span>: <span class="val">app-v2-svc</span>, <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">80</span> } }</div>
+    </div>
+  </section>
+
+  <!-- S29 -->
+  <section class="section" id="s29">
+    <div class="section-header">
+      <span class="section-num">29 /</span>
+      <div>
+        <div class="section-title">IngressClass Resource</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>The <em>IngressClass</em> resource (stable since Kubernetes 1.19) replaces the deprecated <em>kubernetes.io/ingress.class</em> annotation. It decouples Ingress resources from controller implementations and supports controller-specific parameters.</p></div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">ingressclass.yaml</span></div>
+      <div class="code-body"><span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">IngressClass</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">nginx</span>
+  <span class="kw">annotations</span>:
+    <span class="ann">ingressclass.kubernetes.io/is-default-class</span>: <span class="str">"true"</span>  <span class="cm"># Optional default</span>
+<span class="kw">spec</span>:
+  <span class="kw">controller</span>: <span class="val">k8s.io/ingress-nginx</span>
+---
+<span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">IngressClass</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">nginx-internal</span>
+<span class="kw">spec</span>:
+  <span class="kw">controller</span>: <span class="val">k8s.io/ingress-nginx</span>
+  <span class="kw">parameters</span>:
+    <span class="kw">apiGroup</span>: <span class="val">k8s.example.com</span>
+    <span class="kw">kind</span>: <span class="val">IngressParameters</span>
+    <span class="kw">name</span>: <span class="val">internal-lb-config</span>
+---
+<span class="cm"># Multiple controllers in same cluster</span>
+<span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">IngressClass</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">alb</span>
+<span class="kw">spec</span>:
+  <span class="kw">controller</span>: <span class="val">ingress.k8s.aws/alb</span></div>
+    </div>
+  </section>
+
+  <!-- S30 -->
+  <section class="section" id="s30">
+    <div class="section-header">
+      <span class="section-num">30 /</span>
+      <div>
+        <div class="section-title">Multi-Tenant Ingress Architecture</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>Large organizations run multiple teams on shared clusters. Ingress isolation prevents teams from accidentally overriding each other's routing rules.</p></div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent)"></span>Shared Controller + Namespace Isolation</div>
+        <div class="card-body">One controller, teams own their Ingress resources. Use RBAC to restrict Ingress creation to specific namespaces. Risk: one bad annotation can affect all routes. Use <code>--watch-ingress-without-class=false</code>.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--accent3)"></span>Per-Team Controllers</div>
+        <div class="card-body">Each team has a dedicated Ingress Controller with its own IngressClass. Total isolation. Higher resource overhead. Use different external IPs or ports per controller via different LoadBalancer Services.</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">rbac-ingress.yaml</span></div>
+      <div class="code-body"><span class="cm"># Restrict team-a to only manage Ingress in team-a namespace</span>
+<span class="kw">apiVersion</span>: <span class="val">rbac.authorization.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Role</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">ingress-manager</span>
+  <span class="kw">namespace</span>: <span class="val">team-a</span>
+<span class="kw">rules</span>:
+  - <span class="kw">apiGroups</span>: [<span class="val">networking.k8s.io</span>]
+    <span class="kw">resources</span>: [<span class="val">ingresses</span>]
+    <span class="kw">verbs</span>: [<span class="val">get</span>, <span class="val">list</span>, <span class="val">watch</span>, <span class="val">create</span>, <span class="val">update</span>, <span class="val">patch</span>, <span class="val">delete</span>]
+  - <span class="kw">apiGroups</span>: [<span class="val">networking.k8s.io</span>]
+    <span class="kw">resources</span>: [<span class="val">ingressclasses</span>]
+    <span class="kw">verbs</span>: [<span class="val">get</span>, <span class="val">list</span>]     <span class="cm"># Read-only on IngressClass</span></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-divider"><div class="divider-line"></div><span class="divider-label">Operations</span><div class="divider-line"></div></div>
+
+  <!-- S31 -->
+  <section class="section" id="s31">
+    <div class="section-header">
+      <span class="section-num">31 /</span>
+      <div>
+        <div class="section-title">Monitoring & Metrics</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="prose"><p>NGINX Ingress exposes Prometheus metrics on port 10254. Key metrics to monitor in production:</p></div>
+
+    <table class="data-table">
+      <thead><tr><th>Metric</th><th>Type</th><th>Alert Threshold</th></tr></thead>
+      <tbody>
+        <tr><td><code>nginx_ingress_controller_requests</code></td><td>Counter</td><td>Error rate &gt; 1%</td></tr>
+        <tr><td><code>nginx_ingress_controller_request_duration_seconds</code></td><td>Histogram</td><td>p99 &gt; 2s</td></tr>
+        <tr><td><code>nginx_ingress_controller_response_size</code></td><td>Histogram</td><td>—</td></tr>
+        <tr><td><code>nginx_ingress_controller_connect_duration_seconds</code></td><td>Histogram</td><td>p99 &gt; 100ms</td></tr>
+        <tr><td><code>nginx_ingress_controller_ssl_expire_time_seconds</code></td><td>Gauge</td><td>Alert 30d before expiry</td></tr>
+        <tr><td><code>nginx_ingress_controller_config_last_reload_successful</code></td><td>Gauge</td><td>Alert on 0</td></tr>
+        <tr><td><code>nginx_ingress_controller_nginx_process_cpu_seconds_total</code></td><td>Counter</td><td>&gt;80% of limit</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">prometheus-alert.yaml</span></div>
+      <div class="code-body"><span class="kw">apiVersion</span>: <span class="val">monitoring.coreos.com/v1</span>
+<span class="kw">kind</span>: <span class="val">PrometheusRule</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">nginx-ingress-alerts</span>
+<span class="kw">spec</span>:
+  <span class="kw">groups</span>:
+    - <span class="kw">name</span>: <span class="val">nginx-ingress</span>
+      <span class="kw">rules</span>:
+        - <span class="kw">alert</span>: <span class="val">NginxHighErrorRate</span>
+          <span class="kw">expr</span>: |
+            sum(rate(nginx_ingress_controller_requests{status=~"5.."}[5m]))
+            / sum(rate(nginx_ingress_controller_requests[5m])) > 0.01
+          <span class="kw">for</span>: <span class="val">5m</span>
+          <span class="kw">labels</span>:
+            <span class="kw">severity</span>: <span class="val">critical</span>
+          <span class="kw">annotations</span>:
+            <span class="kw">summary</span>: <span class="str">"NGINX Ingress error rate above 1%"</span>
+        - <span class="kw">alert</span>: <span class="val">TLSCertExpiringSoon</span>
+          <span class="kw">expr</span>: |
+            avg(nginx_ingress_controller_ssl_expire_time_seconds) - time() < 2592000
+          <span class="kw">for</span>: <span class="val">1h</span>
+          <span class="kw">labels</span>:
+            <span class="kw">severity</span>: <span class="val">warning</span></div>
+    </div>
+  </section>
+
+  <!-- S32 -->
+  <section class="section" id="s32">
+    <div class="section-header">
+      <span class="section-num">32 /</span>
+      <div>
+        <div class="section-title">Troubleshooting Guide</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <h3 class="subsection">Common Issues & Fixes</h3>
+
+    <table class="data-table">
+      <thead><tr><th>Symptom</th><th>Likely Cause</th><th>Diagnostic Command</th></tr></thead>
+      <tbody>
+        <tr><td>404 from Ingress</td><td>No matching rule, wrong pathType, missing Service</td><td><code>kubectl describe ingress &lt;name&gt;</code></td></tr>
+        <tr><td>502 Bad Gateway</td><td>Backend pod down, wrong Service port, readiness probe failing</td><td><code>kubectl logs -n ingress-nginx &lt;pod&gt;</code></td></tr>
+        <tr><td>503 Service Unavailable</td><td>No backend endpoints, zero replicas</td><td><code>kubectl get endpoints &lt;svc&gt;</code></td></tr>
+        <tr><td>SSL certificate error</td><td>Wrong secretName, cert not ready, wrong namespace</td><td><code>kubectl describe certificate &lt;name&gt;</code></td></tr>
+        <tr><td>Ingress not updating</td><td>Controller not watching namespace, IngressClass mismatch</td><td><code>kubectl get events -n ingress-nginx</code></td></tr>
+        <tr><td>LoadBalancer Pending (kubeadm)</td><td>No MetalLB or cloud LB provider</td><td><code>kubectl describe svc -n ingress-nginx</code></td></tr>
+        <tr><td>Client IP not preserved</td><td>externalTrafficPolicy not set to Local</td><td>Check headers in backend logs</td></tr>
+        <tr><td>Request timeout</td><td>proxy-read-timeout too low, slow backend</td><td>Check controller config annotations</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">BASH</span><span class="code-file">debug-commands.sh</span></div>
+      <div class="code-body"><span class="cm"># Check controller logs (last 100 lines)</span>
+kubectl logs -n ingress-nginx \
+  -l app.kubernetes.io/name=ingress-nginx \
+  --tail=100 --follow
+
+<span class="cm"># Check generated NGINX config</span>
+kubectl exec -n ingress-nginx \
+  $(kubectl get pod -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx \
+    -o jsonpath='{.items[0].metadata.name}') \
+  -- cat /etc/nginx/nginx.conf | grep -A 20 "server_name api.example.com"
+
+<span class="cm"># Test routing from inside cluster</span>
+kubectl run test --image=curlimages/curl --rm -it -- \
+  curl -H "Host: api.example.com" http://ingress-nginx-controller.ingress-nginx/
+
+<span class="cm"># Check cert-manager certificate status</span>
+kubectl get certificate -A
+kubectl describe certificaterequest -n production
+
+<span class="cm"># Check ACME challenge progress</span>
+kubectl get challenges -A
+kubectl describe challenge -n production &lt;challenge-name&gt;
+
+<span class="cm"># Verify backend endpoints exist</span>
+kubectl get endpoints my-service -n production
+
+<span class="cm"># Test TLS certificate</span>
+echo | openssl s_client -connect api.example.com:443 -servername api.example.com 2>/dev/null | \
+  openssl x509 -noout -dates -subject</div>
+    </div>
+  </section>
+
+  <!-- S33 -->
+  <section class="section" id="s33">
+    <div class="section-header">
+      <span class="section-num">33 /</span>
+      <div>
+        <div class="section-title">High Availability & Scaling</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">YAML</span><span class="code-file">ha-ingress.yaml</span></div>
+      <div class="code-body"><span class="cm"># PodDisruptionBudget — prevent all pods going down during node drain</span>
+<span class="kw">apiVersion</span>: <span class="val">policy/v1</span>
+<span class="kw">kind</span>: <span class="val">PodDisruptionBudget</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">ingress-nginx-pdb</span>
+  <span class="kw">namespace</span>: <span class="val">ingress-nginx</span>
+<span class="kw">spec</span>:
+  <span class="kw">minAvailable</span>: <span class="num">2</span>
+  <span class="kw">selector</span>:
+    <span class="kw">matchLabels</span>:
+      <span class="kw">app.kubernetes.io/name</span>: <span class="val">ingress-nginx</span>
+---
+<span class="cm"># HPA — auto-scale based on CPU</span>
+<span class="kw">apiVersion</span>: <span class="val">autoscaling/v2</span>
+<span class="kw">kind</span>: <span class="val">HorizontalPodAutoscaler</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">ingress-nginx-hpa</span>
+  <span class="kw">namespace</span>: <span class="val">ingress-nginx</span>
+<span class="kw">spec</span>:
+  <span class="kw">scaleTargetRef</span>:
+    <span class="kw">apiVersion</span>: <span class="val">apps/v1</span>
+    <span class="kw">kind</span>: <span class="val">Deployment</span>
+    <span class="kw">name</span>: <span class="val">ingress-nginx-controller</span>
+  <span class="kw">minReplicas</span>: <span class="num">3</span>
+  <span class="kw">maxReplicas</span>: <span class="num">15</span>
+  <span class="kw">metrics</span>:
+    - <span class="kw">type</span>: <span class="val">Resource</span>
+      <span class="kw">resource</span>:
+        <span class="kw">name</span>: <span class="val">cpu</span>
+        <span class="kw">target</span>:
+          <span class="kw">type</span>: <span class="val">Utilization</span>
+          <span class="kw">averageUtilization</span>: <span class="num">70</span>
+    - <span class="kw">type</span>: <span class="val">Pods</span>
+      <span class="kw">pods</span>:
+        <span class="kw">metric</span>:
+          <span class="kw">name</span>: <span class="val">nginx_ingress_controller_nginx_process_connections</span>
+        <span class="kw">target</span>:
+          <span class="kw">type</span>: <span class="val">AverageValue</span>
+          <span class="kw">averageValue</span>: <span class="num">1000</span></div>
+    </div>
+
+    <div class="callout callout-tip">
+      <span class="callout-icon">✦</span>
+      <div><strong>Graceful shutdown:</strong> Set <code>controller.lifecycle.preStop</code> with a sleep to allow in-flight connections to complete before pod termination. Set <code>terminationGracePeriodSeconds: 300</code> on the controller pods for long-lived WebSocket connections.</div>
+    </div>
+  </section>
+
+  <!-- S34 -->
+  <section class="section" id="s34">
+    <div class="section-header">
+      <span class="section-num">34 /</span>
+      <div>
+        <div class="section-title">Migration Strategies</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <h3 class="subsection">kubeadm → EKS Migration</h3>
+    <ol class="step-list">
+      <li class="step-item"><div class="step-num">1</div><div class="step-content"><div class="step-title">Install AWS LBC on EKS</div><div class="step-desc">Deploy the controller with IRSA. Create IngressClass <code>alb</code>. Keep existing NGINX with its own IngressClass.</div></div></li>
+      <li class="step-item"><div class="step-num">2</div><div class="step-content"><div class="step-title">Duplicate Ingress Resources</div><div class="step-desc">Create copies of Ingress manifests targeting <code>ingressClassName: alb</code>. Use different ALB-specific annotations.</div></div></li>
+      <li class="step-item"><div class="step-num">3</div><div class="step-content"><div class="step-title">DNS Cutover with Low TTL</div><div class="step-desc">Set DNS TTL to 60s 24h before cutover. Switch CNAME/A record to ALB DNS name. Both controllers running simultaneously.</div></div></li>
+      <li class="step-item"><div class="step-num">4</div><div class="step-content"><div class="step-title">Remove NGINX</div><div class="step-desc">After validating ALB traffic, delete NGINX Ingress resources and uninstall the controller.</div></div></li>
+    </ol>
+
+    <h3 class="subsection">NGINX → Traefik Migration (Zero Downtime)</h3>
+    <div class="callout callout-info">
+      <span class="callout-icon">ℹ</span>
+      <div>Deploy Traefik with a <strong>different IngressClass</strong> and <strong>separate LoadBalancer Service</strong> (different external IP). Migrate routes one by one by updating <em>ingressClassName</em> on each Ingress. Use weighted DNS to gradually shift traffic. Rollback is instant — just repoint DNS.</div>
+    </div>
+  </section>
+
+  <!-- S35 -->
+  <section class="section" id="s35">
+    <div class="section-header">
+      <span class="section-num">35 /</span>
+      <div>
+        <div class="section-title">Best Practices Cheatsheet</div>
+        <span class="section-badge sb-all">All Platforms</span>
+      </div>
+    </div>
+
+    <div class="card-grid card-grid-2">
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--green)"></span>Always Do</div>
+        <div class="card-body" style="font-size:12.5px;line-height:2;">
+          ✓ Set resource requests and limits on controller pods<br>
+          ✓ Use PodDisruptionBudget (minAvailable: 2+)<br>
+          ✓ Set externalTrafficPolicy: Local for client IP<br>
+          ✓ Use cert-manager for automated TLS<br>
+          ✓ Enable Prometheus metrics + alerting<br>
+          ✓ Use IngressClass (not annotation)<br>
+          ✓ Set terminationGracePeriodSeconds ≥ 60<br>
+          ✓ Pin controller Helm chart versions<br>
+          ✓ Use anti-affinity to spread controller replicas<br>
+          ✓ Test routing before DNS cutover
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot" style="background:var(--red)"></span>Never Do</div>
+        <div class="card-body" style="font-size:12.5px;line-height:2;">
+          ✗ Run single-replica Ingress Controller in production<br>
+          ✗ Use NodePort 80/443 (conflicts with node services)<br>
+          ✗ Store TLS private keys in ConfigMaps<br>
+          ✗ Use wildcard <code>*</code> host without proper defaults<br>
+          ✗ Ignore 503 errors on controller restart<br>
+          ✗ Use <code>configuration-snippet</code> from untrusted input<br>
+          ✗ Mix deprecated annotation class with IngressClass<br>
+          ✗ Skip readiness probes on backends<br>
+          ✗ Set proxy-read-timeout &lt; 60s for async APIs<br>
+          ✗ Run controller as root (use securityContext)
+        </div>
+      </div>
+    </div>
+
+    <h3 class="subsection">Platform Quick Reference</h3>
+    <div class="compare-grid">
+      <div class="compare-cell compare-header" style="color:var(--text3);font-size:11px;font-weight:700;letter-spacing:0.1em;">Feature</div>
+      <div class="compare-cell compare-header" style="color:var(--aws);">AWS EKS</div>
+      <div class="compare-cell compare-header" style="color:var(--azure);">Azure AKS</div>
+
+      <div class="compare-cell"><div class="compare-label">Preferred Controller</div></div>
+      <div class="compare-cell"><div class="compare-value">AWS LBC (ALB) or ingress-nginx</div></div>
+      <div class="compare-cell"><div class="compare-value">AGIC or ingress-nginx</div></div>
+
+      <div class="compare-cell"><div class="compare-label">Auth Method</div></div>
+      <div class="compare-cell"><div class="compare-value">IRSA (OIDC federation)</div></div>
+      <div class="compare-cell"><div class="compare-value">Workload Identity (OIDC)</div></div>
+
+      <div class="compare-cell"><div class="compare-label">TLS Certs</div></div>
+      <div class="compare-cell"><div class="compare-value">ACM (ALB) or cert-manager</div></div>
+      <div class="compare-cell"><div class="compare-value">Key Vault + cert-manager</div></div>
+
+      <div class="compare-cell"><div class="compare-label">WAF</div></div>
+      <div class="compare-cell"><div class="compare-value">AWS WAFv2 annotation on ALB</div></div>
+      <div class="compare-cell"><div class="compare-value">App Gateway WAF policy</div></div>
+
+      <div class="compare-cell"><div class="compare-label">DNS Automation</div></div>
+      <div class="compare-cell"><div class="compare-value">ExternalDNS + Route53</div></div>
+      <div class="compare-cell"><div class="compare-value">ExternalDNS + Azure DNS</div></div>
+
+      <div class="compare-cell"><div class="compare-label">Private Cluster</div></div>
+      <div class="compare-cell"><div class="compare-value">Internal ALB annotation</div></div>
+      <div class="compare-cell"><div class="compare-value">Internal LB annotation</div></div>
+    </div>
+
+    <div class="anno-bar">
+      <div class="anno-bar-strip green"></div>
+      <div class="anno-bar-body">
+        <div class="anno-bar-label">Key Takeaway</div>
+        <div class="anno-bar-text">The <strong>Ingress Controller</strong> is the most operationally significant component in a Kubernetes cluster's network path. Invest in understanding its configuration, monitoring its health, and testing its behavior under load. Every HTTP request your users make passes through it.</div>
+      </div>
+    </div>
+
+    <div class="tag-list">
+      <span class="tag-pill">ingress-nginx</span>
+      <span class="tag-pill">cert-manager</span>
+      <span class="tag-pill">MetalLB</span>
+      <span class="tag-pill">IRSA</span>
+      <span class="tag-pill">AGIC</span>
+      <span class="tag-pill">AWS ALB</span>
+      <span class="tag-pill">IngressClass</span>
+      <span class="tag-pill">TLS termination</span>
+      <span class="tag-pill">canary</span>
+      <span class="tag-pill">rate-limiting</span>
+      <span class="tag-pill">mTLS</span>
+      <span class="tag-pill">WAFv2</span>
+      <span class="tag-pill">Let's Encrypt</span>
+      <span class="tag-pill">DNS-01</span>
+      <span class="tag-pill">PodDisruptionBudget</span>
+      <span class="tag-pill">HPA</span>
+      <span class="tag-pill">Prometheus</span>
+      <span class="tag-pill">kubeadm</span>
+      <span class="tag-pill">EKS</span>
+      <span class="tag-pill">AKS</span>
+    </div>
+  </section>
+
+  <div class="canvas-footer">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <span>K8s Ingress Controller Master Canvas — 35 Sections</span>
+      <span style="color:var(--border2);">kubeadm · AWS EKS · Azure AKS · cert-manager · ingress-nginx · AGIC · AWS LBC</span>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// Progress bar
+const main = document.getElementById('main');
+const fill = document.getElementById('progress');
+main.addEventListener('scroll', () => {
+  const pct = main.scrollTop / (main.scrollHeight - main.clientHeight) * 100;
+  fill.style.width = Math.min(pct, 100) + '%';
+});
+
+// Active nav highlight
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-item[href^="#"]');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = '#' + entry.target.id;
+      navItems.forEach(item => {
+        item.classList.toggle('active', item.getAttribute('href') === id);
+      });
+    }
+  });
+}, { root: main, threshold: 0.3 });
+
+sections.forEach(s => observer.observe(s));
+
+// Smooth scroll on nav click
+navItems.forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(item.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+</body>
+</html>

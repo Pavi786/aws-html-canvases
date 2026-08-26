@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LINUX 300+ COMMANDS + SSH ULTRA DEEP DIVE — ULTRAMAN MASTER GUIDE</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red:#FF1A1A; --silver:#C8D8E8; --gold:#FFD700; --blue:#00AAFF;
+  --green:#00FF88; --purple:#BB66FF; --orange:#FF8800;
+  --dark:#050A14; --panel:#0A1428; --panel2:#0D1A30;
+  --ssh:#DD88FF; --ssh-dim:rgba(187,102,255,0.12);
+  --teal:#00FFD4; --pink:#FF6CA8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);font-family:'Rajdhani',sans-serif;color:var(--silver);overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,170,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,170,255,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* SCAN */
+.scan{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--blue),transparent);animation:scanh 3s linear infinite;z-index:99;opacity:0.5;}
+@keyframes scanh{0%{top:-10px}100%{top:100%}}
+
+.wrap{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:20px;}
+
+/* HERO */
+.hero{text-align:center;padding:30px 0 16px;}
+.title{font-family:'Black Ops One',cursive;font-size:clamp(20px,4.5vw,48px);background:linear-gradient(135deg,#FF1A1A,#FFD700,#00AAFF,#DD88FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;letter-spacing:2px;}
+.subtitle{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--blue);letter-spacing:4px;margin-top:6px;opacity:.8;}
+.badge-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0;}
+.badge{font-family:'Black Ops One',cursive;font-size:10px;padding:5px 14px;letter-spacing:2px;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);}
+.badge.red{background:var(--red);color:#fff;}
+.badge.gold{background:var(--gold);color:var(--dark);}
+.badge.blue{background:var(--blue);color:var(--dark);}
+.badge.green{background:var(--green);color:var(--dark);}
+.badge.purple{background:var(--purple);color:#fff;}
+.badge.teal{background:var(--teal);color:var(--dark);}
+
+/* SEARCH */
+.search-bar{display:flex;gap:10px;margin:16px 0;align-items:center;}
+.search-bar input{flex:1;background:var(--panel);border:1px solid rgba(0,170,255,0.3);border-radius:4px;padding:10px 16px;color:var(--silver);font-family:'Share Tech Mono',monospace;font-size:13px;outline:none;transition:border .2s;}
+.search-bar input:focus{border-color:var(--blue);box-shadow:0 0 12px rgba(0,170,255,0.2);}
+.search-bar input::placeholder{color:rgba(200,216,232,0.3);}
+.count-badge{font-family:'Share Tech Mono',monospace;font-size:11px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);padding:8px 16px;border-radius:4px;white-space:nowrap;}
+
+/* FILTER TABS */
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;}
+.ftab{font-family:'Share Tech Mono',monospace;font-size:10px;padding:5px 12px;border-radius:2px;cursor:pointer;border:1px solid rgba(0,170,255,0.2);background:var(--panel);color:rgba(200,216,232,0.5);letter-spacing:1px;transition:all .15s;}
+.ftab:hover,.ftab.active{background:rgba(0,170,255,0.15);color:var(--blue);border-color:var(--blue);}
+.ftab.active{box-shadow:0 0 8px rgba(0,170,255,0.2);}
+
+/* SECTION */
+.section{margin-bottom:28px;}
+.sec-head{font-family:'Black Ops One',cursive;font-size:15px;padding:10px 16px;margin-bottom:2px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;border-radius:4px 4px 0 0;}
+.sec-head::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.sec-head .sec-count{font-family:'Share Tech Mono',monospace;font-size:10px;padding:3px 10px;border-radius:2px;margin-left:auto;}
+
+/* Category color themes */
+.cat-fs .sec-head{background:rgba(0,170,255,0.1);color:var(--blue);}
+.cat-fs .sec-head::after{background:var(--blue);}
+.cat-fs .sec-head .sec-count{background:rgba(0,170,255,0.2);color:var(--blue);}
+.cat-fs .cmd-tag{color:var(--blue);}
+.cat-proc .sec-head{background:rgba(255,26,26,0.1);color:var(--red);}
+.cat-proc .sec-head::after{background:var(--red);}
+.cat-proc .sec-head .sec-count{background:rgba(255,26,26,0.2);color:var(--red);}
+.cat-proc .cmd-tag{color:var(--red);}
+.cat-net .sec-head{background:rgba(0,255,136,0.08);color:var(--green);}
+.cat-net .sec-head::after{background:var(--green);}
+.cat-net .sec-head .sec-count{background:rgba(0,255,136,0.15);color:var(--green);}
+.cat-net .cmd-tag{color:var(--green);}
+.cat-sys .sec-head{background:rgba(255,215,0,0.08);color:var(--gold);}
+.cat-sys .sec-head::after{background:var(--gold);}
+.cat-sys .sec-head .sec-count{background:rgba(255,215,0,0.15);color:var(--gold);}
+.cat-sys .cmd-tag{color:var(--gold);}
+.cat-txt .sec-head{background:rgba(187,102,255,0.1);color:var(--purple);}
+.cat-txt .sec-head::after{background:var(--purple);}
+.cat-txt .sec-head .sec-count{background:rgba(187,102,255,0.2);color:var(--purple);}
+.cat-txt .cmd-tag{color:var(--purple);}
+.cat-arc .sec-head{background:rgba(255,136,0,0.1);color:var(--orange);}
+.cat-arc .sec-head::after{background:var(--orange);}
+.cat-arc .sec-head .sec-count{background:rgba(255,136,0,0.2);color:var(--orange);}
+.cat-arc .cmd-tag{color:var(--orange);}
+.cat-usr .sec-head{background:rgba(0,170,255,0.08);color:#44CCFF;}
+.cat-usr .sec-head::after{background:#44CCFF;}
+.cat-usr .cmd-tag{color:#44CCFF;}
+.cat-perm .sec-head{background:rgba(255,26,26,0.08);color:#FF6688;}
+.cat-perm .sec-head::after{background:#FF6688;}
+.cat-perm .cmd-tag{color:#FF6688;}
+.cat-disk .sec-head{background:rgba(255,215,0,0.06);color:#FFAA44;}
+.cat-disk .sec-head::after{background:#FFAA44;}
+.cat-disk .cmd-tag{color:#FFAA44;}
+.cat-mon .sec-head{background:rgba(0,255,136,0.06);color:#44FFAA;}
+.cat-mon .sec-head::after{background:#44FFAA;}
+.cat-mon .cmd-tag{color:#44FFAA;}
+.cat-ssh .sec-head{background:rgba(187,102,255,0.12);color:#DD88FF;}
+.cat-ssh .sec-head::after{background:#DD88FF;}
+.cat-ssh .sec-head .sec-count{background:rgba(187,102,255,0.2);color:#DD88FF;}
+.cat-ssh .cmd-tag{color:#DD88FF;}
+.cat-pkg .sec-head{background:rgba(255,136,0,0.08);color:#FFBB55;}
+.cat-pkg .sec-head::after{background:#FFBB55;}
+.cat-pkg .cmd-tag{color:#FFBB55;}
+.cat-find .sec-head{background:rgba(0,170,255,0.06);color:#66DDFF;}
+.cat-find .sec-head::after{background:#66DDFF;}
+.cat-find .cmd-tag{color:#66DDFF;}
+.cat-env .sec-head{background:rgba(255,215,0,0.06);color:#EEcc44;}
+.cat-env .sec-head::after{background:#EEcc44;}
+.cat-env .cmd-tag{color:#EEcc44;}
+.cat-svc .sec-head{background:rgba(0,255,136,0.06);color:#55EEBB;}
+.cat-svc .sec-head::after{background:#55EEBB;}
+.cat-svc .cmd-tag{color:#55EEBB;}
+
+/* COMMAND TABLE */
+.cmd-table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid rgba(255,255,255,0.05);}
+.cmd-table tr{border-bottom:1px solid rgba(255,255,255,0.04);transition:background .1s;}
+.cmd-table tr:hover{background:rgba(0,170,255,0.04);}
+.cmd-table td{padding:8px 12px;vertical-align:top;}
+.cmd-table td:first-child{width:36%;}
+.cmd-tag{font-family:'Share Tech Mono',monospace;font-size:12px;font-weight:700;white-space:pre-wrap;line-height:1.5;}
+.cmd-desc{font-size:13px;color:rgba(200,216,232,0.75);line-height:1.5;}
+.cmd-desc strong{color:var(--silver);font-weight:700;}
+
+/* HIDDEN */
+.section.hidden,.cmd-table tr.hidden{display:none;}
+
+/* FOOTER */
+.footer{text-align:center;font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(200,216,232,0.2);letter-spacing:3px;padding:24px 0 32px;border-top:1px solid rgba(255,255,255,0.04);margin-top:16px;}
+.footer span{color:var(--red);animation:blink 1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.no-results{text-align:center;padding:60px;font-family:'Share Tech Mono',monospace;color:rgba(200,216,232,0.2);display:none;}
+
+/* ================================================================
+   SSH DEEP DIVE STYLES — ULTRA ENHANCEMENT
+   ================================================================ */
+
+/* SSH sub-topic banner */
+.ssh-topic-banner{
+  font-family:'Black Ops One',cursive;
+  font-size:12px;
+  letter-spacing:3px;
+  padding:8px 16px;
+  margin:16px 0 0 0;
+  background:linear-gradient(90deg,rgba(187,102,255,0.2),rgba(187,102,255,0.05));
+  border-left:3px solid var(--ssh);
+  color:var(--ssh);
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.ssh-topic-banner .topic-num{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  background:rgba(187,102,255,0.3);
+  padding:2px 8px;
+  border-radius:2px;
+  color:#fff;
+}
+
+/* Layman explanation box */
+.layman-box{
+  background:rgba(0,255,212,0.04);
+  border:1px solid rgba(0,255,212,0.2);
+  border-left:3px solid var(--teal);
+  padding:14px 18px;
+  margin:0;
+  font-size:13px;
+  line-height:1.7;
+  color:rgba(200,216,232,0.85);
+}
+.layman-box .layman-label{
+  font-family:'Black Ops One',cursive;
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--teal);
+  margin-bottom:6px;
+  display:block;
+}
+.layman-box strong{color:var(--teal);}
+.layman-box em{color:var(--gold);font-style:normal;}
+
+/* SSH directory file tree */
+.ssh-tree-panel{
+  background:var(--panel);
+  border:1px solid rgba(187,102,255,0.2);
+  padding:0;
+  margin:0;
+}
+.ssh-tree-header{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  padding:8px 16px;
+  background:rgba(187,102,255,0.1);
+  color:var(--ssh);
+  letter-spacing:2px;
+  border-bottom:1px solid rgba(187,102,255,0.2);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.tree-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.tree-dot.r{background:#FF5F57;}
+.tree-dot.y{background:#FEBC2E;}
+.tree-dot.g{background:#28C840;}
+
+.ssh-tree-body{
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+  padding:16px 20px;
+  line-height:2;
+}
+.tree-dir{color:var(--ssh);}
+.tree-item{cursor:pointer;transition:color .15s;display:flex;align-items:flex-start;gap:0;}
+.tree-item:hover .tree-name{color:var(--gold);}
+.tree-branch{color:rgba(187,102,255,0.3);}
+.tree-name{color:var(--silver);}
+.tree-name.key{color:#FF8888;}
+.tree-name.pub{color:var(--green);}
+.tree-name.auth{color:var(--gold);}
+.tree-name.known{color:var(--blue);}
+.tree-name.cfg{color:var(--teal);}
+.tree-comment{color:rgba(200,216,232,0.3);font-size:10px;margin-left:8px;}
+
+/* SSH file card */
+.ssh-file-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:0;border:1px solid rgba(187,102,255,0.15);}
+.ssh-file-card{
+  background:var(--panel);
+  border:1px solid rgba(187,102,255,0.1);
+  padding:16px;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  position:relative;
+  overflow:hidden;
+}
+.ssh-file-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;
+  height:2px;
+}
+.ssh-file-card.pvt::before{background:var(--red);}
+.ssh-file-card.pub::before{background:var(--green);}
+.ssh-file-card.auth::before{background:var(--gold);}
+.ssh-file-card.known::before{background:var(--blue);}
+.ssh-file-card.cfg::before{background:var(--teal);}
+
+.card-filename{
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.card-filename.pvt{color:var(--red);}
+.card-filename.pub{color:var(--green);}
+.card-filename.auth{color:var(--gold);}
+.card-filename.known{color:var(--blue);}
+.card-filename.cfg{color:var(--teal);}
+
+.card-path{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  color:rgba(200,216,232,0.3);
+  margin-bottom:10px;
+}
+.card-title{
+  font-family:'Black Ops One',cursive;
+  font-size:11px;
+  color:var(--silver);
+  margin-bottom:8px;
+  letter-spacing:1px;
+}
+.card-desc{
+  font-size:12px;
+  color:rgba(200,216,232,0.7);
+  line-height:1.6;
+  margin-bottom:10px;
+}
+.card-analogy{
+  font-size:11px;
+  color:var(--teal);
+  background:rgba(0,255,212,0.05);
+  border-left:2px solid var(--teal);
+  padding:6px 10px;
+  margin-bottom:10px;
+  line-height:1.5;
+}
+.card-perm{
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:3px 10px;
+  border-radius:2px;
+  margin-right:6px;
+}
+.card-perm.danger{background:rgba(255,26,26,0.1);border:1px solid rgba(255,26,26,0.3);color:var(--red);}
+.card-perm.ok{background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);}
+.card-perm.warn{background:rgba(255,215,0,0.1);border:1px solid rgba(255,215,0,0.3);color:var(--gold);}
+
+/* Config viewer */
+.config-viewer{
+  background:#04080F;
+  border:1px solid rgba(187,102,255,0.2);
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  overflow:hidden;
+}
+.config-viewer-header{
+  background:rgba(187,102,255,0.15);
+  padding:8px 16px;
+  color:var(--ssh);
+  font-size:10px;
+  letter-spacing:2px;
+  border-bottom:1px solid rgba(187,102,255,0.2);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.config-viewer-header .file-path{color:rgba(200,216,232,0.5);font-size:9px;}
+.config-line{
+  display:grid;
+  grid-template-columns:18px 1fr;
+  padding:3px 0;
+  border-bottom:1px solid rgba(255,255,255,0.02);
+  align-items:start;
+}
+.config-line:hover{background:rgba(187,102,255,0.04);}
+.config-line-num{
+  color:rgba(200,216,232,0.2);
+  font-size:10px;
+  padding:0 8px 0 10px;
+  text-align:right;
+  min-width:36px;
+  user-select:none;
+  margin-top:1px;
+}
+.config-line-content{padding:0 16px 0 8px;}
+.config-comment{color:rgba(100,180,100,0.6);}
+.config-key{color:#FF8888;}
+.config-val{color:var(--teal);}
+.config-val.num{color:var(--gold);}
+.config-val.yn{color:var(--blue);}
+.config-val.path{color:#FFAA55;}
+.config-val.yn.no{color:var(--red);}
+
+/* Config directive explanation table */
+.config-explain-table{
+  width:100%;
+  border-collapse:collapse;
+  background:var(--panel);
+  border:1px solid rgba(255,255,255,0.05);
+}
+.config-explain-table tr{border-bottom:1px solid rgba(255,255,255,0.04);}
+.config-explain-table tr:hover{background:rgba(187,102,255,0.04);}
+.config-explain-table td{padding:9px 12px;vertical-align:top;}
+.config-explain-table td:first-child{width:32%;font-family:'Share Tech Mono',monospace;font-size:11px;}
+.config-explain-table td:nth-child(2){width:18%;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--teal);}
+.config-explain-table td:last-child{font-size:12px;color:rgba(200,216,232,0.75);line-height:1.5;}
+
+/* Port forwarding diagrams */
+.tunnel-panel{
+  background:var(--panel);
+  border:1px solid rgba(0,255,212,0.15);
+  padding:0;
+  overflow:hidden;
+}
+.tunnel-header{
+  font-family:'Black Ops One',cursive;
+  font-size:11px;
+  letter-spacing:2px;
+  padding:8px 16px;
+  background:rgba(0,255,212,0.08);
+  color:var(--teal);
+  border-bottom:1px solid rgba(0,255,212,0.15);
+}
+.tunnel-body{padding:16px;}
+.tunnel-diagram{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:rgba(200,216,232,0.6);
+  background:rgba(0,0,0,0.3);
+  padding:12px 16px;
+  margin-bottom:10px;
+  line-height:1.8;
+  border-radius:2px;
+  white-space:pre;
+  overflow-x:auto;
+}
+.tunnel-diagram .t-blue{color:var(--blue);}
+.tunnel-diagram .t-green{color:var(--green);}
+.tunnel-diagram .t-gold{color:var(--gold);}
+.tunnel-diagram .t-red{color:var(--red);}
+.tunnel-desc{font-size:12px;color:rgba(200,216,232,0.75);line-height:1.6;margin-bottom:8px;}
+.tunnel-cmd{
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px;
+  color:var(--ssh);
+  background:rgba(187,102,255,0.08);
+  border:1px solid rgba(187,102,255,0.2);
+  padding:8px 14px;
+  margin-bottom:6px;
+  border-radius:2px;
+}
+
+/* SSH warning / tip boxes */
+.ssh-warn{
+  background:rgba(255,26,26,0.05);
+  border:1px solid rgba(255,26,26,0.3);
+  border-left:3px solid var(--red);
+  padding:10px 14px;
+  margin:0;
+  font-size:12px;
+  color:rgba(200,216,232,0.8);
+  line-height:1.6;
+}
+.ssh-warn .warn-label{
+  font-family:'Black Ops One',cursive;
+  font-size:9px;
+  letter-spacing:2px;
+  color:var(--red);
+  margin-bottom:4px;
+  display:block;
+}
+.ssh-tip{
+  background:rgba(0,255,136,0.04);
+  border:1px solid rgba(0,255,136,0.2);
+  border-left:3px solid var(--green);
+  padding:10px 14px;
+  margin:0;
+  font-size:12px;
+  color:rgba(200,216,232,0.8);
+  line-height:1.6;
+}
+.ssh-tip .tip-label{
+  font-family:'Black Ops One',cursive;
+  font-size:9px;
+  letter-spacing:2px;
+  color:var(--green);
+  margin-bottom:4px;
+  display:block;
+}
+
+/* SSH how-it-works flow */
+.flow-steps{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:0;
+  border:1px solid rgba(187,102,255,0.15);
+}
+.flow-step{
+  background:var(--panel);
+  padding:14px;
+  border-right:1px solid rgba(187,102,255,0.1);
+  border-bottom:1px solid rgba(187,102,255,0.1);
+  position:relative;
+}
+.flow-step-num{
+  font-family:'Black Ops One',cursive;
+  font-size:22px;
+  color:rgba(187,102,255,0.2);
+  position:absolute;
+  top:8px;right:12px;
+}
+.flow-step-title{
+  font-family:'Black Ops One',cursive;
+  font-size:11px;
+  color:var(--ssh);
+  margin-bottom:6px;
+  letter-spacing:1px;
+}
+.flow-step-desc{
+  font-size:11px;
+  color:rgba(200,216,232,0.65);
+  line-height:1.5;
+}
+
+/* Section spacer */
+.ssh-spacer{height:2px;background:linear-gradient(90deg,var(--ssh),transparent);margin:0;}
+
+/* Two col grid for panels */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+@media(max-width:700px){.two-col{grid-template-columns:1fr;}.ssh-file-cards{grid-template-columns:1fr;}.flow-steps{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<div class="scan"></div>
+<div class="wrap">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="title">LINUX 300+ COMMANDS<br>+ SSH ULTRA DEEP DIVE BIBLE</div>
+  <div class="subtitle">⚡ DEVOPS COMBAT EDITION — SSH MASTERY SPECIAL — BUDDY ULTRA ⚡</div>
+  <div class="badge-row">
+    <div class="badge red">350+ COMMANDS</div>
+    <div class="badge gold">15 CATEGORIES</div>
+    <div class="badge blue">SSH DEEP DIVE</div>
+    <div class="badge green">CONFIG FILES</div>
+    <div class="badge purple">LAYMAN WAY</div>
+    <div class="badge teal">PORT TUNNELS</div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="search-bar">
+  <input type="text" id="searchInput" placeholder="⚡ Search any command, flag or description... (e.g. ssh, sshd_config, authorized_keys, tunnel)">
+  <div class="count-badge" id="countBadge">350+ CMDS</div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters" id="filterBar">
+  <div class="ftab active" data-cat="all">ALL</div>
+  <div class="ftab" data-cat="fs">📁 FILE SYSTEM</div>
+  <div class="ftab" data-cat="proc">⚙️ PROCESS</div>
+  <div class="ftab" data-cat="net">🌐 NETWORK</div>
+  <div class="ftab" data-cat="sys">💻 SYSTEM INFO</div>
+  <div class="ftab" data-cat="txt">📝 TEXT OPS</div>
+  <div class="ftab" data-cat="arc">📦 ARCHIVE</div>
+  <div class="ftab" data-cat="disk">💾 DISK</div>
+  <div class="ftab" data-cat="mon">📊 MONITORING</div>
+  <div class="ftab" data-cat="perm">🔒 PERMISSIONS</div>
+  <div class="ftab" data-cat="usr">👤 USER/GROUP</div>
+  <div class="ftab" data-cat="ssh">🔐 SSH ULTRA</div>
+  <div class="ftab" data-cat="pkg">📥 PACKAGE</div>
+  <div class="ftab" data-cat="find">🔍 FIND/LOCATE</div>
+  <div class="ftab" data-cat="env">🌿 ENV/SHELL</div>
+  <div class="ftab" data-cat="svc">🚀 SERVICES</div>
+</div>
+
+<div id="noResults" class="no-results">⚡ NO COMMANDS FOUND — TRY ANOTHER SEARCH ⚡</div>
+
+<!-- =================== FILE SYSTEM =================== -->
+<div class="section cat-fs" data-cat="fs">
+<div class="sec-head">📁 FILE SYSTEM &amp; NAVIGATION<div class="sec-count">28 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ls</span></td><td><span class="cmd-desc">Basic directory listing</span></td></tr>
+<tr><td><span class="cmd-tag">ls -l</span></td><td><span class="cmd-desc">Long format: permissions, owner, size, date</span></td></tr>
+<tr><td><span class="cmd-tag">ls -la</span></td><td><span class="cmd-desc">Long format including hidden files (dotfiles)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lh</span></td><td><span class="cmd-desc">Long format with human-readable sizes (KB, MB)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lt</span></td><td><span class="cmd-desc">Sort by modification time (newest first)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -lS</span></td><td><span class="cmd-desc">Sort by file size (largest first)</span></td></tr>
+<tr><td><span class="cmd-tag">ls -d */</span></td><td><span class="cmd-desc">List only directories in current path</span></td></tr>
+<tr><td><span class="cmd-tag">ls -R</span></td><td><span class="cmd-desc">Recursive listing of all subdirectories</span></td></tr>
+<tr><td><span class="cmd-tag">pwd</span></td><td><span class="cmd-desc">Print current working directory (where am I?)</span></td></tr>
+<tr><td><span class="cmd-tag">cd /path</span></td><td><span class="cmd-desc">Change to absolute path</span></td></tr>
+<tr><td><span class="cmd-tag">cd ~</span></td><td><span class="cmd-desc">Go to home directory</span></td></tr>
+<tr><td><span class="cmd-tag">cd -</span></td><td><span class="cmd-desc">Go to previous directory (toggle back)</span></td></tr>
+<tr><td><span class="cmd-tag">cd ../.. </span></td><td><span class="cmd-desc">Go up two directory levels</span></td></tr>
+<tr><td><span class="cmd-tag">mkdir -p /a/b/c</span></td><td><span class="cmd-desc">Create nested directories in one shot</span></td></tr>
+<tr><td><span class="cmd-tag">cp -r /src /dst</span></td><td><span class="cmd-desc">Copy directory recursively</span></td></tr>
+<tr><td><span class="cmd-tag">cp -p file dst</span></td><td><span class="cmd-desc">Copy preserving permissions, timestamps, owner</span></td></tr>
+<tr><td><span class="cmd-tag">cp -av /src /dst</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Archive copy with verbose output</span></td></tr>
+<tr><td><span class="cmd-tag">mv src dst</span></td><td><span class="cmd-desc">Move or rename file/directory</span></td></tr>
+<tr><td><span class="cmd-tag">mv -n src dst</span></td><td><span class="cmd-desc">Move — never overwrite existing files</span></td></tr>
+<tr><td><span class="cmd-tag">rm -rf /path</span></td><td><span class="cmd-desc"><strong>DANGER:</strong> Force delete directory recursively (no undo!)</span></td></tr>
+<tr><td><span class="cmd-tag">rm -i file</span></td><td><span class="cmd-desc">Interactive delete — asks before each removal</span></td></tr>
+<tr><td><span class="cmd-tag">touch file</span></td><td><span class="cmd-desc">Create empty file or update timestamps</span></td></tr>
+<tr><td><span class="cmd-tag">touch -t 202401010000 f</span></td><td><span class="cmd-desc">Set specific timestamp on file (YYYYMMDDHHMM)</span></td></tr>
+<tr><td><span class="cmd-tag">ln -s /target link</span></td><td><span class="cmd-desc">Create symbolic (soft) link</span></td></tr>
+<tr><td><span class="cmd-tag">ln /file hardlink</span></td><td><span class="cmd-desc">Create hard link (shares inode with original)</span></td></tr>
+<tr><td><span class="cmd-tag">readlink -f /link</span></td><td><span class="cmd-desc">Show the full real path a symlink points to</span></td></tr>
+<tr><td><span class="cmd-tag">tree -L 2</span></td><td><span class="cmd-desc">Visual directory tree, 2 levels deep</span></td></tr>
+<tr><td><span class="cmd-tag">file myfile</span></td><td><span class="cmd-desc">Detect file type (binary, text, image, etc.)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== PROCESS =================== -->
+<div class="section cat-proc" data-cat="proc">
+<div class="sec-head">⚙️ PROCESS MANAGEMENT<div class="sec-count">30 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ps aux</span></td><td><span class="cmd-desc">Show ALL running processes with CPU/MEM usage</span></td></tr>
+<tr><td><span class="cmd-tag">ps aux | grep nginx</span></td><td><span class="cmd-desc">Find specific process by name</span></td></tr>
+<tr><td><span class="cmd-tag">ps -ef</span></td><td><span class="cmd-desc">Full-format listing: PPID, CMD, etc.</span></td></tr>
+<tr><td><span class="cmd-tag">ps -p 1234 -o pid,cmd,%cpu</span></td><td><span class="cmd-desc">Show specific PID with custom columns</span></td></tr>
+<tr><td><span class="cmd-tag">ps --forest</span></td><td><span class="cmd-desc">Show process tree with parent-child hierarchy</span></td></tr>
+<tr><td><span class="cmd-tag">pstree -p</span></td><td><span class="cmd-desc">Visual tree of processes with PIDs</span></td></tr>
+<tr><td><span class="cmd-tag">pgrep nginx</span></td><td><span class="cmd-desc">Get PID of process by name (no grep needed)</span></td></tr>
+<tr><td><span class="cmd-tag">pgrep -u root</span></td><td><span class="cmd-desc">Find all processes owned by root</span></td></tr>
+<tr><td><span class="cmd-tag">pidof apache2</span></td><td><span class="cmd-desc">Get PID(s) of running program</span></td></tr>
+<tr><td><span class="cmd-tag">kill PID</span></td><td><span class="cmd-desc">Send SIGTERM (graceful stop) to process</span></td></tr>
+<tr><td><span class="cmd-tag">kill -9 PID</span></td><td><span class="cmd-desc">Send SIGKILL (force kill) — immediate terminate</span></td></tr>
+<tr><td><span class="cmd-tag">kill -HUP PID</span></td><td><span class="cmd-desc">Send SIGHUP — reload config without restart</span></td></tr>
+<tr><td><span class="cmd-tag">killall nginx</span></td><td><span class="cmd-desc">Kill all processes with given name</span></td></tr>
+<tr><td><span class="cmd-tag">pkill -f "python script"</span></td><td><span class="cmd-desc">Kill process matching full command pattern</span></td></tr>
+<tr><td><span class="cmd-tag">nice -n 10 cmd</span></td><td><span class="cmd-desc">Start process with lower CPU priority (nice=10)</span></td></tr>
+<tr><td><span class="cmd-tag">renice -n 5 -p PID</span></td><td><span class="cmd-desc">Change priority of running process</span></td></tr>
+<tr><td><span class="cmd-tag">nohup cmd &amp;</span></td><td><span class="cmd-desc">Run command immune to hangup (persists after logout)</span></td></tr>
+<tr><td><span class="cmd-tag">cmd &amp;</span></td><td><span class="cmd-desc">Run command in background</span></td></tr>
+<tr><td><span class="cmd-tag">jobs -l</span></td><td><span class="cmd-desc">List all background/suspended jobs with PID</span></td></tr>
+<tr><td><span class="cmd-tag">fg %1</span></td><td><span class="cmd-desc">Bring background job 1 to foreground</span></td></tr>
+<tr><td><span class="cmd-tag">bg %1</span></td><td><span class="cmd-desc">Resume suspended job in background</span></td></tr>
+<tr><td><span class="cmd-tag">ls -l /proc/PID/cwd</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Show working directory of a running process</span></td></tr>
+<tr><td><span class="cmd-tag">ls -l /proc/PID/fd</span></td><td><span class="cmd-desc">List all open file descriptors of a process</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/cmdline</span></td><td><span class="cmd-desc">Show exact command that started the process</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/environ</span></td><td><span class="cmd-desc">Show environment variables of a running process</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/status</span></td><td><span class="cmd-desc">Detailed process status: state, mem, threads</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/PID/limits</span></td><td><span class="cmd-desc">Show resource limits (files, memory) for process</span></td></tr>
+<tr><td><span class="cmd-tag">lsof -p PID</span></td><td><span class="cmd-desc">List all files/sockets opened by a process</span></td></tr>
+<tr><td><span class="cmd-tag">strace -p PID</span></td><td><span class="cmd-desc">Trace system calls of a running process (debugging)</span></td></tr>
+<tr><td><span class="cmd-tag">timeout 30 cmd</span></td><td><span class="cmd-desc">Run command and auto-kill after 30 seconds</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== NETWORK =================== -->
+<div class="section cat-net" data-cat="net">
+<div class="sec-head">🌐 NETWORK COMMANDS<div class="sec-count">40 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">curl URL</span></td><td><span class="cmd-desc">Fetch URL and print to stdout</span></td></tr>
+<tr><td><span class="cmd-tag">curl -I URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Fetch only HTTP headers (HEAD request)</span></td></tr>
+<tr><td><span class="cmd-tag">curl -L URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Follow HTTP redirects automatically</span></td></tr>
+<tr><td><span class="cmd-tag">curl -O URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Download file keeping original filename</span></td></tr>
+<tr><td><span class="cmd-tag">curl -o file URL</span></td><td><span class="cmd-desc">Download to specific filename</span></td></tr>
+<tr><td><span class="cmd-tag">curl -IL URL</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Headers only, following all redirects</span></td></tr>
+<tr><td><span class="cmd-tag">curl -X POST -d '{}' URL</span></td><td><span class="cmd-desc">Send POST request with JSON body</span></td></tr>
+<tr><td><span class="cmd-tag">curl -H "Auth: token" URL</span></td><td><span class="cmd-desc">Add custom HTTP header to request</span></td></tr>
+<tr><td><span class="cmd-tag">curl -u user:pass URL</span></td><td><span class="cmd-desc">HTTP Basic Authentication</span></td></tr>
+<tr><td><span class="cmd-tag">curl -k URL</span></td><td><span class="cmd-desc">Skip SSL certificate verification (insecure)</span></td></tr>
+<tr><td><span class="cmd-tag">curl -v URL</span></td><td><span class="cmd-desc">Verbose output — see full request/response</span></td></tr>
+<tr><td><span class="cmd-tag">curl -s URL</span></td><td><span class="cmd-desc">Silent mode — no progress output (for scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">curl --retry 3 URL</span></td><td><span class="cmd-desc">Retry up to 3 times on failure</span></td></tr>
+<tr><td><span class="cmd-tag">curl -w "%{http_code}" URL</span></td><td><span class="cmd-desc">Print HTTP status code after request</span></td></tr>
+<tr><td><span class="cmd-tag">curl --limit-rate 1M URL</span></td><td><span class="cmd-desc">Limit download speed to 1MB/s</span></td></tr>
+<tr><td><span class="cmd-tag">curl -C - -O URL</span></td><td><span class="cmd-desc">Resume interrupted download</span></td></tr>
+<tr><td><span class="cmd-tag">curl --proxy host:port URL</span></td><td><span class="cmd-desc">Use proxy server for request</span></td></tr>
+<tr><td><span class="cmd-tag">wget URL</span></td><td><span class="cmd-desc">Download file from URL</span></td></tr>
+<tr><td><span class="cmd-tag">wget -c URL</span></td><td><span class="cmd-desc">Continue/resume incomplete download</span></td></tr>
+<tr><td><span class="cmd-tag">wget -r URL</span></td><td><span class="cmd-desc">Recursive download of website</span></td></tr>
+<tr><td><span class="cmd-tag">wget -q URL</span></td><td><span class="cmd-desc">Quiet mode — no output (for scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">ping -c 4 host</span></td><td><span class="cmd-desc">Ping host exactly 4 times</span></td></tr>
+<tr><td><span class="cmd-tag">ping -i 0.2 host</span></td><td><span class="cmd-desc">Ping every 0.2 seconds (faster)</span></td></tr>
+<tr><td><span class="cmd-tag">traceroute host</span></td><td><span class="cmd-desc">Show network hops to destination</span></td></tr>
+<tr><td><span class="cmd-tag">tracepath host</span></td><td><span class="cmd-desc">Traceroute alternative (no root needed)</span></td></tr>
+<tr><td><span class="cmd-tag">netstat -tulnp</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Show all listening ports with PIDs</span></td></tr>
+<tr><td><span class="cmd-tag">netstat -an | grep :80</span></td><td><span class="cmd-desc">Check which connections are on port 80</span></td></tr>
+<tr><td><span class="cmd-tag">ss -tulnp</span></td><td><span class="cmd-desc">Modern replacement for netstat — faster</span></td></tr>
+<tr><td><span class="cmd-tag">ss -s</span></td><td><span class="cmd-desc">Socket summary statistics</span></td></tr>
+<tr><td><span class="cmd-tag">ss -an | grep ESTABLISHED</span></td><td><span class="cmd-desc">Show all established connections</span></td></tr>
+<tr><td><span class="cmd-tag">ip addr show</span></td><td><span class="cmd-desc">Show all network interfaces and IPs</span></td></tr>
+<tr><td><span class="cmd-tag">ip route show</span></td><td><span class="cmd-desc">Show routing table</span></td></tr>
+<tr><td><span class="cmd-tag">ip link set eth0 up/down</span></td><td><span class="cmd-desc">Bring network interface up or down</span></td></tr>
+<tr><td><span class="cmd-tag">nslookup domain</span></td><td><span class="cmd-desc">DNS lookup for domain</span></td></tr>
+<tr><td><span class="cmd-tag">dig domain</span></td><td><span class="cmd-desc">Detailed DNS information</span></td></tr>
+<tr><td><span class="cmd-tag">dig +short domain</span></td><td><span class="cmd-desc">Just the IP for a domain (clean output)</span></td></tr>
+<tr><td><span class="cmd-tag">dig domain MX</span></td><td><span class="cmd-desc">Lookup MX (mail exchange) records</span></td></tr>
+<tr><td><span class="cmd-tag">host domain</span></td><td><span class="cmd-desc">Simple DNS lookup (hostname to IP)</span></td></tr>
+<tr><td><span class="cmd-tag">nc -zv host port</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Test if port is open on remote host</span></td></tr>
+<tr><td><span class="cmd-tag">nc -l 9999</span></td><td><span class="cmd-desc">Start a listening server on port 9999 (quick test)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== SYSTEM INFO =================== -->
+<div class="section cat-sys" data-cat="sys">
+<div class="sec-head">💻 SYSTEM INFORMATION<div class="sec-count">25 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">uname -a</span></td><td><span class="cmd-desc">All system info: kernel, hostname, arch</span></td></tr>
+<tr><td><span class="cmd-tag">uname -r</span></td><td><span class="cmd-desc">Just the kernel version</span></td></tr>
+<tr><td><span class="cmd-tag">uname -m</span></td><td><span class="cmd-desc">Machine architecture (x86_64, arm64, etc.)</span></td></tr>
+<tr><td><span class="cmd-tag">hostnamectl</span></td><td><span class="cmd-desc">System hostname, OS, kernel full info</span></td></tr>
+<tr><td><span class="cmd-tag">lscpu</span></td><td><span class="cmd-desc">Detailed CPU info: cores, threads, speed, cache</span></td></tr>
+<tr><td><span class="cmd-tag">lsmem</span></td><td><span class="cmd-desc">List memory ranges</span></td></tr>
+<tr><td><span class="cmd-tag">lsblk</span></td><td><span class="cmd-desc">Block devices list (disks, partitions, mount points)</span></td></tr>
+<tr><td><span class="cmd-tag">lsblk -f</span></td><td><span class="cmd-desc">Block devices with filesystem types and UUIDs</span></td></tr>
+<tr><td><span class="cmd-tag">lspci</span></td><td><span class="cmd-desc">List all PCI hardware devices</span></td></tr>
+<tr><td><span class="cmd-tag">lsusb</span></td><td><span class="cmd-desc">List all USB devices</span></td></tr>
+<tr><td><span class="cmd-tag">dmidecode -t memory</span></td><td><span class="cmd-desc">Physical RAM details from DMI/BIOS</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/cpuinfo</span></td><td><span class="cmd-desc">Full CPU details from kernel</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/meminfo</span></td><td><span class="cmd-desc">Detailed RAM usage from kernel</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/version</span></td><td><span class="cmd-desc">Kernel version and build info</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/uptime</span></td><td><span class="cmd-desc">System uptime in seconds</span></td></tr>
+<tr><td><span class="cmd-tag">cat /proc/loadavg</span></td><td><span class="cmd-desc">System load averages (1m, 5m, 15m)</span></td></tr>
+<tr><td><span class="cmd-tag">uptime</span></td><td><span class="cmd-desc">How long system running + load averages</span></td></tr>
+<tr><td><span class="cmd-tag">w</span></td><td><span class="cmd-desc">Who is logged in + what they're doing</span></td></tr>
+<tr><td><span class="cmd-tag">who</span></td><td><span class="cmd-desc">Currently logged in users</span></td></tr>
+<tr><td><span class="cmd-tag">last -n 20</span></td><td><span class="cmd-desc">Last 20 login history records</span></td></tr>
+<tr><td><span class="cmd-tag">lastlog</span></td><td><span class="cmd-desc">Last login of every user</span></td></tr>
+<tr><td><span class="cmd-tag">date</span></td><td><span class="cmd-desc">Current date and time</span></td></tr>
+<tr><td><span class="cmd-tag">date +"%Y-%m-%d %H:%M:%S"</span></td><td><span class="cmd-desc">Format date for log filenames in scripts</span></td></tr>
+<tr><td><span class="cmd-tag">timedatectl</span></td><td><span class="cmd-desc">System timezone and NTP sync status</span></td></tr>
+<tr><td><span class="cmd-tag">cal</span></td><td><span class="cmd-desc">Display calendar month</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== TEXT OPS =================== -->
+<div class="section cat-txt" data-cat="txt">
+<div class="sec-head">📝 TEXT PROCESSING — grep, awk, sed, cut<div class="sec-count">30 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">grep "pattern" file</span></td><td><span class="cmd-desc">Search for pattern in file</span></td></tr>
+<tr><td><span class="cmd-tag">grep -i "pattern" file</span></td><td><span class="cmd-desc">Case-insensitive search</span></td></tr>
+<tr><td><span class="cmd-tag">grep -r "pattern" /dir</span></td><td><span class="cmd-desc">Recursive search in directory</span></td></tr>
+<tr><td><span class="cmd-tag">grep -n "pattern" file</span></td><td><span class="cmd-desc">Show line numbers with matches</span></td></tr>
+<tr><td><span class="cmd-tag">grep -v "pattern" file</span></td><td><span class="cmd-desc">Invert match — lines NOT matching</span></td></tr>
+<tr><td><span class="cmd-tag">grep -c "pattern" file</span></td><td><span class="cmd-desc">Count matching lines only</span></td></tr>
+<tr><td><span class="cmd-tag">grep -l "pattern" /dir/*</span></td><td><span class="cmd-desc">List filenames that contain match</span></td></tr>
+<tr><td><span class="cmd-tag">grep -A 3 -B 3 "err" log</span></td><td><span class="cmd-desc">Show 3 lines After and Before match (context)</span></td></tr>
+<tr><td><span class="cmd-tag">grep -E "err|warn|crit" log</span></td><td><span class="cmd-desc">Extended regex — match multiple patterns</span></td></tr>
+<tr><td><span class="cmd-tag">grep -o "pattern" file</span></td><td><span class="cmd-desc">Print only the matched part (not full line)</span></td></tr>
+<tr><td><span class="cmd-tag">grep -P "\d{3}" file</span></td><td><span class="cmd-desc">Perl-compatible regex</span></td></tr>
+<tr><td><span class="cmd-tag">sed 's/old/new/g' file</span></td><td><span class="cmd-desc">Replace all occurrences of old with new</span></td></tr>
+<tr><td><span class="cmd-tag">sed -i 's/old/new/g' file</span></td><td><span class="cmd-desc">Edit file in-place (modifies the file)</span></td></tr>
+<tr><td><span class="cmd-tag">sed -n '5,10p' file</span></td><td><span class="cmd-desc">Print only lines 5 to 10</span></td></tr>
+<tr><td><span class="cmd-tag">sed '/pattern/d' file</span></td><td><span class="cmd-desc">Delete lines matching pattern</span></td></tr>
+<tr><td><span class="cmd-tag">sed -n '/ERROR/p' log</span></td><td><span class="cmd-desc">Print only lines matching pattern</span></td></tr>
+<tr><td><span class="cmd-tag">awk '{print $1}' file</span></td><td><span class="cmd-desc">Print first column (space-delimited)</span></td></tr>
+<tr><td><span class="cmd-tag">awk -F: '{print $1}' /etc/passwd</span></td><td><span class="cmd-desc">Print first field, using : as delimiter</span></td></tr>
+<tr><td><span class="cmd-tag">awk 'NR==5' file</span></td><td><span class="cmd-desc">Print only line 5</span></td></tr>
+<tr><td><span class="cmd-tag">awk '/ERROR/{print NR,$0}' log</span></td><td><span class="cmd-desc">Print line number + content for ERROR lines</span></td></tr>
+<tr><td><span class="cmd-tag">awk '{sum+=$3} END{print sum}' f</span></td><td><span class="cmd-desc">Sum of column 3 across all lines</span></td></tr>
+<tr><td><span class="cmd-tag">cut -d: -f1 /etc/passwd</span></td><td><span class="cmd-desc">Cut column 1 using : delimiter</span></td></tr>
+<tr><td><span class="cmd-tag">cut -c1-10 file</span></td><td><span class="cmd-desc">Cut first 10 characters of each line</span></td></tr>
+<tr><td><span class="cmd-tag">sort file</span></td><td><span class="cmd-desc">Sort lines alphabetically</span></td></tr>
+<tr><td><span class="cmd-tag">sort -n file</span></td><td><span class="cmd-desc">Sort numerically</span></td></tr>
+<tr><td><span class="cmd-tag">sort -r file</span></td><td><span class="cmd-desc">Sort in reverse order</span></td></tr>
+<tr><td><span class="cmd-tag">sort -k2 file</span></td><td><span class="cmd-desc">Sort by second column</span></td></tr>
+<tr><td><span class="cmd-tag">uniq -c file</span></td><td><span class="cmd-desc">Count duplicate adjacent lines</span></td></tr>
+<tr><td><span class="cmd-tag">wc -l file</span></td><td><span class="cmd-desc">Count lines in file</span></td></tr>
+<tr><td><span class="cmd-tag">wc -w file</span></td><td><span class="cmd-desc">Count words in file</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== ARCHIVE =================== -->
+<div class="section cat-arc" data-cat="arc">
+<div class="sec-head">📦 ARCHIVE &amp; COMPRESSION<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">tar -cvf archive.tar dir/</span></td><td><span class="cmd-desc">Create tar archive of directory</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xvf archive.tar</span></td><td><span class="cmd-desc">Extract tar archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -czvf arch.tar.gz dir/</span></td><td><span class="cmd-desc">Create gzip-compressed tar archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xzvf arch.tar.gz</span></td><td><span class="cmd-desc">Extract gzip-compressed tar archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -cjvf arch.tar.bz2 dir/</span></td><td><span class="cmd-desc">Create bzip2-compressed archive (smaller)</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xjvf arch.tar.bz2</span></td><td><span class="cmd-desc">Extract bzip2 archive</span></td></tr>
+<tr><td><span class="cmd-tag">tar -cJvf arch.tar.xz dir/</span></td><td><span class="cmd-desc">Create xz-compressed archive (best ratio)</span></td></tr>
+<tr><td><span class="cmd-tag">tar -tvf archive.tar</span></td><td><span class="cmd-desc">List contents of archive without extracting</span></td></tr>
+<tr><td><span class="cmd-tag">tar -xvf arch.tar -C /path</span></td><td><span class="cmd-desc">Extract to specific directory</span></td></tr>
+<tr><td><span class="cmd-tag">tar --exclude='*.log' -czf a.tgz dir</span></td><td><span class="cmd-desc">Create archive excluding specific files</span></td></tr>
+<tr><td><span class="cmd-tag">gzip file</span></td><td><span class="cmd-desc">Compress file (replaces original with .gz)</span></td></tr>
+<tr><td><span class="cmd-tag">gzip -d file.gz</span></td><td><span class="cmd-desc">Decompress .gz file</span></td></tr>
+<tr><td><span class="cmd-tag">gzip -k file</span></td><td><span class="cmd-desc">Compress keeping original file</span></td></tr>
+<tr><td><span class="cmd-tag">gunzip file.gz</span></td><td><span class="cmd-desc">Decompress .gz file (same as gzip -d)</span></td></tr>
+<tr><td><span class="cmd-tag">zcat file.gz</span></td><td><span class="cmd-desc">View .gz file without extracting</span></td></tr>
+<tr><td><span class="cmd-tag">zip -r archive.zip dir/</span></td><td><span class="cmd-desc">Create zip archive of directory</span></td></tr>
+<tr><td><span class="cmd-tag">unzip archive.zip</span></td><td><span class="cmd-desc">Extract zip archive</span></td></tr>
+<tr><td><span class="cmd-tag">unzip -l archive.zip</span></td><td><span class="cmd-desc">List zip contents without extracting</span></td></tr>
+<tr><td><span class="cmd-tag">unzip archive.zip -d /path</span></td><td><span class="cmd-desc">Extract zip to specific directory</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz src/ dst/</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Sync files — only transfers changes</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== DISK =================== -->
+<div class="section cat-disk" data-cat="disk">
+<div class="sec-head">💾 DISK &amp; STORAGE<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">df -h</span></td><td><span class="cmd-desc">Disk usage of all filesystems (human-readable)</span></td></tr>
+<tr><td><span class="cmd-tag">df -hT</span></td><td><span class="cmd-desc">Disk usage with filesystem type</span></td></tr>
+<tr><td><span class="cmd-tag">df -i</span></td><td><span class="cmd-desc">Inode usage (important when inode exhaustion)</span></td></tr>
+<tr><td><span class="cmd-tag">du -sh /dir</span></td><td><span class="cmd-desc">Total size of directory (human-readable)</span></td></tr>
+<tr><td><span class="cmd-tag">du -sh /*</span></td><td><span class="cmd-desc">Size of each item in root directory</span></td></tr>
+<tr><td><span class="cmd-tag">du -ah /dir | sort -rh | head -20</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Find top 20 largest files/dirs</span></td></tr>
+<tr><td><span class="cmd-tag">du --max-depth=1 -h /</span></td><td><span class="cmd-desc">Disk usage one level deep only</span></td></tr>
+<tr><td><span class="cmd-tag">lsblk -o NAME,SIZE,TYPE,MOUNTPOINT</span></td><td><span class="cmd-desc">Block devices with custom columns</span></td></tr>
+<tr><td><span class="cmd-tag">fdisk -l</span></td><td><span class="cmd-desc">List disk partition table</span></td></tr>
+<tr><td><span class="cmd-tag">parted -l</span></td><td><span class="cmd-desc">Detailed partition info (GPT support)</span></td></tr>
+<tr><td><span class="cmd-tag">mount</span></td><td><span class="cmd-desc">Show all mounted filesystems</span></td></tr>
+<tr><td><span class="cmd-tag">mount /dev/sdb1 /mnt/data</span></td><td><span class="cmd-desc">Mount disk partition to directory</span></td></tr>
+<tr><td><span class="cmd-tag">umount /mnt/data</span></td><td><span class="cmd-desc">Unmount a filesystem</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/fstab</span></td><td><span class="cmd-desc">View auto-mount configuration</span></td></tr>
+<tr><td><span class="cmd-tag">blkid</span></td><td><span class="cmd-desc">Show UUIDs and types of block devices</span></td></tr>
+<tr><td><span class="cmd-tag">iostat -x 2</span></td><td><span class="cmd-desc">Extended disk I/O stats every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">iotop</span></td><td><span class="cmd-desc">Real-time disk I/O usage per process</span></td></tr>
+<tr><td><span class="cmd-tag">dd if=/dev/zero of=f bs=1G count=1</span></td><td><span class="cmd-desc">Test disk write speed</span></td></tr>
+<tr><td><span class="cmd-tag">sync</span></td><td><span class="cmd-desc">Flush filesystem caches to disk</span></td></tr>
+<tr><td><span class="cmd-tag">ncdu /</span></td><td><span class="cmd-desc">Interactive disk usage analyzer (ncurses)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== MONITORING =================== -->
+<div class="section cat-mon" data-cat="mon">
+<div class="sec-head">📊 MONITORING &amp; PERFORMANCE<div class="sec-count">22 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">top</span></td><td><span class="cmd-desc">Real-time process monitor (CPU, MEM)</span></td></tr>
+<tr><td><span class="cmd-tag">top -b -n 1</span></td><td><span class="cmd-desc">Batch mode top — single snapshot for scripts</span></td></tr>
+<tr><td><span class="cmd-tag">top -p PID</span></td><td><span class="cmd-desc">Monitor specific PID only</span></td></tr>
+<tr><td><span class="cmd-tag">htop</span></td><td><span class="cmd-desc">Interactive colorful process monitor (better top)</span></td></tr>
+<tr><td><span class="cmd-tag">vmstat 2 5</span></td><td><span class="cmd-desc">VM stats every 2s, 5 times (CPU, mem, swap, IO)</span></td></tr>
+<tr><td><span class="cmd-tag">vmstat -s</span></td><td><span class="cmd-desc">Memory stats summary</span></td></tr>
+<tr><td><span class="cmd-tag">free -h</span></td><td><span class="cmd-desc">RAM and swap usage (human-readable)</span></td></tr>
+<tr><td><span class="cmd-tag">free -h -s 2</span></td><td><span class="cmd-desc">Refresh free output every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">sar -u 2 5</span></td><td><span class="cmd-desc">CPU usage every 2s, 5 times (sysstat)</span></td></tr>
+<tr><td><span class="cmd-tag">sar -r 2 5</span></td><td><span class="cmd-desc">Memory usage stats over time</span></td></tr>
+<tr><td><span class="cmd-tag">sar -n DEV 2 5</span></td><td><span class="cmd-desc">Network usage stats per interface</span></td></tr>
+<tr><td><span class="cmd-tag">sar -d 2 5</span></td><td><span class="cmd-desc">Disk activity stats over time</span></td></tr>
+<tr><td><span class="cmd-tag">mpstat -P ALL 2</span></td><td><span class="cmd-desc">CPU stats per core every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">nload eth0</span></td><td><span class="cmd-desc">Real-time network bandwidth monitor</span></td></tr>
+<tr><td><span class="cmd-tag">nethogs</span></td><td><span class="cmd-desc">Network usage per process (like htop for network)</span></td></tr>
+<tr><td><span class="cmd-tag">dstat</span></td><td><span class="cmd-desc">Combined CPU, disk, net, memory stats</span></td></tr>
+<tr><td><span class="cmd-tag">perf stat cmd</span></td><td><span class="cmd-desc">Performance counters for a command</span></td></tr>
+<tr><td><span class="cmd-tag">watch -n 2 "df -h"</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Run any command every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">watch -d "netstat -tulnp"</span></td><td><span class="cmd-desc">Watch command — highlight differences</span></td></tr>
+<tr><td><span class="cmd-tag">pidstat -u 2</span></td><td><span class="cmd-desc">CPU usage per process every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">pidstat -d 2</span></td><td><span class="cmd-desc">Disk I/O per process every 2 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">atop</span></td><td><span class="cmd-desc">Advanced system monitor with historical data</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== PERMISSIONS =================== -->
+<div class="section cat-perm" data-cat="perm">
+<div class="sec-head">🔒 PERMISSIONS &amp; OWNERSHIP<div class="sec-count">18 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">chmod 755 file</span></td><td><span class="cmd-desc">Set rwxr-xr-x permissions (owner:rwx, others:rx)</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 644 file</span></td><td><span class="cmd-desc">Set rw-r--r-- (owner:rw, others:r) for files</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 600 file</span></td><td><span class="cmd-desc"><strong>SSH Key:</strong> Owner read/write only — required for private keys</span></td></tr>
+<tr><td><span class="cmd-tag">chmod +x script.sh</span></td><td><span class="cmd-desc">Make file executable for everyone</span></td></tr>
+<tr><td><span class="cmd-tag">chmod -R 755 /dir</span></td><td><span class="cmd-desc">Set permissions recursively on directory</span></td></tr>
+<tr><td><span class="cmd-tag">chmod u+x,g-w file</span></td><td><span class="cmd-desc">Symbolic mode: add exec for user, remove write for group</span></td></tr>
+<tr><td><span class="cmd-tag">chown user:group file</span></td><td><span class="cmd-desc">Change owner and group of file</span></td></tr>
+<tr><td><span class="cmd-tag">chown -R user:group /dir</span></td><td><span class="cmd-desc">Change ownership recursively</span></td></tr>
+<tr><td><span class="cmd-tag">chgrp group file</span></td><td><span class="cmd-desc">Change only the group of file</span></td></tr>
+<tr><td><span class="cmd-tag">stat file</span></td><td><span class="cmd-desc">Full file info: inode, perms, size, timestamps</span></td></tr>
+<tr><td><span class="cmd-tag">umask</span></td><td><span class="cmd-desc">Show default permission mask for new files</span></td></tr>
+<tr><td><span class="cmd-tag">umask 022</span></td><td><span class="cmd-desc">Set default umask (new files get 644, dirs 755)</span></td></tr>
+<tr><td><span class="cmd-tag">setfacl -m u:user:rwx file</span></td><td><span class="cmd-desc">Add ACL entry for specific user on file</span></td></tr>
+<tr><td><span class="cmd-tag">getfacl file</span></td><td><span class="cmd-desc">View ACL entries on file</span></td></tr>
+<tr><td><span class="cmd-tag">chmod u+s file</span></td><td><span class="cmd-desc">Set SUID — runs as file owner regardless of caller</span></td></tr>
+<tr><td><span class="cmd-tag">chmod g+s dir</span></td><td><span class="cmd-desc">Set SGID — new files inherit group of parent dir</span></td></tr>
+<tr><td><span class="cmd-tag">chmod +t /tmp</span></td><td><span class="cmd-desc">Set sticky bit — users can only delete own files</span></td></tr>
+<tr><td><span class="cmd-tag">find / -perm /4000</span></td><td><span class="cmd-desc">Find all SUID files (security audit)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== USER/GROUP =================== -->
+<div class="section cat-usr" data-cat="usr">
+<div class="sec-head">👤 USER &amp; GROUP MANAGEMENT<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">useradd -m -s /bin/bash username</span></td><td><span class="cmd-desc">Create user with home dir and bash shell</span></td></tr>
+<tr><td><span class="cmd-tag">useradd -m -G sudo username</span></td><td><span class="cmd-desc">Create user and add to sudo group</span></td></tr>
+<tr><td><span class="cmd-tag">usermod -aG sudo username</span></td><td><span class="cmd-desc">Add existing user to sudo group (append)</span></td></tr>
+<tr><td><span class="cmd-tag">usermod -s /bin/bash user</span></td><td><span class="cmd-desc">Change user's default shell</span></td></tr>
+<tr><td><span class="cmd-tag">userdel -r username</span></td><td><span class="cmd-desc">Delete user and home directory</span></td></tr>
+<tr><td><span class="cmd-tag">passwd username</span></td><td><span class="cmd-desc">Set/change password for user</span></td></tr>
+<tr><td><span class="cmd-tag">passwd -l username</span></td><td><span class="cmd-desc">Lock user account (disable login)</span></td></tr>
+<tr><td><span class="cmd-tag">passwd -u username</span></td><td><span class="cmd-desc">Unlock user account</span></td></tr>
+<tr><td><span class="cmd-tag">id username</span></td><td><span class="cmd-desc">Show UID, GID and groups of user</span></td></tr>
+<tr><td><span class="cmd-tag">whoami</span></td><td><span class="cmd-desc">Show current logged in username</span></td></tr>
+<tr><td><span class="cmd-tag">groups username</span></td><td><span class="cmd-desc">List all groups user belongs to</span></td></tr>
+<tr><td><span class="cmd-tag">su - username</span></td><td><span class="cmd-desc">Switch to another user with their environment</span></td></tr>
+<tr><td><span class="cmd-tag">sudo -u user cmd</span></td><td><span class="cmd-desc">Run command as specific user</span></td></tr>
+<tr><td><span class="cmd-tag">sudo su -</span></td><td><span class="cmd-desc">Become root with full environment</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/passwd</span></td><td><span class="cmd-desc">View all system users (username:x:uid:gid:...)</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/group</span></td><td><span class="cmd-desc">View all groups and their members</span></td></tr>
+<tr><td><span class="cmd-tag">groupadd devops</span></td><td><span class="cmd-desc">Create new group</span></td></tr>
+<tr><td><span class="cmd-tag">groupdel devops</span></td><td><span class="cmd-desc">Delete a group</span></td></tr>
+<tr><td><span class="cmd-tag">visudo</span></td><td><span class="cmd-desc">Safely edit sudoers file with syntax check</span></td></tr>
+<tr><td><span class="cmd-tag">chage -l username</span></td><td><span class="cmd-desc">Show password expiry info for user</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== PACKAGE =================== -->
+<div class="section cat-pkg" data-cat="pkg">
+<div class="sec-head">📥 PACKAGE MANAGEMENT<div class="sec-count">18 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">apt update</span></td><td><span class="cmd-desc">Refresh package lists from repos</span></td></tr>
+<tr><td><span class="cmd-tag">apt upgrade -y</span></td><td><span class="cmd-desc">Upgrade all installed packages</span></td></tr>
+<tr><td><span class="cmd-tag">apt install nginx -y</span></td><td><span class="cmd-desc">Install package (Ubuntu/Debian)</span></td></tr>
+<tr><td><span class="cmd-tag">apt remove nginx</span></td><td><span class="cmd-desc">Remove package (keep config files)</span></td></tr>
+<tr><td><span class="cmd-tag">apt purge nginx</span></td><td><span class="cmd-desc">Remove package AND all config files</span></td></tr>
+<tr><td><span class="cmd-tag">apt autoremove</span></td><td><span class="cmd-desc">Remove orphaned dependency packages</span></td></tr>
+<tr><td><span class="cmd-tag">apt search nginx</span></td><td><span class="cmd-desc">Search packages by name/description</span></td></tr>
+<tr><td><span class="cmd-tag">apt show nginx</span></td><td><span class="cmd-desc">Show package info: version, deps, description</span></td></tr>
+<tr><td><span class="cmd-tag">apt list --installed</span></td><td><span class="cmd-desc">List all installed packages</span></td></tr>
+<tr><td><span class="cmd-tag">dpkg -l | grep nginx</span></td><td><span class="cmd-desc">Check if package is installed (Debian/Ubuntu)</span></td></tr>
+<tr><td><span class="cmd-tag">dpkg -L nginx</span></td><td><span class="cmd-desc">List all files installed by a package</span></td></tr>
+<tr><td><span class="cmd-tag">dpkg -S /usr/bin/curl</span></td><td><span class="cmd-desc">Find which package owns a file</span></td></tr>
+<tr><td><span class="cmd-tag">yum install nginx -y</span></td><td><span class="cmd-desc">Install on RHEL/CentOS (older)</span></td></tr>
+<tr><td><span class="cmd-tag">dnf install nginx -y</span></td><td><span class="cmd-desc">Install on RHEL8/CentOS8/Fedora (modern)</span></td></tr>
+<tr><td><span class="cmd-tag">dnf update -y</span></td><td><span class="cmd-desc">Update all packages on RHEL/Fedora</span></td></tr>
+<tr><td><span class="cmd-tag">rpm -qa | grep nginx</span></td><td><span class="cmd-desc">Query all installed RPM packages</span></td></tr>
+<tr><td><span class="cmd-tag">snap install code</span></td><td><span class="cmd-desc">Install snap package</span></td></tr>
+<tr><td><span class="cmd-tag">pip install requests --break-system-packages</span></td><td><span class="cmd-desc">Install Python package (modern systems)</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== FIND/LOCATE =================== -->
+<div class="section cat-find" data-cat="find">
+<div class="sec-head">🔍 FIND &amp; LOCATE<div class="sec-count">22 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">find / -name "*.log"</span></td><td><span class="cmd-desc">Find all .log files from root</span></td></tr>
+<tr><td><span class="cmd-tag">find /var -name "*.log" -mtime +7</span></td><td><span class="cmd-desc">Find logs not modified in last 7 days</span></td></tr>
+<tr><td><span class="cmd-tag">find /tmp -name "*.tmp" -delete</span></td><td><span class="cmd-desc">Find and delete tmp files in one command</span></td></tr>
+<tr><td><span class="cmd-tag">find / -type f -size +100M</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Find files larger than 100MB</span></td></tr>
+<tr><td><span class="cmd-tag">find / -type d -name "config"</span></td><td><span class="cmd-desc">Find directories named config</span></td></tr>
+<tr><td><span class="cmd-tag">find / -perm 777</span></td><td><span class="cmd-desc">Find files with 777 permissions (security check)</span></td></tr>
+<tr><td><span class="cmd-tag">find / -perm /4000</span></td><td><span class="cmd-desc">Find SUID files (security audit)</span></td></tr>
+<tr><td><span class="cmd-tag">find / -user root -writable</span></td><td><span class="cmd-desc">Find root-owned writable files</span></td></tr>
+<tr><td><span class="cmd-tag">find . -name "*.py" -exec grep -l "TODO" {} \;</span></td><td><span class="cmd-desc">Find .py files containing TODO</span></td></tr>
+<tr><td><span class="cmd-tag">find . -newer reference_file</span></td><td><span class="cmd-desc">Find files newer than a reference file</span></td></tr>
+<tr><td><span class="cmd-tag">find . -empty</span></td><td><span class="cmd-desc">Find all empty files and directories</span></td></tr>
+<tr><td><span class="cmd-tag">find . -maxdepth 2 -name "*.conf"</span></td><td><span class="cmd-desc">Find at max 2 directory levels deep</span></td></tr>
+<tr><td><span class="cmd-tag">find . \( -name "*.py" -o -name "*.sh" \)</span></td><td><span class="cmd-desc">Find .py OR .sh files</span></td></tr>
+<tr><td><span class="cmd-tag">find . ! -name "*.log"</span></td><td><span class="cmd-desc">Find all files EXCEPT .log files</span></td></tr>
+<tr><td><span class="cmd-tag">locate filename</span></td><td><span class="cmd-desc">Fast file search using database index</span></td></tr>
+<tr><td><span class="cmd-tag">updatedb</span></td><td><span class="cmd-desc">Update locate database (run before locate)</span></td></tr>
+<tr><td><span class="cmd-tag">which python3</span></td><td><span class="cmd-desc">Find path of executable in PATH</span></td></tr>
+<tr><td><span class="cmd-tag">whereis nginx</span></td><td><span class="cmd-desc">Find binary, source, man page locations</span></td></tr>
+<tr><td><span class="cmd-tag">type curl</span></td><td><span class="cmd-desc">Show if command is alias, function, or binary</span></td></tr>
+<tr><td><span class="cmd-tag">command -v python3</span></td><td><span class="cmd-desc">Check if command exists (great in scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">xargs find . -name "*.log" | xargs rm</span></td><td><span class="cmd-desc">Pipe find results to rm (bulk delete)</span></td></tr>
+<tr><td><span class="cmd-tag">find . -name "*.log" | xargs grep "ERROR"</span></td><td><span class="cmd-desc">Search all .log files for ERROR</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== ENV/SHELL =================== -->
+<div class="section cat-env" data-cat="env">
+<div class="sec-head">🌿 ENV, SHELL &amp; SCRIPTING<div class="sec-count">20 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">echo $PATH</span></td><td><span class="cmd-desc">Print PATH environment variable</span></td></tr>
+<tr><td><span class="cmd-tag">echo $HOME</span></td><td><span class="cmd-desc">Print home directory path</span></td></tr>
+<tr><td><span class="cmd-tag">echo $?</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Exit code of last command (0=success)</span></td></tr>
+<tr><td><span class="cmd-tag">echo $$</span></td><td><span class="cmd-desc">PID of current shell/script</span></td></tr>
+<tr><td><span class="cmd-tag">env</span></td><td><span class="cmd-desc">List all environment variables</span></td></tr>
+<tr><td><span class="cmd-tag">export VAR=value</span></td><td><span class="cmd-desc">Set environment variable for session</span></td></tr>
+<tr><td><span class="cmd-tag">export -p</span></td><td><span class="cmd-desc">List all exported variables</span></td></tr>
+<tr><td><span class="cmd-tag">unset VAR</span></td><td><span class="cmd-desc">Remove environment variable</span></td></tr>
+<tr><td><span class="cmd-tag">source ~/.bashrc</span></td><td><span class="cmd-desc">Reload shell config without restarting</span></td></tr>
+<tr><td><span class="cmd-tag">. ./script.sh</span></td><td><span class="cmd-desc">Source script in current shell (same as source)</span></td></tr>
+<tr><td><span class="cmd-tag">alias ll='ls -la'</span></td><td><span class="cmd-desc">Create command alias</span></td></tr>
+<tr><td><span class="cmd-tag">alias</span></td><td><span class="cmd-desc">List all current aliases</span></td></tr>
+<tr><td><span class="cmd-tag">unalias ll</span></td><td><span class="cmd-desc">Remove alias</span></td></tr>
+<tr><td><span class="cmd-tag">history</span></td><td><span class="cmd-desc">Show command history</span></td></tr>
+<tr><td><span class="cmd-tag">history | grep ssh</span></td><td><span class="cmd-desc">Search command history for ssh commands</span></td></tr>
+<tr><td><span class="cmd-tag">!!</span></td><td><span class="cmd-desc">Re-run last command</span></td></tr>
+<tr><td><span class="cmd-tag">!123</span></td><td><span class="cmd-desc">Re-run history command #123</span></td></tr>
+<tr><td><span class="cmd-tag">CTRL+R</span></td><td><span class="cmd-desc">Reverse search through command history</span></td></tr>
+<tr><td><span class="cmd-tag">set -e</span></td><td><span class="cmd-desc"><strong>Script Key:</strong> Exit immediately on any error</span></td></tr>
+<tr><td><span class="cmd-tag">set -x</span></td><td><span class="cmd-desc"><strong>Script Debug:</strong> Print each command before executing</span></td></tr>
+</tbody></table></div>
+
+<!-- =================== SERVICES =================== -->
+<div class="section cat-svc" data-cat="svc">
+<div class="sec-head">🚀 SERVICES — systemctl, journald, cron<div class="sec-count">22 COMMANDS</div></div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">systemctl start nginx</span></td><td><span class="cmd-desc">Start a service</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl stop nginx</span></td><td><span class="cmd-desc">Stop a service</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl restart nginx</span></td><td><span class="cmd-desc">Restart a service</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl reload nginx</span></td><td><span class="cmd-desc">Reload config without full restart</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl status nginx</span></td><td><span class="cmd-desc">Check service status + recent logs</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl enable nginx</span></td><td><span class="cmd-desc">Enable service to start on boot</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl disable nginx</span></td><td><span class="cmd-desc">Disable service from starting on boot</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl is-active nginx</span></td><td><span class="cmd-desc">Returns "active" or "inactive" (great in scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl is-enabled nginx</span></td><td><span class="cmd-desc">Check if service is enabled on boot</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl list-units --type=service</span></td><td><span class="cmd-desc">List all active services</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl list-units --failed</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Show all failed services</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl daemon-reload</span></td><td><span class="cmd-desc">Reload systemd config after editing unit files</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl cat nginx</span></td><td><span class="cmd-desc">Show contents of service unit file</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u nginx</span></td><td><span class="cmd-desc">View logs for specific service</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u nginx -f</span></td><td><span class="cmd-desc">Follow/tail service logs live</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u nginx --since "1 hour ago"</span></td><td><span class="cmd-desc">Logs from last 1 hour</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -p err -b</span></td><td><span class="cmd-desc">Show error-level logs since last boot</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl --disk-usage</span></td><td><span class="cmd-desc">Show how much disk journals use</span></td></tr>
+<tr><td><span class="cmd-tag">crontab -e</span></td><td><span class="cmd-desc">Edit cron jobs for current user</span></td></tr>
+<tr><td><span class="cmd-tag">crontab -l</span></td><td><span class="cmd-desc">List current user's cron jobs</span></td></tr>
+<tr><td><span class="cmd-tag">crontab -u user -l</span></td><td><span class="cmd-desc">List cron jobs for specific user</span></td></tr>
+<tr><td><span class="cmd-tag">cat /etc/crontab</span></td><td><span class="cmd-desc">View system-wide cron schedule</span></td></tr>
+</tbody></table></div>
+
+<!-- ================================================================
+     🔐 SSH ULTRA DEEP DIVE — MEGA SECTION
+     ================================================================ -->
+<div class="section cat-ssh" data-cat="ssh">
+<div class="sec-head">🔐 SSH — ULTRA DEEP DIVE MASTERY BIBLE<div class="sec-count">ULTRA</div></div>
+
+<!-- TOPIC 1: WHAT IS SSH? -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 01</span> WHAT IS SSH? — THE LAYMAN EXPLANATION</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  <strong>SSH = Secure SHell.</strong> Imagine you want to control a computer that's physically sitting in a datacenter 1000km away from you. You can't walk up to it. SSH is like a <em>super-secure invisible phone line</em> between your laptop and that faraway server. You type commands on your laptop, SSH sends them over the internet — but <em>fully encrypted</em> so nobody can read what you're sending. The server executes them and sends results back.<br><br>
+  <strong>Without SSH:</strong> Everyone between you and the server (hackers, ISPs) could read your password and commands like reading a postcard.<br>
+  <strong>With SSH:</strong> Everything is locked in a safe that only you and the server can open. Even if someone intercepts the data, they just see scrambled garbage.
+</div>
+
+<!-- How it works flow -->
+<div class="flow-steps">
+  <div class="flow-step"><div class="flow-step-num">1</div><div class="flow-step-title">YOU TYPE</div><div class="flow-step-desc">You run <code style="color:var(--ssh);font-size:10px">ssh user@server</code> on your laptop. SSH client wakes up.</div></div>
+  <div class="flow-step"><div class="flow-step-num">2</div><div class="flow-step-title">TCP HANDSHAKE</div><div class="flow-step-desc">Your laptop connects to port 22 on the server. Like knocking on a door.</div></div>
+  <div class="flow-step"><div class="flow-step-num">3</div><div class="flow-step-title">KEY EXCHANGE</div><div class="flow-step-desc">Server and client negotiate a secret encryption key together — mathematically impossible to crack.</div></div>
+  <div class="flow-step"><div class="flow-step-num">4</div><div class="flow-step-title">SERVER ID CHECK</div><div class="flow-step-desc">Client checks server's fingerprint against known_hosts. Is this really the server we expect?</div></div>
+  <div class="flow-step"><div class="flow-step-num">5</div><div class="flow-step-title">AUTH</div><div class="flow-step-desc">You prove who you are — via SSH key (recommended) or password. Server checks authorized_keys.</div></div>
+  <div class="flow-step"><div class="flow-step-num">6</div><div class="flow-step-title">SHELL OPENS</div><div class="flow-step-desc">You now have a terminal on the remote server. Everything you type is encrypted end-to-end.</div></div>
+</div>
+
+<!-- TOPIC 2: ~/.ssh/ DIRECTORY -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 02</span> THE ~/.ssh/ DIRECTORY — YOUR SSH HOME BASE</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  <strong>~/.ssh/ is a hidden folder in your home directory.</strong> The tilde (~) means "your home folder". The dot (.) before ssh makes it hidden — <em>like a secret drawer in your desk.</em> This folder holds ALL your SSH identity — your keys, the servers you trust, and your shortcuts. <em>Every user on the system has their own ~/.ssh/ folder.</em> On the SERVER side, the key files live in the same place but belong to the server user.
+</div>
+
+<div class="two-col">
+<div class="ssh-tree-panel">
+  <div class="ssh-tree-header"><span class="tree-dot r"></span><span class="tree-dot y"></span><span class="tree-dot g"></span>&nbsp; YOUR LAPTOP — CLIENT MACHINE (~/.ssh/)</div>
+  <div class="ssh-tree-body">
+    <div class="tree-dir">~/.ssh/</div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name key">id_ed25519</span><span class="tree-comment">← 🔴 YOUR PRIVATE KEY (never share!)</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name pub">id_ed25519.pub</span><span class="tree-comment">← 🟢 YOUR PUBLIC KEY (give to servers)</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name key">id_rsa</span><span class="tree-comment">← 🔴 Old RSA private key (legacy)</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name pub">id_rsa.pub</span><span class="tree-comment">← 🟢 Old RSA public key</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name known">known_hosts</span><span class="tree-comment">← 🔵 Trusted servers (fingerprints)</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name known">known_hosts.old</span><span class="tree-comment">← 🔵 Backup of known_hosts</span></div>
+    <div class="tree-item"><span class="tree-branch">└── </span><span class="tree-name cfg">config</span><span class="tree-comment">← 🟦 Your SSH shortcuts file</span></div>
+  </div>
+</div>
+<div class="ssh-tree-panel">
+  <div class="ssh-tree-header"><span class="tree-dot r"></span><span class="tree-dot y"></span><span class="tree-dot g"></span>&nbsp; THE SERVER — REMOTE MACHINE (~/.ssh/)</div>
+  <div class="ssh-tree-body">
+    <div class="tree-dir">~/.ssh/  (on the server, per user)</div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name auth">authorized_keys</span><span class="tree-comment">← 🟡 WHO CAN LOGIN (public keys list)</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name known">known_hosts</span><span class="tree-comment">← Servers THIS server has connected to</span></div>
+    <div>&nbsp;</div>
+    <div class="tree-dir">/etc/ssh/  (system-wide)</div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name cfg">ssh_config</span><span class="tree-comment">← Client defaults for ALL users</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name auth">sshd_config</span><span class="tree-comment">← SERVER daemon config (the bouncer)</span></div>
+    <div class="tree-item"><span class="tree-branch">├── </span><span class="tree-name key">ssh_host_ed25519_key</span><span class="tree-comment">← Server's own identity key</span></div>
+    <div class="tree-item"><span class="tree-branch">└── </span><span class="tree-name pub">ssh_host_ed25519_key.pub</span><span class="tree-comment">← Server's public fingerprint</span></div>
+  </div>
+</div>
+</div>
+
+<!-- TOPIC 3: FILE-BY-FILE BREAKDOWN -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 03</span> EVERY SSH FILE EXPLAINED — DEEP DIVE</div>
+<div class="ssh-file-cards">
+
+  <div class="ssh-file-card pvt">
+    <div class="card-filename pvt">id_ed25519 &nbsp;/&nbsp; id_rsa</div>
+    <div class="card-path">~/.ssh/id_ed25519 &nbsp;|&nbsp; ~/.ssh/id_rsa</div>
+    <div class="card-title">🔴 YOUR PRIVATE KEY — THE MASTER SECRET</div>
+    <div class="card-analogy">🔑 <em>Analogy:</em> This is your <strong>actual house key</strong>. If someone steals this file, they can impersonate you to every server that knows your public key. Guard it like your life savings.</div>
+    <div class="card-desc">This is your cryptographic private key. It's generated in a pair with the public key. You NEVER send this to anyone. When you SSH into a server, your client uses this to solve a cryptographic challenge that proves you own the matching public key — without ever revealing the private key itself. <strong>Ed25519</strong> is the modern, stronger algorithm. <strong>RSA 4096</strong> is the older, still-OK alternative. ed25519 is shorter, faster, and more secure.</div>
+    <span class="card-perm danger">chmod 600 — REQUIRED</span>
+    <span class="card-perm warn">Never store in cloud/email!</span>
+    <br><br>
+    <div class="ssh-warn"><span class="warn-label">⚠ CRITICAL WARNING</span>If this file has permissions 644 or 777, SSH will REFUSE to use it and show "Permissions too open" error. Always run: <code style="color:var(--gold)">chmod 600 ~/.ssh/id_ed25519</code></div>
+  </div>
+
+  <div class="ssh-file-card pub">
+    <div class="card-filename pub">id_ed25519.pub &nbsp;/&nbsp; id_rsa.pub</div>
+    <div class="card-path">~/.ssh/id_ed25519.pub</div>
+    <div class="card-title">🟢 YOUR PUBLIC KEY — THE LOCK YOU HAND OUT</div>
+    <div class="card-analogy">🔒 <em>Analogy:</em> This is the <strong>lock</strong> that only your private key can open. You copy this to every server you want to access. Think of giving your padlock to someone — they put it on their door, only you have the key that opens it.</div>
+    <div class="card-desc">The public key is safe to share with anyone and any server. It's a long base64 string starting with <code style="color:var(--green);font-size:10px">ssh-ed25519 AAAA...</code>. You add its contents to the server's <strong>~/.ssh/authorized_keys</strong> file to grant yourself access. <strong>Never confuse pub with private!</strong> — The .pub file has no danger, the file WITHOUT .pub is the dangerous one.</div>
+    <span class="card-perm ok">chmod 644 — safe to share</span>
+    <br><br>
+    <div class="ssh-tip"><span class="tip-label">✅ HOW TO COPY YOUR KEY TO A SERVER</span><code style="color:var(--green);font-size:11px">ssh-copy-id -i ~/.ssh/id_ed25519.pub user@server</code><br>This command adds your public key to the server's authorized_keys automatically!</div>
+  </div>
+
+  <div class="ssh-file-card auth">
+    <div class="card-filename auth">authorized_keys</div>
+    <div class="card-path">~/.ssh/authorized_keys &nbsp;(on the SERVER)</div>
+    <div class="card-title">🟡 THE GUEST LIST — WHO CAN LOGIN</div>
+    <div class="card-analogy">📋 <em>Analogy:</em> This file lives on the SERVER and is like the <strong>VIP guest list at a nightclub</strong>. Each line is one public key = one person allowed in. If your public key is in this file, you can login. If not — no entry!</div>
+    <div class="card-desc">Each line in this file is one person's public key. One line = one authorized person. You can have hundreds of lines for hundreds of users. To grant access to a new person, just append their public key to this file. To revoke access, delete their line. Comments after keys (like <code style="color:var(--gold);font-size:10px">user@hostname</code>) are purely informational. Format: <code style="color:var(--gold);font-size:10px">algorithm base64key comment</code></div>
+    <span class="card-perm danger">chmod 600 — REQUIRED</span>
+    <span class="card-perm warn">chown user:user — correct owner</span>
+    <br><br>
+    <div class="ssh-tip"><span class="tip-label">✅ ADD A KEY MANUALLY</span><code style="color:var(--green);font-size:10px">echo "ssh-ed25519 AAAA...key..." >> ~/.ssh/authorized_keys</code></div>
+  </div>
+
+  <div class="ssh-file-card known">
+    <div class="card-filename known">known_hosts</div>
+    <div class="card-path">~/.ssh/known_hosts &nbsp;(on CLIENT)</div>
+    <div class="card-title">🔵 SERVER FINGERPRINTS — TRUST DATABASE</div>
+    <div class="card-analogy">📸 <em>Analogy:</em> The first time you meet someone, you memorize their face. <strong>known_hosts is SSH's memory of server faces (fingerprints)</strong>. Next time you connect, SSH checks: "Is this the same server I connected to before?" If the face changed (different fingerprint) — RED ALERT! Could be a hacker doing a man-in-the-middle attack!</div>
+    <div class="card-desc">Each line stores one server's fingerprint in format: <code style="color:var(--blue);font-size:10px">hostname algorithm base64fingerprint</code>. When you first connect to a server, SSH asks "Do you trust this fingerprint?" — type yes and it saves here. If a server's key changes (reinstall, migration), you get a scary warning. If legitimate change, remove the old entry with <code style="color:var(--blue);font-size:10px">ssh-keygen -R hostname</code>.</div>
+    <span class="card-perm ok">chmod 644 — standard</span>
+    <br><br>
+    <div class="ssh-warn"><span class="warn-label">⚠ FINGERPRINT MISMATCH WARNING</span>If you see "REMOTE HOST IDENTIFICATION HAS CHANGED" — STOP! Either the server was rebuilt (OK) or someone is intercepting your connection (BAD). Verify with your sysadmin before proceeding.</div>
+  </div>
+
+  <div class="ssh-file-card cfg">
+    <div class="card-filename cfg">~/.ssh/config</div>
+    <div class="card-path">~/.ssh/config &nbsp;(personal client config)</div>
+    <div class="card-title">🟦 YOUR SSH SHORTCUTS — PROFILES FILE</div>
+    <div class="card-analogy">📒 <em>Analogy:</em> This is your <strong>phone contacts book for SSH</strong>. Instead of remembering "Call +91-9876543210 and use secret code 7543" — you just say "Call Ravi". Instead of typing the full SSH command with flags every time, you define a nickname and just type <code style="color:var(--teal);font-size:10px">ssh myserver</code>.</div>
+    <div class="card-desc">This file lets you define named SSH "profiles". Each block starts with <code style="color:var(--teal);font-size:10px">Host nickname</code> and lists settings below. When you type <code style="color:var(--teal);font-size:10px">ssh nickname</code>, SSH automatically uses those settings. Overrides /etc/ssh/ssh_config for your user only. Extremely powerful for DevOps with many servers.</div>
+    <span class="card-perm ok">chmod 600 — recommended</span>
+    <br><br>
+    <div class="ssh-tip"><span class="tip-label">✅ EXAMPLE ~/.ssh/config</span>
+<pre style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--teal);line-height:1.8;padding:8px;background:rgba(0,0,0,0.3);margin-top:4px">Host prod-web
+  HostName 203.0.113.10
+  User ubuntu
+  Port 2222
+  IdentityFile ~/.ssh/prod_key
+  ServerAliveInterval 60
+
+Host staging
+  HostName 192.168.1.50
+  User deploy
+  ProxyJump bastion
+
+Host bastion
+  HostName bastion.company.com
+  User admin
+  IdentityFile ~/.ssh/bastion_key</pre>
+Now just type: <code style="color:var(--green)">ssh prod-web</code> 🎉</div>
+  </div>
+
+  <div class="ssh-file-card pvt">
+    <div class="card-filename pvt">ssh_host_*_key</div>
+    <div class="card-path">/etc/ssh/ssh_host_ed25519_key &nbsp;(on SERVER)</div>
+    <div class="card-title">🔴 SERVER'S OWN IDENTITY — HOW CLIENTS RECOGNIZE IT</div>
+    <div class="card-analogy">🪪 <em>Analogy:</em> Just like YOU have an SSH key to prove your identity to servers, the <strong>server also has its own key to prove ITS identity to you</strong>. These are generated when SSH is installed on the server. The server's public key is what gets saved in your known_hosts when you first connect.</div>
+    <div class="card-desc">These keys are auto-generated during OpenSSH installation. Multiple types exist: ed25519 (modern), rsa (legacy), ecdsa. Never manually create these. They are what allows your client to verify the server is genuine. The public versions (.pub) are the fingerprints clients save in known_hosts. If regenerated (e.g. after cloning a VM), clients will get fingerprint mismatch warnings.</div>
+    <span class="card-perm danger">chmod 600 — enforced by sshd</span>
+    <span class="card-perm ok">owned by root:root</span>
+  </div>
+
+</div><!-- /ssh-file-cards -->
+
+<!-- TOPIC 4: /etc/ssh/ssh_config -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 04</span> /etc/ssh/ssh_config — CLIENT CONFIG DEEP DIVE</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  <strong>/etc/ssh/ssh_config</strong> is the <em>global SSH client settings file</em>. It affects ALL users on the machine when they use the <code style="color:var(--teal)">ssh</code> command. Think of it as the <strong>default settings for the SSH app</strong> — like phone settings that apply to everyone who uses the device. Your personal <code style="color:var(--teal)">~/.ssh/config</code> file always <em>overrides</em> this for just you. Admins usually edit this to set company-wide SSH defaults.
+</div>
+<div class="ssh-warn"><span class="warn-label">⚠ REMEMBER</span>Editing /etc/ssh/ssh_config affects the SSH CLIENT behavior (when you run ssh FROM this machine). It does NOT control who can log INTO this machine — that's sshd_config.</div>
+
+<div class="config-viewer">
+  <div class="config-viewer-header">ANNOTATED /etc/ssh/ssh_config <span class="file-path">CLIENT CONFIGURATION FILE</span></div>
+  <div style="padding:8px 0">
+    <div class="config-line"><div class="config-line-num">1</div><div class="config-line-content"><span class="config-comment"># /etc/ssh/ssh_config — GLOBAL SSH CLIENT CONFIG</span></div></div>
+    <div class="config-line"><div class="config-line-num">2</div><div class="config-line-content"><span class="config-comment"># Personal overrides go in: ~/.ssh/config (user-level, wins over this)</span></div></div>
+    <div class="config-line"><div class="config-line-num">3</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">4</div><div class="config-line-content"><span class="config-key">Host</span> <span class="config-val">*</span>  &nbsp;<span class="config-comment"># applies to ALL hosts by default</span></div></div>
+    <div class="config-line"><div class="config-line-num">5</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ServerAliveInterval</span> <span class="config-val num">60</span>  &nbsp;<span class="config-comment"># ping server every 60s to keep connection alive</span></div></div>
+    <div class="config-line"><div class="config-line-num">6</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ServerAliveCountMax</span> <span class="config-val num">3</span>  &nbsp;<span class="config-comment"># drop connection after 3 missed pings</span></div></div>
+    <div class="config-line"><div class="config-line-num">7</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ConnectTimeout</span> <span class="config-val num">10</span>  &nbsp;<span class="config-comment"># give up connecting after 10 seconds</span></div></div>
+    <div class="config-line"><div class="config-line-num">8</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">PasswordAuthentication</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># allow password login as fallback</span></div></div>
+    <div class="config-line"><div class="config-line-num">9</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">PubkeyAuthentication</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># allow SSH key authentication</span></div></div>
+    <div class="config-line"><div class="config-line-num">10</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">IdentityFile</span> <span class="config-val path">~/.ssh/id_ed25519</span>  &nbsp;<span class="config-comment"># default key to try first</span></div></div>
+    <div class="config-line"><div class="config-line-num">11</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">IdentityFile</span> <span class="config-val path">~/.ssh/id_rsa</span>  &nbsp;<span class="config-comment"># fallback to RSA if ed25519 fails</span></div></div>
+    <div class="config-line"><div class="config-line-num">12</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">StrictHostKeyChecking</span> <span class="config-val yn">ask</span>  &nbsp;<span class="config-comment"># ask before trusting unknown server</span></div></div>
+    <div class="config-line"><div class="config-line-num">13</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">UserKnownHostsFile</span> <span class="config-val path">~/.ssh/known_hosts</span>  &nbsp;<span class="config-comment"># where to store server fingerprints</span></div></div>
+    <div class="config-line"><div class="config-line-num">14</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">HashKnownHosts</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># hash hostnames for privacy (harder to read)</span></div></div>
+    <div class="config-line"><div class="config-line-num">15</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">Compression</span> <span class="config-val yn">no</span>  &nbsp;<span class="config-comment"># compress data (set yes for slow connections)</span></div></div>
+    <div class="config-line"><div class="config-line-num">16</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ForwardAgent</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># NEVER forward keys to remote server (security risk!)</span></div></div>
+    <div class="config-line"><div class="config-line-num">17</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ForwardX11</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># disable GUI app forwarding by default</span></div></div>
+    <div class="config-line"><div class="config-line-num">18</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">AddKeysToAgent</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># auto-add keys to ssh-agent on use</span></div></div>
+    <div class="config-line"><div class="config-line-num">19</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">LogLevel</span> <span class="config-val">INFO</span>  &nbsp;<span class="config-comment"># logging verbosity (DEBUG/INFO/VERBOSE)</span></div></div>
+    <div class="config-line"><div class="config-line-num">20</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">SendEnv</span> <span class="config-val">LANG LC_*</span>  &nbsp;<span class="config-comment"># send locale environment vars to server</span></div></div>
+    <div class="config-line"><div class="config-line-num">21</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ControlMaster</span> <span class="config-val yn">auto</span>  &nbsp;<span class="config-comment"># reuse existing connections (faster!</span></div></div>
+    <div class="config-line"><div class="config-line-num">22</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ControlPath</span> <span class="config-val path">~/.ssh/cm-%r@%h:%p</span>  &nbsp;<span class="config-comment"># socket file for reused connections</span></div></div>
+    <div class="config-line"><div class="config-line-num">23</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ControlPersist</span> <span class="config-val num">10m</span>  &nbsp;<span class="config-comment"># keep master connection alive 10 mins</span></div></div>
+  </div>
+</div>
+
+<!-- ssh_config explain table -->
+<table class="config-explain-table">
+<tbody>
+<tr><td><span style="color:#FF8888">ServerAliveInterval 60</span></td><td><span style="color:var(--teal)">CLIENT → SERVER</span></td><td>Every 60 seconds, your SSH client sends a tiny "are you still there?" ping to the server. <strong>Layman:</strong> Like texting "hey" to a friend to make sure the chat hasn't gone silent. Prevents timeouts on idle connections.</td></tr>
+<tr><td><span style="color:#FF8888">ServerAliveCountMax 3</span></td><td><span style="color:var(--teal)">CLIENT → SERVER</span></td><td>If the server doesn't respond to 3 consecutive pings, SSH assumes the connection is dead and exits. <strong>Layman:</strong> If your friend doesn't reply to 3 "hey" texts, you hang up.</td></tr>
+<tr><td><span style="color:#FF8888">ConnectTimeout 10</span></td><td><span style="color:var(--teal)">CONNECT</span></td><td>If the server doesn't respond within 10 seconds during initial connection, give up. <strong>Layman:</strong> If nobody answers the door after 10 seconds, walk away.</td></tr>
+<tr><td><span style="color:#FF8888">StrictHostKeyChecking ask</span></td><td><span style="color:var(--teal)">SECURITY</span></td><td><code>ask</code> = prompt you when a new unknown server is encountered. <code>yes</code> = never auto-trust new servers (safer for scripts). <code>no</code> = auto-trust all (dangerous!). <strong>Layman:</strong> How suspicious should you be of strangers?</td></tr>
+<tr><td><span style="color:#FF8888">ForwardAgent no</span></td><td><span style="color:var(--teal)">SECURITY ⚠</span></td><td>Keep this NO. ForwardAgent yes means your private keys are accessible FROM the server — if server is compromised, attackers can use your keys. <strong>Layman:</strong> Don't leave your house keys with a stranger's house.</td></tr>
+<tr><td><span style="color:#FF8888">Compression yes</span></td><td><span style="color:var(--teal)">PERFORMANCE</span></td><td>Compress all data before sending over SSH. Useful for slow connections (international links, <100Mbps). Actually slower on fast LAN connections because CPU compression time exceeds bandwidth savings.</td></tr>
+<tr><td><span style="color:#FF8888">ControlMaster auto</span></td><td><span style="color:var(--teal)">PERFORMANCE</span></td><td>SSH connection multiplexing. After the first connection to a server, subsequent <code>ssh</code> or <code>scp</code> commands reuse the same TCP connection — much faster! <strong>Layman:</strong> After opening the door once, keep it ajar for quick re-entry.</td></tr>
+<tr><td><span style="color:#FF8888">AddKeysToAgent yes</span></td><td><span style="color:var(--teal)">USABILITY</span></td><td>Automatically loads your private key into ssh-agent when first used. So you only type your passphrase once per session. <strong>Layman:</strong> Remember the safe code for the rest of the day after entering it once.</td></tr>
+<tr><td><span style="color:#FF8888">IdentityFile ~/.ssh/key</span></td><td><span style="color:var(--teal)">AUTH</span></td><td>Which private key file to use for authentication. You can list multiple — SSH tries them in order. Override per-host in your ~/.ssh/config for different servers.</td></tr>
+</tbody>
+</table>
+
+<!-- TOPIC 5: /etc/ssh/sshd_config -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 05</span> /etc/ssh/sshd_config — SERVER DAEMON CONFIG DEEP DIVE</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  <strong>/etc/ssh/sshd_config</strong> is the config for the SSH SERVER (sshd = SSH Daemon). This controls <em>who can connect to YOUR machine</em> and HOW they can connect. Think of it as <strong>the rules for the bouncer at the door of your server.</strong> Everything in here determines: What port do we listen on? Do we allow passwords? Do we allow root login? Which users can enter? <strong>After every change you MUST restart sshd:</strong> <code style="color:var(--gold)">systemctl restart sshd</code> — otherwise changes don't take effect!
+</div>
+<div class="ssh-warn"><span class="warn-label">⚠ BEFORE EDITING sshd_config</span>ALWAYS keep an existing SSH session open while editing! If you make a mistake and lock yourself out, that open session is your rescue lifeline. NEVER blindly close all sessions after a sshd_config change.</div>
+
+<div class="config-viewer">
+  <div class="config-viewer-header">ANNOTATED /etc/ssh/sshd_config <span class="file-path">SERVER DAEMON CONFIGURATION FILE</span></div>
+  <div style="padding:8px 0">
+    <div class="config-line"><div class="config-line-num">1</div><div class="config-line-content"><span class="config-comment"># /etc/ssh/sshd_config — SSH SERVER CONFIG (the bouncer's rulebook)</span></div></div>
+    <div class="config-line"><div class="config-line-num">2</div><div class="config-line-content"><span class="config-comment"># AFTER EDITING: sudo systemctl restart sshd</span></div></div>
+    <div class="config-line"><div class="config-line-num">3</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">4</div><div class="config-line-content"><span class="config-comment"># ═══ CONNECTION SETTINGS ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">5</div><div class="config-line-content"><span class="config-key">Port</span> <span class="config-val num">22</span>  &nbsp;<span class="config-comment"># listen port (security tip: change to non-standard!)</span></div></div>
+    <div class="config-line"><div class="config-line-num">6</div><div class="config-line-content"><span class="config-key">ListenAddress</span> <span class="config-val">0.0.0.0</span>  &nbsp;<span class="config-comment"># listen on all IPv4 interfaces</span></div></div>
+    <div class="config-line"><div class="config-line-num">7</div><div class="config-line-content"><span class="config-key">ListenAddress</span> <span class="config-val">::</span>  &nbsp;<span class="config-comment"># listen on all IPv6 interfaces too</span></div></div>
+    <div class="config-line"><div class="config-line-num">8</div><div class="config-line-content"><span class="config-key">AddressFamily</span> <span class="config-val">any</span>  &nbsp;<span class="config-comment"># accept both IPv4 and IPv6</span></div></div>
+    <div class="config-line"><div class="config-line-num">9</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">10</div><div class="config-line-content"><span class="config-comment"># ═══ HOST KEYS (server identity) ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">11</div><div class="config-line-content"><span class="config-key">HostKey</span> <span class="config-val path">/etc/ssh/ssh_host_ed25519_key</span>  &nbsp;<span class="config-comment"># modern — preferred</span></div></div>
+    <div class="config-line"><div class="config-line-num">12</div><div class="config-line-content"><span class="config-key">HostKey</span> <span class="config-val path">/etc/ssh/ssh_host_rsa_key</span>  &nbsp;<span class="config-comment"># legacy RSA for old clients</span></div></div>
+    <div class="config-line"><div class="config-line-num">13</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">14</div><div class="config-line-content"><span class="config-comment"># ═══ AUTHENTICATION ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">15</div><div class="config-line-content"><span class="config-key">PermitRootLogin</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># BLOCK direct root login (major security win!)</span></div></div>
+    <div class="config-line"><div class="config-line-num">16</div><div class="config-line-content"><span class="config-key">PasswordAuthentication</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># DISABLE passwords — keys only (most secure!)</span></div></div>
+    <div class="config-line"><div class="config-line-num">17</div><div class="config-line-content"><span class="config-key">PubkeyAuthentication</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># allow key-based login</span></div></div>
+    <div class="config-line"><div class="config-line-num">18</div><div class="config-line-content"><span class="config-key">AuthorizedKeysFile</span> <span class="config-val path">.ssh/authorized_keys</span>  &nbsp;<span class="config-comment"># where to look for allowed public keys</span></div></div>
+    <div class="config-line"><div class="config-line-num">19</div><div class="config-line-content"><span class="config-key">PermitEmptyPasswords</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># never allow blank passwords!</span></div></div>
+    <div class="config-line"><div class="config-line-num">20</div><div class="config-line-content"><span class="config-key">ChallengeResponseAuthentication</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># disable PAM challenge (extra auth method)</span></div></div>
+    <div class="config-line"><div class="config-line-num">21</div><div class="config-line-content"><span class="config-key">UsePAM</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># use PAM for additional auth controls</span></div></div>
+    <div class="config-line"><div class="config-line-num">22</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">23</div><div class="config-line-content"><span class="config-comment"># ═══ BRUTE-FORCE PROTECTION ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">24</div><div class="config-line-content"><span class="config-key">MaxAuthTries</span> <span class="config-val num">3</span>  &nbsp;<span class="config-comment"># disconnect after 3 failed auth attempts</span></div></div>
+    <div class="config-line"><div class="config-line-num">25</div><div class="config-line-content"><span class="config-key">MaxSessions</span> <span class="config-val num">10</span>  &nbsp;<span class="config-comment"># max concurrent sessions per connection</span></div></div>
+    <div class="config-line"><div class="config-line-num">26</div><div class="config-line-content"><span class="config-key">MaxStartups</span> <span class="config-val">10:30:100</span>  &nbsp;<span class="config-comment"># rate-limit unauthenticated connections</span></div></div>
+    <div class="config-line"><div class="config-line-num">27</div><div class="config-line-content"><span class="config-key">LoginGraceTime</span> <span class="config-val num">30</span>  &nbsp;<span class="config-comment"># disconnect if not logged in within 30 seconds</span></div></div>
+    <div class="config-line"><div class="config-line-num">28</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">29</div><div class="config-line-content"><span class="config-comment"># ═══ USER/GROUP ACCESS CONTROL ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">30</div><div class="config-line-content"><span class="config-key">AllowUsers</span> <span class="config-val">ubuntu deploy jenkins</span>  &nbsp;<span class="config-comment"># WHITELIST: only these users can SSH in</span></div></div>
+    <div class="config-line"><div class="config-line-num">31</div><div class="config-line-content"><span class="config-comment"># AllowGroups sshusers devops   # OR allow by group membership</span></div></div>
+    <div class="config-line"><div class="config-line-num">32</div><div class="config-line-content"><span class="config-comment"># DenyUsers hacker baduser       # BLACKLIST specific users</span></div></div>
+    <div class="config-line"><div class="config-line-num">33</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">34</div><div class="config-line-content"><span class="config-comment"># ═══ SESSION TIMEOUT ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">35</div><div class="config-line-content"><span class="config-key">ClientAliveInterval</span> <span class="config-val num">300</span>  &nbsp;<span class="config-comment"># ping client every 5 minutes to check alive</span></div></div>
+    <div class="config-line"><div class="config-line-num">36</div><div class="config-line-content"><span class="config-key">ClientAliveCountMax</span> <span class="config-val num">2</span>  &nbsp;<span class="config-comment"># disconnect after 2 missed pings (10 min total)</span></div></div>
+    <div class="config-line"><div class="config-line-num">37</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">38</div><div class="config-line-content"><span class="config-comment"># ═══ FEATURES ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">39</div><div class="config-line-content"><span class="config-key">X11Forwarding</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># disable GUI forwarding (unless needed)</span></div></div>
+    <div class="config-line"><div class="config-line-num">40</div><div class="config-line-content"><span class="config-key">AllowTcpForwarding</span> <span class="config-val yn">yes</span>  &nbsp;<span class="config-comment"># allow port forwarding/tunnels</span></div></div>
+    <div class="config-line"><div class="config-line-num">41</div><div class="config-line-content"><span class="config-key">GatewayPorts</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># prevent remote-forwarded ports being public</span></div></div>
+    <div class="config-line"><div class="config-line-num">42</div><div class="config-line-content"><span class="config-key">PrintMotd</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># suppress message of the day at login</span></div></div>
+    <div class="config-line"><div class="config-line-num">43</div><div class="config-line-content"><span class="config-key">Banner</span> <span class="config-val path">/etc/issue.net</span>  &nbsp;<span class="config-comment"># show this file BEFORE login prompt</span></div></div>
+    <div class="config-line"><div class="config-line-num">44</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">45</div><div class="config-line-content"><span class="config-comment"># ═══ CRYPTOGRAPHY ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">46</div><div class="config-line-content"><span class="config-key">Ciphers</span> <span class="config-val">chacha20-poly1305@openssh.com,aes256-gcm@openssh.com</span></div></div>
+    <div class="config-line"><div class="config-line-num">47</div><div class="config-line-content"><span class="config-key">MACs</span> <span class="config-val">hmac-sha2-512,hmac-sha2-256</span></div></div>
+    <div class="config-line"><div class="config-line-num">48</div><div class="config-line-content"><span class="config-key">KexAlgorithms</span> <span class="config-val">curve25519-sha256,diffie-hellman-group14-sha256</span></div></div>
+    <div class="config-line"><div class="config-line-num">49</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">50</div><div class="config-line-content"><span class="config-comment"># ═══ LOGGING ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">51</div><div class="config-line-content"><span class="config-key">SyslogFacility</span> <span class="config-val">AUTH</span>  &nbsp;<span class="config-comment"># log auth events to syslog AUTH facility</span></div></div>
+    <div class="config-line"><div class="config-line-num">52</div><div class="config-line-content"><span class="config-key">LogLevel</span> <span class="config-val">VERBOSE</span>  &nbsp;<span class="config-comment"># verbose logging — great for debugging</span></div></div>
+    <div class="config-line"><div class="config-line-num">53</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">54</div><div class="config-line-content"><span class="config-comment"># ═══ SFTP SUBSYSTEM ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">55</div><div class="config-line-content"><span class="config-key">Subsystem</span> <span class="config-val">sftp /usr/lib/openssh/sftp-server</span>  &nbsp;<span class="config-comment"># enable SFTP file transfers</span></div></div>
+    <div class="config-line"><div class="config-line-num">56</div><div class="config-line-content">&nbsp;</div></div>
+    <div class="config-line"><div class="config-line-num">57</div><div class="config-line-content"><span class="config-comment"># ═══ PER-USER RULES (powerful!) ═══</span></div></div>
+    <div class="config-line"><div class="config-line-num">58</div><div class="config-line-content"><span class="config-key">Match User</span> <span class="config-val">ftpuser</span>  &nbsp;<span class="config-comment"># apply settings only to this user</span></div></div>
+    <div class="config-line"><div class="config-line-num">59</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ChrootDirectory</span> <span class="config-val path">/var/www/uploads</span>  &nbsp;<span class="config-comment"># jail this user to folder (can't escape!)</span></div></div>
+    <div class="config-line"><div class="config-line-num">60</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">ForceCommand</span> <span class="config-val">internal-sftp</span>  &nbsp;<span class="config-comment"># allow SFTP only, no shell access</span></div></div>
+    <div class="config-line"><div class="config-line-num">61</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">AllowTcpForwarding</span> <span class="config-val yn no">no</span>  &nbsp;<span class="config-comment"># disable tunneling for this user</span></div></div>
+    <div class="config-line"><div class="config-line-num">62</div><div class="config-line-content">&nbsp;&nbsp;<span class="config-key">X11Forwarding</span> <span class="config-val yn no">no</span></div></div>
+  </div>
+</div>
+
+<!-- sshd_config explain table -->
+<table class="config-explain-table">
+<tbody>
+<tr><td><span style="color:#FF8888">Port 22</span></td><td><span style="color:var(--red)">⚠ CHANGE IT!</span></td><td>The default port hackers scan first. Changing to e.g. 2222 or 22000 reduces automated attack noise by ~90%. Not foolproof, but reduces log spam. <strong>Layman:</strong> Like changing your front door from the standard door number — makes it harder for random burglars to find.</td></tr>
+<tr><td><span style="color:#FF8888">PermitRootLogin no</span></td><td><span style="color:var(--red)">🔒 MUST BE no</span></td><td>Never allow direct root SSH login. If a key is compromised, attackers immediately get root — game over. Instead, login as a regular user then <code>sudo su -</code>. <strong>The single most important sshd_config setting.</strong></td></tr>
+<tr><td><span style="color:#FF8888">PasswordAuthentication no</span></td><td><span style="color:var(--red)">🔒 MUST BE no</span></td><td>Disable all password-based login. Force SSH key authentication ONLY. Completely eliminates brute-force password attacks. <strong>2nd most important setting</strong>. Only set this AFTER confirming key auth works!</td></tr>
+<tr><td><span style="color:#FF8888">MaxAuthTries 3</span></td><td><span style="color:var(--gold)">PROTECTION</span></td><td>After 3 failed login attempts in one connection, SSH disconnects. Makes brute-force attacks extremely slow. Each connection allows only 3 guesses — attacker would need thousands of connections to guess a key.</td></tr>
+<tr><td><span style="color:#FF8888">LoginGraceTime 30</span></td><td><span style="color:var(--gold)">PROTECTION</span></td><td>If someone connects but doesn't complete login within 30 seconds, disconnect them. Prevents connection hijacking and reduces resources held by unresponsive clients. <strong>Layman:</strong> If someone picks up the phone but says nothing for 30 seconds, hang up.</td></tr>
+<tr><td><span style="color:#FF8888">AllowUsers ubuntu deploy</span></td><td><span style="color:var(--green)">WHITELIST</span></td><td>ONLY listed users can SSH into this server. Everyone else (including system users like www-data, postgres) cannot SSH in, even with valid keys. If omitted, all users who authenticate successfully can login. <strong>Always set this on production servers!</strong></td></tr>
+<tr><td><span style="color:#FF8888">ClientAliveInterval 300</span></td><td><span style="color:var(--blue)">SESSION</span></td><td>Server sends "are you alive?" ping to CLIENT every 300 seconds (5 min). Cleans up zombie sessions. Note: This is the SERVER pinging the CLIENT — opposite of ServerAliveInterval (client pinging server).</td></tr>
+<tr><td><span style="color:#FF8888">MaxStartups 10:30:100</span></td><td><span style="color:var(--gold)">PROTECTION</span></td><td>Rate-limit unauthenticated connections. Format: <code>start:rate:full</code>. Start dropping connections at 10 unauthenticated (30% drop rate), full drop at 100. Protects against connection flooding attacks.</td></tr>
+<tr><td><span style="color:#FF8888">AllowTcpForwarding yes</span></td><td><span style="color:var(--blue)">TUNNELS</span></td><td>Allows SSH port forwarding/tunneling. Set to <code>no</code> for restricted users who should only get a shell. Set to <code>local</code> to allow only local forwarding. Required for VPN-like tunneling use cases.</td></tr>
+<tr><td><span style="color:#FF8888">Match User ftpuser</span></td><td><span style="color:var(--ssh)">POWERFUL</span></td><td>Apply different settings to specific users/groups/IPs. Extremely powerful for creating different access tiers. Use ChrootDirectory to jail users, ForceCommand to restrict to SFTP only, AllowTcpForwarding no to block tunneling.</td></tr>
+<tr><td><span style="color:#FF8888">Ciphers / MACs / KexAlgorithms</span></td><td><span style="color:var(--purple)">CRYPTO</span></td><td>Restrict which encryption algorithms are allowed. Remove old weak ones (3des, md5, sha1). Stick to chacha20, aes256-gcm, curve25519, sha256+. Run <code>ssh -Q cipher</code> to see all supported ciphers.</td></tr>
+<tr><td><span style="color:#FF8888">Subsystem sftp sftp-server</span></td><td><span style="color:var(--green)">SFTP</span></td><td>Enables the SFTP subsystem (file transfer over SSH). Without this line, scp and sftp commands would fail. The path points to the sftp-server binary. Can be removed if file transfers are not needed.</td></tr>
+</tbody>
+</table>
+
+<!-- TOPIC 6: PORT FORWARDING/TUNNELING -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 06</span> SSH PORT FORWARDING &amp; TUNNELING — LAYMAN DEEP DIVE</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  SSH tunneling is like <strong>creating a secret pipeline through the SSH connection</strong>. The pipeline carries OTHER network traffic (not just your terminal). Think of SSH as a secure armored truck — tunneling means you can also put other cargo inside that truck while it travels. Common uses: access internal databases from outside, bypass firewalls, secure unsecured protocols.
+</div>
+
+<div class="two-col">
+<div class="tunnel-panel">
+  <div class="tunnel-header">🔵 LOCAL PORT FORWARDING (-L)</div>
+  <div class="tunnel-body">
+    <div class="tunnel-desc"><strong>What it does:</strong> Forward a port on YOUR machine to a port on the REMOTE server's network. You access localhost:localport and traffic goes through SSH to reach the remote target.</div>
+    <div class="tunnel-diagram"><span class="t-blue">[YOUR LAPTOP :8080]</span> ─────SSH TUNNEL────▶ <span class="t-green">[SERVER :3306]</span>
+You browse localhost:8080 → arrives at MySQL 3306!</div>
+    <div class="tunnel-cmd">ssh -L 8080:localhost:3306 user@server</div>
+    <div class="tunnel-cmd">ssh -L 8080:db.internal:5432 user@jumpserver</div>
+    <div class="tunnel-desc" style="color:var(--teal);font-size:11px">💡 <em>Layman:</em> Like telling a courier to pick up your package from someone else's address. You give YOUR address for delivery, they pick from the other location.</div>
+  </div>
+</div>
+<div class="tunnel-panel">
+  <div class="tunnel-header">🔴 REMOTE PORT FORWARDING (-R)</div>
+  <div class="tunnel-body">
+    <div class="tunnel-desc"><strong>What it does:</strong> Forward a port on the REMOTE server back to a port on YOUR machine. The server exposes a port that proxies to your local machine. Useful for exposing local dev servers.</div>
+    <div class="tunnel-diagram"><span class="t-green">[SERVER :8080]</span> ─────SSH TUNNEL────▶ <span class="t-blue">[YOUR LAPTOP :3000]</span>
+Someone visits server:8080 → reaches YOUR localhost:3000!</div>
+    <div class="tunnel-cmd">ssh -R 8080:localhost:3000 user@server</div>
+    <div class="tunnel-cmd">ssh -R 0.0.0.0:9090:localhost:8080 user@server</div>
+    <div class="tunnel-desc" style="color:var(--teal);font-size:11px">💡 <em>Layman:</em> Like giving a friend your home address so people who visit THEIR house can be redirected to yours.</div>
+  </div>
+</div>
+</div>
+<div class="two-col">
+<div class="tunnel-panel">
+  <div class="tunnel-header">🟢 DYNAMIC FORWARDING — SOCKS PROXY (-D)</div>
+  <div class="tunnel-body">
+    <div class="tunnel-desc"><strong>What it does:</strong> Creates a SOCKS proxy on your local machine. Configure your browser to use it, and ALL browser traffic goes through the SSH server. Like a VPN but using SSH.</div>
+    <div class="tunnel-diagram"><span class="t-blue">[YOUR BROWSER]</span> → localhost:1080(SOCKS) → <span class="t-green">[SSH SERVER]</span> → Internet
+All traffic appears to come FROM the SSH server!</div>
+    <div class="tunnel-cmd">ssh -D 1080 user@server</div>
+    <div class="tunnel-cmd">ssh -D 1080 -C -N user@server</div>
+    <div class="tunnel-desc" style="color:var(--teal);font-size:11px">💡 <em>Layman:</em> Like sending all your mail through a trusted friend in another city — it all looks like it came from their city.</div>
+  </div>
+</div>
+<div class="tunnel-panel">
+  <div class="tunnel-header">🟡 JUMP HOST / PROXY JUMP (-J)</div>
+  <div class="tunnel-body">
+    <div class="tunnel-desc"><strong>What it does:</strong> SSH through an intermediate "bastion" server to reach a private server that has no public IP. Standard enterprise security pattern.</div>
+    <div class="tunnel-diagram"><span class="t-blue">[YOUR LAPTOP]</span> → <span class="t-gold">[BASTION :22]</span> → <span class="t-green">[PRIVATE SERVER]</span>
+Private server has no internet. Only bastion can reach it!</div>
+    <div class="tunnel-cmd">ssh -J bastion.company.com user@192.168.1.50</div>
+    <div class="tunnel-cmd">ssh -J admin@bastion:2222 deploy@10.0.0.5</div>
+    <div class="tunnel-desc" style="color:var(--teal);font-size:11px">💡 <em>Layman:</em> Like entering a secured building through a lobby guard (bastion), then being escorted to the inner office (private server).</div>
+  </div>
+</div>
+</div>
+
+<!-- TOPIC 7: SSH COMMANDS — FULL TABLE -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 07</span> SSH COMMANDS — 60+ WITH EVERY FLAG EXPLAINED</div>
+
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ssh user@host</span></td><td><span class="cmd-desc">Basic SSH login to remote server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -p 2222 user@host</span></td><td><span class="cmd-desc">Connect on custom port (default is 22)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -i ~/.ssh/mykey user@host</span></td><td><span class="cmd-desc">Use specific private key file for login</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -v user@host</span></td><td><span class="cmd-desc">Verbose — debug connection issues step by step</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -vvv user@host</span></td><td><span class="cmd-desc">Maximum verbosity — full crypto handshake debug</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -o "StrictHostKeyChecking=no" user@host</span></td><td><span class="cmd-desc">Skip host key check (CI/CD automation only — insecure in prod)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -o "ConnectTimeout=5" user@host</span></td><td><span class="cmd-desc">Give up connecting after 5 seconds</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -A user@host</span></td><td><span class="cmd-desc">Forward SSH agent (use carefully — security risk)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -N user@host</span></td><td><span class="cmd-desc">No remote command — used for tunnels only (no shell)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -f user@host</span></td><td><span class="cmd-desc">Fork to background — for tunnels you don't want blocking</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -T user@host</span></td><td><span class="cmd-desc">Disable pseudo-terminal (for piping commands/automation)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -q user@host</span></td><td><span class="cmd-desc">Quiet mode — suppress all warnings (for scripts)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -C user@host</span></td><td><span class="cmd-desc">Enable compression (useful for slow connections)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -X user@host</span></td><td><span class="cmd-desc">Enable X11 forwarding (run GUI apps over SSH)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -Y user@host</span></td><td><span class="cmd-desc">Trusted X11 forwarding (less secure than -X but less restrictive)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host "ls -la /var/log"</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Run single command remotely without interactive shell</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host "df -h; free -h; uptime"</span></td><td><span class="cmd-desc">Run multiple commands remotely (semicolon-separated)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host 'bash -s' &lt; script.sh</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Execute a local shell script on remote server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host sudo systemctl restart nginx</span></td><td><span class="cmd-desc">Run sudo command remotely</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -t user@host sudo su -</span></td><td><span class="cmd-desc">Allocate pseudo-TTY for sudo — needed for interactive sudo</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -J bastion user@private-server</span></td><td><span class="cmd-desc">SSH through jump/bastion host to reach private server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -J admin@jump1,admin@jump2 user@target</span></td><td><span class="cmd-desc">Chain multiple jump hosts (multi-hop SSH)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -L 8080:localhost:80 user@host</span></td><td><span class="cmd-desc"><strong>Tunnel:</strong> Local port 8080 → remote port 80</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -L 5432:db.internal:5432 user@jump</span></td><td><span class="cmd-desc"><strong>Tunnel:</strong> Access internal DB through jump server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -R 8080:localhost:3000 user@host</span></td><td><span class="cmd-desc"><strong>Tunnel:</strong> Expose local port 3000 on remote as port 8080</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -D 1080 user@host</span></td><td><span class="cmd-desc"><strong>Tunnel:</strong> SOCKS proxy on localhost:1080 via SSH server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -fN -L 3306:localhost:3306 user@host</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Background tunnel — no shell, just the tunnel</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -o "ServerAliveInterval=60" user@host</span></td><td><span class="cmd-desc">Keep connection alive by pinging every 60s</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -o "BatchMode=yes" user@host cmd</span></td><td><span class="cmd-desc">Non-interactive mode — fail if key auth fails (no password prompt)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -e none user@host</span></td><td><span class="cmd-desc">Disable escape character (useful in scripts/nesting)</span></td></tr>
+</tbody></table>
+
+<!-- SSH KEY MANAGEMENT -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 08</span> SSH KEY MANAGEMENT — ssh-keygen, ssh-copy-id, ssh-agent</div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ssh-keygen -t ed25519 -C "you@email.com"</span></td><td><span class="cmd-desc"><strong>RECOMMENDED:</strong> Generate modern Ed25519 key pair with comment</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -t rsa -b 4096 -C "you@email.com"</span></td><td><span class="cmd-desc">Generate RSA 4096-bit key (legacy but still safe)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -t ed25519 -f ~/.ssh/mykey</span></td><td><span class="cmd-desc">Generate key with custom filename (not id_ed25519)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -p -f ~/.ssh/id_ed25519</span></td><td><span class="cmd-desc">Change passphrase on existing key (without regenerating)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -l -f ~/.ssh/id_ed25519.pub</span></td><td><span class="cmd-desc">Show fingerprint of a public key</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -l -E md5 -f key.pub</span></td><td><span class="cmd-desc">Show MD5 fingerprint (for comparing with legacy systems)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -R hostname</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Remove a host from known_hosts (after server rebuild)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -y -f ~/.ssh/id_ed25519</span></td><td><span class="cmd-desc">Extract public key from a private key file</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-copy-id user@host</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Copy your default public key to server's authorized_keys</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-copy-id -i ~/.ssh/mykey.pub user@host</span></td><td><span class="cmd-desc">Copy specific public key to server</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-copy-id -p 2222 user@host</span></td><td><span class="cmd-desc">Copy key to server on non-standard port</span></td></tr>
+<tr><td><span class="cmd-tag">cat ~/.ssh/id_ed25519.pub | ssh user@host "cat >> ~/.ssh/authorized_keys"</span></td><td><span class="cmd-desc">Manual way to add public key (if ssh-copy-id unavailable)</span></td></tr>
+<tr><td><span class="cmd-tag">eval "$(ssh-agent -s)"</span></td><td><span class="cmd-desc">Start ssh-agent in background — required before ssh-add</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-add ~/.ssh/id_ed25519</span></td><td><span class="cmd-desc">Add private key to ssh-agent (so no passphrase prompts)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-add -l</span></td><td><span class="cmd-desc">List all keys loaded in ssh-agent</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-add -D</span></td><td><span class="cmd-desc">Remove ALL keys from ssh-agent</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-add -t 3600 ~/.ssh/id_ed25519</span></td><td><span class="cmd-desc">Add key to agent with 1-hour timeout (auto-removes)</span></td></tr>
+</tbody></table>
+
+<!-- SCP / SFTP / RSYNC VIA SSH -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 09</span> SCP, SFTP &amp; RSYNC-OVER-SSH — FILE TRANSFERS</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  <strong>SCP</strong> (Secure Copy Protocol) = Copy files over SSH. Like <code>cp</code> but across the internet. <strong>SFTP</strong> = FTP but encrypted via SSH (interactive file browser). <strong>rsync over SSH</strong> = The smart copy — only transfers what CHANGED (huge time saver for large directories).
+</div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">scp file.txt user@host:/remote/path/</span></td><td><span class="cmd-desc">Copy local file to remote server</span></td></tr>
+<tr><td><span class="cmd-tag">scp user@host:/remote/file.txt ./</span></td><td><span class="cmd-desc">Download file from remote server to current directory</span></td></tr>
+<tr><td><span class="cmd-tag">scp -r /local/dir/ user@host:/remote/dir/</span></td><td><span class="cmd-desc">Copy entire directory recursively to server</span></td></tr>
+<tr><td><span class="cmd-tag">scp -P 2222 file.txt user@host:/path/</span></td><td><span class="cmd-desc">SCP on non-standard port (note: -P not -p)</span></td></tr>
+<tr><td><span class="cmd-tag">scp -i ~/.ssh/mykey file.txt user@host:/path/</span></td><td><span class="cmd-desc">SCP using specific identity key</span></td></tr>
+<tr><td><span class="cmd-tag">scp -C file.txt user@host:/path/</span></td><td><span class="cmd-desc">Enable compression during transfer (good for text)</span></td></tr>
+<tr><td><span class="cmd-tag">scp user1@host1:/file user2@host2:/path/</span></td><td><span class="cmd-desc">Copy between two remote servers (via your machine)</span></td></tr>
+<tr><td><span class="cmd-tag">sftp user@host</span></td><td><span class="cmd-desc">Start interactive SFTP session</span></td></tr>
+<tr><td><span class="cmd-tag">sftp -P 2222 user@host</span></td><td><span class="cmd-desc">SFTP on non-standard port</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz /local/ user@host:/remote/</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Sync directory over SSH — only changed files</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz --delete /local/ user@host:/remote/</span></td><td><span class="cmd-desc">Sync and DELETE files on remote not present locally</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz --exclude='*.log' /src/ user@host:/dst/</span></td><td><span class="cmd-desc">Sync excluding certain file patterns</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -avz -e "ssh -p 2222" /local/ user@host:/remote/</span></td><td><span class="cmd-desc">rsync over SSH with custom port</span></td></tr>
+<tr><td><span class="cmd-tag">rsync -n -avz /local/ user@host:/remote/</span></td><td><span class="cmd-desc">Dry-run: show what WOULD be synced without actually doing it</span></td></tr>
+<tr><td><span class="cmd-tag">rsync --progress -avz /large-dir/ user@host:/dst/</span></td><td><span class="cmd-desc">Show per-file transfer progress</span></td></tr>
+</tbody></table>
+
+<!-- SSH TROUBLESHOOTING -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 10</span> SSH TROUBLESHOOTING — DIAGNOSE &amp; FIX PROBLEMS</div>
+<div class="layman-box">
+  <span class="layman-label">👁 LAYMAN EXPLANATION</span>
+  When SSH fails, there's always a reason. Use <code style="color:var(--teal)">ssh -vvv</code> to see EXACTLY what's happening step by step. Most problems are either permission issues (file perms too open/too closed), wrong key being used, server config blocking you, or firewall issues.
+</div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ssh -vvv user@host 2>&amp;1 | head -50</span></td><td><span class="cmd-desc"><strong>FIRST DEBUG STEP:</strong> Maximum verbosity — shows every handshake step</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 700 ~/.ssh</span></td><td><span class="cmd-desc"><strong>Fix perms:</strong> ~/.ssh directory must be 700 (owner rwx only)</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 600 ~/.ssh/id_ed25519</span></td><td><span class="cmd-desc"><strong>Fix perms:</strong> Private key must be 600 or SSH refuses to use it</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 600 ~/.ssh/authorized_keys</span></td><td><span class="cmd-desc"><strong>Fix perms:</strong> authorized_keys must be 600 on SERVER</span></td></tr>
+<tr><td><span class="cmd-tag">chmod 644 ~/.ssh/id_ed25519.pub</span></td><td><span class="cmd-desc">Public key can be 644 (readable is fine)</span></td></tr>
+<tr><td><span class="cmd-tag">restorecon -Rv ~/.ssh/</span></td><td><span class="cmd-desc">Fix SELinux context on SSH files (RHEL/CentOS)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keygen -R bad-host.example.com</span></td><td><span class="cmd-desc">Remove stale fingerprint from known_hosts (after server rebuild)</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u sshd -n 50</span></td><td><span class="cmd-desc"><strong>SERVER DEBUG:</strong> Last 50 sshd log entries (why did it reject?)</span></td></tr>
+<tr><td><span class="cmd-tag">journalctl -u sshd -f</span></td><td><span class="cmd-desc">Follow sshd logs live — watch what happens during connection attempt</span></td></tr>
+<tr><td><span class="cmd-tag">tail -f /var/log/auth.log | grep sshd</span></td><td><span class="cmd-desc">Live auth log watching (Ubuntu/Debian)</span></td></tr>
+<tr><td><span class="cmd-tag">tail -f /var/log/secure</span></td><td><span class="cmd-desc">Live auth log (RHEL/CentOS)</span></td></tr>
+<tr><td><span class="cmd-tag">sshd -T | grep -i auth</span></td><td><span class="cmd-desc">Show effective sshd_config settings after parsing (no restart needed)</span></td></tr>
+<tr><td><span class="cmd-tag">sshd -t</span></td><td><span class="cmd-desc">Test sshd_config syntax — safe to run before restart</span></td></tr>
+<tr><td><span class="cmd-tag">nc -zv host 22</span></td><td><span class="cmd-desc">Test if SSH port 22 is open and reachable from your machine</span></td></tr>
+<tr><td><span class="cmd-tag">telnet host 22</span></td><td><span class="cmd-desc">Check if SSH port responds — see SSH version banner</span></td></tr>
+<tr><td><span class="cmd-tag">ss -tlnp | grep :22</span></td><td><span class="cmd-desc">Confirm sshd is actually listening on port 22 (on the server)</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl status sshd</span></td><td><span class="cmd-desc">Check if SSH service is running on the server</span></td></tr>
+<tr><td><span class="cmd-tag">systemctl restart sshd</span></td><td><span class="cmd-desc">Restart SSH daemon (after config changes)</span></td></tr>
+<tr><td><span class="cmd-tag">grep "^AllowUsers" /etc/ssh/sshd_config</span></td><td><span class="cmd-desc">Check if your username is in the AllowUsers list</span></td></tr>
+<tr><td><span class="cmd-tag">cat ~/.ssh/authorized_keys | wc -l</span></td><td><span class="cmd-desc">Count entries in authorized_keys on server</span></td></tr>
+</tbody></table>
+
+<!-- SSH SECURITY HARDENING QUICK TABLE -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 11</span> SSH SECURITY HARDENING — QUICK REFERENCE CHECKLIST</div>
+<div class="two-col">
+<div class="ssh-tip">
+  <span class="tip-label">✅ ESSENTIAL SSHD_CONFIG HARDENING</span>
+  <table style="width:100%;font-size:11px;font-family:'Share Tech Mono',monospace;border-collapse:collapse">
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">Port 2222</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Change default port</td></tr>
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">PermitRootLogin no</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Block root SSH</td></tr>
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">PasswordAuthentication no</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Keys only!</td></tr>
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">MaxAuthTries 3</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Limit brute force</td></tr>
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">AllowUsers ubuntu</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Whitelist users</td></tr>
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">LoginGraceTime 30</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Quick timeout</td></tr>
+    <tr style="border-bottom:1px solid rgba(0,255,136,0.1)"><td style="padding:4px;color:var(--green)">X11Forwarding no</td><td style="padding:4px;color:rgba(200,216,232,0.6)">No GUI forward</td></tr>
+    <tr><td style="padding:4px;color:var(--green)">LogLevel VERBOSE</td><td style="padding:4px;color:rgba(200,216,232,0.6)">Full audit logs</td></tr>
+  </table>
+</div>
+<div class="ssh-warn">
+  <span class="warn-label">⚠ PERMISSIONS QUICK REFERENCE</span>
+  <table style="width:100%;font-size:11px;font-family:'Share Tech Mono',monospace;border-collapse:collapse">
+    <tr style="border-bottom:1px solid rgba(255,26,26,0.1)"><td style="padding:4px;color:var(--gold)">~/.ssh/</td><td style="padding:4px;color:var(--green)">chmod 700</td><td style="padding:4px;color:rgba(200,216,232,0.5)">drwx------</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,26,26,0.1)"><td style="padding:4px;color:var(--gold)">id_ed25519</td><td style="padding:4px;color:var(--red)">chmod 600</td><td style="padding:4px;color:rgba(200,216,232,0.5)">-rw-------</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,26,26,0.1)"><td style="padding:4px;color:var(--gold)">id_ed25519.pub</td><td style="padding:4px;color:var(--green)">chmod 644</td><td style="padding:4px;color:rgba(200,216,232,0.5)">-rw-r--r--</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,26,26,0.1)"><td style="padding:4px;color:var(--gold)">authorized_keys</td><td style="padding:4px;color:var(--red)">chmod 600</td><td style="padding:4px;color:rgba(200,216,232,0.5)">-rw-------</td></tr>
+    <tr style="border-bottom:1px solid rgba(255,26,26,0.1)"><td style="padding:4px;color:var(--gold)">known_hosts</td><td style="padding:4px;color:var(--green)">chmod 644</td><td style="padding:4px;color:rgba(200,216,232,0.5)">-rw-r--r--</td></tr>
+    <tr><td style="padding:4px;color:var(--gold)">config</td><td style="padding:4px;color:var(--red)">chmod 600</td><td style="padding:4px;color:rgba(200,216,232,0.5)">-rw-------</td></tr>
+  </table>
+</div>
+</div>
+
+<!-- SSH MISC POWER COMMANDS -->
+<div class="ssh-topic-banner"><span class="topic-num">TOPIC 12</span> SSH POWER TRICKS &amp; MISC COMMANDS</div>
+<table class="cmd-table"><tbody>
+<tr><td><span class="cmd-tag">ssh user@host -t "tmux attach || tmux"</span></td><td><span class="cmd-desc"><strong>Power:</strong> SSH and attach to tmux session (persistent terminal)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host tail -f /var/log/syslog</span></td><td><span class="cmd-desc">Stream live remote logs to your local terminal</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -fNL 8080:localhost:80 user@host</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Background tunnel no-shell — perfect for long tunnels</span></td></tr>
+<tr><td><span class="cmd-tag">ssh user@host 'tar czf - /var/www' &gt; backup.tar.gz</span></td><td><span class="cmd-desc"><strong>Power:</strong> Backup remote directory to local file via SSH pipe</span></td></tr>
+<tr><td><span class="cmd-tag">tar czf - /local/dir | ssh user@host 'tar xzf - -C /remote/'</span></td><td><span class="cmd-desc"><strong>Power:</strong> Transfer directory without SCP (pipe tar through SSH)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keyscan -t ed25519 hostname</span></td><td><span class="cmd-desc">Fetch host's public key (for adding to known_hosts in CI/CD)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh-keyscan -H hostname >> ~/.ssh/known_hosts</span></td><td><span class="cmd-desc"><strong>DevOps Key:</strong> Auto-add server fingerprint (CI/CD automation)</span></td></tr>
+<tr><td><span class="cmd-tag">for h in host1 host2 host3; do ssh $h "uptime"; done</span></td><td><span class="cmd-desc">Run command on multiple servers via bash loop</span></td></tr>
+<tr><td><span class="cmd-tag">parallel-ssh -H "h1 h2 h3" -i "uptime"</span></td><td><span class="cmd-desc">Run command on multiple servers IN PARALLEL (pssh tool)</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -M -S /tmp/ssh-ctrl-%h user@host</span></td><td><span class="cmd-desc">Create SSH master control socket for multiplexing</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -S /tmp/ssh-ctrl-%h -O check user@host</span></td><td><span class="cmd-desc">Check if master connection is alive</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -S /tmp/ssh-ctrl-%h -O exit user@host</span></td><td><span class="cmd-desc">Close the master connection</span></td></tr>
+<tr><td><span class="cmd-tag">~.</span></td><td><span class="cmd-desc"><strong>SSH Escape:</strong> Disconnect a frozen SSH session (type ~ then period)</span></td></tr>
+<tr><td><span class="cmd-tag">~C</span></td><td><span class="cmd-desc"><strong>SSH Escape:</strong> Open command line in existing SSH session (add tunnels live!)</span></td></tr>
+<tr><td><span class="cmd-tag">~?</span></td><td><span class="cmd-desc"><strong>SSH Escape:</strong> Show all available escape sequences</span></td></tr>
+<tr><td><span class="cmd-tag">ssh -o ProxyCommand="nc -X 5 -x proxy:1080 %h %p" user@host</span></td><td><span class="cmd-desc">SSH through SOCKS5 proxy using netcat as ProxyCommand</span></td></tr>
+</tbody></table>
+
+</div><!-- /section cat-ssh -->
+
+<div class="footer">
+  ⚡ LINUX ULTRAMAN MASTER BIBLE — 350+ COMMANDS + SSH ULTRA DEEP DIVE ⚡ &nbsp;|&nbsp; KEEP TRAINING BUDDY &nbsp;|&nbsp; <span>█</span>
+</div>
+
+</div><!-- /wrap -->
+
+<script>
+const searchInput = document.getElementById('searchInput');
+const countBadge = document.getElementById('countBadge');
+const noResults = document.getElementById('noResults');
+const filterTabs = document.querySelectorAll('.ftab');
+let activecat = 'all';
+
+function updateCount() {
+  const visible = document.querySelectorAll('.cmd-table tr:not(.hidden)').length;
+  countBadge.textContent = visible + ' CMDS';
+}
+
+function filterAll() {
+  const q = searchInput.value.toLowerCase().trim();
+  let sections = document.querySelectorAll('.section');
+  let anyVisible = false;
+
+  sections.forEach(sec => {
+    const cat = sec.getAttribute('data-cat');
+    const catMatch = activecat === 'all' || activecat === cat;
+    if (!catMatch) { sec.classList.add('hidden'); return; }
+    sec.classList.remove('hidden');
+
+    // For SSH section — always show all non-table content
+    // Only filter table rows
+    let secHasVisible = false;
+    sec.querySelectorAll('tbody tr').forEach(row => {
+      if (!q) { row.classList.remove('hidden'); secHasVisible = true; return; }
+      const text = row.textContent.toLowerCase();
+      if (text.includes(q)) { row.classList.remove('hidden'); secHasVisible = true; }
+      else row.classList.add('hidden');
+    });
+
+    // For non-table content in SSH, if cat matches and no query, keep visible
+    if (catMatch && !q) {
+      secHasVisible = true;
+    }
+
+    if (!secHasVisible && q && sec.querySelectorAll('tbody tr').length > 0) {
+      // Only hide if it has table rows and none match
+      const totalRows = sec.querySelectorAll('tbody tr').length;
+      const visibleRows = sec.querySelectorAll('tbody tr:not(.hidden)').length;
+      if (visibleRows === 0) sec.classList.add('hidden');
+      else { sec.classList.remove('hidden'); anyVisible = true; }
+    } else {
+      sec.classList.remove('hidden');
+      if (secHasVisible) anyVisible = true;
+    }
+  });
+
+  noResults.style.display = (q && !anyVisible) ? 'block' : 'none';
+  updateCount();
+}
+
+searchInput.addEventListener('input', filterAll);
+
+filterTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    filterTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    activecat = tab.getAttribute('data-cat');
+    filterAll();
+  });
+});
+
+updateCount();
+</script>
+</body>
+</html>

@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MySQL PITR — Command Bible</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b12;--surface:#0d1117;--card:#111827;--card2:#141d2e;--border:#1e2d45;--border2:#243550;--accent:#00d4ff;--accent2:#ff6b35;--accent3:#39ff14;--accent4:#ffd700;--purple:#bf5fff;--danger:#ff4444;--success:#00ff88;--text:#dde6f0;--muted:#6a7f99;--muted2:#4a5f78;--code-bg:#090d14;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;line-height:1.6;min-height:100vh;}
+.sidebar{position:fixed;left:0;top:0;width:210px;height:100vh;background:var(--surface);border-right:1px solid var(--border);padding:20px 0;overflow-y:auto;z-index:100;}
+.sl{padding:0 18px 18px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.sl .lt{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--accent);letter-spacing:1px;}
+.sl .ls{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-top:3px;}
+.ns{padding:5px 18px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted2);letter-spacing:2px;text-transform:uppercase;margin-top:10px;}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 18px;font-size:12px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-decoration:none;}
+.ni:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.ni.active{color:var(--accent);border-left-color:var(--accent);background:rgba(0,212,255,.05);}
+.main{margin-left:210px;min-height:100vh;}
+.topbar{position:sticky;top:0;background:rgba(8,11,18,.93);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:10px 28px;display:flex;align-items:center;justify-content:space-between;z-index:50;}
+.tb-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;}
+.sb{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:5px 12px;width:200px;}
+.sb input{background:none;border:none;outline:none;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:11px;width:100%;}
+.sb input::placeholder{color:var(--muted2);}
+.ftags{display:flex;gap:7px;}
+.ft{padding:4px 11px;border-radius:20px;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;border:1px solid var(--border);color:var(--muted);transition:all .15s;background:transparent;}
+.ft:hover{border-color:var(--accent);color:var(--accent);}
+.ft.active{background:rgba(0,212,255,.1);border-color:var(--accent);color:var(--accent);}
+.hero{padding:44px 36px 32px;background:linear-gradient(160deg,#080b12,#0a1020,#080b12);border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-60px;right:-80px;width:380px;height:380px;background:radial-gradient(circle,rgba(0,212,255,.06) 0%,transparent 70%);}
+.hb{display:inline-flex;align-items:center;gap:6px;background:rgba(255,68,68,.1);border:1px solid rgba(255,68,68,.3);color:var(--danger);font-size:11px;font-family:'JetBrains Mono',monospace;padding:4px 12px;border-radius:3px;margin-bottom:14px;letter-spacing:1px;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(22px,3.2vw,38px);font-weight:800;line-height:1.1;margin-bottom:9px;}
+.hero h1 .hl{color:var(--accent);}
+.hero p{color:var(--muted);font-size:13.5px;max-width:560px;}
+.sr{display:flex;gap:22px;margin-top:22px;flex-wrap:wrap;}
+.st .sv{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent);}
+.st .sl2{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.content{padding:28px 36px;}
+.sec{margin-bottom:48px;}
+.sh{display:flex;align-items:center;gap:11px;margin-bottom:18px;padding-bottom:11px;border-bottom:1px solid var(--border);}
+.si{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.si.bl{background:rgba(0,212,255,.1);} .si.or{background:rgba(255,107,53,.1);} .si.gr{background:rgba(57,255,20,.1);} .si.ye{background:rgba(255,215,0,.1);} .si.re{background:rgba(255,68,68,.1);} .si.pu{background:rgba(191,95,255,.1);}
+.st2{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;}
+.sc{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);background:var(--card);padding:3px 9px;border-radius:20px;border:1px solid var(--border);}
+.cb{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;overflow:hidden;transition:border-color .2s;}
+.cb:hover{border-color:var(--border2);}
+.cb.crit{border-color:rgba(255,68,68,.22);}
+.cb.crit:hover{border-color:rgba(255,68,68,.45);}
+.cb.key{border-color:rgba(0,212,255,.18);}
+.cb.key:hover{border-color:rgba(0,212,255,.45);}
+.ct{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:13px 16px 11px;background:rgba(255,255,255,.015);border-bottom:1px solid var(--border);cursor:pointer;user-select:none;}
+.cm2{flex:1;}
+.cn{font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+.cl{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;}
+.cl strong{color:var(--accent4);font-style:normal;}
+.cbs2{display:flex;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.badge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:3px;white-space:nowrap;}
+.badge.sh2{background:rgba(57,255,20,.07);color:var(--accent3);border:1px solid rgba(57,255,20,.14);}
+.badge.sq{background:rgba(255,215,0,.07);color:var(--accent4);border:1px solid rgba(255,215,0,.14);}
+.badge.cr{background:rgba(255,68,68,.07);color:var(--danger);border:1px solid rgba(255,68,68,.14);}
+.badge.ke{background:rgba(0,212,255,.07);color:var(--accent);border:1px solid rgba(0,212,255,.14);}
+.badge.pu2{background:rgba(191,95,255,.07);color:var(--purple);border:1px solid rgba(191,95,255,.14);}
+.badge.sa{background:rgba(0,255,136,.07);color:var(--success);border:1px solid rgba(0,255,136,.14);}
+.cc{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.cpb{display:flex;align-items:center;gap:5px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:11px;padding:5px 13px;border-radius:5px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.cpb:hover{background:rgba(0,212,255,.14);border-color:var(--accent);}
+.cpb.copied{background:rgba(0,255,136,.1);border-color:var(--success);color:var(--success);}
+.tgb{width:26px;height:26px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:11px;color:var(--muted);transition:all .2s;}
+.tgb:hover{background:rgba(255,255,255,.08);color:var(--text);}
+.body2{padding:0;overflow:hidden;max-height:0;transition:max-height .32s ease;}
+.body2.open{max-height:1200px;}
+.cw{position:relative;background:var(--code-bg);}
+pre.code{padding:18px 18px 14px 54px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;overflow-x:auto;color:#abb2bf;margin:0;}
+.kw{color:#c678dd;} .str{color:#98c379;} .cm3{color:#4a5f78;font-style:italic;} .nu{color:#d19a66;} .fn2{color:#61afef;} .ok2{color:var(--success);} .wn{color:var(--accent4);} .er{color:var(--danger);}
+.hl{display:block;background:rgba(0,212,255,.05);border-left:3px solid var(--accent);margin-left:-3px;padding-left:3px;}
+.hlc{display:block;background:rgba(255,68,68,.05);border-left:3px solid var(--danger);margin-left:-3px;padding-left:3px;}
+.eb{padding:12px 18px;background:rgba(0,0,0,.18);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;}
+.ei .el{font-size:10px;color:var(--muted2);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;}
+.ei .ev{font-size:12px;color:var(--text);}
+.ei .ev.ok2{color:var(--success);} .ei .ev.wn{color:var(--accent4);} .ei .ev.er{color:var(--danger);}
+.cal{display:flex;gap:11px;padding:13px 16px;border-radius:8px;margin-bottom:14px;font-size:13px;line-height:1.6;border:1px solid;}
+.cal.info{background:rgba(0,212,255,.05);border-color:rgba(0,212,255,.2);}
+.cal.warn{background:rgba(255,215,0,.05);border-color:rgba(255,215,0,.2);}
+.cal.danger{background:rgba(255,68,68,.05);border-color:rgba(255,68,68,.2);}
+.cal.success{background:rgba(0,255,136,.05);border-color:rgba(0,255,136,.2);}
+.ci{font-size:15px;flex-shrink:0;margin-top:2px;}
+.tlb{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 22px;margin-bottom:22px;gap:0;overflow-x:auto;}
+.tn{display:flex;flex-direction:column;align-items:center;min-width:95px;position:relative;flex:1;}
+.tn:not(:last-child)::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;z-index:0;}
+.tn.gn:not(:last-child)::after{background:var(--success);}
+.tn.rd:not(:last-child)::after{background:var(--danger);}
+.tn.bl2:not(:last-child)::after{background:var(--accent);}
+.td{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;z-index:1;position:relative;margin-bottom:7px;border:2px solid;}
+.td.gn{background:rgba(0,255,136,.1);border-color:var(--success);}
+.td.rd{background:rgba(255,68,68,.1);border-color:var(--danger);}
+.td.bl2{background:rgba(0,212,255,.1);border-color:var(--accent);}
+.td.ye{background:rgba(255,215,0,.1);border-color:var(--accent4);}
+.tt{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:2px;}
+.tl2{font-size:10.5px;color:var(--text);text-align:center;max-width:88px;line-height:1.3;}
+.ts{font-size:9.5px;color:var(--muted);text-align:center;margin-top:2px;}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--card2);border:1px solid var(--success);color:var(--success);font-family:'JetBrains Mono',monospace;font-size:11px;padding:9px 18px;border-radius:6px;transform:translateY(70px);opacity:0;transition:all .3s;z-index:999;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.qr{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px;margin-top:6px;}
+.qrg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:14px;}
+.qri{background:var(--code-bg);border-radius:6px;padding:12px 14px;border:1px solid var(--border);}
+.qri .ql{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;margin-bottom:6px;}
+.qri code{font-family:'JetBrains Mono',monospace;font-size:11.5px;display:block;word-break:break-all;}
+@media(max-width:860px){.sidebar{display:none;}.main{margin-left:0;}.content{padding:20px 14px;}.hero{padding:28px 18px 22px;}.ftags{display:none;}.sb{width:150px;}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sl"><div class="lt">PITR BIBLE</div><div class="ls">MySQL · Kubernetes</div></div>
+  <div class="ns">Emergency</div>
+  <a class="ni active" href="#disaster">🔥 Disaster Plan</a>
+  <a class="ni" href="#check">🔍 Check Status</a>
+  <div class="ns">Binlog</div>
+  <a class="ni" href="#read">📖 Read Binlogs</a>
+  <a class="ni" href="#find">🎯 Find The Event</a>
+  <div class="ns">Recovery</div>
+  <a class="ni" href="#restore">♻️ Restore Backup</a>
+  <a class="ni" href="#replay">⏪ Replay Binlogs</a>
+  <a class="ni" href="#surgical">🔬 Surgical Skip</a>
+  <div class="ns">Kubernetes</div>
+  <a class="ni" href="#k8s">☸️ K8s Commands</a>
+  <a class="ni" href="#backup">💾 Backup Cmds</a>
+  <div class="ns">Final</div>
+  <a class="ni" href="#verify">✅ Verify &amp; Swap</a>
+</nav>
+
+<div class="toast" id="toast">✔ Copied to clipboard!</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title">MySQL PITR · Command Bible</div>
+    <div style="display:flex;align-items:center;gap:11px;">
+      <div class="ftags">
+        <button class="ft active" onclick="fAll(this)">ALL</button>
+        <button class="ft" onclick="fTag(this,'sh')">SHELL</button>
+        <button class="ft" onclick="fTag(this,'sql')">SQL</button>
+        <button class="ft" onclick="fTag(this,'crit')">CRITICAL</button>
+        <button class="ft" onclick="fTag(this,'k8s')">K8S</button>
+      </div>
+      <div class="sb">
+        <span style="color:var(--muted);font-size:12px;">⌕</span>
+        <input type="text" placeholder="search commands..." oninput="search(this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hb">💥 SCENARIO: 50,000 rows deleted at 11:00:23 AM</div>
+    <h1>MySQL PITR<br><span class="hl">Command Bible</span></h1>
+    <p>Every command you need. Click to expand. One button to copy. Layman explanation for every single command.</p>
+    <div class="sr">
+      <div class="st"><div class="sv">40+</div><div class="sl2">Commands</div></div>
+      <div class="st"><div class="sv" style="color:var(--success)">6</div><div class="sl2">Recovery Steps</div></div>
+      <div class="st"><div class="sv" style="color:var(--accent2)">1-click</div><div class="sl2">Copy Any Cmd</div></div>
+      <div class="st"><div class="sv" style="color:var(--accent4)">&lt;30m</div><div class="sl2">Target RTO</div></div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- TIMELINE -->
+    <div class="tlb">
+      <div class="tn gn"><div class="td gn">📸</div><div class="tt">02:00 AM</div><div class="tl2">Full Backup</div><div class="ts">mysqldump</div></div>
+      <div class="tn gn"><div class="td gn">🟢</div><div class="tt">09:00 AM</div><div class="tl2">Normal ops</div><div class="ts">binlog recording</div></div>
+      <div class="tn gn"><div class="td bl2">🎯</div><div class="tt">10:59:59</div><div class="tl2">RECOVER HERE</div><div class="ts">← target</div></div>
+      <div class="tn rd"><div class="td rd">💥</div><div class="tt">11:00:23</div><div class="tl2">DELETE disaster</div><div class="ts">50k rows gone</div></div>
+      <div class="tn bl2"><div class="td ye">⚡</div><div class="tt">NOW</div><div class="tl2">Start PITR</div><div class="ts">follow guide</div></div>
+    </div>
+
+    <!-- ═══ SECTION: DISASTER ═══ -->
+    <div class="sec" id="disaster">
+      <div class="sh">
+        <div class="si re">🔥</div>
+        <div><div class="st2">Disaster Response — First 3 Minutes</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Run these IMMEDIATELY before doing anything else</div></div>
+        <div class="sc">3 cmds</div>
+      </div>
+      <div class="cal danger"><span class="ci">🚨</span><div><strong style="color:var(--danger)">PANIC MODE OFF.</strong> The data is NOT gone — it's invisible. MySQL recorded everything in its binlog. Follow this guide in order and you'll get it back.</div></div>
+
+      <div class="cb crit" data-tags="sh crit k8s">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🛑 STEP 1 — Scale down app pods (stop all writes)</div><div class="cl">Like <strong>turning off the water tap before mopping a flood</strong>. Stop your app from writing new data while you recover the old data.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge cr">DO FIRST</span><span class="badge ke">K8S</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Stop all app deployments — no new writes to DB</span>
+<span class="hl"><span class="fn2">kubectl</span> scale deployment app-deployment --replicas=<span class="nu">0</span> -n production</span>
+
+<span class="cm3"># If multiple deployments exist</span>
+<span class="fn2">kubectl</span> scale deployment api-server worker-service --replicas=<span class="nu">0</span> -n production
+
+<span class="cm3"># Confirm everything stopped</span>
+<span class="fn2">kubectl</span> get pods -n production
+<span class="ok2"># Expected: No resources found.</span>
+
+<span class="cm3"># Optionally lock MySQL to read-only</span>
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SET GLOBAL read_only = ON;"</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Why first</div><div class="ev">Prevent new writes mixing into recovery</div></div>
+            <div class="ei"><div class="el">Skip risk</div><div class="ev er">New writes after DELETE = chaos, can't untangle</div></div>
+            <div class="ei"><div class="el">Time</div><div class="ev ok2">~5 seconds</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb crit" data-tags="sh sql crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">💾 STEP 2 — Flush binary logs RIGHT NOW</div><div class="cl">Like <strong>pressing Ctrl+S before the power dies</strong>. Closes the current binlog cleanly so it can be copied safely without corruption.</div><div class="cbs2"><span class="badge sq">SQL</span><span class="badge cr">DO SECOND</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Exec into MySQL pod</span>
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- bash
+
+<span class="cm3"># Flush binlogs — creates a clean cut-off point</span>
+<span class="hl"><span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"FLUSH BINARY LOGS;"</span></span>
+
+<span class="cm3"># Verify new file was created</span>
+<span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SHOW BINARY LOGS;"</span>
+<span class="ok2"># +------------------+-----------+
+# | mysql-bin.000001 | 1048576   |
+# | mysql-bin.000002 | 2097152   |
+# | mysql-bin.000003 | 4096      | ← NEW clean file
+# +------------------+-----------+</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">What it does</div><div class="ev">Closes current binlog, starts fresh one</div></div>
+            <div class="ei"><div class="el">Safe to run</div><div class="ev ok2">Zero data impact ✔</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📢 STEP 3 — Notify team + start incident log</div><div class="cl">Like <strong>calling the fire department while you start the evacuation</strong>. Don't do recovery alone — someone else should be timing and logging every command you run.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">PROCESS</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Start logging everything — EVERY command you run</span>
+<span class="fn2">script</span> -a ~/pitr_incident_$(date +%Y%m%d_%H%M%S).log
+<span class="cm3"># All terminal output is now saved to that file
+# Run 'exit' when done to stop logging</span>
+
+<span class="cm3"># Note down key timestamps</span>
+<span class="fn2">echo</span> <span class="str">"=== INCIDENT START ==="</span>
+<span class="fn2">echo</span> <span class="str">"Disaster time: 2024-12-01 11:00:23"</span>
+<span class="fn2">echo</span> <span class="str">"Recovery started: $(date)"</span>
+<span class="fn2">echo</span> <span class="str">"Target recovery time: 2024-12-01 10:59:59"</span>
+<span class="fn2">echo</span> <span class="str">"Engineer: $(whoami)"</span>
+
+<span class="cm3"># Quick status snapshot of your cluster</span>
+<span class="fn2">kubectl</span> get all -n mysql-pitr
+<span class="fn2">kubectl</span> get pvc -n mysql-pitr</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: CHECK ═══ -->
+    <div class="sec" id="check">
+      <div class="sh">
+        <div class="si bl">🔍</div>
+        <div><div class="st2">Check Binlog Status — Verify Your Safety Net</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Confirm binlogs exist and are readable before attempting recovery</div></div>
+        <div class="sc">5 cmds</div>
+      </div>
+
+      <div class="cb" data-tags="sql">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🟢 Is binlog ON? — The most important check</div><div class="cl">Like checking <strong>if the DVR was plugged in before the match</strong>. If log_bin = OFF, there's no recording and PITR is not possible.</div><div class="cbs2"><span class="badge sq">SQL</span><span class="badge sa">DIAGNOSTIC</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3">-- Check if binary logging is enabled</span>
+<span class="fn2">SHOW VARIABLES</span> LIKE <span class="str">'log_bin'</span>;
+<span class="ok2">-- ✔ GOOD:
+-- +---------------+-------+
+-- | Variable_name | Value |
+-- | log_bin       | ON    |
+-- +---------------+-------+</span>
+<span class="er">-- ✘ BAD: log_bin = OFF → no PITR, only full backup restore</span>
+
+<span class="cm3">-- Check binlog format (ROW is best)</span>
+<span class="fn2">SHOW VARIABLES</span> LIKE <span class="str">'binlog_format'</span>;
+<span class="ok2">-- Should show: ROW  (captures actual data changed, not just SQL)</span>
+
+<span class="cm3">-- Check binlog file path</span>
+<span class="fn2">SHOW VARIABLES</span> LIKE <span class="str">'log_bin_basename'</span>;
+<span class="ok2">-- Example: /var/lib/mysql/mysql-bin</span>
+
+<span class="cm3">-- Check retention period</span>
+<span class="fn2">SHOW VARIABLES</span> LIKE <span class="str">'expire_logs_days'</span>;
+<span class="ok2">-- Should be 7 or higher</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">log_bin = ON</div><div class="ev ok2">PITR possible ✔</div></div>
+            <div class="ei"><div class="el">log_bin = OFF</div><div class="ev er">Can only restore full backup, no time travel</div></div>
+            <div class="ei"><div class="el">Best format</div><div class="ev">ROW — captures exact data row changes</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sql">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📋 List all binlog files + their sizes</div><div class="cl">Like <strong>looking at your DVR recordings list</strong>. Shows every tape (file) you have and how big it is. You need files covering the period from backup → disaster.</div><div class="cbs2"><span class="badge sq">SQL</span><span class="badge sa">DIAGNOSTIC</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3">-- List all binary log files</span>
+<span class="fn2">SHOW BINARY LOGS</span>;
+<span class="ok2">-- +------------------+-----------+
+-- | Log_name         | File_size |
+-- | mysql-bin.000001 | 1048576   |  ← from 2 AM
+-- | mysql-bin.000002 | 1048576   |  ← morning events
+-- | mysql-bin.000003 | 524288    |  ← HAS THE 11 AM DELETE
+-- | mysql-bin.000004 | 4096      |  ← after your FLUSH
+-- +------------------+-----------+</span>
+
+<span class="cm3">-- Show current active binlog + position</span>
+<span class="fn2">SHOW MASTER STATUS</span>\G
+<span class="ok2">-- File: mysql-bin.000004
+-- Position: 154</span>
+
+<span class="cm3">-- Show events in a specific binlog file</span>
+<span class="fn2">SHOW BINLOG EVENTS</span> IN <span class="str">'mysql-bin.000003'</span> LIMIT <span class="nu">20</span>;
+<span class="cm3">-- Shows: pos, event_type, server_id, end_log_pos, info</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Need files</div><div class="ev">From backup binlog position → latest</div></div>
+            <div class="ei"><div class="el">Find DELETE in</div><div class="ev wn">File modified ~11 AM</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh k8s">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📁 Check binlog files on disk from the K8s pod</div><div class="cl">Same as above but at the <strong>filesystem level inside the pod</strong>. Shows file sizes and modification timestamps — helpful to see which file was written during the 11 AM window.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge ke">K8S</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># List binlog files with timestamps — sorted newest first</span>
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- \
+  ls -lth /var/lib/mysql/mysql-bin.*
+
+<span class="ok2"># -rw-r----- mysql-bin.000004  4.0K  Dec 1 11:30  ← newest (after FLUSH)
+# -rw-r----- mysql-bin.000003  512K  Dec 1 11:00  ← CONTAINS THE DELETE
+# -rw-r----- mysql-bin.000002  1.0M  Dec 1 07:00
+# -rw-r----- mysql-bin.000001  1.0M  Dec 1 02:00  ← earliest</span>
+
+<span class="cm3"># Check disk space available for recovery work</span>
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- df -h /var/lib/mysql
+
+<span class="cm3"># Total binlog size</span>
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- \
+  du -sh /var/lib/mysql/mysql-bin.*</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: READ ═══ -->
+    <div class="sec" id="read">
+      <div class="sh">
+        <div class="si ye">📖</div>
+        <div><div class="st2">Read Binlogs — Decode the Recording</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Translate binary logs into human-readable SQL events with timestamps</div></div>
+        <div class="sc">5 cmds</div>
+      </div>
+      <div class="cal info"><span class="ci">💡</span><div>Binlog files are binary (not text). <code style="font-family:'JetBrains Mono',monospace;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px;">mysqlbinlog</code> is the decoder tool — like a subtitle reader for your DVR footage.</div></div>
+
+      <div class="cb" data-tags="sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">👁️ Basic read — see all events with timestamps</div><div class="cl">Like <strong>playing back your DVR with subtitles on</strong>. You see every INSERT, UPDATE, DELETE with the exact time it happened.</div><div class="cbs2"><span class="badge sh2">SHELL</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Copy binlog from pod first</span>
+<span class="fn2">kubectl</span> cp mysql-pitr/mysql-0:/var/lib/mysql/mysql-bin.000003 ./mysql-bin.000003
+
+<span class="cm3"># Read in human-readable format</span>
+<span class="hl"><span class="fn2">mysqlbinlog</span> \
+  --base64-output=DECODE-ROWS \
+  --verbose \
+  mysql-bin.000003</span>
+
+<span class="cm3"># Pipe to less for easy scrolling (q to quit)</span>
+<span class="fn2">mysqlbinlog</span> --base64-output=DECODE-ROWS --verbose mysql-bin.000003 | less
+
+<span class="ok2"># Sample output you'll see:
+# # at 4891
+# #241201 11:00:23 server id 1  end_log_pos 4960
+# ### DELETE FROM `mydb`.`orders`
+# ### WHERE
+# ###   @1=1001 (id=1001)
+# ###   @2='john@email.com'</span></pre></div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📅 Read binlog filtered by time window only</div><div class="cl">Like <strong>jumping your DVR to a specific time range</strong> — 10:50 to 11:10 — and only watching that part. Much faster than reading the whole file.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">SAFE READ</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Read events only between 10:50 and 11:10</span>
+<span class="fn2">mysqlbinlog</span> \
+  --base64-output=DECODE-ROWS \
+  --verbose \
+  <span class="hl">--start-datetime=<span class="str">"2024-12-01 10:50:00"</span> \</span>
+  <span class="hl">--stop-datetime=<span class="str">"2024-12-01 11:10:00"</span> \</span>
+  mysql-bin.000003
+
+<span class="cm3"># Search for just the DELETE events in that window</span>
+<span class="fn2">mysqlbinlog</span> \
+  --base64-output=DECODE-ROWS --verbose \
+  --start-datetime=<span class="str">"2024-12-01 10:55:00"</span> \
+  --stop-datetime=<span class="str">"2024-12-01 11:05:00"</span> \
+  mysql-bin.000003 | grep -B5 -A10 <span class="str">"DELETE"</span></pre></div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🔢 Read event summary — positions + timestamps only</div><div class="cl">Like getting a <strong>table of contents of the recording</strong> — just the chapter markers, not the full content. Useful to quickly scan thousands of events.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">FAST SCAN</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Show just event headers: position numbers and timestamps</span>
+<span class="fn2">mysqlbinlog</span> mysql-bin.000003 | grep -E <span class="str">"^# at |#[0-9]{6} [0-9]{2}:"</span>
+
+<span class="ok2"># Output:
+# # at 154
+# #241201  9:15:33
+# # at 892
+# #241201 10:30:11
+# # at 4891     ← position of the DELETE
+# #241201 11:00:23  ← timestamp of the DELETE</span>
+
+<span class="cm3"># Get event type summary (INSERT/UPDATE/DELETE counts)</span>
+<span class="fn2">mysqlbinlog</span> --base64-output=DECODE-ROWS --verbose mysql-bin.000003 \
+  | grep <span class="str">"^### "</span> | awk '{print $2}' | sort | uniq -c | sort -rn
+
+<span class="ok2"># Output:
+#  49874 INSERT (normal inserts)
+#      1 DELETE  ← there it is — the bad one</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: FIND ═══ -->
+    <div class="sec" id="find">
+      <div class="sh">
+        <div class="si or">🎯</div>
+        <div><div class="st2">Find The Exact Bad Event + Position</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Pinpoint the exact timestamp AND position number of the DELETE</div></div>
+        <div class="sc">4 cmds</div>
+      </div>
+
+      <div class="cb key" data-tags="sh crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🎯 Find exact position of the DELETE event</div><div class="cl">Like finding the <strong>exact frame number in CCTV footage where the crash happened</strong>. You'll get a position number (like 4891) — this is MORE precise than a timestamp for recovery.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge cr">KEY STEP</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Method 1: grep DELETE and show 10 lines before it (to get position)</span>
+<span class="fn2">mysqlbinlog</span> --base64-output=DECODE-ROWS --verbose mysql-bin.000003 \
+  | grep -B10 <span class="str">"DELETE FROM.*orders"</span>
+
+<span class="ok2"># Output:
+# # at 4891           ← START POSITION of DELETE  ★ NOTE THIS
+# #241201 11:00:23    ← TIMESTAMP of DELETE
+# server id 1  end_log_pos 4960   ← END POSITION of DELETE  ★ NOTE THIS
+# ### DELETE FROM `mydb`.`orders`
+# ### WHERE
+# ###   @1=1001</span>
+
+<span class="cm3"># Method 2: Find all events with types — cleaner view</span>
+<span class="fn2">mysqlbinlog</span> --base64-output=DECODE-ROWS --verbose mysql-bin.000003 \
+  | awk <span class="str">'/^# at /{pos=$3} /^#[0-9]/{ts=$2" "$3} /^### /{print ts,"POS:"pos,$0}'</span> \
+  | grep -i delete
+
+<span class="wn"># ★ WRITE THESE DOWN:
+# START of DELETE: position 4891  → you want to STOP BEFORE this
+# END of DELETE:   position 4960  → you want to START AFTER this</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Stop position</div><div class="ev wn">4890 (start-1)</div></div>
+            <div class="ei"><div class="el">Skip position</div><div class="ev wn">4961 (end+1)</div></div>
+            <div class="ei"><div class="el">Position vs time</div><div class="ev">Position is exact — no 1-second ambiguity</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📌 Check backup file for starting binlog position</div><div class="cl">Your mysqldump file has a <strong>bookmark inside it</strong> showing exactly which binlog position the backup ended at. This is where you START replaying events from.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">READ BACKUP</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># The backup SQL file contains a CHANGE MASTER comment
+# This tells you exactly where to START replaying binlogs from</span>
+<span class="fn2">grep</span> -m1 <span class="str">"MASTER_LOG"</span> /backup/full_20241201_020000.sql
+
+<span class="ok2"># Output:
+-- CHANGE MASTER TO MASTER_LOG_FILE='mysql-bin.000001', MASTER_LOG_POS=154;
+#                                    ↑ which file            ↑ which position</span>
+
+<span class="cm3"># Alternative: look at top 50 lines of backup</span>
+<span class="fn2">head</span> -50 /backup/full_20241201_020000.sql | grep -i <span class="str">"master\|binlog\|position"</span>
+
+<span class="cm3"># Note: This only works if backup was taken with --master-data=2 flag
+# Without that flag, you must estimate the start time instead</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Only works with</div><div class="ev">mysqldump --master-data=2</div></div>
+            <div class="ei"><div class="el">Use as</div><div class="ev ok2">--start-position in mysqlbinlog command</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: RESTORE ═══ -->
+    <div class="sec" id="restore">
+      <div class="sh">
+        <div class="si gr">♻️</div>
+        <div><div class="st2">Restore Full Backup — Load the 2 AM State</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">This is the "base" — you'll layer binlogs on top to advance time to 10:59:59</div></div>
+        <div class="sc">4 cmds</div>
+      </div>
+      <div class="cal warn"><span class="ci">⚠️</span><div>Always restore to a <strong>separate recovery pod first</strong>. Never overwrite production until you've verified the recovery worked.</div></div>
+
+      <div class="cb" data-tags="sh k8s">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📥 Copy backup + binlogs from pod to local</div><div class="cl">Like <strong>taking the backup hard drive out of the server room</strong>. You're moving the files to your workspace where you can use them.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge ke">K8S</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Create working directory</span>
+<span class="fn2">mkdir</span> -p ~/pitr_recovery && cd ~/pitr_recovery
+
+<span class="cm3"># Copy the full backup SQL file</span>
+<span class="hl"><span class="fn2">kubectl</span> cp mysql-pitr/mysql-0:/backup/full_20241201_020000.sql ./full_backup.sql</span>
+
+<span class="cm3"># Copy all binlog files at once (tar them up first)</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  tar czf /tmp/binlogs.tar.gz /var/lib/mysql/mysql-bin.0000* 2>/dev/null
+<span class="fn2">kubectl</span> cp mysql-pitr/mysql-0:/tmp/binlogs.tar.gz ./binlogs.tar.gz
+<span class="fn2">tar</span> xzf binlogs.tar.gz --strip-components=3
+
+<span class="cm3"># OR copy one by one</span>
+<span class="fn2">for</span> i in 000001 000002 000003; <span class="kw">do</span>
+  kubectl cp mysql-pitr/mysql-0:/var/lib/mysql/mysql-bin.$i ./mysql-bin.$i
+<span class="kw">done</span>
+
+<span class="cm3"># Verify everything is there</span>
+<span class="fn2">ls</span> -lh ./*
+<span class="ok2"># full_backup.sql  450M
+# mysql-bin.000001  1.0M
+# mysql-bin.000002  1.0M
+# mysql-bin.000003  512K</span></pre></div>
+        </div>
+      </div>
+
+      <div class="cb key" data-tags="sh k8s crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🚀 Launch recovery pod + restore backup into it</div><div class="cl">Like <strong>setting up a blank VCR and inserting the 2 AM tape</strong>. You create a fresh temporary MySQL, load the backup, and you now have a clean starting state.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge ke">K8S</span><span class="badge cr">STEP 5</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># 1. Create a temporary recovery pod</span>
+<span class="hl"><span class="fn2">kubectl</span> run mysql-recover \
+  --image=mysql:8.0 \
+  --restart=Never \
+  --env=<span class="str">"MYSQL_ROOT_PASSWORD=RecoverPass123"</span> \
+  -n mysql-pitr \
+  --command -- sleep <span class="nu">7200</span></span>
+
+<span class="cm3"># 2. Wait until it's ready</span>
+<span class="fn2">kubectl</span> wait --for=condition=Ready pod/mysql-recover -n mysql-pitr --timeout=90s
+
+<span class="cm3"># 3. Copy backup file into the pod</span>
+<span class="fn2">kubectl</span> cp ./full_backup.sql mysql-pitr/mysql-recover:/tmp/full_backup.sql
+
+<span class="cm3"># 4. Restore into the recovery pod</span>
+<span class="hl"><span class="fn2">kubectl</span> exec -i mysql-recover -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span> < /tmp/full_backup.sql</span>
+
+<span class="cm3"># 5. Verify it worked</span>
+<span class="fn2">kubectl</span> exec mysql-recover -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span> -e <span class="str">"SHOW DATABASES; USE mydb; SELECT COUNT(*) FROM orders;"</span>
+
+<span class="ok2"># ✔ Recovery pod has your DB at 2:00 AM state
+# Orders count = whatever it was at 2 AM
+# Next: replay binlogs to advance to 10:59:59</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Pod purpose</div><div class="ev">Isolated workspace — no risk to production</div></div>
+            <div class="ei"><div class="el">DB state after</div><div class="ev wn">2:00 AM (9 hours behind)</div></div>
+            <div class="ei"><div class="el">Next step</div><div class="ev">Replay binlogs to advance to 10:59:59</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: REPLAY ═══ -->
+    <div class="sec" id="replay">
+      <div class="sh">
+        <div class="si bl">⏪</div>
+        <div><div class="st2">Replay Binlogs — The Time Machine</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Apply all changes from 2 AM to 10:59:59 — skipping the 11 AM DELETE</div></div>
+        <div class="sc">6 cmds</div>
+      </div>
+
+      <div class="cb crit" data-tags="sh crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">⭐ THE BIG ONE — Replay binlogs, stop at 10:59:59 (timestamp)</div><div class="cl"><strong>This is the core recovery command.</strong> Like playing your DVR from 2 AM but pressing STOP at exactly 10:59:59 — the 11:00:23 DELETE never gets played. All 50,000 orders come back.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge cr">⭐ THE KEY CMD</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># ── TIMESTAMP-BASED RECOVERY ───────────────────────────────────────
+# Play all binlogs from 2 AM, HARD STOP at 10:59:59
+# The 11:00:23 DELETE is never replayed!</span>
+
+<span class="hlc"><span class="fn2">mysqlbinlog</span> \
+  --start-datetime=<span class="str">"2024-12-01 02:00:00"</span> \
+  --stop-datetime=<span class="str">"2024-12-01 10:59:59"</span> \
+  mysql-bin.000001 \
+  mysql-bin.000002 \
+  mysql-bin.000003 \
+  | <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span> -h 127.0.0.1</span>
+
+<span class="cm3"># ── SAME CMD — INSIDE KUBERNETES ──────────────────────────────────</span>
+<span class="hl"><span class="fn2">kubectl</span> exec -i mysql-recover -n mysql-pitr -- bash -c <span class="str">"
+  mysqlbinlog \
+    --start-datetime='2024-12-01 02:00:00' \
+    --stop-datetime='2024-12-01 10:59:59' \
+    /var/lib/mysql/mysql-bin.000001 \
+    /var/lib/mysql/mysql-bin.000002 \
+    /var/lib/mysql/mysql-bin.000003 \
+    | mysql -u root -pRecoverPass123
+"</span></span>
+
+<span class="ok2"># ✔ RESULT:
+# DB state = 10:59:59 AM
+# All 50,000 rows in orders: BACK ✔
+# The 11:00:23 DELETE: NEVER HAPPENED ✔</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">--start-datetime</div><div class="ev">When your backup was taken (2 AM)</div></div>
+            <div class="ei"><div class="el">--stop-datetime</div><div class="ev ok2">1 second BEFORE the DELETE</div></div>
+            <div class="ei"><div class="el">Multiple files</div><div class="ev">List all binlog files — it reads them in sequence</div></div>
+            <div class="ei"><div class="el">| mysql</div><div class="ev">Events piped directly into MySQL to execute</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb crit" data-tags="sh crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🔢 PRECISE — Stop at exact binlog position (more accurate than timestamp)</div><div class="cl">Like using a <strong>frame number instead of a timestamp</strong>. Timestamps round to the second; positions are exact to the byte. Use this when you've found the DELETE position number.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge cr">MORE PRECISE</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># You found: DELETE starts at position 4891 in mysql-bin.000003
+# Step 1: Apply older files fully (000001 and 000002)</span>
+<span class="fn2">mysqlbinlog</span> \
+  --start-position=<span class="nu">154</span> \
+  mysql-bin.000001 mysql-bin.000002 \
+  | <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span>
+
+<span class="cm3"># Step 2: Apply 000003 but STOP right before DELETE at 4891</span>
+<span class="hlc"><span class="fn2">mysqlbinlog</span> \
+  --start-position=<span class="nu">4</span> \
+  --stop-position=<span class="nu">4890</span> \
+  mysql-bin.000003 \
+  | <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span></span>
+
+<span class="cm3"># ── WHAT THE NUMBERS MEAN ─────────────────────────────────────────
+# --start-position=154   → from CHANGE MASTER TO in backup file
+# --stop-position=4890   → 4891 (DELETE starts) minus 1 = stop before it</span>
+
+<span class="ok2"># ✔ EXACT recovery — no rounding, no ambiguity</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Start pos (154)</div><div class="ev">From --master-data=2 in backup</div></div>
+            <div class="ei"><div class="el">Stop pos (4890)</div><div class="ev ok2">1 byte before DELETE's start position</div></div>
+            <div class="ei"><div class="el">Why better</div><div class="ev">Timestamps can include extra events in same second</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🔄 Save binlog replay to a SQL file first (inspect before applying)</div><div class="cl">Like <strong>printing out the DVR transcript to read before acting on it</strong>. You convert binlogs to a .sql file first, review it, then apply it. Safer than piping directly.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">SAFER APPROACH</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Convert binlogs to a SQL file you can review</span>
+<span class="fn2">mysqlbinlog</span> \
+  --start-datetime=<span class="str">"2024-12-01 02:00:00"</span> \
+  --stop-datetime=<span class="str">"2024-12-01 10:59:59"</span> \
+  mysql-bin.000001 mysql-bin.000002 mysql-bin.000003 \
+  > replay.sql
+
+<span class="cm3"># Review it — check for any surprises before applying</span>
+<span class="fn2">wc</span> -l replay.sql                   <span class="cm3"># how many lines</span>
+<span class="fn2">grep</span> -c <span class="str">"DELETE"</span> replay.sql         <span class="cm3"># should be 0 if you stopped before it</span>
+<span class="fn2">grep</span> -c <span class="str">"INSERT"</span> replay.sql         <span class="cm3"># should be many thousands</span>
+<span class="fn2">tail</span> -20 replay.sql                 <span class="cm3"># check last events look right</span>
+
+<span class="cm3"># Once satisfied, apply the SQL file</span>
+<span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span> < replay.sql
+
+<span class="ok2"># ✔ Safer than piping directly — you can inspect first</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: SURGICAL ═══ -->
+    <div class="sec" id="surgical">
+      <div class="sh">
+        <div class="si pu">🔬</div>
+        <div><div class="st2">Surgical Recovery — Skip Only The Bad Event</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Advanced: keep data before AND after the DELETE, skip only the DELETE itself</div></div>
+        <div class="sc">3 cmds</div>
+      </div>
+      <div class="cal info"><span class="ci">💡</span><div><strong>Use this when:</strong> New orders came in at 11:30 AM that you still want. Instead of losing everything after 11 AM, you surgically remove just the DELETE event and keep the rest.</div></div>
+
+      <div class="cb" data-tags="sh crit">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🔬 Two-part replay — skip ONLY the DELETE, keep before + after</div><div class="cl">Like <strong>cutting one scene from a film reel and splicing it back together</strong>. Part 1 plays up to the DELETE. Part 2 jumps past it and continues. The bad scene never plays.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge pu2">SURGICAL</span><span class="badge cr">ADVANCED</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># DELETE event: starts at position 4891, ends at position 4960
+# ── PART 1: Everything BEFORE the DELETE ──────────────────────────</span>
+<span class="hl"><span class="fn2">mysqlbinlog</span> \
+  --start-position=<span class="nu">4</span> \
+  --stop-position=<span class="nu">4890</span> \       <span class="cm3"># STOP 1 byte before DELETE</span>
+  mysql-bin.000003 \
+  | <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span></span>
+
+<span class="ok2"># ✔ DB now at 10:59:59 — all orders exist</span>
+
+<span class="cm3"># ── PART 2: Everything AFTER the DELETE ──────────────────────────</span>
+<span class="hl"><span class="fn2">mysqlbinlog</span> \
+  --start-position=<span class="nu">4961</span> \      <span class="cm3"># START 1 byte after DELETE ends</span>
+  mysql-bin.000003 \             <span class="cm3"># rest of this file</span>
+  mysql-bin.000004 \             <span class="cm3"># and newer files</span>
+  | <span class="fn2">mysql</span> -u root -p<span class="str">'RecoverPass123'</span></span>
+
+<span class="ok2"># ✔ SURGICAL RESULT:
+# Orders from before 11 AM:      ✔ ALL EXIST
+# The 11:00:23 DELETE:            ✔ SKIPPED ENTIRELY
+# New orders from after 11 AM:   ✔ ALSO EXIST
+# Zero data loss beyond the one bad event!</span></pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Part 1 ends</div><div class="ev">4890 (one before DELETE start 4891)</div></div>
+            <div class="ei"><div class="el">Part 2 starts</div><div class="ev">4961 (one after DELETE end 4960)</div></div>
+            <div class="ei"><div class="el">Effect</div><div class="ev ok2">DELETE surgically removed from history</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: K8S ═══ -->
+    <div class="sec" id="k8s">
+      <div class="sh">
+        <div class="si bl">☸️</div>
+        <div><div class="st2">Kubernetes Operational Commands</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">All kubectl commands needed during a MySQL PITR incident</div></div>
+        <div class="sc">8 cmds</div>
+      </div>
+
+      <div class="cb" data-tags="sh k8s">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">☸️ Essential kubectl commands — the full incident toolkit</div><div class="cl">The <strong>complete control panel for your cluster during recovery</strong>. Scale, inspect, copy, exec — everything in one place.</div><div class="cbs2"><span class="badge ke">K8S</span><span class="badge sh2">SHELL</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># ── SCALE (stop/start writes) ─────────────────────────────────────</span>
+<span class="fn2">kubectl</span> scale deployment app-deploy --replicas=<span class="nu">0</span> -n production  <span class="cm3"># stop</span>
+<span class="fn2">kubectl</span> scale deployment app-deploy --replicas=<span class="nu">3</span> -n production  <span class="cm3"># restart</span>
+
+<span class="cm3"># ── GET INTO POD ─────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- bash
+<span class="fn2">kubectl</span> exec -it mysql-0 -n mysql-pitr -- <span class="fn2">mysql</span> -u root -p
+
+<span class="cm3"># ── CHECK STATUS ─────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> get pods -n mysql-pitr -w            <span class="cm3"># -w watches in real-time</span>
+<span class="fn2">kubectl</span> describe pod mysql-0 -n mysql-pitr   <span class="cm3"># full detail</span>
+<span class="fn2">kubectl</span> get all -n mysql-pitr               <span class="cm3"># everything in namespace</span>
+
+<span class="cm3"># ── LOGS ─────────────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> logs mysql-0 -n mysql-pitr --tail=<span class="nu">100</span>
+<span class="fn2">kubectl</span> logs mysql-0 -n mysql-pitr -f        <span class="cm3"># follow live</span>
+
+<span class="cm3"># ── STORAGE ──────────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> get pvc -n mysql-pitr
+<span class="fn2">kubectl</span> describe pvc mysql-data-pvc -n mysql-pitr
+
+<span class="cm3"># ── COPY FILES ───────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> cp mysql-pitr/mysql-0:/remote/path ./local       <span class="cm3"># pod → local</span>
+<span class="fn2">kubectl</span> cp ./local mysql-pitr/mysql-0:/remote/path       <span class="cm3"># local → pod</span>
+
+<span class="cm3"># ── ROLLOUT ──────────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> rollout status deployment/app-deploy -n production
+<span class="fn2">kubectl</span> rollout restart deployment/app-deploy -n production
+
+<span class="cm3"># ── CLEANUP ──────────────────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> delete pod mysql-recover -n mysql-pitr</pre></div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh k8s sql">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">💉 Run MySQL commands without going into the pod</div><div class="cl">Like using a <strong>remote control instead of walking to the TV</strong>. Run SQL queries directly from your terminal without exec-ing into the pod every time.</div><div class="cbs2"><span class="badge ke">K8S</span><span class="badge sh2">SHELL</span><span class="badge sq">SQL</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># Run any SQL command without entering the pod</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SELECT COUNT(*) FROM mydb.orders;"</span>
+
+<span class="cm3"># Check row count in one line</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> mydb -e \
+  <span class="str">"SELECT COUNT(*) as total, MAX(created_at) as latest FROM orders;"</span>
+
+<span class="cm3"># Run a .sql file against the pod</span>
+<span class="fn2">kubectl</span> exec -i mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> < ./query.sql
+
+<span class="cm3"># Enable read-only mode</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SET GLOBAL read_only = ON;"</span>
+
+<span class="cm3"># Disable read-only (after recovery)</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SET GLOBAL read_only = OFF;"</span>
+
+<span class="cm3"># Flush logs remotely</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"FLUSH BINARY LOGS;"</span></pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: BACKUP ═══ -->
+    <div class="sec" id="backup">
+      <div class="sh">
+        <div class="si ye">💾</div>
+        <div><div class="st2">Backup Commands — Run These BEFORE Disaster Strikes</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">These create the safety net that makes PITR possible</div></div>
+        <div class="sc">5 cmds</div>
+      </div>
+
+      <div class="cb" data-tags="sh sql">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">📸 Full mysqldump with all PITR flags — the correct backup command</div><div class="cl">Like taking a <strong>photo + writing down which frame of the video tape you're on</strong>. The --master-data=2 flag is the critical addition that makes PITR work.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">DAILY BACKUP</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># THE correct full backup for PITR support</span>
+<span class="hl"><span class="fn2">mysqldump</span> \
+  -u root -p<span class="str">'YourPassword'</span> \
+  --all-databases \
+  --single-transaction \       <span class="cm3"># no table locks (safe for InnoDB)</span>
+  --master-data=<span class="nu">2</span> \            <span class="cm3"># ← CRITICAL: records binlog position</span>
+  --flush-logs \               <span class="cm3"># ← starts fresh binlog after backup</span>
+  --events \
+  --routines \
+  --triggers \
+  > /backup/full_$(date +%Y%m%d_%H%M%S).sql</span>
+
+<span class="cm3"># Single database backup</span>
+<span class="fn2">mysqldump</span> -u root -p --single-transaction --master-data=<span class="nu">2</span> --flush-logs \
+  mydb > /backup/mydb_$(date +%Y%m%d).sql
+
+<span class="cm3"># Compressed backup (saves ~70% disk space)</span>
+<span class="fn2">mysqldump</span> -u root -p --all-databases --single-transaction \
+  --master-data=<span class="nu">2</span> --flush-logs \
+  | gzip > /backup/full_$(date +%Y%m%d_%H%M%S).sql.gz
+
+<span class="cm3"># Restore compressed backup</span>
+<span class="fn2">gunzip</span> -c /backup/full_20241201_020000.sql.gz | <span class="fn2">mysql</span> -u root -p</pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">--master-data=2</div><div class="ev ok2">Records binlog position — REQUIRED for PITR</div></div>
+            <div class="ei"><div class="el">--flush-logs</div><div class="ev ok2">Clean binlog cut point after backup</div></div>
+            <div class="ei"><div class="el">Without these</div><div class="ev er">PITR becomes difficult or impossible</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🔄 Ship binlogs to S3 — production-grade offsite safety</div><div class="cl">Like <strong>uploading your DVR recordings to the cloud every hour</strong>. If the whole server explodes, you still have your binlogs somewhere safe.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge sa">PRODUCTION</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># ── SHIP BINLOGS TO S3 (run hourly via cron) ─────────────────────</span>
+<span class="fn2">aws</span> s3 sync /var/lib/mysql/ s3://your-bucket/binlogs/ \
+  --exclude <span class="str">"*"</span> --include <span class="str">"mysql-bin.*"</span> \
+  --storage-class STANDARD_IA
+
+<span class="cm3"># ── FROM K8S POD TO S3 ───────────────────────────────────────────</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  tar czf - /var/lib/mysql/mysql-bin.0000* | \
+  <span class="fn2">aws</span> s3 cp - s3://your-bucket/binlogs/binlogs_$(date +%Y%m%d_%H).tar.gz
+
+<span class="cm3"># ── CRONTAB: run every hour ──────────────────────────────────────</span>
+<span class="cm3"># 0 * * * * /usr/local/bin/ship-binlogs.sh</span>
+
+<span class="cm3"># ── RESTORE FROM S3 ──────────────────────────────────────────────</span>
+<span class="fn2">aws</span> s3 sync s3://your-bucket/binlogs/ ./recovered-binlogs/
+<span class="fn2">aws</span> s3 cp s3://your-bucket/backups/full_20241201_020000.sql ./</pre></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SECTION: VERIFY ═══ -->
+    <div class="sec" id="verify">
+      <div class="sh">
+        <div class="si gr">✅</div>
+        <div><div class="st2">Verify Recovery + Final Production Swap</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">Confirm data is correct, then safely swap recovered DB into production</div></div>
+        <div class="sc">5 cmds</div>
+      </div>
+
+      <div class="cb key" data-tags="sql sh">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">✅ Verify recovered data — 5 checks to run before going live</div><div class="cl">Like <strong>proofreading a document before sending it to your boss</strong>. Count rows, check timestamps, spot-check specific records. Only go live after all 5 pass.</div><div class="cbs2"><span class="badge sq">SQL</span><span class="badge ke">DO BEFORE SWAP</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3">-- CHECK 1: Row count matches pre-disaster number</span>
+SELECT COUNT(*) AS total FROM orders;
+<span class="ok2">-- Expected: 50000 (your pre-disaster count)</span>
+
+<span class="cm3">-- CHECK 2: Latest record is BEFORE 11:00:23</span>
+SELECT MAX(created_at) AS latest FROM orders;
+<span class="ok2">-- Expected: 2024-12-01 10:59:58 (or earlier — NOT 11:00+)</span>
+
+<span class="cm3">-- CHECK 3: Spot check known records</span>
+SELECT * FROM orders WHERE id IN (<span class="nu">1001</span>, <span class="nu">49999</span>, <span class="nu">50000</span>);
+<span class="ok2">-- Should return these rows (they existed before disaster)</span>
+
+<span class="cm3">-- CHECK 4: No records from after the disaster (if timestamp recovery)</span>
+SELECT COUNT(*) FROM orders WHERE created_at > <span class="str">'2024-12-01 11:00:00'</span>;
+<span class="ok2">-- Expected: 0</span>
+
+<span class="cm3">-- CHECK 5: Table health check</span>
+CHECK TABLE orders;
+<span class="ok2">-- Expected: OK (no corruption)</span>
+
+<span class="cm3">-- BONUS: Compare with a known reference count</span>
+SELECT TABLE_NAME, TABLE_ROWS FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = <span class="str">'mydb'</span>;</pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Green light</div><div class="ev ok2">Count correct + latest before 11 AM</div></div>
+            <div class="ei"><div class="el">Red flag</div><div class="ev er">Wrong count or post-11AM timestamps</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cb" data-tags="sh k8s sql">
+        <div class="ct" onclick="tog(this)">
+          <div class="cm2"><div class="cn">🔁 Final swap — dump recovered DB into production</div><div class="cl">Like <strong>printing a certified copy and officially handing it in</strong>. You dump the verified recovery, import into production, then restart everything.</div><div class="cbs2"><span class="badge sh2">SHELL</span><span class="badge ke">FINAL STEP</span><span class="badge ke">K8S</span></div></div>
+          <div class="cc"><button class="cpb" onclick="cp(this,event)">⎘ Copy</button><div class="tgb">▼</div></div>
+        </div>
+        <div class="body2">
+          <div class="cw"><pre class="code"><span class="cm3"># 1. Dump the verified recovered database</span>
+<span class="fn2">kubectl</span> exec mysql-recover -n mysql-pitr -- \
+  <span class="fn2">mysqldump</span> -u root -p<span class="str">'RecoverPass123'</span> \
+  --all-databases --single-transaction \
+  > ./recovered_final.sql
+
+<span class="cm3"># 2. Lock production to read-only before importing</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SET GLOBAL read_only = ON;"</span>
+
+<span class="cm3"># 3. Copy recovered dump into production pod</span>
+<span class="fn2">kubectl</span> cp recovered_final.sql mysql-pitr/mysql-0:/tmp/recovered_final.sql
+
+<span class="cm3"># 4. Import into production</span>
+<span class="hl"><span class="fn2">kubectl</span> exec -i mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> < /tmp/recovered_final.sql</span>
+
+<span class="cm3"># 5. Re-enable writes</span>
+<span class="fn2">kubectl</span> exec mysql-0 -n mysql-pitr -- \
+  <span class="fn2">mysql</span> -u root -p<span class="str">'YourPassword'</span> -e <span class="str">"SET GLOBAL read_only = OFF;"</span>
+
+<span class="cm3"># 6. Scale app back up</span>
+<span class="hl"><span class="fn2">kubectl</span> scale deployment app-deploy --replicas=<span class="nu">3</span> -n production</span>
+<span class="fn2">kubectl</span> rollout status deployment/app-deploy -n production
+
+<span class="ok2"># ✔ PRODUCTION IS LIVE WITH RECOVERED DATA!
+# ✔ Crisis resolved. Go drink water. You earned it. 🍵
+
+# 7. Cleanup recovery pod</span>
+<span class="fn2">kubectl</span> delete pod mysql-recover -n mysql-pitr</pre></div>
+          <div class="eb">
+            <div class="ei"><div class="el">Order matters</div><div class="ev">read_only ON → import → read_only OFF → scale up</div></div>
+            <div class="ei"><div class="el">Downtime window</div><div class="ev wn">~5-15 min for the final swap</div></div>
+            <div class="ei"><div class="el">After recovery</div><div class="ev">Write incident report + add binlog monitoring</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK REFERENCE -->
+    <div class="qr">
+      <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--accent4);">⚡ Quick Copy Reference</div>
+      <div class="qrg">
+        <div class="qri"><div class="ql">FLUSH BINLOGS</div><code style="color:var(--accent3);">FLUSH BINARY LOGS;</code></div>
+        <div class="qri"><div class="ql">RECOVERY — BY TIME</div><code style="color:var(--danger);">mysqlbinlog --stop-datetime="YYYY-MM-DD HH:MM:SS" bin.* | mysql</code></div>
+        <div class="qri"><div class="ql">RECOVERY — BY POSITION</div><code style="color:var(--accent4);">mysqlbinlog --stop-position=4890 bin.* | mysql</code></div>
+        <div class="qri"><div class="ql">SURGICAL SKIP PART 1</div><code style="color:var(--accent);">mysqlbinlog --stop-position=4890 bin.000003 | mysql</code></div>
+        <div class="qri"><div class="ql">SURGICAL SKIP PART 2</div><code style="color:var(--accent);">mysqlbinlog --start-position=4961 bin.000003 bin.000004 | mysql</code></div>
+        <div class="qri"><div class="ql">SCALE DOWN PODS</div><code style="color:var(--accent3);">kubectl scale deploy APP --replicas=0 -n NS</code></div>
+        <div class="qri"><div class="ql">COPY FROM POD</div><code style="color:var(--accent3);">kubectl cp NS/POD:/remote ./local</code></div>
+        <div class="qri"><div class="ql">VERIFY ROW COUNT</div><code style="color:var(--success);">SELECT COUNT(*), MAX(created_at) FROM orders;</code></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function tog(el){const b=el.nextElementSibling;const t=el.querySelector('.tgb');b.classList.toggle('open');t.textContent=b.classList.contains('open')?'▲':'▼';}
+function cp(btn,e){e.stopPropagation();const pre=btn.closest('.cb').querySelector('pre.code');if(!pre)return;navigator.clipboard.writeText(pre.innerText||pre.textContent).then(()=>{btn.classList.add('copied');btn.textContent='✔ Copied!';showToast();setTimeout(()=>{btn.classList.remove('copied');btn.textContent='⎘ Copy';},2200);});}
+function showToast(){const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function search(q){const bl=document.querySelectorAll('.cb');const lo=q.toLowerCase();bl.forEach(b=>{b.style.display=b.textContent.toLowerCase().includes(lo)?'':'none';});}
+function fAll(btn){document.querySelectorAll('.ft').forEach(f=>f.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.cb').forEach(b=>b.style.display='');}
+function fTag(btn,tag){document.querySelectorAll('.ft').forEach(f=>f.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.cb').forEach(b=>{b.style.display=(b.dataset.tags||'').split(' ').includes(tag)?'':'none';});}
+const secs=document.querySelectorAll('.sec');const nis=document.querySelectorAll('.ni');window.addEventListener('scroll',()=>{let c='';secs.forEach(s=>{if(window.scrollY>=s.offsetTop-100)c=s.id;});nis.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+c));});
+// Auto-open first cmd in each section
+document.querySelectorAll('.sec .cb:first-of-type .ct').forEach(el=>el.click());
+</script>
+</body>
+</html>

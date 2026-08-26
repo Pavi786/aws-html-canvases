@@ -1,0 +1,573 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.rm-wrap{padding:1rem 0.5rem 2rem}
+.rm-hero{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.rm-hero h1{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.rm-hero p{font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:1rem}
+.skill-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.chip-good{background:#E1F5EE;color:#0F6E56}
+.chip-basic{background:#E6F1FB;color:#185FA5}
+.chip-grow{background:#FAEEDA;color:#854F0B}
+.phase-tabs{display:flex;gap:8px;margin-bottom:1.25rem;overflow-x:auto;padding-bottom:4px}
+.ptab{padding:7px 16px;border-radius:20px;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);font-size:13px;cursor:pointer;white-space:nowrap;transition:all .2s}
+.ptab.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.ptab:hover:not(.active){background:var(--color-background-secondary)}
+.phase-panel{display:none}
+.phase-panel.active{display:block}
+.phase-header{display:flex;align-items:center;gap:12px;margin-bottom:1.25rem}
+.phase-badge{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;flex-shrink:0}
+.phase-meta h2{font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.phase-meta p{font-size:12px;color:var(--color-text-secondary)}
+.domain-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.domain-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.dc-head{padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid transparent;transition:background .15s}
+.dc-head:hover{background:var(--color-background-secondary)}
+.dc-head.open{border-bottom-color:var(--color-border-tertiary)}
+.dc-title{display:flex;align-items:center;gap:10px}
+.dc-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.dc-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.dc-sub{font-size:11px;color:var(--color-text-secondary)}
+.dc-arrow{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s}
+.dc-arrow.open{transform:rotate(90deg)}
+.dc-body{display:none;padding:14px 16px}
+.dc-body.open{display:block}
+.topic-row{margin-bottom:12px;padding-bottom:12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.topic-row:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.topic-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.topic-why{font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:6px}
+.links-row{display:flex;flex-wrap:wrap;gap:5px}
+.link-pill{font-size:11px;padding:3px 9px;border-radius:12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);text-decoration:none;transition:all .15s}
+.link-pill:hover{background:var(--color-background-tertiary);color:var(--color-text-primary)}
+.prio-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.prio-high{background:#D85A30}
+.prio-med{background:#378ADD}
+.prio-low{background:#1D9E75}
+.legend{display:flex;gap:14px;margin-bottom:1rem;font-size:12px;color:var(--color-text-secondary);align-items:center;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px}
+.cert-section{margin-top:1.5rem}
+.cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-top:1rem}
+.cert-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.cert-name{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:3px}
+.cert-desc{font-size:11px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.4}
+.cert-link{font-size:11px;color:var(--color-text-info);text-decoration:none}
+.cert-link:hover{text-decoration:underline}
+.timeline-strip{display:flex;gap:0;margin-bottom:1.5rem;border-radius:var(--border-radius-md);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.tl-seg{flex:1;padding:8px;text-align:center;font-size:11px;cursor:pointer;transition:filter .15s}
+.tl-seg:hover{filter:brightness(0.95)}
+.tl-seg.tl1{background:#E1F5EE;color:#0F6E56}
+.tl-seg.tl2{background:#E6F1FB;color:#185FA5}
+.tl-seg.tl3{background:#FAEEDA;color:#854F0B}
+.tl-seg.tl4{background:#FAECE7;color:#993C1D}
+.tl-seg b{display:block;font-size:13px;font-weight:500}
+</style>
+
+<div class="rm-wrap">
+
+<div class="rm-hero">
+  <h1>Your DevOps Mastery Roadmap</h1>
+  <p>Built for your exact skill level — 1 year exp, strong in self-managed K8s and observability. Here's where you stand and where to go next.</p>
+  <div class="skill-chips">
+    <span class="chip chip-good">K8s self-managed ✓</span>
+    <span class="chip chip-good">Prometheus / Grafana ✓</span>
+    <span class="chip chip-good">Kibana / Jaeger ✓</span>
+    <span class="chip chip-good">ArgoCD ✓</span>
+    <span class="chip chip-good">Docker ✓</span>
+    <span class="chip chip-good">Jenkins ✓</span>
+    <span class="chip chip-good">JFrog / Maven ✓</span>
+    <span class="chip chip-good">Cloudflare R2/DNS ✓</span>
+    <span class="chip chip-basic">Linux → Master</span>
+    <span class="chip chip-basic">AWS → Deep</span>
+    <span class="chip chip-basic">Azure → Deep</span>
+    <span class="chip chip-basic">Ansible → Advanced</span>
+    <span class="chip chip-basic">Terraform → Advanced</span>
+    <span class="chip chip-grow">Istio / Service Mesh</span>
+    <span class="chip chip-grow">DevSecOps</span>
+    <span class="chip chip-grow">Python for DevOps</span>
+    <span class="chip chip-grow">SRE Practices</span>
+    <span class="chip chip-grow">Platform Engineering</span>
+  </div>
+</div>
+
+<div class="timeline-strip">
+  <div class="tl-seg tl1" onclick="showPhase(0)"><b>Phase 1</b>Months 0–3<br>Foundations</div>
+  <div class="tl-seg tl2" onclick="showPhase(1)"><b>Phase 2</b>Months 3–6<br>Go Deeper</div>
+  <div class="tl-seg tl3" onclick="showPhase(2)"><b>Phase 3</b>Months 6–12<br>Cloud & Security</div>
+  <div class="tl-seg tl4" onclick="showPhase(3)"><b>Phase 4</b>Months 12–18<br>Expert Level</div>
+</div>
+
+<div class="legend">
+  <span style="font-weight:500;color:var(--color-text-primary)">Priority:</span>
+  <span class="leg-item"><span class="prio-dot prio-high"></span>Must learn now</span>
+  <span class="leg-item"><span class="prio-dot prio-med"></span>High value</span>
+  <span class="leg-item"><span class="prio-dot prio-low"></span>Nice to have</span>
+</div>
+
+<div class="phase-tabs">
+  <button class="ptab active" onclick="showPhase(0)">Phase 1 — Foundations</button>
+  <button class="ptab" onclick="showPhase(1)">Phase 2 — Go Deeper</button>
+  <button class="ptab" onclick="showPhase(2)">Phase 3 — Cloud & Security</button>
+  <button class="ptab" onclick="showPhase(3)">Phase 4 — Expert Level</button>
+  <button class="ptab" onclick="showPhase(4)">Certifications</button>
+</div>
+
+<!-- PHASE 1 -->
+<div class="phase-panel active" id="p0">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#E1F5EE;color:#0F6E56">1</div>
+    <div class="phase-meta"><h2>Lock In the Foundations</h2><p>Months 0–3 · 3 domains to nail before advancing</p></div>
+  </div>
+  <div class="domain-grid" id="grid0"></div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="phase-panel" id="p1">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#E6F1FB;color:#185FA5">2</div>
+    <div class="phase-meta"><h2>Go Deeper on Core Tools</h2><p>Months 3–6 · Advanced Kubernetes, IaC, CI/CD pipelines</p></div>
+  </div>
+  <div class="domain-grid" id="grid1"></div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="phase-panel" id="p2">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#FAEEDA;color:#854F0B">3</div>
+    <div class="phase-meta"><h2>Cloud Native & Security</h2><p>Months 6–12 · AWS/Azure deep, DevSecOps, Service Mesh</p></div>
+  </div>
+  <div class="domain-grid" id="grid2"></div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="phase-panel" id="p3">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#FAECE7;color:#993C1D">4</div>
+    <div class="phase-meta"><h2>Senior & Expert Level</h2><p>Months 12–18 · SRE, Platform Engineering, FinOps, Chaos</p></div>
+  </div>
+  <div class="domain-grid" id="grid3"></div>
+</div>
+
+<!-- CERTS -->
+<div class="phase-panel" id="p4">
+  <div class="phase-header">
+    <div class="phase-badge" style="background:#EEEDFE;color:#534AB7">🏆</div>
+    <div class="phase-meta"><h2>Certification Roadmap</h2><p>In recommended order — 6 certs to validate your mastery</p></div>
+  </div>
+  <div class="cert-grid" id="certgrid"></div>
+</div>
+
+</div>
+
+<script>
+const phases = [
+  // Phase 1
+  [
+    {
+      icon:"🐧", color:"#E1F5EE", tc:"#0F6E56", name:"Linux Mastery", sub:"Your #1 priority",
+      topics:[
+        {n:"Systemd & Process Management", prio:"high",
+         why:"You manage servers daily — knowing how systemd units, journald, cgroups work makes you 10x faster at debugging.",
+         links:[["Brendan Gregg Linux Perf","https://brendangregg.com/linuxperf.html"],["systemd docs","https://systemd.io/"],["Linux Journey","https://linuxjourney.com/"]]},
+        {n:"Advanced Networking (iptables, ss, ip, tc)", prio:"high",
+         why:"K8s networking, Squid proxy debugging, and cloud VPCs are all built on Linux netfilter. You need to own this.",
+         links:[["iptables tutorial","https://www.frozentux.net/iptables-tutorial/iptables-tutorial.html"],["iproute2 docs","https://baturin.org/docs/iproute2/"],["ss man page","https://man7.org/linux/man-pages/man8/ss.8.html"]]},
+        {n:"Performance Tuning & eBPF", prio:"high",
+         why:"When a node is slow or K8s pods throttle, you need perf, strace, lsof, eBPF tools. This separates intermediate from advanced.",
+         links:[["BPF Performance Tools book","https://www.brendangregg.com/bpf-performance-tools-book.html"],["bpftrace","https://github.com/bpftrace/bpftrace"],["Linux Perf Examples","https://brendangregg.com/perf.html"]]},
+        {n:"Security: SELinux, AppArmor, capabilities", prio:"med",
+         why:"Container escapes and privilege escalation exploits target kernel-level permissions. You need to understand Linux security model.",
+         links:[["SELinux guide","https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/using_selinux/index"],["AppArmor wiki","https://wiki.ubuntu.com/AppArmor"],["Linux capabilities","https://man7.org/linux/man-pages/man7/capabilities.7.html"]]},
+        {n:"Filesystem: LVM, ZFS, XFS, inode internals", prio:"med",
+         why:"Storage issues are the hardest to debug — knowing how filesystems work is essential for K8s PVs, log volumes, and etcd.",
+         links:[["The Linux Storage Stack","https://www.thomas-krenn.com/en/wiki/Linux_Storage_Stack_Diagram"],["LVM guide","https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/8/html/configuring_and_managing_logical_volumes/index"],["ZFS on Linux","https://openzfs.github.io/openzfs-docs/"]]}
+      ]
+    },
+    {
+      icon:"🐍", color:"#E6F1FB", tc:"#185FA5", name:"Python for DevOps", sub:"Scripting automation",
+      topics:[
+        {n:"Core Python + Data structures", prio:"high",
+         why:"Bash is fine for glue, but Python is what lets you write real automation — K8s operators, Slack bots, API integrations, data pipelines.",
+         links:[["Automate the Boring Stuff","https://automatetheboringstuff.com/"],["Real Python","https://realpython.com/"],["Python docs","https://docs.python.org/3/"]]},
+        {n:"boto3 — AWS SDK for Python", prio:"high",
+         why:"Automate EC2, S3, EKS, IAM, and every other AWS service from Python scripts instead of clicking the console.",
+         links:[["boto3 docs","https://boto3.amazonaws.com/v1/documentation/api/latest/index.html"],["boto3 quickstart","https://aws.amazon.com/sdk-for-python/"]]},
+        {n:"Kubernetes Python Client", prio:"med",
+         why:"Build controllers, operators, and admission webhooks in Python. Essential if you want to extend K8s.",
+         links:[["k8s Python client","https://github.com/kubernetes-client/python"],["example operators","https://github.com/nolar/kopf"]]},
+        {n:"requests, paramiko, fabric for ops", prio:"med",
+         why:"HTTP APIs, SSH automation, and remote command execution — the daily bread of DevOps scripting.",
+         links:[["requests lib","https://requests.readthedocs.io/"],["fabric docs","https://www.fabfile.org/"],["paramiko","https://www.paramiko.org/"]]}
+      ]
+    },
+    {
+      icon:"🔧", color:"#FAEEDA", tc:"#854F0B", name:"Advanced Bash Scripting", sub:"From intermediate to master",
+      topics:[
+        {n:"Bash internals: subshells, trap, signals", prio:"high",
+         why:"You're already intermediate — now master error handling, trap for cleanup, and process substitution.",
+         links:[["Advanced Bash Guide (TLDP)","https://tldp.org/LDP/abs/html/"],["Bash manual","https://www.gnu.org/software/bash/manual/bash.html"],["ShellCheck linter","https://www.shellcheck.net/"]]},
+        {n:"Text processing: awk, sed, jq, yq", prio:"high",
+         why:"Parsing JSON/YAML from kubectl, AWS CLI, Terraform output — you'll do this hundreds of times per week.",
+         links:[["jq manual","https://jqlang.github.io/jq/manual/"],["yq docs","https://mikefarah.gitbook.io/yq/"],["awk one-liners","https://catonmat.net/awk-one-liners-explained-part-one"]]},
+        {n:"Script patterns: idempotency, retries, locking", prio:"med",
+         why:"Production scripts must handle failures. Learn flock, exponential backoff, and idempotent patterns.",
+         links:[["Google Shell Style Guide","https://google.github.io/styleguide/shellguide.html"],["bash retry pattern","https://github.com/kadwanev/retry"]]}
+      ]
+    }
+  ],
+
+  // Phase 2
+  [
+    {
+      icon:"☸️", color:"#E1F5EE", tc:"#0F6E56", name:"Advanced Kubernetes", sub:"From good → expert",
+      topics:[
+        {n:"Operators & Custom Resources (CRDs)", prio:"high",
+         why:"Operators are how you extend K8s. Every production platform uses them. Essential for AKS/EKS advanced work.",
+         links:[["Operator SDK","https://sdk.operatorframework.io/docs/"],["Kubebuilder","https://book.kubebuilder.io/"],["Kopf (Python)","https://kopf.readthedocs.io/"]]},
+        {n:"RBAC: deep dive + audit", prio:"high",
+         why:"Security audits always start with RBAC. Understand ClusterRole, RoleBinding, ServiceAccounts, and token projection fully.",
+         links:[["K8s RBAC docs","https://kubernetes.io/docs/reference/access-authn-authz/rbac/"],["rbac-lookup tool","https://github.com/FairwindsOps/rbac-lookup"],["audit2rbac","https://github.com/liggitt/audit2rbac"]]},
+        {n:"Network Policies + CNI internals (Cilium/Calico)", prio:"high",
+         why:"You need to go beyond 'networking works' — understand how eBPF CNIs work, enforce L3/L4/L7 policies.",
+         links:[["Cilium docs","https://docs.cilium.io/"],["Calico docs","https://docs.tigera.io/calico/latest/about/"],["K8s Network Policy","https://kubernetes.io/docs/concepts/services-networking/network-policies/"]]},
+        {n:"Storage: CSI drivers, VolumeSnapshots, StatefulSets", prio:"med",
+         why:"StatefulSet ops and PV lifecycle management is where most engineers struggle in production.",
+         links:[["CSI docs","https://kubernetes-csi.github.io/docs/"],["K8s storage concepts","https://kubernetes.io/docs/concepts/storage/"],["Longhorn","https://longhorn.io/docs/"]]},
+        {n:"Helm advanced: library charts, OCI registry, testing", prio:"med",
+         why:"You likely use Helm already — now master chart testing, library charts, and helmfile for multi-chart deploys.",
+         links:[["Helm docs","https://helm.sh/docs/"],["Helmfile","https://helmfile.readthedocs.io/"],["helm-unittest","https://github.com/helm-unittest/helm-unittest"]]},
+        {n:"Multi-cluster: Cluster API, Karmada, vcluster", prio:"low",
+         why:"As you scale, you'll manage many clusters. Cluster API lets you declaratively provision K8s clusters on any cloud.",
+         links:[["Cluster API","https://cluster-api.sigs.k8s.io/"],["Karmada","https://karmada.io/docs/"],["vcluster","https://www.vcluster.com/docs"]]}
+      ]
+    },
+    {
+      icon:"🏗️", color:"#FAECE7", tc:"#993C1D", name:"Terraform Advanced", sub:"From basic → production IaC",
+      topics:[
+        {n:"Modules: writing, versioning, publishing", prio:"high",
+         why:"Modules are how you reuse IaC across teams and environments. This is the single biggest productivity unlock.",
+         links:[["Terraform module docs","https://developer.hashicorp.com/terraform/language/modules"],["Terraform Registry","https://registry.terraform.io/"],["terraform-aws-modules","https://github.com/terraform-aws-modules"]]},
+        {n:"Remote state: S3+DynamoDB, Terraform Cloud", prio:"high",
+         why:"Solo Terraform is trivial. Team Terraform with state locking and remote backends is where real skill shows.",
+         links:[["Remote state docs","https://developer.hashicorp.com/terraform/language/settings/backends/s3"],["Terraform Cloud","https://app.terraform.io/"],["OpenTofu","https://opentofu.org/"]]},
+        {n:"Terragrunt: DRY multi-environment setups", prio:"high",
+         why:"Most companies use Terragrunt to manage dev/staging/prod environments without code duplication.",
+         links:[["Terragrunt docs","https://terragrunt.gruntwork.io/docs/"],["Gruntwork guide","https://blog.gruntwork.io/how-to-manage-terraform-state-28f5697e68bb"]]},
+        {n:"Testing: Terratest, Checkov, tfsec", prio:"med",
+         why:"Infrastructure untested in CI will break in prod. Static analysis and integration tests are non-negotiable.",
+         links:[["Terratest","https://terratest.gruntwork.io/"],["Checkov","https://www.checkov.io/"],["tfsec","https://aquasecurity.github.io/tfsec/latest/"]]},
+        {n:"Workspaces vs environments pattern", prio:"med",
+         why:"Understanding when to use workspaces vs separate state files vs separate repos is a common interview topic.",
+         links:[["Terraform workspaces","https://developer.hashicorp.com/terraform/language/state/workspaces"],["Environment patterns","https://developer.hashicorp.com/terraform/tutorials/modules/pattern-module-composition"]]}
+      ]
+    },
+    {
+      icon:"📦", color:"#E6F1FB", tc:"#185FA5", name:"Advanced Ansible", sub:"From basic → automation platform",
+      topics:[
+        {n:"Roles & Collections: writing your own", prio:"high",
+         why:"Playbooks without roles don't scale. Every production Ansible setup uses roles for reusability.",
+         links:[["Ansible roles docs","https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html"],["Ansible Galaxy","https://galaxy.ansible.com/"],["Collections guide","https://docs.ansible.com/ansible/latest/collections_guide/index.html"]]},
+        {n:"Molecule: testing roles with Docker/K8s", prio:"high",
+         why:"You wouldn't deploy code without tests. Same for Ansible. Molecule runs your roles in containers and asserts state.",
+         links:[["Molecule docs","https://ansible.readthedocs.io/projects/molecule/"],["Molecule tutorial","https://www.jeffgeerling.com/blog/2018/testing-your-ansible-roles-molecule"]]},
+        {n:"AWX / Ansible Automation Platform", prio:"med",
+         why:"Enterprises run Ansible via AWX UI — job templates, inventory management, RBAC. Know both CLI and AWX.",
+         links:[["AWX project","https://github.com/ansible/awx"],["AWX docs","https://ansible.readthedocs.io/projects/awx/"],["Install AWX on K8s","https://github.com/ansible/awx-operator"]]},
+        {n:"Ansible Vault + dynamic inventory", prio:"med",
+         why:"Storing secrets in playbooks is a security fail. Vault encrypts variables. Dynamic inventory fetches hosts from AWS/Azure.",
+         links:[["Ansible Vault","https://docs.ansible.com/ansible/latest/vault_guide/index.html"],["Dynamic inventory","https://docs.ansible.com/ansible/latest/inventory_guide/intro_dynamic_inventory.html"]]}
+      ]
+    },
+    {
+      icon:"🔄", color:"#EEEDFE", tc:"#534AB7", name:"CI/CD Advanced", sub:"Beyond Jenkins",
+      topics:[
+        {n:"GitHub Actions: advanced workflows", prio:"high",
+         why:"Most open source and many companies use GHA. Composite actions, reusable workflows, and OIDC auth are key.",
+         links:[["GitHub Actions docs","https://docs.github.com/en/actions"],["Reusable workflows","https://docs.github.com/en/actions/using-workflows/reusing-workflows"],["actions/toolkit","https://github.com/actions/toolkit"]]},
+        {n:"GitLab CI: parallel, DAG, parent-child pipelines", prio:"med",
+         why:"GitLab CI's DAG pipeline model is more powerful than Jenkins for complex build graphs.",
+         links:[["GitLab CI docs","https://docs.gitlab.com/ee/ci/"],["GitLab YAML reference","https://docs.gitlab.com/ee/ci/yaml/"]]},
+        {n:"ArgoCD advanced: App of Apps, Argo Rollouts", prio:"high",
+         why:"You know ArgoCD basics — now master App of Apps pattern, sync waves, and Argo Rollouts for canary/blue-green.",
+         links:[["Argo Rollouts","https://argo-rollouts.readthedocs.io/"],["App of Apps pattern","https://argo-cd.readthedocs.io/en/stable/operator-manual/cluster-bootstrapping/"],["Argo Workflows","https://argoproj.github.io/workflows/"]]},
+        {n:"Argo Workflows: DAG-based pipelines", prio:"med",
+         why:"Argo Workflows is K8s-native CI — better for ML pipelines, data engineering, and multi-step jobs than Jenkins.",
+         links:[["Argo Workflows docs","https://argoproj.github.io/workflows/"],["Argo Workflows examples","https://github.com/argoproj/argo-workflows/tree/main/examples"]]}
+      ]
+    }
+  ],
+
+  // Phase 3
+  [
+    {
+      icon:"☁️", color:"#E6F1FB", tc:"#185FA5", name:"AWS Deep Dive", sub:"From basic → architect level",
+      topics:[
+        {n:"VPC: subnets, route tables, NAT, Transit Gateway", prio:"high",
+         why:"Every AWS deployment is built on VPCs. You need to design multi-AZ, multi-VPC architectures confidently.",
+         links:[["AWS VPC docs","https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html"],["Transit Gateway","https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html"],["AWS Networking workshop","https://networking.workshop.aws/"]]},
+        {n:"IAM: policies, SCPs, Permission Boundaries, IRSA", prio:"high",
+         why:"IAM is the hardest AWS service to master and the most critical for security. IRSA is essential for EKS workload identity.",
+         links:[["IAM policies deep dive","https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html"],["IRSA docs","https://docs.aws.amazon.com/eks/latest/userguide/iam-roles-for-service-accounts.html"],["IAM policy simulator","https://policysim.aws.amazon.com/"]]},
+        {n:"EKS: advanced networking, add-ons, Karpenter", prio:"high",
+         why:"You have basic EKS — now master Karpenter for node autoscaling, CoreDNS tuning, and EKS add-on management.",
+         links:[["EKS best practices","https://aws.github.io/aws-eks-best-practices/"],["Karpenter","https://karpenter.sh/docs/"],["EKS workshop","https://www.eksworkshop.com/"]]},
+        {n:"RDS, ElastiCache, Aurora: ops and tuning", prio:"med",
+         why:"Your MySQL basics need to grow into managed DB operations — backup strategy, failover, parameter groups, slow query analysis.",
+         links:[["RDS docs","https://docs.aws.amazon.com/rds/"],["Aurora guide","https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/"],["ElastiCache","https://docs.aws.amazon.com/elasticache/"]]},
+        {n:"Cost optimization: Spot, Savings Plans, Compute Optimizer", prio:"med",
+         why:"Cloud bills spiral fast. Spot instances + Savings Plans can cut costs 60–80%. Knowing this makes you invaluable.",
+         links:[["AWS Cost Explorer","https://aws.amazon.com/aws-cost-management/aws-cost-explorer/"],["Spot best practices","https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-best-practices.html"],["Compute Optimizer","https://aws.amazon.com/compute-optimizer/"]]},
+        {n:"Lambda, SQS, SNS, EventBridge: event-driven ops", prio:"low",
+         why:"Serverless event-driven patterns handle auto-remediation, webhook processing, and scheduled tasks cleanly.",
+         links:[["Lambda docs","https://docs.aws.amazon.com/lambda/"],["EventBridge","https://docs.aws.amazon.com/eventbridge/"],["Serverless patterns","https://serverlessland.com/"]]}
+      ]
+    },
+    {
+      icon:"🔷", color:"#EEEDFE", tc:"#534AB7", name:"Azure Deep Dive", sub:"Build on your blob storage base",
+      topics:[
+        {n:"AKS: advanced — Workload Identity, KEDA, AGIC", prio:"high",
+         why:"You have basic AKS — now master Workload Identity (IRSA equivalent), KEDA for event-driven scaling, and AGIC ingress.",
+         links:[["AKS best practices","https://learn.microsoft.com/en-us/azure/aks/best-practices"],["Workload Identity","https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview"],["KEDA","https://keda.sh/docs/"]]},
+        {n:"Azure DevOps: Pipelines, Boards, Artifacts", prio:"high",
+         why:"Many enterprise shops run Azure DevOps for CI/CD. Understanding pipelines YAML and Artifacts feeds is essential.",
+         links:[["Azure DevOps docs","https://learn.microsoft.com/en-us/azure/devops/"],["Azure Pipelines YAML","https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/"],["Azure Artifacts","https://learn.microsoft.com/en-us/azure/devops/artifacts/"]]},
+        {n:"Azure Key Vault + Managed Identity", prio:"high",
+         why:"Secret management in Azure flows through Key Vault + Managed Identity. This replaces passwords and connection strings.",
+         links:[["Key Vault docs","https://learn.microsoft.com/en-us/azure/key-vault/"],["Managed Identity","https://learn.microsoft.com/en-us/entra/identity/managed-identities-azure-resources/overview"]]},
+        {n:"Azure Monitor, Log Analytics, Application Insights", prio:"med",
+         why:"You know Grafana/Prometheus — Azure Monitor is the native equivalent. They complement each other in hybrid setups.",
+         links:[["Azure Monitor","https://learn.microsoft.com/en-us/azure/azure-monitor/"],["Log Analytics","https://learn.microsoft.com/en-us/azure/azure-monitor/logs/log-analytics-overview"]]},
+        {n:"VNet, NSG, Private Endpoints, ExpressRoute", prio:"med",
+         why:"Azure networking topology — private endpoints for storage/databases and NSG rules for zero-trust network design.",
+         links:[["Azure VNet docs","https://learn.microsoft.com/en-us/azure/virtual-network/"],["Private Endpoints","https://learn.microsoft.com/en-us/azure/private-link/private-endpoint-overview"]]}
+      ]
+    },
+    {
+      icon:"🔐", color:"#FAECE7", tc:"#993C1D", name:"DevSecOps", sub:"Security baked in, not bolted on",
+      topics:[
+        {n:"HashiCorp Vault: secrets management", prio:"high",
+         why:"Hardcoded secrets in config files or env vars is a top security risk. Vault solves dynamic secrets, PKI, and encryption.",
+         links:[["Vault docs","https://developer.hashicorp.com/vault/docs"],["Vault on K8s","https://developer.hashicorp.com/vault/tutorials/kubernetes"],["Vault Agent sidecar","https://developer.hashicorp.com/vault/docs/agent-and-proxy/agent"]]},
+        {n:"Trivy: container & IaC scanning", prio:"high",
+         why:"Trivy scans container images, K8s configs, Terraform, and Helm charts for CVEs and misconfigurations. Use in CI.",
+         links:[["Trivy docs","https://aquasecurity.github.io/trivy/"],["Trivy in CI","https://aquasecurity.github.io/trivy/latest/tutorials/integrations/"],["Aqua Security","https://www.aquasec.com/"]]},
+        {n:"OPA / Gatekeeper: policy as code", prio:"high",
+         why:"Enforce standards across your K8s clusters — no pods without resource limits, no images from untrusted registries.",
+         links:[["OPA docs","https://www.openpolicyagent.org/docs/latest/"],["Gatekeeper","https://open-policy-agent.github.io/gatekeeper/website/docs/"],["Conftest","https://www.conftest.dev/"]]},
+        {n:"Falco: runtime security monitoring", prio:"med",
+         why:"Trivy scans before deployment. Falco watches running containers for suspicious behaviour — process spawning, file access, network calls.",
+         links:[["Falco docs","https://falco.org/docs/"],["Falco rules","https://github.com/falcosecurity/rules"],["Falcosidekick","https://github.com/falcosecurity/falcosidekick"]]},
+        {n:"SBOM, image signing: Cosign, Sigstore", prio:"med",
+         why:"Software supply chain attacks are on the rise. Sign your images, verify signatures in admission webhooks.",
+         links:[["Cosign docs","https://docs.sigstore.dev/cosign/overview/"],["Sigstore","https://www.sigstore.dev/"],["SBOM guide","https://www.cisa.gov/sbom"]]},
+        {n:"Network security: mTLS, Zero Trust concepts", prio:"med",
+         why:"Zero Trust means verify every connection. mTLS between services (via Istio) is the K8s implementation of this.",
+         links:[["CNCF Zero Trust guide","https://github.com/cncf/tag-security/blob/main/security-whitepaper/v2/cloud-native-security-whitepaper.md"],["NIST Zero Trust","https://www.nist.gov/publications/zero-trust-architecture"]]}
+      ]
+    },
+    {
+      icon:"🕸️", color:"#E1F5EE", tc:"#0F6E56", name:"Service Mesh — Istio", sub:"Traffic control between microservices",
+      topics:[
+        {n:"Istio architecture: control plane, Envoy proxy", prio:"high",
+         why:"Istio gives you traffic management, mTLS, observability, and canary deployments — without changing app code.",
+         links:[["Istio docs","https://istio.io/latest/docs/"],["Istio in Practice (book)","https://www.manning.com/books/istio-in-action"],["Istio workshop","https://www.istioworkshop.io/"]]},
+        {n:"Traffic management: VirtualService, DestinationRule", prio:"high",
+         why:"Canary releases, A/B testing, traffic mirroring, circuit breakers — all controlled via Istio CRDs.",
+         links:[["Traffic management concepts","https://istio.io/latest/docs/concepts/traffic-management/"],["VirtualService reference","https://istio.io/latest/docs/reference/config/networking/virtual-service/"]]},
+        {n:"Istio observability: mTLS + Kiali dashboard", prio:"med",
+         why:"Kiali gives you a service graph showing which services talk to each other, error rates, and latency — invaluable.",
+         links:[["Kiali docs","https://kiali.io/docs/"],["Istio observability","https://istio.io/latest/docs/tasks/observability/"]]},
+        {n:"Linkerd as Istio alternative", prio:"low",
+         why:"Linkerd is lighter than Istio. Know both — different companies use different meshes.",
+         links:[["Linkerd docs","https://linkerd.io/docs/"],["Istio vs Linkerd","https://buoyant.io/resources/istio-vs-linkerd"]]}
+      ]
+    },
+    {
+      icon:"📊", color:"#FAEEDA", tc:"#854F0B", name:"Advanced Observability", sub:"Beyond Prometheus basics",
+      topics:[
+        {n:"OpenTelemetry: unified traces, metrics, logs", prio:"high",
+         why:"OTel is the future — one SDK to instrument everything. It replaces vendor-specific instrumentation (Jaeger, Zipkin, DataDog agents).",
+         links:[["OpenTelemetry docs","https://opentelemetry.io/docs/"],["OTel collector","https://opentelemetry.io/docs/collector/"],["OTel demo","https://opentelemetry.io/docs/demo/"]]},
+        {n:"SLI / SLO / Error Budget design", prio:"high",
+         why:"SLOs tell you when to page on-call vs ignore an alert. This is how SRE teams prevent alert fatigue.",
+         links:[["Google SRE workbook SLOs","https://sre.google/workbook/implementing-slos/"],["SLO generator","https://github.com/google/slo-generator"],["OpenSLO","https://openslo.com/"]]},
+        {n:"Grafana advanced: Loki, Tempo, unified dashboards", prio:"high",
+         why:"You know Grafana already — now master the full LGTM stack (Loki, Grafana, Tempo, Mimir) as a cost-effective alternative to DataDog.",
+         links:[["Grafana Loki","https://grafana.com/docs/loki/latest/"],["Grafana Tempo","https://grafana.com/docs/tempo/latest/"],["Grafana Mimir","https://grafana.com/docs/mimir/latest/"]]},
+        {n:"eBPF for observability: Pixie, Tetragon", prio:"med",
+         why:"eBPF gives you kernel-level visibility into network calls, syscalls, and file access — without any code changes.",
+         links:[["Pixie (eBPF for K8s)","https://px.dev/"],["Tetragon","https://tetragon.io/"],["Cilium eBPF","https://cilium.io/blog/2021/12/01/better-bandwidth-management-with-ebpf/"]]}
+      ]
+    },
+    {
+      icon:"🗄️", color:"#EEEDFE", tc:"#534AB7", name:"Database Operations", sub:"Beyond MySQL basics",
+      topics:[
+        {n:"PostgreSQL: administration, replication, tuning", prio:"high",
+         why:"PostgreSQL is the dominant open-source DB. You need pg_stat_statements, EXPLAIN ANALYZE, replication, and vacuuming.",
+         links:[["PostgreSQL docs","https://www.postgresql.org/docs/current/"],["Percona PMM","https://www.percona.com/software/database-tools/percona-monitoring-and-management"],["pgBadger log analyser","https://pgbadger.darold.net/"]]},
+        {n:"Redis: caching patterns, Sentinel, Cluster mode", prio:"med",
+         why:"Redis is in almost every production stack — cache, session store, queue. Know eviction policies, persistence, and cluster mode.",
+         links:[["Redis docs","https://redis.io/docs/"],["Redis University","https://university.redis.com/"],["Redis design patterns","https://redis.com/redis-best-practices/introduction/"]]},
+        {n:"Backup & recovery: Velero for K8s, pgBackRest", prio:"high",
+         why:"A DR plan you've never tested isn't a plan. Know Velero for cluster backup and pgBackRest for PostgreSQL.",
+         links:[["Velero docs","https://velero.io/docs/"],["pgBackRest","https://pgbackrest.org/user-guide.html"]]},
+        {n:"Database on K8s: Operators (Zalando, CloudNativePG)", prio:"med",
+         why:"Running stateful databases on K8s is complex — operators automate failover, backup, and upgrades.",
+         links:[["CloudNativePG","https://cloudnative-pg.io/docs/"],["Zalando Postgres Operator","https://postgres-operator.readthedocs.io/"]]}
+      ]
+    }
+  ],
+
+  // Phase 4
+  [
+    {
+      icon:"🛡️", color:"#FAECE7", tc:"#993C1D", name:"SRE Practices", sub:"Google's reliability engineering",
+      topics:[
+        {n:"SRE fundamentals: the Google SRE book", prio:"high",
+         why:"The Google SRE book defines the discipline. Every senior DevOps/SRE role expects you to know error budgets, toil reduction, and postmortems.",
+         links:[["Google SRE Book (free)","https://sre.google/sre-book/table-of-contents/"],["SRE Workbook (free)","https://sre.google/workbook/table-of-contents/"],["SRE weekly newsletter","https://sreweekly.com/"]]},
+        {n:"Chaos Engineering: LitmusChaos, Chaos Monkey", prio:"high",
+         why:"You can't trust your system until you've deliberately broken it. Chaos engineering finds weaknesses before production does.",
+         links:[["LitmusChaos","https://litmuschaos.io/"],["Chaos Monkey","https://netflix.github.io/chaosmonkey/"],["Principles of Chaos","https://principlesofchaos.org/"]]},
+        {n:"Incident management: runbooks, postmortems, on-call", prio:"high",
+         why:"How you handle incidents defines you as a senior engineer. Learn PagerDuty patterns, structured postmortems, and runbook automation.",
+         links:[["PagerDuty incident guide","https://response.pagerduty.com/"],["Blameless postmortems","https://sre.google/sre-book/postmortem-culture/"],["Runbook automation","https://github.com/runwhen-contrib"]]},
+        {n:"Distributed tracing deep dive: sampling, tail-based", prio:"med",
+         why:"At scale, tracing every request is too expensive. Tail-based sampling keeps the interesting (slow/failing) traces.",
+         links:[["Jaeger sampling","https://www.jaegertracing.io/docs/latest/sampling/"],["Tempo tail-based sampling","https://grafana.com/docs/tempo/latest/configuration/sampling/"]]}
+      ]
+    },
+    {
+      icon:"🏛️", color:"#E1F5EE", tc:"#0F6E56", name:"Platform Engineering", sub:"Build Internal Developer Platforms",
+      topics:[
+        {n:"Backstage: Internal Developer Portal", prio:"high",
+         why:"Platform Engineering is replacing traditional DevOps. Backstage is the standard IDP — used by Spotify, Netflix, Booking.com.",
+         links:[["Backstage docs","https://backstage.io/docs/overview/what-is-backstage/"],["Backstage community plugins","https://github.com/backstage/community-plugins"],["Platform Engineering guide","https://platformengineering.org/blog/what-is-platform-engineering"]]},
+        {n:"Golden paths: templates, guardrails, self-service", prio:"high",
+         why:"Golden paths let developers self-serve new services that automatically follow your org's security and ops standards.",
+         links:[["Spotify engineering culture","https://engineering.atspotify.com/2020/08/how-we-use-golden-paths-to-solve-fragmentation-in-our-software-ecosystem/"],["Backstage software templates","https://backstage.io/docs/features/software-templates/"]]},
+        {n:"Crossplane: infrastructure from K8s control plane", prio:"med",
+         why:"Crossplane lets developers provision AWS/Azure/GCP resources via K8s CRDs — Terraform meets K8s.",
+         links:[["Crossplane docs","https://docs.crossplane.io/"],["Crossplane compositions","https://docs.crossplane.io/latest/concepts/compositions/"]]},
+        {n:"Port: developer portal alternative to Backstage", prio:"low",
+         why:"Port is a managed Backstage alternative — less setup, more SaaS. Know both options.",
+         links:[["Port docs","https://docs.getport.io/"],["Port vs Backstage","https://www.getport.io/blog/backstage-vs-port"]]}
+      ]
+    },
+    {
+      icon:"💰", color:"#FAEEDA", tc:"#854F0B", name:"FinOps & Cost Engineering", sub:"Make cloud bills your superpower",
+      topics:[
+        {n:"FinOps framework & principles", prio:"high",
+         why:"FinOps is a required skill at senior level — you need to show ROI for infrastructure decisions.",
+         links:[["FinOps Foundation","https://www.finops.org/framework/"],["FinOps certification","https://learn.finops.org/"],["Cloud Cost Handbook","https://handbook.cloudcost.dev/"]]},
+        {n:"AWS: Savings Plans, Reserved Instances, Spot", prio:"high",
+         why:"Most engineers waste 40–60% on on-demand compute. RIs + Savings Plans + Spot instances fix this.",
+         links:[["AWS Savings Plans","https://aws.amazon.com/savingsplans/"],["Spot advisors","https://aws.amazon.com/ec2/spot/instance-advisor/"],["Infracost for Terraform","https://www.infracost.io/"]]},
+        {n:"Kubernetes cost: Kubecost, resource right-sizing", prio:"med",
+         why:"K8s resource requests/limits are often wrong. Kubecost shows per-namespace and per-workload spend.",
+         links:[["Kubecost","https://www.kubecost.com/"],["OpenCost","https://www.opencost.io/"],["K8s resource mgmt guide","https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/"]]},
+        {n:"Infracost: cost in PR reviews", prio:"low",
+         why:"Add Infracost to CI — engineers see the cost impact of Terraform changes before merging.",
+         links:[["Infracost docs","https://www.infracost.io/docs/"],["Infracost CI integration","https://www.infracost.io/docs/integrations/cicd/"]]}
+      ]
+    },
+    {
+      icon:"🌐", color:"#EEEDFE", tc:"#534AB7", name:"Multi-Cloud & Architecture", sub:"Think at system design level",
+      topics:[
+        {n:"System design for distributed systems", prio:"high",
+         why:"Senior engineers design systems, not just run them. CAP theorem, consistent hashing, rate limiting, circuit breakers.",
+         links:[["System Design Primer","https://github.com/donnemartin/system-design-primer"],["Designing Distributed Systems (book)","https://www.oreilly.com/library/view/designing-distributed-systems/9781491983638/"],["ByteByteGo","https://bytebytego.com/"]]},
+        {n:"Multi-cloud networking: Aviatrix, Megaport", prio:"med",
+         why:"Large orgs span AWS + Azure + GCP. Multi-cloud networking tools manage VPN, routing, and security centrally.",
+         links:[["Aviatrix docs","https://docs.aviatrix.com/"],["Cloud Interconnects guide","https://cloud.google.com/network-connectivity/docs/interconnect"]]},
+        {n:"GitOps at scale: Flux v2, multi-tenant ArgoCD", prio:"med",
+         why:"ArgoCD/Flux for one cluster is easy. Running GitOps across 50+ clusters and teams requires advanced patterns.",
+         links:[["Flux v2 docs","https://fluxcd.io/flux/"],["Multi-tenant ArgoCD","https://argo-cd.readthedocs.io/en/stable/operator-manual/user-management/"],["ArgoCD at scale","https://argo-cd.readthedocs.io/en/stable/operator-manual/high_availability/"]]},
+        {n:"Pulumi: IaC with real programming languages", prio:"low",
+         why:"Pulumi lets you write IaC in Python, TypeScript, Go. More expressive than Terraform HCL for complex logic.",
+         links:[["Pulumi docs","https://www.pulumi.com/docs/"],["Pulumi vs Terraform","https://www.pulumi.com/docs/concepts/vs/terraform/"]]}
+      ]
+    }
+  ]
+];
+
+const certs = [
+  {name:"CKA — Certified Kubernetes Administrator",when:"Phase 2",desc:"The most respected K8s cert. Covers cluster setup, networking, troubleshooting, RBAC. You're nearly ready for this.",url:"https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/"},
+  {name:"CKAD — Kubernetes App Developer",when:"Phase 2",desc:"Pair with CKA. Focused on workloads, config, services, ingress. Good for DevOps/Dev hybrid roles.",url:"https://training.linuxfoundation.org/certification/certified-kubernetes-application-developer-ckad/"},
+  {name:"CKS — Kubernetes Security Specialist",when:"Phase 3",desc:"Requires CKA first. Covers Falco, OPA, image signing, runtime security. Highly valued.",url:"https://training.linuxfoundation.org/certification/certified-kubernetes-security-specialist/"},
+  {name:"AWS Solutions Architect Associate",when:"Phase 3",desc:"The most popular cloud cert worldwide. Covers all core AWS services — VPC, IAM, EC2, RDS, EKS.",url:"https://aws.amazon.com/certification/certified-solutions-architect-associate/"},
+  {name:"HashiCorp Terraform Associate",when:"Phase 2",desc:"Validates your Terraform skills. Easy to pass once you've done modules and remote state.",url:"https://www.hashicorp.com/certification/terraform-associate"},
+  {name:"AZ-104 Azure Administrator",when:"Phase 3",desc:"Validates Azure operations — VNet, AKS, Key Vault, Monitor. Pairs well with your Azure blob experience.",url:"https://learn.microsoft.com/en-us/credentials/certifications/azure-administrator/"},
+  {name:"FinOps Certified Practitioner",when:"Phase 4",desc:"The FinOps Foundation cert. Increasingly required for senior roles to show you understand cloud cost.",url:"https://learn.finops.org/"},
+  {name:"GitOps Certified (Codefresh)",when:"Phase 2",desc:"Validates ArgoCD, Flux, GitOps principles. Good add-on since you already know ArgoCD.",url:"https://codefresh.io/gitops-certification/"}
+];
+
+function renderDomains(phaseData, gridId) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  phaseData.forEach((d, di) => {
+    const card = document.createElement('div');
+    card.className = 'domain-card';
+    const topicsHtml = d.topics.map((t, ti) => {
+      const linksHtml = t.links.map(([label, url]) =>
+        `<a class="link-pill" href="${url}" target="_blank" rel="noopener">${label} ↗</a>`
+      ).join('');
+      const prioColor = t.prio === 'high' ? 'prio-high' : t.prio === 'med' ? 'prio-med' : 'prio-low';
+      return `<div class="topic-row" style="display:flex;gap:8px">
+        <div class="prio-dot ${prioColor}" style="margin-top:5px"></div>
+        <div style="flex:1">
+          <div class="topic-name">${t.n}</div>
+          <div class="topic-why">${t.why}</div>
+          <div class="links-row">${linksHtml}</div>
+        </div>
+      </div>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="dc-head" onclick="toggleCard(this)" id="head-${gridId}-${di}">
+        <div class="dc-title">
+          <div class="dc-icon" style="background:${d.color};color:${d.tc}">${d.icon}</div>
+          <div>
+            <div class="dc-name">${d.name}</div>
+            <div class="dc-sub">${d.sub}</div>
+          </div>
+        </div>
+        <span class="dc-arrow" id="arr-${gridId}-${di}">▶</span>
+      </div>
+      <div class="dc-body" id="body-${gridId}-${di}">${topicsHtml}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function toggleCard(headEl) {
+  const id = headEl.id.replace('head-','');
+  const body = document.getElementById('body-'+id);
+  const arr = document.getElementById('arr-'+id);
+  const isOpen = body.classList.toggle('open');
+  headEl.classList.toggle('open', isOpen);
+  arr.classList.toggle('open', isOpen);
+}
+
+function showPhase(i) {
+  document.querySelectorAll('.phase-panel').forEach((p,pi) => p.classList.toggle('active', pi===i));
+  document.querySelectorAll('.ptab').forEach((t,ti) => t.classList.toggle('active', ti===i));
+}
+
+function renderCerts() {
+  const grid = document.getElementById('certgrid');
+  if (!grid) return;
+  grid.innerHTML = certs.map(c => `
+    <div class="cert-card">
+      <div class="cert-name">${c.name}</div>
+      <div class="cert-desc"><b style="color:var(--color-text-secondary);font-weight:500">When:</b> ${c.when} — ${c.desc}</div>
+      <a class="cert-link" href="${c.url}" target="_blank" rel="noopener">Official exam page ↗</a>
+    </div>`).join('');
+}
+
+renderDomains(phases[0], 'grid0');
+renderDomains(phases[1], 'grid1');
+renderDomains(phases[2], 'grid2');
+renderDomains(phases[3], 'grid3');
+renderCerts();
+</script>

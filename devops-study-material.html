@@ -1,0 +1,1650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Study Material 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;600;700;800&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0d0f14;
+  --bg2:     #13151c;
+  --bg3:     #1a1d27;
+  --bg4:     #20232f;
+  --border:  rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
+  --text:    #dde1f0;
+  --text2:   #8890b0;
+  --text3:   #4a5070;
+  --mono:    'IBM Plex Mono', monospace;
+  --sans:    'IBM Plex Sans', sans-serif;
+  --display: 'Syne', sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-logo {
+  padding: 20px 18px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.logo-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+.sidebar-progress {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.progress-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.progress-bar {
+  height: 3px;
+  background: var(--bg4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .4s ease;
+}
+.sidebar-nav { flex: 1; padding: 10px 0; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background .15s;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--bg3); }
+.nav-item.active {
+  background: var(--bg3);
+  border-left-color: var(--phase-col, #fff);
+}
+.nav-dot {
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.04);
+  color: var(--phase-col, var(--text2));
+  border: 1px solid var(--border);
+}
+.nav-text {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.3;
+  font-weight: 400;
+}
+.nav-item.active .nav-text { color: var(--text); font-weight: 500; }
+.nav-done {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--phase-col, var(--text3));
+  opacity: 0;
+  transition: opacity .2s;
+}
+.nav-item.done .nav-done { opacity: 1; }
+.sidebar-footer {
+  padding: 12px 18px;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+}
+
+/* ── MAIN ── */
+.main {
+  margin-left: 240px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(13,15,20,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  z-index: 50;
+}
+.topbar-phase {
+  font-family: var(--display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.topbar-right {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.tb-chip {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 5px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text3);
+}
+
+/* ── CONTENT ── */
+.content { padding: 0 40px 80px; }
+
+/* ── HERO SECTION ── */
+.hero {
+  padding: 52px 0 36px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 4px 10px;
+  margin-bottom: 18px;
+  letter-spacing: 0.06em;
+}
+.hero h1 {
+  font-family: var(--display);
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin-bottom: 14px;
+  color: var(--text);
+}
+.hero h1 em { font-style: normal; }
+.hero-sub {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 600px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+.hero-stats {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+}
+.hstat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hstat-val {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+}
+.hstat-lbl {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.06em;
+}
+
+/* ── PHASE SECTION ── */
+.phase-section {
+  padding: 40px 0;
+  border-bottom: 1px solid var(--border);
+}
+.phase-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.phase-num-badge {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid;
+  gap: 1px;
+}
+.pnb-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  opacity: 0.6;
+}
+.pnb-n {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+.phase-meta { flex: 1; }
+.phase-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+.phase-h2 {
+  font-family: var(--display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+.level-chip {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid;
+  letter-spacing: 0.05em;
+}
+.phase-goal {
+  font-size: 13px;
+  color: var(--text2);
+  font-style: italic;
+  border-left: 2px solid;
+  padding-left: 10px;
+  line-height: 1.5;
+}
+.phase-complete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 7px 14px;
+  border-radius: 7px;
+  border: 1px solid var(--border2);
+  background: var(--bg3);
+  color: var(--text2);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.phase-complete-btn:hover { border-color: var(--border2); color: var(--text); }
+.phase-complete-btn.done { color: var(--phase-col); border-color: var(--phase-col); }
+
+/* ── STUDY GRID ── */
+.study-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.study-grid.single { grid-template-columns: 1fr; }
+.study-grid.tri { grid-template-columns: 1fr 1fr 1fr; }
+@media(max-width:900px){
+  .study-grid,.study-grid.tri{ grid-template-columns:1fr; }
+}
+
+/* ── STUDY CARD ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  transition: border-color .15s;
+}
+.card:hover { border-color: var(--border2); }
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.card-icon {
+  width: 28px; height: 28px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.card-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: 0.04em;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-left: auto;
+  font-family: var(--mono);
+}
+
+/* ── CONCEPTS ── */
+.concept-list { display: flex; flex-direction: column; gap: 6px; }
+.concept-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg3);
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.4;
+}
+.ci-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+.concept-item strong { color: var(--text); font-weight: 500; }
+.concept-item span { color: var(--text2); }
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg3);
+}
+.code-lang {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.code-copy {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  cursor: pointer;
+  background: none;
+  border: none;
+  transition: color .15s;
+}
+.code-copy:hover { color: var(--text); }
+.code-body {
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.7;
+  color: #c8d3f5;
+  overflow-x: auto;
+  white-space: pre;
+}
+.code-body .cm { color: #636da6; }
+.code-body .ck { color: #89ddff; }
+.code-body .cs { color: #c3e88d; }
+.code-body .cf { color: #82aaff; }
+.code-body .cfl { color: #f78c6c; }
+.code-body .co { color: #ffcb6b; }
+
+/* ── CHECKLIST ── */
+.checklist { display: flex; flex-direction: column; gap: 5px; }
+.check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background .1s;
+  border: 1px solid transparent;
+}
+.check-item:hover { background: var(--bg3); border-color: var(--border); }
+.check-item.checked { opacity: 0.55; }
+.check-box {
+  width: 16px; height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--border2);
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.check-item.checked .check-box {
+  background: var(--phase-col, var(--text3));
+  border-color: var(--phase-col, var(--text3));
+}
+.check-tick { font-size: 10px; color: #fff; display: none; }
+.check-item.checked .check-tick { display: block; }
+.check-text {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.check-item.checked .check-text { text-decoration: line-through; color: var(--text3); }
+
+/* ── PRACTICE BOX ── */
+.practice-card {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 8px;
+}
+.practice-num {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+}
+.practice-q {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.practice-hint {
+  font-size: 11px;
+  color: var(--text3);
+  font-style: italic;
+  cursor: pointer;
+  border-top: 1px solid var(--border);
+  padding-top: 7px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.practice-hint span { display: none; color: var(--text2); font-style: normal; }
+.practice-hint.show span { display: inline; }
+
+/* ── KEYTERMS ── */
+.keyterm-grid { display: flex; flex-direction: column; gap: 5px; }
+.keyterm {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg3);
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  font-size: 12px;
+}
+.kt-key {
+  font-family: var(--mono);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kt-val { color: var(--text2); line-height: 1.4; }
+
+/* ── RESOURCE ── */
+.resource-list { display: flex; flex-direction: column; gap: 5px; }
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: border-color .15s, background .15s;
+  cursor: pointer;
+}
+.resource-item:hover {
+  background: var(--bg4);
+  border-color: var(--border2);
+}
+.ri-type {
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  color: var(--text3);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.ri-name {
+  font-size: 12px;
+  color: var(--text);
+  font-weight: 500;
+}
+.ri-url {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-left: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 180px;
+  text-overflow: ellipsis;
+}
+.ri-arrow { color: var(--text3); font-size: 12px; flex-shrink: 0; }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ── NOTE BOX ── */
+.note-box {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border-left: 3px solid;
+  background: var(--bg3);
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.note-box.warning { border-color: #f5a623; }
+.note-box.tip { border-color: #22c97a; }
+.note-box.info { border-color: #4dacf7; }
+.note-icon { flex-shrink: 0; margin-top: 1px; font-size: 14px; }
+.note-text { color: var(--text2); }
+.note-text strong { color: var(--text); font-weight: 500; }
+
+/* ── SCROLL TOP ── */
+.scroll-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 36px; height: 36px;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text3);
+  transition: all .15s;
+  z-index: 200;
+}
+.scroll-top:hover { color: var(--text); border-color: var(--text3); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">Study Material · 2026</div>
+    <div class="logo-title">DevOps<br>Master Guide</div>
+  </div>
+  <div class="sidebar-progress">
+    <div class="progress-label">
+      <span>Progress</span>
+      <span id="prog-text">0 / 10</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="prog-fill" style="width:0%;background:linear-gradient(90deg,#6c63ff,#22c97a)"></div>
+    </div>
+  </div>
+  <nav class="sidebar-nav" id="sidebar-nav"></nav>
+  <div class="sidebar-footer">devops-study-2026.html</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-phase" id="topbar-phase">DevOps Study Material</div>
+    <div class="topbar-right">
+      <div class="tb-chip">10 PHASES</div>
+      <div class="tb-chip" id="tb-checks">0 checked</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- HERO -->
+    <div class="hero" id="section-top">
+      <div class="hero-badge">⬡ DEVOPS MASTER ROADMAP 2026</div>
+      <h1>Your complete<br><em style="color:#6c63ff">study companion</em></h1>
+      <p class="hero-sub">Real commands. Real concepts. Real practice tasks. Everything you need to go from intermediate to master DevOps engineer — phase by phase.</p>
+      <div class="hero-stats">
+        <div class="hstat"><div class="hstat-val">10</div><div class="hstat-lbl">PHASES</div></div>
+        <div class="hstat"><div class="hstat-val">80+</div><div class="hstat-lbl">COMMANDS</div></div>
+        <div class="hstat"><div class="hstat-val">40+</div><div class="hstat-lbl">PRACTICE TASKS</div></div>
+        <div class="hstat"><div class="hstat-val">20+</div><div class="hstat-lbl">RESOURCES</div></div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PHASE 1 ════════════════ -->
+    <div class="phase-section" id="phase-1" data-phase="1">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#9090a8;color:#9090a8;background:rgba(144,144,168,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">01</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Linux Mastery</div>
+            <span class="level-chip" style="color:#9090a8;border-color:#9090a8;background:rgba(144,144,168,0.07)">FOUNDATION</span>
+          </div>
+          <div class="phase-goal" style="border-color:#9090a8;color:#9090a8">"Server slow? You should find root cause in 5 mins"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#9090a8" onclick="markDone(1,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon" style="background:rgba(144,144,168,0.1)">🖥</div>
+            <div class="card-title">Process Management</div>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># View all running processes</span>
+<span class="cf">top</span>        <span class="cm"># real-time process viewer</span>
+<span class="cf">htop</span>       <span class="cm"># interactive (install separately)</span>
+<span class="cf">ps</span> aux     <span class="cm"># snapshot of all processes</span>
+<span class="cf">ps</span> aux | grep nginx
+
+<span class="cm"># Process priority</span>
+<span class="cf">nice</span> -n 10 command     <span class="cm"># run with priority 10</span>
+<span class="cf">renice</span> -n 5 -p 1234   <span class="cm"># change running PID</span>
+
+<span class="cm"># Trace system calls</span>
+<span class="cf">strace</span> -p 1234         <span class="cm"># attach to PID</span>
+<span class="cf">strace</span> -e trace=network curl google.com
+
+<span class="cm"># Kill processes</span>
+<span class="cf">kill</span> -9 1234           <span class="cm"># force kill</span>
+<span class="cf">pkill</span> nginx            <span class="cm"># kill by name</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon" style="background:rgba(144,144,168,0.1)">🌐</div>
+            <div class="card-title">Networking Commands</div>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># Socket & port inspection</span>
+<span class="cf">ss</span> -tulnp              <span class="cm"># open TCP/UDP ports</span>
+<span class="cf">netstat</span> -tulnp         <span class="cm"># older alternative</span>
+<span class="cf">lsof</span> -i :80            <span class="cm"># who uses port 80</span>
+
+<span class="cm"># Packet capture</span>
+<span class="cf">tcpdump</span> -i eth0 port 80
+<span class="cf">tcpdump</span> -i any -w capture.pcap
+
+<span class="cm"># Firewall rules</span>
+<span class="cf">iptables</span> -L -n -v      <span class="cm"># list rules</span>
+<span class="cf">iptables</span> -A INPUT -p tcp --dport 22 -j ACCEPT
+
+<span class="cm"># Connectivity</span>
+<span class="cf">curl</span> -v https://api.example.com
+<span class="cf">traceroute</span> google.com
+<span class="cf">dig</span> example.com +short</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon" style="background:rgba(144,144,168,0.1)">⚙</div>
+            <div class="card-title">System Internals</div>
+          </div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># /proc — live kernel info</span>
+cat /proc/meminfo        <span class="cm"># memory details</span>
+cat /proc/cpuinfo        <span class="cm"># CPU details</span>
+cat /proc/1234/status    <span class="cm"># process info</span>
+cat /proc/net/tcp        <span class="cm"># TCP connections</span>
+
+<span class="cm"># /sys — hardware & drivers</span>
+cat /sys/block/sda/stat  <span class="cm"># disk stats</span>
+cat /sys/class/net/eth0/statistics/rx_bytes
+
+<span class="cm"># Disk & memory</span>
+<span class="cf">df</span> -h                   <span class="cm"># disk usage</span>
+<span class="cf">du</span> -sh /var/log/*       <span class="cm"># dir sizes</span>
+<span class="cf">free</span> -h                 <span class="cm"># memory usage</span>
+<span class="cf">vmstat</span> 1 5              <span class="cm"># virtual memory stats</span>
+<span class="cf">iostat</span> -xz 1            <span class="cm"># disk I/O stats</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-icon" style="background:rgba(144,144,168,0.1)">📋</div>
+            <div class="card-title">Study Checklist</div>
+          </div>
+          <div class="checklist" id="cl-1" style="--phase-col:#9090a8">
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Understand process states: running, sleeping, zombie</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Can diagnose high CPU / memory from command line</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Can trace network packets with tcpdump</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Understand /proc filesystem structure</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Can write iptables rules for basic firewall</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Debug disk I/O bottleneck using iostat + iotop</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box tip"><div class="note-icon">💡</div><div class="note-text"><strong>Real skill test:</strong> Can you identify why a server is slow in under 5 minutes? Practice this flow: top → load avg → CPU steal? → ss for connection flood → df for disk full → dmesg for kernel errors.</div></div>
+    </div>
+
+    <!-- ════════════════ PHASE 2 ════════════════ -->
+    <div class="phase-section" id="phase-2" data-phase="2">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#4dacf7;color:#4dacf7;background:rgba(77,172,247,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">02</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Cloud — AWS + Azure</div>
+            <span class="level-chip" style="color:#4dacf7;border-color:#4dacf7;background:rgba(77,172,247,0.07)">ARCHITECT</span>
+          </div>
+          <div class="phase-goal" style="border-color:#4dacf7;color:#4dacf7">"Design production infra for 1 lakh users"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#4dacf7" onclick="markDone(2,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid tri">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(77,172,247,0.1)">🔐</div><div class="card-title">IAM — Critical</div></div>
+          <div class="keyterm-grid">
+            <div class="keyterm"><span class="kt-key" style="color:#4dacf7">IAM User</span><span class="kt-val">Human identity with credentials</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#4dacf7">IAM Role</span><span class="kt-val">Temporary permissions for services</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#4dacf7">IAM Policy</span><span class="kt-val">JSON doc defining allow/deny</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#4dacf7">STS</span><span class="kt-val">Assume role, get temp tokens</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#4dacf7">Least Privilege</span><span class="kt-val">Give only what's needed</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(77,172,247,0.1)">🏗</div><div class="card-title">VPC Architecture</div></div>
+          <div class="concept-list">
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>Public subnet</strong> <span>— has route to IGW, for load balancers</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>Private subnet</strong> <span>— no direct internet, for app/DB servers</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>NAT Gateway</strong> <span>— private subnet → outbound internet</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>Security Group</strong> <span>— stateful firewall at instance level</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>NACL</strong> <span>— stateless firewall at subnet level</span></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(77,172,247,0.1)">⚖</div><div class="card-title">Load Balancers</div></div>
+          <div class="concept-list">
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>ALB</strong> <span>— Layer 7, HTTP/HTTPS, path-based routing</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>NLB</strong> <span>— Layer 4, TCP/UDP, ultra-low latency</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>Target Group</strong> <span>— EC2 / ECS / Lambda / IP targets</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#4dacf7"></div><div><strong>Health Check</strong> <span>— removes unhealthy targets automatically</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(77,172,247,0.1)">💻</div><div class="card-title">AWS CLI Essentials</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># Configure CLI</span>
+<span class="cf">aws</span> configure                     <span class="cm"># set keys + region</span>
+<span class="cf">aws</span> sts get-caller-identity        <span class="cm"># who am I?</span>
+
+<span class="cm"># EC2</span>
+<span class="cf">aws</span> ec2 describe-instances --region ap-south-1
+<span class="cf">aws</span> ec2 describe-security-groups
+
+<span class="cm"># S3</span>
+<span class="cf">aws</span> s3 ls                          <span class="cm"># list buckets</span>
+<span class="cf">aws</span> s3 cp file.txt s3://my-bucket/
+<span class="cf">aws</span> s3 sync ./local s3://my-bucket/
+
+<span class="cm"># IAM</span>
+<span class="cf">aws</span> iam list-users
+<span class="cf">aws</span> iam list-attached-user-policies --user-name dev
+<span class="cf">aws</span> sts assume-role --role-arn arn:... --role-session-name mysession</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(77,172,247,0.1)">📋</div><div class="card-title">Practice Tasks</div></div>
+          <div class="practice-card">
+            <div class="practice-num">TASK 01</div>
+            <div class="practice-q">Design a 3-tier VPC: web layer (public), app layer (private), DB layer (private). Draw subnet CIDR blocks.</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show hint ▾ <span>Use 10.0.0.0/16 VPC. Public: /24, App: /24, DB: /24 in 2 AZs = 6 subnets total.</span></div>
+          </div>
+          <div class="practice-card">
+            <div class="practice-num">TASK 02</div>
+            <div class="practice-q">Create an IAM policy that allows read-only access to S3 but denies DeleteObject. Write the JSON.</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show hint ▾ <span>Use Effect: Allow with s3:Get*, s3:List*. Add separate Effect: Deny for s3:DeleteObject.</span></div>
+          </div>
+          <div class="practice-card">
+            <div class="practice-num">TASK 03</div>
+            <div class="practice-q">Set up autoscaling for EC2: scale out at 70% CPU, scale in at 30%. What metrics and policies do you create?</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show hint ▾ <span>Create Target Tracking Policy on AWS/EC2/CPUUtilization with target 70%. Min 2, max 10 instances.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box info"><div class="note-icon">ℹ</div><div class="note-text"><strong>Multi-region tip:</strong> Use Route 53 latency-based routing to direct users to nearest region. Always deploy in at least 2 AZs within a region for high availability.</div></div>
+    </div>
+
+    <!-- ════════════════ PHASE 3 ════════════════ -->
+    <div class="phase-section" id="phase-3" data-phase="3">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#0fc9b2;color:#0fc9b2;background:rgba(15,201,178,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">03</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Kubernetes Internals</div>
+            <span class="level-chip" style="color:#0fc9b2;border-color:#0fc9b2;background:rgba(15,201,178,0.07)">EXPERT</span>
+          </div>
+          <div class="phase-goal" style="border-color:#0fc9b2;color:#0fc9b2">"Pod not working? Debug without Google"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#0fc9b2" onclick="markDone(3,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(15,201,178,0.1)">⚙</div><div class="card-title">Control Plane Deep Dive</div></div>
+          <div class="concept-list">
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>API Server</strong> <span>— central hub; all components talk through it via REST</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>etcd</strong> <span>— distributed KV store; stores entire cluster state</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>Scheduler</strong> <span>— watches unscheduled pods, assigns to nodes via scoring</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>Controller Manager</strong> <span>— runs controllers: deployment, replicaset, node</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>kubelet</strong> <span>— node agent; runs pods, reports status to API server</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>kube-proxy</strong> <span>— maintains iptables rules for Service networking</span></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(15,201,178,0.1)">🔧</div><div class="card-title">Pod Debugging Flow</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># Step 1: Check pod status</span>
+<span class="cf">kubectl</span> get pods -A
+<span class="cf">kubectl</span> describe pod &lt;pod-name&gt; -n &lt;ns&gt;
+
+<span class="cm"># Step 2: Check logs</span>
+<span class="cf">kubectl</span> logs &lt;pod&gt; --previous        <span class="cm"># crashed container</span>
+<span class="cf">kubectl</span> logs &lt;pod&gt; -c &lt;container&gt;    <span class="cm"># multi-container</span>
+
+<span class="cm"># Step 3: Exec into pod</span>
+<span class="cf">kubectl</span> exec -it &lt;pod&gt; -- /bin/sh
+
+<span class="cm"># Step 4: Check events</span>
+<span class="cf">kubectl</span> get events --sort-by='.lastTimestamp' -n &lt;ns&gt;
+
+<span class="cm"># Step 5: Check node health</span>
+<span class="cf">kubectl</span> get nodes
+<span class="cf">kubectl</span> describe node &lt;node-name&gt;
+
+<span class="cm"># Step 6: Check resource limits</span>
+<span class="cf">kubectl</span> top pods -n &lt;ns&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(15,201,178,0.1)">🔑</div><div class="card-title">RBAC — Advanced</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">YAML</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># ClusterRole — read pods cluster-wide</span>
+<span class="co">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span class="co">kind</span>: ClusterRole
+<span class="co">metadata</span>:
+  <span class="co">name</span>: pod-reader
+<span class="co">rules</span>:
+- <span class="co">apiGroups</span>: [""]
+  <span class="co">resources</span>: ["pods","pods/log"]
+  <span class="co">verbs</span>: ["get","list","watch"]
+---
+<span class="cm"># Bind role to service account</span>
+<span class="co">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span class="co">kind</span>: ClusterRoleBinding
+<span class="co">metadata</span>:
+  <span class="co">name</span>: pod-reader-binding
+<span class="co">subjects</span>:
+- <span class="co">kind</span>: ServiceAccount
+  <span class="co">name</span>: my-sa
+  <span class="co">namespace</span>: default
+<span class="co">roleRef</span>:
+  <span class="co">kind</span>: ClusterRole
+  <span class="co">name</span>: pod-reader
+  <span class="co">apiGroup</span>: rbac.authorization.k8s.io</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(15,201,178,0.1)">📋</div><div class="card-title">Study Checklist</div></div>
+          <div class="checklist" style="--phase-col:#0fc9b2">
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Explain what happens when kubectl apply is run (full flow)</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Understand etcd raft consensus and why quorum matters</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Debug a CrashLoopBackOff pod from first principles</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Write a Network Policy that allows only specific pod traffic</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Understand difference: CNI (Calico) vs kube-proxy</div></div>
+            <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"><span class="check-tick">✓</span></div><div class="check-text">Set up PersistentVolume + PVC with StorageClass</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box warning"><div class="note-icon">⚠</div><div class="note-text"><strong>Cilium vs Calico:</strong> Calico uses iptables (traditional), Cilium uses eBPF (faster, better observability). For new clusters in 2026, prefer Cilium — it's the direction the ecosystem is moving.</div></div>
+    </div>
+
+    <!-- ════════════════ PHASE 4 ════════════════ -->
+    <div class="phase-section" id="phase-4" data-phase="4">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">04</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">CI/CD — Advanced Pipelines</div>
+            <span class="level-chip" style="color:#a78bfa;border-color:#a78bfa;background:rgba(167,139,250,0.07)">ENTERPRISE</span>
+          </div>
+          <div class="phase-goal" style="border-color:#a78bfa;color:#a78bfa">"Zero-downtime deployments at scale"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#a78bfa" onclick="markDone(4,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid single">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(167,139,250,0.1)">🔁</div><div class="card-title">GitHub Actions — Complete Pipeline</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">YAML — .github/workflows/deploy.yml</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="co">name</span>: CI/CD Pipeline
+<span class="co">on</span>:
+  <span class="co">push</span>: { <span class="co">branches</span>: [main] }
+  <span class="co">pull_request</span>: { <span class="co">branches</span>: [main] }
+
+<span class="co">env</span>:
+  <span class="co">REGISTRY</span>: ghcr.io
+  <span class="co">IMAGE_NAME</span>: ${{ github.repository }}
+
+<span class="co">jobs</span>:
+  <span class="co">test</span>:
+    <span class="co">runs-on</span>: ubuntu-latest
+    <span class="co">steps</span>:
+      - <span class="co">uses</span>: actions/checkout@v4
+      - <span class="co">name</span>: Run tests
+        <span class="co">run</span>: |
+          pip install -r requirements.txt
+          pytest tests/ -v
+
+  <span class="co">security-scan</span>:
+    <span class="co">needs</span>: test
+    <span class="co">runs-on</span>: ubuntu-latest
+    <span class="co">steps</span>:
+      - <span class="co">uses</span>: actions/checkout@v4
+      - <span class="co">name</span>: Trivy scan
+        <span class="co">uses</span>: aquasecurity/trivy-action@master
+        <span class="co">with</span>:
+          <span class="co">image-ref</span>: ${{ env.IMAGE_NAME }}
+          <span class="co">severity</span>: CRITICAL,HIGH
+          <span class="co">exit-code</span>: '1'
+
+  <span class="co">build-push</span>:
+    <span class="co">needs</span>: security-scan
+    <span class="co">runs-on</span>: ubuntu-latest
+    <span class="co">steps</span>:
+      - <span class="co">uses</span>: actions/checkout@v4
+      - <span class="co">name</span>: Build & push image
+        <span class="co">run</span>: |
+          docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
+          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
+  <span class="co">deploy</span>:
+    <span class="co">needs</span>: build-push
+    <span class="co">if</span>: github.ref == 'refs/heads/main'
+    <span class="co">steps</span>:
+      - <span class="co">name</span>: Deploy canary (10%)
+        <span class="co">run</span>: kubectl set image deploy/app app=$IMAGE:${{ github.sha }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(167,139,250,0.1)">🚀</div><div class="card-title">Deployment Strategies</div></div>
+          <div class="keyterm-grid">
+            <div class="keyterm"><span class="kt-key" style="color:#a78bfa">Rolling</span><span class="kt-val">Replace pods gradually. Default in K8s. Zero downtime if configured right.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#a78bfa">Blue/Green</span><span class="kt-val">Two identical envs. Switch traffic instantly. Easy rollback.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#a78bfa">Canary</span><span class="kt-val">Send 5-10% traffic to new version. Monitor errors. Graduate or rollback.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#a78bfa">GitOps</span><span class="kt-val">Git is source of truth. ArgoCD syncs cluster state to git state continuously.</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(167,139,250,0.1)">📋</div><div class="card-title">Practice Tasks</div></div>
+          <div class="practice-card">
+            <div class="practice-num">TASK 01</div>
+            <div class="practice-q">Build a GitHub Actions pipeline: test → lint → docker build → trivy scan → push to registry → deploy to K8s.</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show hint ▾ <span>Each stage as a separate job with "needs:" dependency chain. Use GITHUB_TOKEN for registry auth.</span></div>
+          </div>
+          <div class="practice-card">
+            <div class="practice-num">TASK 02</div>
+            <div class="practice-q">Implement canary deployment in K8s: route 10% to v2, 90% to v1 using a Service + two Deployments.</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show hint ▾ <span>Use same pod label selector. v1 has 9 replicas, v2 has 1 replica = 10% canary split.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PHASE 5 ════════════════ -->
+    <div class="phase-section" id="phase-5" data-phase="5">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#f5a623;color:#f5a623;background:rgba(245,166,35,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">05</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Infrastructure as Code</div>
+            <span class="level-chip" style="color:#f5a623;border-color:#f5a623;background:rgba(245,166,35,0.07)">PRODUCTION</span>
+          </div>
+          <div class="phase-goal" style="border-color:#f5a623;color:#f5a623">"Reproducible infra across all environments"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#f5a623" onclick="markDone(5,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(245,166,35,0.1)">🏗</div><div class="card-title">Terraform Module Structure</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">HCL</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># modules/vpc/main.tf</span>
+<span class="cf">resource</span> <span class="cs">"aws_vpc"</span> <span class="cs">"main"</span> {
+  cidr_block           = var.cidr
+  enable_dns_hostnames = true
+  tags = { Name = var.name }
+}
+
+<span class="cf">resource</span> <span class="cs">"aws_subnet"</span> <span class="cs">"public"</span> {
+  count             = length(var.azs)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_cidrs[count.index]
+  availability_zone = var.azs[count.index]
+}
+
+<span class="cm"># modules/vpc/variables.tf</span>
+<span class="cf">variable</span> <span class="cs">"cidr"</span>  { type = string }
+<span class="cf">variable</span> <span class="cs">"name"</span>  { type = string }
+<span class="cf">variable</span> <span class="cs">"azs"</span>   { type = list(string) }
+<span class="cf">variable</span> <span class="cs">"public_cidrs"</span> { type = list(string) }
+
+<span class="cm"># modules/vpc/outputs.tf</span>
+<span class="cf">output</span> <span class="cs">"vpc_id"</span>       { value = aws_vpc.main.id }
+<span class="cf">output</span> <span class="cs">"public_subnets"</span>{ value = aws_subnet.public[*].id }</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(245,166,35,0.1)">💾</div><div class="card-title">Remote State + Locking</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">HCL</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># backend.tf — remote state config</span>
+<span class="cf">terraform</span> {
+  <span class="cf">backend</span> <span class="cs">"s3"</span> {
+    bucket         = <span class="cs">"my-tf-state-bucket"</span>
+    key            = <span class="cs">"prod/vpc/terraform.tfstate"</span>
+    region         = <span class="cs">"ap-south-1"</span>
+    dynamodb_table = <span class="cs">"tf-state-lock"</span>  <span class="cm"># prevents concurrent apply</span>
+    encrypt        = true
+  }
+}
+
+<span class="cm"># Workspaces for multi-env</span>
+<span class="cf">terraform</span> workspace new dev
+<span class="cf">terraform</span> workspace new prod
+<span class="cf">terraform</span> workspace select prod
+<span class="cf">terraform</span> apply -var-file=prod.tfvars
+
+<span class="cm"># Essential commands</span>
+<span class="cf">terraform</span> plan -out=plan.out     <span class="cm"># save plan</span>
+<span class="cf">terraform</span> apply plan.out          <span class="cm"># apply exact plan</span>
+<span class="cf">terraform</span> state list              <span class="cm"># list resources</span>
+<span class="cf">terraform</span> import aws_s3_bucket.x  <span class="cm"># import existing</span>
+<span class="cf">terraform</span> refresh                 <span class="cm"># detect drift</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box tip"><div class="note-icon">💡</div><div class="note-text"><strong>Drift detection:</strong> Run terraform plan regularly in CI (read-only mode) to detect when someone manually changed infra in the console. Alert on any diff — that's your drift.</div></div>
+    </div>
+
+    <!-- ════════════════ PHASE 6 ════════════════ -->
+    <div class="phase-section" id="phase-6" data-phase="6">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#ff5a6a;color:#ff5a6a;background:rgba(255,90,106,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">06</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">DevSecOps</div>
+            <span class="level-chip" style="color:#ff5a6a;border-color:#ff5a6a;background:rgba(255,90,106,0.07)">CRITICAL 🔥</span>
+          </div>
+          <div class="phase-goal" style="border-color:#ff5a6a;color:#ff5a6a">"Find the vulnerability before the hacker does"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#ff5a6a" onclick="markDone(6,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(255,90,106,0.1)">🔐</div><div class="card-title">HashiCorp Vault</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># Start dev server</span>
+<span class="cf">vault</span> server -dev
+
+<span class="cm"># Enable KV secrets engine</span>
+<span class="cf">vault</span> secrets enable -path=secret kv-v2
+<span class="cf">vault</span> kv put secret/myapp db_pass=supersecret
+<span class="cf">vault</span> kv get secret/myapp
+
+<span class="cm"># Dynamic DB credentials (real power)</span>
+<span class="cf">vault</span> secrets enable database
+<span class="cf">vault</span> write database/config/mydb \
+  plugin_name=mysql-database-plugin \
+  connection_url="{{username}}:{{password}}@tcp(db:3306)/" \
+  allowed_roles="readonly"
+
+<span class="cm"># K8s auth method</span>
+<span class="cf">vault</span> auth enable kubernetes
+<span class="cf">vault</span> write auth/kubernetes/config \
+  token_reviewer_jwt=@/var/run/secrets/... \
+  kubernetes_host=https://k8s-api:6443
+
+<span class="cm"># Get secret in pod via env var</span>
+<span class="cf">vault</span> agent injector handles it automatically</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(255,90,106,0.1)">🛡</div><div class="card-title">Security Scanning — Trivy</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># Scan Docker image</span>
+<span class="cf">trivy</span> image nginx:latest
+<span class="cf">trivy</span> image --severity CRITICAL,HIGH myapp:v1
+
+<span class="cm"># Scan filesystem / IaC</span>
+<span class="cf">trivy</span> fs .
+<span class="cf">trivy</span> config ./terraform/     <span class="cm"># Terraform misconfigs</span>
+<span class="cf">trivy</span> config ./k8s-manifests/  <span class="cm"># K8s misconfigs</span>
+
+<span class="cm"># Scan running K8s cluster</span>
+<span class="cf">trivy</span> k8s --report summary cluster
+
+<span class="cm"># SBOM — software bill of materials</span>
+<span class="cf">trivy</span> image --format cyclonedx --output sbom.json myapp
+
+<span class="cm"># Runtime security — Falco</span>
+<span class="cm"># Rule: alert if shell spawned in container</span>
+<span class="cm"># - rule: shell_in_container</span>
+<span class="cm">#   condition: container and proc.name=bash</span>
+<span class="cm">#   output: "Shell opened in container (user=%user.name)"</span>
+<span class="cm">#   priority: WARNING</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-grid single">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(255,90,106,0.1)">🔥</div><div class="card-title">OWASP Top 10 — What DevOps Must Know</div></div>
+          <div class="keyterm-grid">
+            <div class="keyterm"><span class="kt-key" style="color:#ff5a6a">A01: Broken Access</span><span class="kt-val">Enforce RBAC everywhere. Audit access logs. Least privilege.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#ff5a6a">A02: Crypto Failures</span><span class="kt-val">TLS everywhere. No HTTP. Rotate secrets regularly with Vault.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#ff5a6a">A03: Injection</span><span class="kt-val">SAST scans in CI. Parameterized queries. Input validation.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#ff5a6a">A05: Misconfig</span><span class="kt-val">Trivy config scan. CIS Benchmarks. No default credentials.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#ff5a6a">A06: Vulns</span><span class="kt-val">Trivy image scanning in CI. Dependency update automation.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#ff5a6a">A09: Logging</span><span class="kt-val">Centralized logs. Alert on anomalies. Immutable audit trail.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PHASE 7 ════════════════ -->
+    <div class="phase-section" id="phase-7" data-phase="7">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#22c97a;color:#22c97a;background:rgba(34,201,122,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">07</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Observability</div>
+            <span class="level-chip" style="color:#22c97a;border-color:#22c97a;background:rgba(34,201,122,0.07)">PRO LEVEL</span>
+          </div>
+          <div class="phase-goal" style="border-color:#22c97a;color:#22c97a">"Zero alert noise, full system visibility"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#22c97a" onclick="markDone(7,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(34,201,122,0.1)">📊</div><div class="card-title">Prometheus — PromQL Essentials</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">PROMQL</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># HTTP error rate (5xx)</span>
+<span class="cf">rate</span>(http_requests_total{status=~<span class="cs">"5.."</span>}[5m])
+  / <span class="cf">rate</span>(http_requests_total[5m])
+
+<span class="cm"># 99th percentile latency</span>
+<span class="cf">histogram_quantile</span>(0.99,
+  <span class="cf">sum</span>(<span class="cf">rate</span>(http_duration_seconds_bucket[5m]))
+  by (le, service)
+)
+
+<span class="cm"># CPU usage per pod</span>
+<span class="cf">sum</span>(<span class="cf">rate</span>(container_cpu_usage_seconds_total{
+  container!=<span class="cs">""</span>}[5m])) by (pod)
+
+<span class="cm"># Memory usage %</span>
+container_memory_working_set_bytes{container!=<span class="cs">""</span>}
+  / container_spec_memory_limit_bytes * 100
+
+<span class="cm"># Alert rule: high error rate</span>
+<span class="cm"># - alert: HighErrorRate</span>
+<span class="cm">#   expr: error_rate > 0.05</span>
+<span class="cm">#   for: 5m</span>
+<span class="cm">#   labels: { severity: critical }</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(34,201,122,0.1)">🔭</div><div class="card-title">OpenTelemetry — The 3 Pillars</div></div>
+          <div class="concept-list">
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Metrics</strong> <span>— numeric measurements over time (Prometheus format). CPU, memory, request counts, latency.</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Traces</strong> <span>— request journey across services. Each span = one operation. Parent-child relationship shows flow.</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Logs</strong> <span>— structured events. Use trace_id in logs to correlate with traces (game changer for debugging).</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Collector</strong> <span>— OTEL Collector receives, processes, exports to any backend (Jaeger, Prometheus, Loki, Datadog).</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Auto-instrument</strong> <span>— for Python/Java/Go, one import instruments HTTP, DB, gRPC calls automatically. No code changes.</span></div></div>
+          </div>
+          <div class="note-box tip" style="margin-top:12px"><div class="note-icon">💡</div><div class="note-text"><strong>Correlation is the skill:</strong> When a trace shows a slow span, click to the logs with the same trace_id, then check the metric spike at the same timestamp. That's senior-level debugging.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PHASE 8 ════════════════ -->
+    <div class="phase-section" id="phase-8" data-phase="8">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#ff7a5a;color:#ff7a5a;background:rgba(255,122,90,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">08</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Networking</div>
+            <span class="level-chip" style="color:#ff7a5a;border-color:#ff7a5a;background:rgba(255,122,90,0.07)">CRITICAL 🔥</span>
+          </div>
+          <div class="phase-goal" style="border-color:#ff7a5a;color:#ff7a5a">"Service unreachable? Fixed in minutes"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#ff7a5a" onclick="markDone(8,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(255,122,90,0.1)">🌐</div><div class="card-title">DNS Deep Dive</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># DNS debugging toolkit</span>
+<span class="cf">dig</span> example.com +trace         <span class="cm"># full resolution chain</span>
+<span class="cf">dig</span> @8.8.8.8 example.com A    <span class="cm"># query specific resolver</span>
+<span class="cf">dig</span> example.com MX             <span class="cm"># mail records</span>
+<span class="cf">dig</span> example.com TXT            <span class="cm"># SPF / DKIM</span>
+<span class="cf">nslookup</span> example.com
+
+<span class="cm"># Check DNS propagation</span>
+<span class="cf">dig</span> +short example.com @1.1.1.1   <span class="cm"># Cloudflare</span>
+<span class="cf">dig</span> +short example.com @8.8.8.8   <span class="cm"># Google</span>
+
+<span class="cm"># Kubernetes DNS</span>
+<span class="cm"># Service DNS format:</span>
+<span class="cm"># &lt;svc-name&gt;.&lt;namespace&gt;.svc.cluster.local</span>
+<span class="cf">kubectl</span> run test --image=busybox -- nslookup myservice.default
+<span class="cf">kubectl</span> exec -it &lt;pod&gt; -- cat /etc/resolv.conf</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(255,122,90,0.1)">🔒</div><div class="card-title">TLS / SSL Essentials</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm"># Check certificate</span>
+<span class="cf">openssl</span> s_client -connect example.com:443
+<span class="cf">openssl</span> s_client -connect example.com:443 \
+  -servername example.com 2>/dev/null | \
+  openssl x509 -noout -dates -subject
+
+<span class="cm"># Generate self-signed cert</span>
+<span class="cf">openssl</span> req -x509 -newkey rsa:4096 \
+  -keyout key.pem -out cert.pem \
+  -days 365 -nodes \
+  -subj "/CN=myapp.local"
+
+<span class="cm"># cert-manager in K8s (auto TLS)</span>
+<span class="cm"># annotations on Ingress:</span>
+<span class="cm"># cert-manager.io/cluster-issuer: letsencrypt-prod</span>
+
+<span class="cm"># Check expiry of all certs in cluster</span>
+<span class="cf">kubectl</span> get certificates -A
+<span class="cf">kubectl</span> describe certificate myapp-tls</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="note-box warning"><div class="note-icon">⚠</div><div class="note-text"><strong>Most DevOps fail here:</strong> When a service is unreachable, debug layer by layer: DNS resolves? → TCP connects? → TLS handshakes? → HTTP responds? → App logic. Never skip layers.</div></div>
+    </div>
+
+    <!-- ════════════════ PHASE 9 ════════════════ -->
+    <div class="phase-section" id="phase-9" data-phase="9">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#f06292;color:#f06292;background:rgba(240,98,146,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">09</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">Programming for DevOps</div>
+            <span class="level-chip" style="color:#f06292;border-color:#f06292;background:rgba(240,98,146,0.07)">AUTOMATION</span>
+          </div>
+          <div class="phase-goal" style="border-color:#f06292;color:#f06292">"Automate any repetitive ops task"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#f06292" onclick="markDone(9,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(240,98,146,0.1)">🐍</div><div class="card-title">Python for DevOps</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">PYTHON</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="ck">import</span> boto3, subprocess, requests, json
+
+<span class="cm"># AWS automation</span>
+ec2 = boto3.client(<span class="cs">'ec2'</span>, region_name=<span class="cs">'ap-south-1'</span>)
+instances = ec2.describe_instances(
+  Filters=[{<span class="cs">'Name'</span>:<span class="cs">'instance-state-name'</span>,
+             <span class="cs">'Values'</span>:[<span class="cs">'running'</span>]}]
+)
+
+<span class="cm"># Call K8s API</span>
+<span class="ck">from</span> kubernetes <span class="ck">import</span> client, config
+config.load_kube_config()
+v1 = client.CoreV1Api()
+pods = v1.list_namespaced_pod(<span class="cs">"default"</span>)
+<span class="ck">for</span> p <span class="ck">in</span> pods.items:
+    <span class="cf">print</span>(p.metadata.name, p.status.phase)
+
+<span class="cm"># Slack alert</span>
+<span class="cf">requests</span>.post(SLACK_WEBHOOK, json={
+  <span class="cs">"text"</span>: f<span class="cs">"🚨 Alert: {alert_name} fired!"</span>
+})
+
+<span class="cm"># Run shell command safely</span>
+result = subprocess.run(
+  [<span class="cs">'kubectl'</span>,<span class="cs">'get'</span>,<span class="cs">'pods'</span>],
+  capture_output=<span class="ck">True</span>, text=<span class="ck">True</span>, check=<span class="ck">True</span>
+)</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(240,98,146,0.1)">📜</div><div class="card-title">Bash Expert Patterns</div></div>
+          <div class="code-block">
+            <div class="code-header"><span class="code-lang">BASH</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+            <div class="code-body"><span class="cm">#!/bin/bash</span>
+<span class="cm"># Exit on error, undefined vars, pipe fails</span>
+set -euo pipefail
+
+<span class="cm"># Logging function</span>
+log() { echo <span class="cs">"[$(date '+%H:%M:%S')] $*"</span> >&2; }
+
+<span class="cm"># Retry with backoff</span>
+retry() {
+  local n=0; local max=3
+  <span class="ck">until</span> [ $n -ge $max ]; do
+    <span class="cs">"$@"</span> && <span class="ck">return</span> 0
+    n=$((n+1)); sleep $((2**n))
+  done; <span class="ck">return</span> 1
+}
+
+<span class="cm"># Wait for K8s deployment</span>
+wait_deploy() {
+  kubectl rollout status deploy/<span class="cs">"$1"</span> \
+    --timeout=5m || {
+    log <span class="cs">"Deploy failed, rolling back"</span>
+    kubectl rollout undo deploy/<span class="cs">"$1"</span>
+    exit 1
+  }
+}
+
+<span class="cm"># Health check loop</span>
+<span class="ck">until</span> curl -sf http://localhost:8080/health; do
+  log <span class="cs">"Waiting for service..."</span>; sleep 2
+done</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PHASE 10 ════════════════ -->
+    <div class="phase-section" id="phase-10" data-phase="10">
+      <div class="phase-header">
+        <div class="phase-num-badge" style="border-color:#c084fc;color:#c084fc;background:rgba(192,132,252,0.07)">
+          <span class="pnb-num">PH</span><span class="pnb-n">10</span>
+        </div>
+        <div class="phase-meta">
+          <div class="phase-title-row">
+            <div class="phase-h2">System Design</div>
+            <span class="level-chip" style="color:#c084fc;border-color:#c084fc;background:rgba(192,132,252,0.07)">SENIOR LEVEL</span>
+          </div>
+          <div class="phase-goal" style="border-color:#c084fc;color:#c084fc">"Design Zomato / Swiggy backend infra"</div>
+        </div>
+        <button class="phase-complete-btn" style="--phase-col:#c084fc" onclick="markDone(10,this)">○ Mark done</button>
+      </div>
+
+      <div class="study-grid tri">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(192,132,252,0.1)">⚡</div><div class="card-title">Caching — Redis</div></div>
+          <div class="concept-list">
+            <div class="concept-item"><div class="ci-dot" style="background:#c084fc"></div><div><strong>Cache-aside</strong> <span>— app reads cache first, on miss reads DB + populates cache</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#c084fc"></div><div><strong>Write-through</strong> <span>— write to cache + DB simultaneously. Always consistent.</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#c084fc"></div><div><strong>TTL</strong> <span>— always set expiry. Stale cache is worse than no cache.</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#c084fc"></div><div><strong>Eviction</strong> <span>— LRU policy: evict least recently used when memory full</span></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(192,132,252,0.1)">📨</div><div class="card-title">Queues — Kafka vs RabbitMQ</div></div>
+          <div class="keyterm-grid">
+            <div class="keyterm"><span class="kt-key" style="color:#c084fc">Kafka</span><span class="kt-val">High throughput, log-based, replay events, microservices events, streaming</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#c084fc">RabbitMQ</span><span class="kt-val">Task queues, complex routing (topics, fanout), acknowledgements, RPC</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#c084fc">Topic</span><span class="kt-val">Kafka: logical stream category. Partitioned for parallelism.</span></div>
+            <div class="keyterm"><span class="kt-key" style="color:#c084fc">Consumer Group</span><span class="kt-val">Multiple consumers reading the same topic at different offsets</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(192,132,252,0.1)">📋</div><div class="card-title">Practice: Design Zomato Infra</div></div>
+          <div class="practice-card">
+            <div class="practice-num">DESIGN CHALLENGE</div>
+            <div class="practice-q">Design infra for a food delivery app: 10L daily orders, real-time tracking, restaurant catalog, payment processing. What does your K8s + AWS architecture look like?</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show approach ▾ <span>API Gateway → ALB → Microservices (order-svc, restaurant-svc, tracking-svc, payment-svc). Order events via Kafka. Restaurant data cached in Redis. Tracking uses WebSocket + Redis pub/sub. Payments in separate VPC.</span></div>
+          </div>
+          <div class="practice-card">
+            <div class="practice-num">SCALING CHALLENGE</div>
+            <div class="practice-q">Your API handles 500 req/sec normally. During a sale event it spikes to 50,000 req/sec in 30 seconds. How do you handle it?</div>
+            <div class="practice-hint" onclick="this.classList.toggle('show')">Show approach ▾ <span>Pre-scale with scheduled HPA. Rate limit at API Gateway. Cache heavy reads. Queue writes (Kafka). DB read replicas. CDN for static assets. Circuit breakers for downstream services.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="study-grid single">
+        <div class="card">
+          <div class="card-head"><div class="card-icon" style="background:rgba(192,132,252,0.1)">🏆</div><div class="card-title">Final Project — Production Microservices Platform</div></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">
+            <div class="concept-item"><div class="ci-dot" style="background:#0fc9b2"></div><div><strong>10+ services</strong> <span>on Kubernetes HA setup</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#a78bfa"></div><div><strong>ArgoCD</strong> <span>GitOps continuous deployment</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#ff7a5a"></div><div><strong>Ingress + TLS</strong> <span>cert-manager + Let's Encrypt</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#a78bfa"></div><div><strong>CI/CD pipeline</strong> <span>GitHub Actions multi-stage</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Prometheus + Grafana</strong> <span>+ custom dashboards</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#22c97a"></div><div><strong>Jaeger + Loki</strong> <span>tracing + logging</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#ff5a6a"></div><div><strong>Trivy + Vault</strong> <span>security scanning + secrets</span></div></div>
+            <div class="concept-item"><div class="ci-dot" style="background:#f5a623"></div><div><strong>Terraform</strong> <span>all infra as code</span></div></div>
+          </div>
+          <div class="note-box warning" style="margin-top:14px"><div class="note-icon">🔥</div><div class="note-text"><strong>This project = job cracker.</strong> Put it on GitHub. Write a README that explains architecture decisions. Deploy it and share the public URL. This is what separates you from others.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<div class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<script>
+const phases = [
+  {num:1, name:"Linux Mastery",       col:"#9090a8"},
+  {num:2, name:"Cloud AWS + Azure",   col:"#4dacf7"},
+  {num:3, name:"Kubernetes",          col:"#0fc9b2"},
+  {num:4, name:"CI/CD Pipelines",     col:"#a78bfa"},
+  {num:5, name:"Infra as Code",       col:"#f5a623"},
+  {num:6, name:"DevSecOps",           col:"#ff5a6a"},
+  {num:7, name:"Observability",       col:"#22c97a"},
+  {num:8, name:"Networking",          col:"#ff7a5a"},
+  {num:9, name:"Programming",         col:"#f06292"},
+  {num:10,name:"System Design",       col:"#c084fc"},
+];
+
+const doneSet = new Set(JSON.parse(localStorage.getItem('devops-done')||'[]'));
+
+const nav = document.getElementById('sidebar-nav');
+phases.forEach(p => {
+  const a = document.createElement('a');
+  a.className = 'nav-item' + (doneSet.has(p.num) ? ' done' : '');
+  a.href = '#phase-' + p.num;
+  a.style.setProperty('--phase-col', p.col);
+  a.innerHTML = `
+    <div class="nav-dot">${p.num}</div>
+    <div class="nav-text">${p.name}</div>
+    <div class="nav-done">✓</div>
+  `;
+  nav.appendChild(a);
+});
+
+function updateProgress() {
+  const done = doneSet.size;
+  const pct = (done/10)*100;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = done + ' / 10';
+}
+updateProgress();
+
+function markDone(n, btn) {
+  const isNowDone = !doneSet.has(n);
+  if (isNowDone) { doneSet.add(n); btn.textContent = '✓ Completed'; btn.classList.add('done'); }
+  else { doneSet.delete(n); btn.textContent = '○ Mark done'; btn.classList.remove('done'); }
+  localStorage.setItem('devops-done', JSON.stringify([...doneSet]));
+  const navItem = nav.querySelectorAll('.nav-item')[n-1];
+  navItem.classList.toggle('done', isNowDone);
+  updateProgress();
+}
+
+// Restore done buttons
+doneSet.forEach(n => {
+  const btn = document.querySelector(`#phase-${n} .phase-complete-btn`);
+  if (btn) { btn.textContent = '✓ Completed'; btn.classList.add('done'); }
+});
+
+// Checklist state
+let totalChecks = 0;
+let checkedCount = 0;
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  checkedCount = document.querySelectorAll('.check-item.checked').length;
+  document.getElementById('tb-checks').textContent = checkedCount + ' checked';
+}
+
+// Topbar phase highlight on scroll
+const sections = document.querySelectorAll('.phase-section');
+const phaseNames = ['Linux Mastery','Cloud — AWS + Azure','Kubernetes','CI/CD Pipelines','IaC','DevSecOps','Observability','Networking','Programming','System Design'];
+window.addEventListener('scroll', () => {
+  let cur = 0;
+  sections.forEach((s, i) => {
+    if (window.scrollY >= s.offsetTop - 100) cur = i;
+  });
+  document.getElementById('topbar-phase').textContent = 'Phase ' + (cur+1) + ' — ' + phaseNames[cur];
+  document.querySelectorAll('.nav-item').forEach((a,i) => a.classList.toggle('active', i === cur));
+}, {passive:true});
+
+// Copy code
+function copyCode(btn) {
+  const code = btn.closest('.code-block').querySelector('.code-body').innerText;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  });
+}
+</script>
+</body>
+</html>

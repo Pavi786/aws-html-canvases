@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HTTP Status Codes — DevOps Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700;800&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111418;
+    --surface2: #161b22;
+    --border: #21262d;
+    --text: #e6edf3;
+    --muted: #7d8590;
+    --green: #3fb950;
+    --green-dim: #1a3622;
+    --blue: #58a6ff;
+    --blue-dim: #0d2149;
+    --yellow: #d29922;
+    --yellow-dim: #2d2008;
+    --red: #f85149;
+    --red-dim: #3d1219;
+    --purple: #bc8cff;
+    --purple-dim: #2a1a4a;
+    --orange: #f0883e;
+    --orange-dim: #3d1f00;
+    --cyan: #39d0d8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 32px;
+    margin-bottom: 40px;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .header-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(32px, 5vw, 60px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  h1 span { color: var(--blue); }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    max-width: 600px;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+  .leg {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* SIDE BADGES */
+  .side {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .side-devops  { background: rgba(63,185,80,.15);  color: var(--green);  border: 1px solid rgba(63,185,80,.3); }
+  .side-backend { background: rgba(88,166,255,.15); color: var(--blue);   border: 1px solid rgba(88,166,255,.3); }
+  .side-client  { background: rgba(240,136,62,.15); color: var(--orange); border: 1px solid rgba(240,136,62,.3); }
+  .side-ui      { background: rgba(188,140,255,.15);color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+  .side-shared  { background: rgba(57,208,216,.15); color: var(--cyan);   border: 1px solid rgba(57,208,216,.3); }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 48px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .sec-2xx .section-header { background: linear-gradient(135deg, var(--green-dim), #0e1f14); color: var(--green); }
+  .sec-3xx .section-header { background: linear-gradient(135deg, var(--blue-dim), #091630); color: var(--blue); }
+  .sec-4xx .section-header { background: linear-gradient(135deg, var(--yellow-dim), #1c1500); color: var(--yellow); }
+  .sec-5xx .section-header { background: linear-gradient(135deg, var(--red-dim), #220a0a); color: var(--red); }
+
+  .section-icon { font-size: 20px; }
+  .section-desc { margin-left: auto; font-size: 11px; font-weight: 400; color: var(--muted); letter-spacing: 0; text-transform: none; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--surface2); }
+  thead th {
+    padding: 10px 16px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  td { padding: 14px 16px; vertical-align: top; }
+
+  .code-cell {
+    font-weight: 700;
+    font-size: 15px;
+    white-space: nowrap;
+    width: 80px;
+  }
+  .sec-2xx .code-cell { color: var(--green); }
+  .sec-3xx .code-cell { color: var(--blue); }
+  .sec-4xx .code-cell { color: var(--yellow); }
+  .sec-5xx .code-cell { color: var(--red); }
+
+  .name-cell {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    width: 240px;
+  }
+
+  .explain-cell {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .explain-cell strong { color: var(--text); }
+  .explain-cell .tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 0 6px;
+    font-size: 10px;
+    color: var(--cyan);
+    margin-top: 4px;
+    margin-right: 4px;
+  }
+
+  .sides-cell {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: flex-start;
+    padding-top: 16px;
+    min-width: 140px;
+  }
+
+  .hot { display: inline-block; font-size: 9px; background: var(--red); color: #fff; border-radius: 2px; padding: 1px 5px; margin-left: 6px; vertical-align: middle; font-weight: 700; letter-spacing: 1px; }
+
+  /* DEVOPS CHEATSHEET */
+  .cheat {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .cheat-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .cheat-header {
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cheat-nginx .cheat-header  { background: #0e1f0e; color: var(--green); }
+  .cheat-k8s .cheat-header    { background: #0a1929; color: var(--blue); }
+  .cheat-auth .cheat-header   { background: #2a1a00; color: var(--orange); }
+  .cheat-debug .cheat-header  { background: #1e0a0a; color: var(--red); }
+
+  .cheat-body { padding: 16px 20px; }
+  .cheat-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .cheat-row:last-child { border-bottom: none; }
+  .cheat-code { font-weight: 800; font-size: 14px; min-width: 44px; }
+  .cheat-nginx .cheat-code  { color: var(--green); }
+  .cheat-k8s .cheat-code    { color: var(--blue); }
+  .cheat-auth .cheat-code   { color: var(--orange); }
+  .cheat-debug .cheat-code  { color: var(--red); }
+  .cheat-info { color: var(--muted); }
+  .cheat-fix { font-size: 11px; margin-top: 3px; }
+  .cheat-fix span { color: var(--cyan); }
+
+  /* FLOW DIAGRAM */
+  .flow-section { margin-top: 48px; }
+  .flow-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+    color: var(--text);
+  }
+  .flow-title span { color: var(--red); }
+  .flow {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px 24px;
+    background: var(--surface);
+    overflow-x: auto;
+  }
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: nowrap;
+    margin-bottom: 16px;
+  }
+  .flow-row:last-child { margin-bottom: 0; }
+  .flow-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 120px;
+    position: relative;
+  }
+  .flow-node .fn-label { color: var(--muted); font-size: 9px; display: block; margin-bottom: 2px; letter-spacing: 1px; text-transform: uppercase; }
+  .flow-node .fn-name  { color: var(--text); }
+  .flow-arrow {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-width: 60px;
+  }
+  .flow-arrow::before {
+    content: '';
+    position: absolute;
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: var(--border);
+  }
+  .flow-arrow::after {
+    content: '▶';
+    font-size: 10px;
+    color: var(--muted);
+    position: absolute;
+    right: 8%;
+  }
+  .flow-err {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  .flow-err.e502 { border-color: rgba(248,81,73,.4); color: var(--red); }
+  .flow-err.e503 { border-color: rgba(210,153,34,.4); color: var(--yellow); }
+  .flow-err.e504 { border-color: rgba(240,136,62,.4); color: var(--orange); }
+  .flow-err.e200 { border-color: rgba(63,185,80,.4); color: var(--green); }
+  .flow-err.e404 { border-color: rgba(88,166,255,.4); color: var(--blue); }
+
+  .flow-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  footer {
+    margin-top: 60px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-badge">
+      <span class="dot"></span>
+      HTTP Reference · DevOps Edition
+    </div>
+    <h1>HTTP <span>Status</span><br>Codes</h1>
+    <p class="header-sub">Deep-dive reference for DevOps, Backend engineers &amp; Frontend developers. Every code tagged by who owns the problem.</p>
+  </header>
+
+  <!-- LEGEND -->
+  <div class="legend">
+    <div class="leg"><div class="leg-dot" style="background:var(--green)"></div> DevOps / Infra</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--blue)"></div> Backend / API</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--purple)"></div> Frontend / UI</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--orange)"></div> Client / Browser</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--cyan)"></div> Shared</div>
+  </div>
+
+  <!-- 2xx -->
+  <div class="section sec-2xx">
+    <div class="section-header">
+      <span class="section-icon">✅</span>
+      <span>2xx — Success Responses</span>
+      <span class="section-desc">Request was received, understood &amp; accepted</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Code</th><th>Name</th><th>Deep Explanation</th><th>Who Cares</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="code-cell">200</td>
+          <td class="name-cell">OK</td>
+          <td class="explain-cell">
+            <strong>The gold standard.</strong> Request succeeded. Response body contains the requested data. For GET it returns resource; for POST it returns result. DevOps monitors 200-rate as a health signal — drop in 200s = something is broken.
+            <br><span class="tag">GET, POST, PUT, PATCH</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-shared">All sides</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">201</td>
+          <td class="name-cell">Created</td>
+          <td class="explain-cell">
+            <strong>Resource was successfully created.</strong> Server should return a <code>Location</code> header pointing to the new resource. Always expected after a successful POST that creates data. If your API returns 200 on creation, that's a bad practice.
+            <br><span class="tag">REST APIs</span><span class="tag">POST</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">202</td>
+          <td class="name-cell">Accepted</td>
+          <td class="explain-cell">
+            <strong>Request queued for async processing.</strong> Server accepted it but hasn't processed yet. Common in background job systems (Celery, Sidekiq, queues). Frontend must poll or use webhooks to know the final result.
+            <br><span class="tag">Async Jobs</span><span class="tag">Queues</span><span class="tag">Webhooks</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">204</td>
+          <td class="name-cell">No Content</td>
+          <td class="explain-cell">
+            <strong>Success but nothing to return.</strong> Common for DELETE and PUT. Response body MUST be empty. Frontend devs often get confused when their fetch() resolves but response.json() throws — because body is empty by design.
+            <br><span class="tag">DELETE</span><span class="tag">PUT</span><span class="tag">OPTIONS (CORS preflight)</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-ui">Frontend</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">206</td>
+          <td class="name-cell">Partial Content</td>
+          <td class="explain-cell">
+            <strong>Range request fulfilled.</strong> Used when client sends a <code>Range</code> header. Essential for video streaming (YouTube, Netflix), large file downloads with resume support. Server returns <code>Content-Range</code> header specifying what chunk was returned.
+            <br><span class="tag">Video Streaming</span><span class="tag">File Downloads</span><span class="tag">CDN</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 3xx -->
+  <div class="section sec-3xx">
+    <div class="section-header">
+      <span class="section-icon">🔁</span>
+      <span>3xx — Redirection Responses</span>
+      <span class="section-desc">Further action needed to complete the request</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Code</th><th>Name</th><th>Deep Explanation</th><th>Who Cares</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="code-cell">301</td>
+          <td class="name-cell">Moved Permanently</td>
+          <td class="explain-cell">
+            <strong>SEO-critical redirect.</strong> Browser AND search engines update their records. Method may change to GET. Use for permanent domain migrations (http→https, old-domain→new-domain). Cached aggressively — wrong 301 can haunt you for months.
+            <br><span class="tag">SEO</span><span class="tag">Nginx</span><span class="tag">Domain Migration</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">302</td>
+          <td class="name-cell">Found</td>
+          <td class="explain-cell">
+            <strong>Temporary redirect.</strong> Method may change to GET (historically inconsistent across browsers). Don't use for permanent moves — search engines won't transfer link equity. Common for post-login redirects and temporary maintenance pages.
+            <br><span class="tag">Auth Flows</span><span class="tag">Temporary</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">304</td>
+          <td class="name-name">Not Modified</td>
+          <td class="explain-cell">
+            <strong>Cache hit — no body sent.</strong> Client sends <code>If-Modified-Since</code> or <code>ETag</code>, server says "your cache is still valid". Zero bandwidth used. Critical for CDN performance. DevOps tunes cache headers to maximize 304 ratio.
+            <br><span class="tag">Cache</span><span class="tag">CDN</span><span class="tag">ETag</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">307</td>
+          <td class="name-cell">Temporary Redirect</td>
+          <td class="explain-cell">
+            <strong>Redirect preserving HTTP method.</strong> Unlike 302, browser MUST repeat the same method (POST stays POST). Use when you need to redirect a POST request temporarily without downgrading it to GET.
+            <br><span class="tag">POST Redirect</span><span class="tag">API</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">308</td>
+          <td class="name-cell">Permanent Redirect</td>
+          <td class="explain-cell">
+            <strong>Permanent 307 — preserves method forever.</strong> Best practice for permanent redirects when you want POST to stay POST. The modern replacement for 301 in API contexts. SEO-friendly like 301.
+            <br><span class="tag">REST APIs</span><span class="tag">SEO</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4xx -->
+  <div class="section sec-4xx">
+    <div class="section-header">
+      <span class="section-icon">❌</span>
+      <span>4xx — Client Errors</span>
+      <span class="section-desc">The request itself is the problem</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Code</th><th>Name</th><th>Deep Explanation</th><th>Who Cares</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="code-cell">400</td>
+          <td class="name-cell">Bad Request</td>
+          <td class="explain-cell">
+            <strong>Server couldn't parse the request.</strong> Malformed JSON, invalid query params, missing required fields, wrong content-type. Backend should return a descriptive body saying exactly what's wrong. Frontend must validate before sending.
+            <br><span class="tag">Validation</span><span class="tag">JSON Parsing</span><span class="tag">Query Params</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-client">Client</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">401</td>
+          <td class="name-cell">Unauthorized</td>
+          <td class="explain-cell">
+            <strong>Who are you? Prove it.</strong> No valid authentication provided. Missing or expired JWT, bad API key, no Authorization header. Confusing name — it really means "unauthenticated". Browser may show a login dialog. Your app should redirect to login.
+            <br><span class="tag">JWT</span><span class="tag">OAuth</span><span class="tag">API Keys</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">403</td>
+          <td class="name-cell">Forbidden</td>
+          <td class="explain-cell">
+            <strong>I know who you are, but NO.</strong> Authenticated but not authorized. Role/permission mismatch (user trying admin endpoint), IP blocked, resource access denied by policy. Different from 401 — user IS logged in, just lacks the permission.
+            <br><span class="tag">RBAC</span><span class="tag">IAM</span><span class="tag">Permissions</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">404</td>
+          <td class="name-cell">Not Found<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Resource doesn't exist.</strong> Wrong URL, deleted resource, typo in path, route not registered. Can also be returned intentionally to hide existence of private resources (instead of 403). DevOps: check your ingress path rules and service discovery.
+            <br><span class="tag">Routing</span><span class="tag">K8s Ingress</span><span class="tag">SPA Routing</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-shared">All sides</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">405</td>
+          <td class="name-cell">Method Not Allowed</td>
+          <td class="explain-cell">
+            <strong>Wrong HTTP verb.</strong> Route exists but not for that method (POST to a GET-only endpoint). Server MUST return an <code>Allow</code> header listing valid methods. Common mistake: sending DELETE to a route that only handles GET/POST.
+            <br><span class="tag">REST Design</span><span class="tag">CORS</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-client">Client</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">408</td>
+          <td class="name-cell">Request Timeout</td>
+          <td class="explain-cell">
+            <strong>Client was too slow sending the request.</strong> Server closed connection waiting for client to finish sending headers/body. Different from 504 (which is server-side timeout). Often seen with slow mobile connections or large uploads.
+            <br><span class="tag">Timeouts</span><span class="tag">Upload</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-client">Client</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">409</td>
+          <td class="name-cell">Conflict</td>
+          <td class="explain-cell">
+            <strong>State conflict in server data.</strong> Creating a resource that already exists (duplicate email), version conflict in optimistic locking, editing a stale record. Client must resolve the conflict and retry. Common in distributed systems.
+            <br><span class="tag">Optimistic Locking</span><span class="tag">Unique Constraints</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">410</td>
+          <td class="name-cell">Gone</td>
+          <td class="explain-cell">
+            <strong>Permanently deleted — update your links.</strong> Like 404 but permanent. Search engines remove it from index. Use for content that was intentionally deleted and won't come back. Unlike 404, this tells crawlers "stop trying".
+            <br><span class="tag">SEO</span><span class="tag">Deleted Content</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">413</td>
+          <td class="name-cell">Payload Too Large</td>
+          <td class="explain-cell">
+            <strong>Request body exceeds server limit.</strong> Nginx default is 1MB. If you're uploading files and hitting 413, increase <code>client_max_body_size</code> in Nginx or body-parser limit in Node. Check both app server AND reverse proxy limits.
+            <br><span class="tag">File Upload</span><span class="tag">Nginx Config</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">415</td>
+          <td class="name-cell">Unsupported Media Type</td>
+          <td class="explain-cell">
+            <strong>Wrong Content-Type header.</strong> Server can't process the format sent. Most common: forgetting <code>Content-Type: application/json</code> when sending JSON, or sending multipart/form-data to an endpoint expecting JSON.
+            <br><span class="tag">Content-Type</span><span class="tag">Headers</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-client">Client</span>
+            <span class="side side-ui">Frontend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">418</td>
+          <td class="name-cell">I'm a Teapot ☕</td>
+          <td class="explain-cell">
+            <strong>April Fools' RFC 2324.</strong> "Any attempt to brew coffee with a teapot should result in 418." Meant as a joke in 1998 but was kept in HTTP spec. Some APIs actually use it for "I refuse to process this" easter eggs. Node.js has it built in!
+            <br><span class="tag">Easter Egg</span><span class="tag">RFC 2324</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-shared">Fun</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">422</td>
+          <td class="name-cell">Unprocessable Entity<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Validation failed — right format, wrong values.</strong> Request was well-formed (parseable) but semantically invalid (email missing @, age is negative, required field empty). This is the right code for form validation errors. JSON body should list exact field errors.
+            <br><span class="tag">Form Validation</span><span class="tag">Schema Validation</span><span class="tag">Zod / Pydantic</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-ui">Frontend</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">429</td>
+          <td class="name-cell">Too Many Requests<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Rate limit exceeded.</strong> Client hit the request quota. Response should include <code>Retry-After</code> header. Common with public APIs (GitHub, OpenAI, Stripe). DevOps implements rate limiting at API Gateway, Nginx, or application layer. Frontend must implement retry with exponential backoff.
+            <br><span class="tag">Rate Limiting</span><span class="tag">API Gateway</span><span class="tag">Retry</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-backend">Backend</span>
+            <span class="side side-client">Client</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">451</td>
+          <td class="name-cell">Unavailable For Legal Reasons</td>
+          <td class="explain-cell">
+            <strong>Censored by law.</strong> Content legally blocked in user's region. Named after Fahrenheit 451. Used by governments, GDPR takedowns, DMCA. Should include a <code>Link</code> header to the blocking authority. Netflix geo-restrictions sometimes manifest this way.
+            <br><span class="tag">GDPR</span><span class="tag">DMCA</span><span class="tag">Geo-blocking</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5xx -->
+  <div class="section sec-5xx">
+    <div class="section-header">
+      <span class="section-icon">💥</span>
+      <span>5xx — Server Errors</span>
+      <span class="section-desc">Server failed — not the client's fault</span>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Code</th><th>Name</th><th>Deep Explanation</th><th>Who Cares</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="code-cell">500</td>
+          <td class="name-cell">Internal Server Error<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Unhandled exception in your code.</strong> Catch-all for server crashes. Usually means an unhandled exception, null pointer, uncaught promise rejection, or DB connection failure. Check server logs immediately. Never expose stack traces to client in production. Instrument with Sentry/Datadog.
+            <br><span class="tag">Exceptions</span><span class="tag">Logs</span><span class="tag">Sentry</span><span class="tag">DB Errors</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-backend">Backend</span>
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">502</td>
+          <td class="name-cell">Bad Gateway<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Proxy got a garbage response from upstream.</strong> Nginx/Load Balancer asked your app server, got an invalid response (or none). Most common causes: app crashed/restarting, returning invalid HTTP, mismatched protocol. Check: is your pod running? Is the port correct? Did the app panic on startup?
+            <br><span class="tag">Nginx</span><span class="tag">Load Balancer</span><span class="tag">K8s</span><span class="tag">Proxy</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">503</td>
+          <td class="name-cell">Service Unavailable<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Server alive but refusing connections.</strong> Server is overloaded, in maintenance, or no healthy pods available. In K8s: pod not ready (readiness probe failing), deployment rolling update in progress. Add a <code>Retry-After</code> header. DevOps: check HPA, resource limits, OOMKilled pods.
+            <br><span class="tag">Overload</span><span class="tag">K8s Readiness</span><span class="tag">Maintenance</span><span class="tag">HPA</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">504</td>
+          <td class="name-cell">Gateway Timeout<span class="hot">HOT</span></td>
+          <td class="explain-cell">
+            <strong>Upstream took too long to respond.</strong> Nginx waited for your app and gave up. Common causes: slow database query, heavy computation, external API call hanging, deadlock. Fix: optimize the slow operation, increase proxy timeout temporarily, add async processing. Check APM traces for the bottleneck.
+            <br><span class="tag">Timeouts</span><span class="tag">Slow DB</span><span class="tag">APM</span><span class="tag">Nginx proxy_read_timeout</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-backend">Backend</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">507</td>
+          <td class="name-cell">Insufficient Storage</td>
+          <td class="explain-cell">
+            <strong>Server ran out of disk space.</strong> Server cannot complete the request because the storage is full. Critical alert in DevOps monitoring. Check with <code>df -h</code>. Common in log accumulation, database growth, Docker image buildup. Set up disk alerts at 80%.
+            <br><span class="tag">Disk Full</span><span class="tag">Monitoring</span><span class="tag">Alerts</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">508</td>
+          <td class="name-cell">Loop Detected</td>
+          <td class="explain-cell">
+            <strong>Infinite redirect or WebDAV loop.</strong> Server detected an infinite loop in the request chain. Common with misconfigured reverse proxies, circular redirects in Nginx/Apache, or WebDAV processing loops. Check your redirect rules for circular references.
+            <br><span class="tag">Nginx Config</span><span class="tag">Redirect Loops</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="code-cell">511</td>
+          <td class="name-cell">Network Authentication Required</td>
+          <td class="explain-cell">
+            <strong>Captive portal — you need to login to the network.</strong> Used by hotel/airport WiFi interceptors. The client needs to authenticate at network level (not application level) before the request can proceed. Not usually seen in production services.
+            <br><span class="tag">Captive Portal</span><span class="tag">Network</span>
+          </td>
+          <td class="sides-cell">
+            <span class="side side-devops">DevOps</span>
+            <span class="side side-client">Client</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- REQUEST FLOW DIAGRAM -->
+  <div class="flow-section">
+    <div class="flow-title">🔍 Request <span>Flow</span> — Where Does Each Error Live?</div>
+    <div class="flow">
+      <!-- Row: Happy Path -->
+      <div style="font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">Request Journey: Browser → Load Balancer → Ingress → Service → Pod</div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;overflow-x:auto;padding-bottom:8px;">
+        <!-- Client -->
+        <div class="flow-col">
+          <div class="flow-node">
+            <span class="fn-label">Client</span>
+            <span class="fn-name">Browser / App</span>
+          </div>
+          <div class="flow-err e200">400 Bad Request</div>
+          <div class="flow-err e404">408 Timeout</div>
+          <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px;">Client's fault</div>
+        </div>
+
+        <div class="flow-arrow"></div>
+
+        <!-- Load Balancer -->
+        <div class="flow-col">
+          <div class="flow-node">
+            <span class="fn-label">Load Balancer</span>
+            <span class="fn-name">ALB / NLB / Nginx</span>
+          </div>
+          <div class="flow-err e502">502 Bad Gateway</div>
+          <div class="flow-err e504">504 Gateway Timeout</div>
+          <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px;">Upstream issue</div>
+        </div>
+
+        <div class="flow-arrow"></div>
+
+        <!-- Ingress -->
+        <div class="flow-col">
+          <div class="flow-node">
+            <span class="fn-label">K8s Ingress</span>
+            <span class="fn-name">Ingress / Gateway</span>
+          </div>
+          <div class="flow-err e404">404 Not Found</div>
+          <div class="flow-err e503">503 Unavailable</div>
+          <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px;">Routing issue</div>
+        </div>
+
+        <div class="flow-arrow"></div>
+
+        <!-- Service -->
+        <div class="flow-col">
+          <div class="flow-node">
+            <span class="fn-label">K8s Service</span>
+            <span class="fn-name">ClusterIP / NodePort</span>
+          </div>
+          <div class="flow-err e503">503 No Endpoints</div>
+          <div class="flow-err e502">502 Wrong Port</div>
+          <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px;">Service discovery</div>
+        </div>
+
+        <div class="flow-arrow"></div>
+
+        <!-- Pod -->
+        <div class="flow-col">
+          <div class="flow-node">
+            <span class="fn-label">App Pod</span>
+            <span class="fn-name">Your App Code</span>
+          </div>
+          <div class="flow-err e200">200 OK ✓</div>
+          <div class="flow-err e502">500 App Crash</div>
+          <div style="font-size:9px;color:var(--muted);text-align:center;margin-top:4px;">Your code runs here</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DEVOPS CHEATSHEETS -->
+  <div class="cheat">
+
+    <div class="cheat-card cheat-nginx">
+      <div class="cheat-header">⚡ Nginx / Load Balancer Errors</div>
+      <div class="cheat-body">
+        <div class="cheat-row">
+          <span class="cheat-code">502</span>
+          <div>
+            <div class="cheat-info">Upstream app returned invalid HTTP or crashed</div>
+            <div class="cheat-fix"><span>Fix:</span> Check if app process is alive. Verify port. Check app logs for panic/crash.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">504</span>
+          <div>
+            <div class="cheat-info">Nginx waited, upstream didn't respond in time</div>
+            <div class="cheat-fix"><span>Fix:</span> Check proxy_read_timeout. Profile slow DB queries. Add APM tracing.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">499</span>
+          <div>
+            <div class="cheat-info">Client closed connection before server responded (Nginx-specific)</div>
+            <div class="cheat-fix"><span>Fix:</span> App is too slow. Client gave up. Optimize response time or show loading states.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">413</span>
+          <div>
+            <div class="cheat-info">Upload too large, blocked by Nginx before hitting app</div>
+            <div class="cheat-fix"><span>Fix:</span> Set client_max_body_size in nginx.conf. Match app's body-parser limit.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cheat-card cheat-k8s">
+      <div class="cheat-header">☸️ Kubernetes Errors</div>
+      <div class="cheat-body">
+        <div class="cheat-row">
+          <span class="cheat-code">503</span>
+          <div>
+            <div class="cheat-info">Pod not ready — readiness probe failing or no pods</div>
+            <div class="cheat-fix"><span>Fix:</span> kubectl describe pod. Check readinessProbe. Check HPA / resource limits.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">502</span>
+          <div>
+            <div class="cheat-info">Service can't reach pod — wrong port, pod crashed</div>
+            <div class="cheat-fix"><span>Fix:</span> kubectl get endpoints. Verify targetPort matches containerPort.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">404</span>
+          <div>
+            <div class="cheat-info">Ingress path not matching — wrong path rules</div>
+            <div class="cheat-fix"><span>Fix:</span> kubectl describe ingress. Check path prefix vs exact match. Check rewrite-target.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">504</span>
+          <div>
+            <div class="cheat-info">Pod responding too slowly — timeout at ingress level</div>
+            <div class="cheat-fix"><span>Fix:</span> nginx.ingress.kubernetes.io/proxy-read-timeout annotation.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cheat-card cheat-auth">
+      <div class="cheat-header">🔐 Auth & API Errors</div>
+      <div class="cheat-body">
+        <div class="cheat-row">
+          <span class="cheat-code">401</span>
+          <div>
+            <div class="cheat-info">Missing or expired token — not authenticated</div>
+            <div class="cheat-fix"><span>Fix:</span> Check JWT expiry. Refresh token flow. Verify Authorization header is being sent.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">403</span>
+          <div>
+            <div class="cheat-info">Authenticated but wrong role/scope/permission</div>
+            <div class="cheat-fix"><span>Fix:</span> Check RBAC config. Verify token scopes. Check IAM policies (AWS/GCP).</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">422</span>
+          <div>
+            <div class="cheat-info">Validation failed — wrong field values</div>
+            <div class="cheat-fix"><span>Fix:</span> Read error body carefully. Map field errors to UI. Fix schema validation logic.</div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code">429</span>
+          <div>
+            <div class="cheat-info">Rate limit hit — too many requests from client</div>
+            <div class="cheat-fix"><span>Fix:</span> Implement exponential backoff. Check Retry-After header. Review rate limit config.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cheat-card cheat-debug">
+      <div class="cheat-header">🔥 500 Debug Checklist</div>
+      <div class="cheat-body">
+        <div class="cheat-row">
+          <span class="cheat-code" style="font-size:11px;">Step 1</span>
+          <div>
+            <div class="cheat-info">Check application logs immediately</div>
+            <div class="cheat-fix"><span>kubectl logs &lt;pod&gt; --previous | journalctl -u app</span></div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code" style="font-size:11px;">Step 2</span>
+          <div>
+            <div class="cheat-info">Check for unhandled exceptions / panics in code</div>
+            <div class="cheat-fix"><span>Sentry, Datadog, CloudWatch Logs</span></div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code" style="font-size:11px;">Step 3</span>
+          <div>
+            <div class="cheat-info">Check DB connectivity and query errors</div>
+            <div class="cheat-fix"><span>Connection pool exhausted? Slow query? Migration pending?</span></div>
+          </div>
+        </div>
+        <div class="cheat-row">
+          <span class="cheat-code" style="font-size:11px;">Step 4</span>
+          <div>
+            <div class="cheat-info">Check memory / CPU — OOMKilled?</div>
+            <div class="cheat-fix"><span>kubectl describe pod | grep -i oom | kubectl top pods</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /cheat -->
+
+  <footer>
+    <span>HTTP Status Codes — DevOps Reference · 2024</span>
+    <span style="color:var(--green)">✦ Every error has a story. Read the logs.</span>
+  </footer>
+
+</div>
+</body>
+</html>

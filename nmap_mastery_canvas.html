@@ -1,0 +1,1521 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #0a0d11;
+  --bg2: #0f1318;
+  --bg3: #151b22;
+  --panel: #111620;
+  --border: rgba(0,255,136,0.12);
+  --border2: rgba(0,255,136,0.25);
+  --green: #00ff88;
+  --green2: #00cc6a;
+  --cyan: #00d4ff;
+  --amber: #ffb800;
+  --red: #ff4444;
+  --purple: #a78bfa;
+  --text: #c8d6e0;
+  --muted: #5a6a78;
+  --card-r: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.sr-only { position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0); }
+
+/* NAV */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-wrap: wrap;
+}
+
+.logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--green);
+  letter-spacing: 1px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  background: rgba(0,255,136,0.08);
+  border-color: var(--green);
+  color: var(--green);
+}
+
+/* MAIN */
+.main { display: none; padding: 16px; }
+.main.active { display: block; }
+
+/* CARDS */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--card-r);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.card-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-title::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* CODE BLOCKS */
+.code {
+  background: #060a0e;
+  border: 1px solid rgba(0,255,136,0.08);
+  border-left: 3px solid var(--green);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: #a8d5b5;
+  margin: 8px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.code .c { color: var(--muted); }
+.code .k { color: var(--cyan); }
+.code .s { color: #f5a623; }
+.code .f { color: #ff6b9d; }
+.code .n { color: var(--green); }
+
+/* GRID */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* TAGS */
+.tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 2px 2px 2px 0;
+}
+.tag-green { background: rgba(0,255,136,0.1); color: var(--green); border: 1px solid rgba(0,255,136,0.2); }
+.tag-cyan  { background: rgba(0,212,255,0.1); color: var(--cyan);  border: 1px solid rgba(0,212,255,0.2); }
+.tag-amber { background: rgba(255,184,0,0.1); color: var(--amber); border: 1px solid rgba(255,184,0,0.2); }
+.tag-red   { background: rgba(255,68,68,0.1); color: var(--red);   border: 1px solid rgba(255,68,68,0.2); }
+.tag-purple{ background: rgba(167,139,250,0.1);color:var(--purple);border: 1px solid rgba(167,139,250,0.2); }
+
+/* ROADMAP */
+.day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+.day-cell {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 64px;
+}
+.day-cell:hover { border-color: var(--green); background: rgba(0,255,136,0.04); }
+.day-cell.week1 { border-top: 2px solid var(--cyan); }
+.day-cell.week2 { border-top: 2px solid var(--green); }
+.day-cell.week3 { border-top: 2px solid var(--amber); }
+.day-cell.week4 { border-top: 2px solid var(--red); }
+.day-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); font-weight: 600; }
+.day-topic { font-size: 10px; font-weight: 600; color: var(--text); margin-top: 3px; line-height: 1.3; }
+
+/* DETAIL PANEL */
+.detail-panel {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: var(--card-r);
+  padding: 14px;
+  margin-top: 10px;
+  display: none;
+}
+.detail-panel.open { display: block; }
+
+/* ATTACK CHAIN */
+.chain {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.chain-node {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  min-width: 110px;
+  font-size: 11px;
+  font-weight: 600;
+  position: relative;
+  flex-shrink: 0;
+}
+.chain-node .cn-phase { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px; }
+.chain-node .cn-tool { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--cyan); margin-top: 4px; }
+.chain-arrow {
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  color: var(--muted);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* MITRE */
+.mitre-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mitre-table th { text-align: left; padding: 6px 8px; background: rgba(0,255,136,0.06); color: var(--green); font-weight: 600; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+.mitre-table td { padding: 6px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+.mitre-table tr:hover td { background: rgba(0,255,136,0.03); }
+
+/* PROGRESS BAR */
+.prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.prog-label { width: 120px; font-size: 12px; font-weight: 600; color: var(--text); flex-shrink: 0; }
+.prog-bar { flex: 1; height: 6px; background: var(--bg3); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+
+/* SCAN MATRIX */
+.scan-matrix { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.scan-matrix th { padding: 7px 10px; background: rgba(0,255,136,0.06); color: var(--green); text-align: left; font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+.scan-matrix td { padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: 'JetBrains Mono', monospace; font-size: 10.5px; vertical-align: top; }
+.scan-matrix tr:hover td { background: rgba(0,212,255,0.04); }
+
+/* SIEM */
+.siem-rule {
+  background: #060a0e;
+  border: 1px solid rgba(0,212,255,0.15);
+  border-left: 3px solid var(--cyan);
+  border-radius: 4px;
+  padding: 10px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #9dd5e8;
+  margin: 8px 0;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* TERMINAL ANIMATION */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.cursor { display: inline-block; width: 8px; height: 13px; background: var(--green); vertical-align: middle; animation: blink 1s step-start infinite; }
+
+/* SECTION HEADERS */
+.sec-header {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 16px 0 8px;
+  padding-left: 0;
+}
+
+/* LEGEND */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ALERT */
+.alert {
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  margin: 8px 0;
+  border-left: 3px solid;
+}
+.alert-warn { background: rgba(255,184,0,0.08); border-color: var(--amber); color: var(--amber); }
+.alert-info { background: rgba(0,212,255,0.08); border-color: var(--cyan); color: var(--cyan); }
+.alert-danger { background: rgba(255,68,68,0.08); border-color: var(--red); color: var(--red); }
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .day-grid { grid-template-columns: repeat(5, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<h2 class="sr-only">Nmap Mastery Canvas — Complete Red Team & Network Security Reference from beginner to advanced, including commands, labs, scripting, MITRE ATT&CK mapping, and a 30-day roadmap.</h2>
+
+<div class="topbar">
+  <div class="logo">NMAP::CANVAS</div>
+  <button class="nav-btn active" onclick="show('overview')">Overview</button>
+  <button class="nav-btn" onclick="show('scans')">Scan Types</button>
+  <button class="nav-btn" onclick="show('nse')">NSE + Scripting</button>
+  <button class="nav-btn" onclick="show('evasion')">Evasion</button>
+  <button class="nav-btn" onclick="show('chains')">Attack Chains</button>
+  <button class="nav-btn" onclick="show('blue')">Blue Team</button>
+  <button class="nav-btn" onclick="show('labs')">Labs</button>
+  <button class="nav-btn" onclick="show('roadmap')">30-Day Roadmap</button>
+  <button class="nav-btn" onclick="show('auto')">Automation</button>
+  <button class="nav-btn" onclick="show('mitre')">MITRE ATT&CK</button>
+</div>
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<div id="tab-overview" class="main active">
+
+  <div class="card">
+    <div class="card-title">TCP/IP Fundamentals for Nmap</div>
+    <div class="grid2">
+      <div>
+        <div class="sec-header">Three-Way Handshake</div>
+        <div class="code"><span class="c"># Normal TCP connection</span>
+Client  →  SYN        →  Server
+Client  ←  SYN-ACK    ←  Server
+Client  →  ACK        →  Server
+
+<span class="c"># SYN Scan (stealth)</span>
+Client  →  SYN        →  Server
+Client  ←  SYN-ACK    ←  Server
+Client  →  RST        →  Server  <span class="c"># Never completes</span></div>
+        <div class="sec-header">Port States</div>
+        <div class="code"><span class="n">open</span>      — Service listening, SYN-ACK received
+<span class="amber">filtered</span>  — Firewall drops packets (no response)
+<span class="red">closed</span>    — RST received, no service
+<span class="muted">unfiltered</span> — ACK scan; reachable, state unknown
+open|filtered — No response (UDP/FIN/NULL/Xmas)</div>
+      </div>
+      <div>
+        <div class="sec-header">Nmap Port Selection Cheatsheet</div>
+        <div class="code"><span class="k">-p 22</span>           Single port
+<span class="k">-p 22,80,443</span>    Multiple ports
+<span class="k">-p 1-1024</span>       Port range
+<span class="k">-p-</span>             All 65535 ports
+<span class="k">-p U:53,T:80</span>    UDP + TCP mix
+<span class="k">--top-ports 100</span> Top N common ports
+<span class="k">-F</span>              Fast scan (top 100)
+<span class="k">-r</span>              Sequential port order</div>
+        <div class="sec-header">Output Formats</div>
+        <div class="code"><span class="k">-oN</span> scan.txt    Normal output
+<span class="k">-oX</span> scan.xml    XML (parse with tools)
+<span class="k">-oG</span> scan.gnmap  Grepable output
+<span class="k">-oA</span> basename    All three formats
+<span class="k">-v / -vv</span>       Verbose / Very verbose
+<span class="k">--open</span>          Show only open ports</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Timing Templates</div>
+      <div class="prog-row"><div class="prog-label"><span class="tag tag-cyan">T0 Paranoid</span></div><div class="prog-bar"><div class="prog-fill" style="width:5%;background:var(--cyan)"></div></div><div style="font-size:11px;color:var(--muted)">5min/port</div></div>
+      <div class="prog-row"><div class="prog-label"><span class="tag tag-cyan">T1 Sneaky</span></div><div class="prog-bar"><div class="prog-fill" style="width:12%;background:var(--cyan)"></div></div><div style="font-size:11px;color:var(--muted)">15s/port</div></div>
+      <div class="prog-row"><div class="prog-label"><span class="tag tag-green">T2 Polite</span></div><div class="prog-bar"><div class="prog-fill" style="width:22%;background:var(--green)"></div></div><div style="font-size:11px;color:var(--muted)">400ms</div></div>
+      <div class="prog-row"><div class="prog-label"><span class="tag tag-green">T3 Normal</span></div><div class="prog-bar"><div class="prog-fill" style="width:50%;background:var(--green)"></div></div><div style="font-size:11px;color:var(--muted)">Default</div></div>
+      <div class="prog-row"><div class="prog-label"><span class="tag tag-amber">T4 Aggressive</span></div><div class="prog-bar"><div class="prog-fill" style="width:80%;background:var(--amber)"></div></div><div style="font-size:11px;color:var(--muted)">Fast</div></div>
+      <div class="prog-row"><div class="prog-label"><span class="tag tag-red">T5 Insane</span></div><div class="prog-bar"><div class="prog-fill" style="width:98%;background:var(--red)"></div></div><div style="font-size:11px;color:var(--muted)">Noisy</div></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;">Use <span style="color:var(--amber)">T4</span> for trusted LANs, <span style="color:var(--cyan)">T1/T2</span> for IDS evasion</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Host Discovery</div>
+      <div class="code"><span class="c"># Ping scan — no port scan</span>
+nmap <span class="k">-sn</span> 192.168.1.0/24
+
+<span class="c"># Skip discovery — treat all hosts as up</span>
+nmap <span class="k">-Pn</span> 10.0.0.1
+
+<span class="c"># ARP ping (LAN only)</span>
+nmap <span class="k">-PR</span> 192.168.0.0/24
+
+<span class="c"># TCP SYN ping</span>
+nmap <span class="k">-PS22,80,443</span> 10.0.0.0/8
+
+<span class="c"># ICMP echo + timestamp</span>
+nmap <span class="k">-PE -PP</span> 10.0.0.1
+
+<span class="c"># DNS resolution off (faster)</span>
+nmap <span class="k">-n -sn</span> 192.168.1.0/24
+
+<span class="c"># Traceroute combined</span>
+nmap <span class="k">--traceroute -sn</span> 10.0.0.1</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Performance Tuning</div>
+    <div class="grid3">
+      <div>
+        <div class="sec-header">Parallelism</div>
+        <div class="code"><span class="k">--min-parallelism 100</span>
+<span class="k">--max-parallelism 256</span>
+<span class="k">--min-hostgroup 64</span>
+<span class="k">--max-hostgroup 256</span>
+<span class="k">--min-rate 1000</span>
+<span class="k">--max-rate 5000</span></div>
+      </div>
+      <div>
+        <div class="sec-header">Timeouts</div>
+        <div class="code"><span class="k">--host-timeout 30m</span>
+<span class="k">--scan-delay 0ms</span>
+<span class="k">--max-scan-delay 10ms</span>
+<span class="k">--min-rtt-timeout 100ms</span>
+<span class="k">--max-rtt-timeout 1000ms</span>
+<span class="k">--max-retries 2</span></div>
+      </div>
+      <div>
+        <div class="sec-header">Enterprise Fast Scan</div>
+        <div class="code">nmap -sS -T4 \
+  --min-rate 5000 \
+  --max-retries 1 \
+  --min-parallelism 100 \
+  -p- -oA full_scan \
+  10.0.0.0/8</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ SCAN TYPES ═══════════════════ -->
+<div id="tab-scans" class="main">
+  <div class="card">
+    <div class="card-title">Scan Type Reference Matrix</div>
+    <table class="scan-matrix">
+      <tr><th>Type</th><th>Flag</th><th>How it Works</th><th>Root?</th><th>IDS Risk</th><th>Use Case</th></tr>
+      <tr><td><span class="tag tag-green">SYN Stealth</span></td><td>-sS</td><td>SYN → SYN-ACK → RST (never completes)</td><td>Yes</td><td><span class="tag tag-amber">Medium</span></td><td>Default for most pentests</td></tr>
+      <tr><td><span class="tag tag-cyan">Connect</span></td><td>-sT</td><td>Full TCP handshake via OS syscall</td><td>No</td><td><span class="tag tag-red">High</span></td><td>Unprivileged scanning</td></tr>
+      <tr><td><span class="tag tag-amber">UDP</span></td><td>-sU</td><td>UDP probe → ICMP port unreach = closed</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>DNS, SNMP, TFTP discovery</td></tr>
+      <tr><td><span class="tag tag-purple">NULL</span></td><td>-sN</td><td>No flags set — RFC 793 closed=RST</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>Firewall bypass (non-Windows)</td></tr>
+      <tr><td><span class="tag tag-purple">FIN</span></td><td>-sF</td><td>FIN flag only</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>Legacy Unix systems</td></tr>
+      <tr><td><span class="tag tag-purple">Xmas</span></td><td>-sX</td><td>FIN+PSH+URG flags</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>Stealthy TCP fingerprinting</td></tr>
+      <tr><td><span class="tag tag-cyan">ACK</span></td><td>-sA</td><td>ACK probe — maps firewall rules</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>Firewall rule enumeration</td></tr>
+      <tr><td><span class="tag tag-amber">Window</span></td><td>-sW</td><td>Like ACK, uses TCP window size</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>Differentiate open/closed</td></tr>
+      <tr><td><span class="tag tag-red">Maimon</span></td><td>-sM</td><td>FIN/ACK — some BSD return RST if open</td><td>Yes</td><td><span class="tag tag-green">Low</span></td><td>BSD target fingerprinting</td></tr>
+      <tr><td><span class="tag tag-cyan">SCTP INIT</span></td><td>-sY</td><td>SCTP INIT chunk</td><td>Yes</td><td><span class="tag tag-amber">Medium</span></td><td>VoIP / telecom networks</td></tr>
+      <tr><td><span class="tag tag-cyan">IP Proto</span></td><td>-sO</td><td>Probes all IP protocols</td><td>Yes</td><td><span class="tag tag-amber">Medium</span></td><td>Protocol enumeration</td></tr>
+    </table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Service & Version Detection</div>
+      <div class="code"><span class="c"># Version detection (intensity 0-9)</span>
+nmap <span class="k">-sV</span> 10.0.0.1
+nmap <span class="k">-sV --version-intensity 9</span> 10.0.0.1
+
+<span class="c"># Light version scan (faster)</span>
+nmap <span class="k">-sV --version-light</span> 10.0.0.1
+
+<span class="c"># All probes (slow but thorough)</span>
+nmap <span class="k">-sV --version-all</span> 10.0.0.1
+
+<span class="c"># Combined service + OS detection</span>
+nmap <span class="k">-A</span> 10.0.0.1
+<span class="c"># Equivalent to:</span>
+nmap <span class="k">-sV -sC -O --traceroute</span> 10.0.0.1</div>
+    </div>
+    <div class="card">
+      <div class="card-title">OS Detection</div>
+      <div class="code"><span class="c"># OS fingerprinting</span>
+nmap <span class="k">-O</span> 10.0.0.1
+
+<span class="c"># Aggressive OS guess</span>
+nmap <span class="k">-O --osscan-guess</span> 10.0.0.1
+
+<span class="c"># Limit to promising targets only</span>
+nmap <span class="k">-O --osscan-limit</span> 10.0.0.0/24
+
+<span class="c"># OS + max detail</span>
+nmap <span class="k">-O --max-os-tries 5</span> 10.0.0.1
+
+<span class="c"># Nmap OS detection uses:</span>
+<span class="c"># TCP ISN, IP ID, TTL values,</span>
+<span class="c"># window size, DF bit, ICMP quirks</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">UDP Scanning — Advanced</div>
+    <div class="alert alert-warn">UDP scanning is slow — expect 18+ minutes for 1000 ports. Combine with --min-rate and target key ports first.</div>
+    <div class="grid2">
+      <div class="code"><span class="c"># Key UDP services</span>
+nmap <span class="k">-sU -p</span> 53,67,68,69,123,161,162 \
+  10.0.0.0/24
+
+<span class="c"># UDP + TCP combined scan</span>
+nmap <span class="k">-sU -sS</span> -p U:53,161 -p T:80,443 \
+  10.0.0.1
+
+<span class="c"># Fast UDP top ports</span>
+nmap <span class="k">-sU --top-ports 100</span> 10.0.0.1
+
+<span class="c"># SNMP v1/v2 community string brute</span>
+nmap <span class="k">-sU -p 161</span> --script snmp-brute \
+  10.0.0.1</div>
+      <div>
+        <div class="sec-header">Key UDP Services</div>
+        <div class="code">53   DNS
+67   DHCP Server
+68   DHCP Client
+69   TFTP
+111  RPC
+123  NTP
+161  SNMP
+162  SNMP Trap
+500  IKE/VPN
+514  Syslog
+1194 OpenVPN
+4500 IKE NAT-T
+5353 mDNS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ NSE + SCRIPTING ═══════════════════ -->
+<div id="tab-nse" class="main">
+  <div class="card">
+    <div class="card-title">NSE Script Categories</div>
+    <div class="grid3">
+      <div>
+        <span class="tag tag-green">auth</span>
+        <span class="tag tag-green">broadcast</span>
+        <span class="tag tag-cyan">brute</span>
+        <span class="tag tag-cyan">default</span>
+        <span class="tag tag-cyan">discovery</span>
+        <span class="tag tag-amber">dos</span>
+        <span class="tag tag-red">exploit</span>
+        <span class="tag tag-red">external</span>
+        <span class="tag tag-purple">fuzzer</span>
+        <span class="tag tag-amber">intrusive</span>
+        <span class="tag tag-green">malware</span>
+        <span class="tag tag-cyan">safe</span>
+        <span class="tag tag-amber">version</span>
+        <span class="tag tag-red">vuln</span>
+      </div>
+      <div>
+        <div class="sec-header">Script Usage</div>
+        <div class="code"><span class="k">-sC</span>         Default scripts
+<span class="k">--script=default</span>  Same
+<span class="k">--script=vuln</span>  All vuln scripts
+<span class="k">--script=http-*</span>  Wildcard
+<span class="k">--script=safe,default</span>
+<span class="k">--script-args</span> user=admin
+<span class="k">--script-help http-title</span>
+<span class="k">--script-updatedb</span></div>
+      </div>
+      <div>
+        <div class="sec-header">NSE Script Location</div>
+        <div class="code"><span class="c"># Find scripts</span>
+ls /usr/share/nmap/scripts/
+
+<span class="c"># Locate specific</span>
+locate *.nse | grep smb
+
+<span class="c"># Custom script path</span>
+nmap --script \
+  /path/to/custom.nse \
+  10.0.0.1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Essential NSE Scripts by Category</div>
+    <div class="grid2">
+      <div>
+        <div class="sec-header">Web Application</div>
+        <div class="code">nmap <span class="k">-p 80,443 --script</span> \
+  http-title,http-headers,\
+  http-methods,http-auth,\
+  http-robots.txt,http-sitemap-generator \
+  10.0.0.1
+
+<span class="c"># Find admin panels</span>
+nmap <span class="k">--script</span> http-admin-detect 10.0.0.1
+
+<span class="c"># Check for XSS/SQLi vectors</span>
+nmap <span class="k">--script</span> http-sql-injection 10.0.0.1
+
+<span class="c"># SSL/TLS audit</span>
+nmap <span class="k">-p 443 --script</span> ssl-enum-ciphers 10.0.0.1</div>
+
+        <div class="sec-header">SMB Enumeration (Windows)</div>
+        <div class="code">nmap <span class="k">-p 445 --script</span> \
+  smb-os-discovery,smb-security-mode,\
+  smb-enum-shares,smb-enum-users,\
+  smb-vuln-ms17-010 \
+  10.0.0.1
+
+<span class="c"># EternalBlue check</span>
+nmap <span class="k">--script</span> smb-vuln-ms17-010 \
+  -p 445 10.0.0.0/24</div>
+      </div>
+      <div>
+        <div class="sec-header">Network Services</div>
+        <div class="code"><span class="c"># FTP</span>
+nmap <span class="k">-p 21 --script</span> ftp-anon,ftp-bounce 10.0.0.1
+
+<span class="c"># SSH</span>
+nmap <span class="k">-p 22 --script</span> \
+  ssh-hostkey,ssh2-enum-algos 10.0.0.1
+
+<span class="c"># DNS</span>
+nmap <span class="k">-p 53 --script</span> \
+  dns-zone-transfer,dns-brute \
+  --script-args dns-brute.domain=corp.local \
+  10.0.0.1
+
+<span class="c"># SNMP community strings</span>
+nmap <span class="k">-sU -p 161 --script</span> snmp-brute 10.0.0.1
+
+<span class="c"># RDP check</span>
+nmap <span class="k">-p 3389 --script</span> rdp-enum-encryption</div>
+
+        <div class="sec-header">Vulnerability Scanning</div>
+        <div class="code"><span class="c"># Full vuln scan</span>
+nmap <span class="k">-sV --script vuln</span> 10.0.0.1
+
+<span class="c"># Heartbleed</span>
+nmap <span class="k">-p 443 --script</span> ssl-heartbleed 10.0.0.1
+
+<span class="c"># ShellShock</span>
+nmap <span class="k">-p 80,443 --script</span> http-shellshock 10.0.0.1</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Active Directory Enumeration</div>
+    <div class="alert alert-info">AD enumeration reveals domain controllers, users, shares, and GPOs. Always run in authorized environments only.</div>
+    <div class="code"><span class="c"># Discover Domain Controllers (port 88 = Kerberos)</span>
+nmap <span class="k">-p 88,389,636,445,3268</span> --open 10.0.0.0/24
+
+<span class="c"># LDAP enumeration</span>
+nmap <span class="k">-p 389 --script</span> ldap-rootdse,ldap-search \
+  --script-args ldap.base='"dc=corp,dc=local"' 10.0.0.1
+
+<span class="c"># Kerberos user enumeration</span>
+nmap <span class="k">-p 88 --script</span> krb5-enum-users \
+  --script-args krb5-enum-users.realm='CORP.LOCAL' \
+  --script-args userdb=/usr/share/wordlists/users.txt 10.0.0.1
+
+<span class="c"># SMB user/share enum on DC</span>
+nmap <span class="k">-p 445 --script</span> smb-enum-users,smb-enum-shares,smb-enum-domains \
+  --script-args smbuser=admin,smbpass=Password1 10.0.0.1
+
+<span class="c"># NetBIOS name resolution</span>
+nmap <span class="k">-sU -p 137 --script</span> nbstat 10.0.0.0/24</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ EVASION ═══════════════════ -->
+<div id="tab-evasion" class="main">
+  <div class="alert alert-danger">These techniques are for authorized penetration testing and red team engagements only. Unauthorized use is illegal.</div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Fragmentation & Packet Manipulation</div>
+      <div class="code"><span class="c"># Fragment packets (8 bytes)</span>
+nmap <span class="k">-f</span> 10.0.0.1
+
+<span class="c"># Fragment (16 bytes)</span>
+nmap <span class="k">-ff</span> 10.0.0.1
+
+<span class="c"># Custom MTU (must be mult of 8)</span>
+nmap <span class="k">--mtu 24</span> 10.0.0.1
+
+<span class="c"># Send in custom packet sizes</span>
+nmap <span class="k">--data-length 25</span> 10.0.0.1
+
+<span class="c"># Custom IP TTL (confuse traceroute)</span>
+nmap <span class="k">--ttl 128</span> 10.0.0.1
+
+<span class="c"># Randomize host scan order</span>
+nmap <span class="k">--randomize-hosts -sn</span> 10.0.0.0/24
+
+<span class="c"># Append random data</span>
+nmap <span class="k">--data-string "GET / HTTP/1.0\r\n"</span> 10.0.0.1</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Decoy & Source Manipulation</div>
+      <div class="code"><span class="c"># Decoy scan — spoof other IPs</span>
+nmap <span class="k">-D RND:10</span> 10.0.0.1
+
+<span class="c"># Specific decoys (your IP included)</span>
+nmap <span class="k">-D 1.2.3.4,5.6.7.8,ME</span> 10.0.0.1
+
+<span class="c"># Spoof source IP (requires root)</span>
+nmap <span class="k">-S 1.2.3.4</span> -e eth0 10.0.0.1
+
+<span class="c"># Use specific source port</span>
+nmap <span class="k">--source-port 53</span> 10.0.0.1
+nmap <span class="k">-g 53</span> 10.0.0.1
+
+<span class="c"># Idle/Zombie scan (IP ID side channel)</span>
+nmap <span class="k">-sI zombie_host</span> 10.0.0.1
+
+<span class="c"># Custom source port + decoy</span>
+nmap <span class="k">-g 80 -D RND:5</span> 10.0.0.1</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Firewall Bypass Concepts</div>
+      <div class="code"><span class="c"># ACK scan to map firewall rules</span>
+nmap <span class="k">-sA</span> 10.0.0.1
+<span class="c"># unfiltered = port reachable past FW
+# filtered = FW blocking the ACK</span>
+
+<span class="c"># Scan behind NAT via bounce</span>
+nmap <span class="k">-b ftp_server</span> 10.0.0.1
+
+<span class="c"># Source port 443 to blend with HTTPS</span>
+nmap <span class="k">-g 443 -sS</span> 10.0.0.1
+
+<span class="c"># Source port 80 — blend with HTTP</span>
+nmap <span class="k">--source-port 80</span> 10.0.0.1
+
+<span class="c"># IPv6 scanning (less monitored)</span>
+nmap <span class="k">-6</span> 2001:db8::1
+
+<span class="c"># Slow scan to avoid rate-based IDS</span>
+nmap <span class="k">-T0 --scan-delay 30s</span> 10.0.0.1</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Proxy & Timing Evasion</div>
+      <div class="code"><span class="c"># Route through SOCKS5 proxy</span>
+nmap <span class="k">--proxies socks5://127.0.0.1:9050</span> \
+  10.0.0.1
+
+<span class="c"># Chain proxies</span>
+nmap <span class="k">--proxies \</span>
+  socks4://proxy1:1080,\
+  socks4://proxy2:1080 10.0.0.1
+
+<span class="c"># Manual timing to slip IDS thresholds</span>
+nmap <span class="k">--scan-delay 2s \</span>
+  <span class="k">--max-scan-delay 5s \</span>
+  <span class="k">--max-retries 1 \</span>
+  <span class="k">--host-timeout 10m</span> 10.0.0.1
+
+<span class="c"># Paranoid timing (no rate detection)</span>
+nmap <span class="k">-T0 -p 80,443,22</span> 10.0.0.1</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Wireshark Packet Analysis — What to Look For</div>
+    <div class="grid2">
+      <div>
+        <div class="sec-header">Detection Filters</div>
+        <div class="code"><span class="c"># Catch SYN scans in Wireshark</span>
+tcp.flags.syn==1 && tcp.flags.ack==0
+
+<span class="c"># Detect NULL scans (no flags)</span>
+tcp.flags==0x000
+
+<span class="c"># Detect Xmas scan</span>
+tcp.flags.fin==1 && tcp.flags.push==1 \
+  && tcp.flags.urg==1
+
+<span class="c"># Detect port sweep</span>
+tcp.flags.syn==1 && ip.src==attacker_ip
+
+<span class="c"># Detect decoy scans (many src IPs)</span>
+ip.dst==target && tcp.flags.syn==1</div>
+      </div>
+      <div>
+        <div class="sec-header">Statistical Indicators</div>
+        <div class="code"><span class="c"># Signs of a scan in Wireshark stats:</span>
+<span class="c"># 1. High RST count from single source</span>
+<span class="c"># 2. Many SYN with no data follow</span>
+<span class="c"># 3. Sequential port pattern</span>
+<span class="c"># 4. ICMP port unreachable storms (UDP)</span>
+<span class="c"># 5. Consistent TTL across packets</span>
+<span class="c"># 6. OS fingerprint probes (rare flags)</span>
+
+<span class="c"># Wireshark display for analysis:</span>
+Statistics → Conversations
+Statistics → Protocol Hierarchy
+Analyze → Expert Info</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ATTACK CHAINS ═══════════════════ -->
+<div id="tab-chains" class="main">
+  <div class="card">
+    <div class="card-title">Attack Chain 1 — External Pentest</div>
+    <div class="chain">
+      <div class="chain-node" style="border-top:2px solid var(--cyan)">
+        <div class="cn-phase">Phase 1</div>
+        Passive Recon
+        <div class="cn-tool">shodan, amass</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--cyan)">
+        <div class="cn-phase">Phase 2</div>
+        Host Discovery
+        <div class="cn-tool">nmap -sn -PR</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--green)">
+        <div class="cn-phase">Phase 3</div>
+        Port Scan
+        <div class="cn-tool">nmap -sS -p-</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--green)">
+        <div class="cn-phase">Phase 4</div>
+        Service Enum
+        <div class="cn-tool">nmap -sV -sC</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--amber)">
+        <div class="cn-phase">Phase 5</div>
+        Vuln Scan
+        <div class="cn-tool">nmap --script vuln</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--red)">
+        <div class="cn-phase">Phase 6</div>
+        Exploitation
+        <div class="cn-tool">metasploit</div>
+      </div>
+    </div>
+    <div class="code" style="margin-top:12px"><span class="c"># Full external pentest scan chain</span>
+<span class="c"># Step 1: Sweep alive hosts</span>
+nmap <span class="k">-sn --min-rate 2000</span> 10.0.0.0/24 <span class="k">-oG</span> alive.gnmap
+
+<span class="c"># Step 2: Full port scan on live hosts</span>
+grep "Up" alive.gnmap | awk '{print $2}' > hosts.txt
+nmap <span class="k">-sS -p- -T4 --min-rate 5000 -iL</span> hosts.txt <span class="k">-oA</span> full_ports
+
+<span class="c"># Step 3: Service + version on open ports</span>
+nmap <span class="k">-sV --version-intensity 5 -sC</span> \
+  <span class="k">--open -iL</span> hosts.txt <span class="k">-oA</span> services
+
+<span class="c"># Step 4: Vuln scan on critical services</span>
+nmap <span class="k">-p 80,443,445,21,22 --script vuln -iL</span> hosts.txt <span class="k">-oA</span> vulns</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Attack Chain 2 — Internal Network Red Team</div>
+    <div class="chain">
+      <div class="chain-node" style="border-top:2px solid var(--purple)">
+        <div class="cn-phase">Foothold</div>
+        Phishing / RCE
+        <div class="cn-tool">mshta, macro</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--purple)">
+        <div class="cn-phase">Local Recon</div>
+        Internal Sweep
+        <div class="cn-tool">nmap -sn LAN</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--cyan)">
+        <div class="cn-phase">DC Hunt</div>
+        AD Discovery
+        <div class="cn-tool">nmap -p 88,389</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--amber)">
+        <div class="cn-phase">Pivot</div>
+        Share / Cred
+        <div class="cn-tool">smb-enum-users</div>
+      </div>
+      <div class="chain-arrow">→</div>
+      <div class="chain-node" style="border-top:2px solid var(--red)">
+        <div class="cn-phase">Escalation</div>
+        Domain Admin
+        <div class="cn-tool">Pass-the-Hash</div>
+      </div>
+    </div>
+    <div class="code" style="margin-top:12px"><span class="c"># Internal AD attack chain (post-foothold)</span>
+<span class="c"># Discover DC candidates</span>
+nmap <span class="k">-p 88,389,636,445,3268</span> --open 172.16.0.0/16 <span class="k">-oA</span> dc_hunt
+
+<span class="c"># Enumerate shares and users</span>
+nmap <span class="k">-p 445 --script</span> smb-enum-shares,smb-enum-users \
+  --script-args smbuser=domain_user,smbpass=pass123 \
+  -iL dc_candidates.txt
+
+<span class="c"># LDAP dump</span>
+nmap <span class="k">-p 389 --script</span> ldap-search \
+  --script-args \
+  ldap.base='"dc=corp,dc=local"',\
+  ldap.filter='"(objectClass=user)"' \
+  172.16.0.1
+
+<span class="c"># Check for EternalBlue across subnet</span>
+nmap <span class="k">-p 445 --script</span> smb-vuln-ms17-010 172.16.0.0/24</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Pentest Reporting Template</div>
+    <div class="grid2">
+      <div>
+        <div class="sec-header">Finding Format</div>
+        <div class="code"><span class="c">## Finding: [VULN-001]</span>
+<span class="n">Title:</span>    EternalBlue (MS17-010)
+<span class="n">Host:</span>     10.0.0.25:445
+<span class="n">CVSS:</span>     9.8 (Critical)
+<span class="n">CWE:</span>      CWE-119
+<span class="n">CVE:</span>      CVE-2017-0144
+
+<span class="n">Evidence:</span>
+nmap output showing vulnerable state
+
+<span class="n">Risk:</span>
+Unauthenticated RCE as SYSTEM.
+Lateral movement, ransomware risk.
+
+<span class="n">Remediation:</span>
+Apply MS17-010 patch immediately.
+Disable SMBv1 on all hosts.
+Network segment Windows servers.</div>
+      </div>
+      <div>
+        <div class="sec-header">Executive Summary Fields</div>
+        <div class="code"><span class="n">Scope:</span>       IP ranges tested
+<span class="n">Duration:</span>    Start/end dates
+<span class="n">Methodology:</span> PTES / OWASP / NIST
+<span class="n">Severity:</span>    Critical/High/Med/Low
+<span class="n">Risk Score:</span>  CVSS v3.1 base
+
+<span class="n">Stats:</span>
+  Hosts Alive:    47
+  Open Ports:     312
+  Services Found: 28
+  Critical:       3
+  High:           7
+  Medium:         14
+  Low:            22
+
+<span class="n">Top 3 Risks + Business Impact
+Remediation Roadmap (30/60/90d)</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ BLUE TEAM ═══════════════════ -->
+<div id="tab-blue" class="main">
+  <div class="card">
+    <div class="card-title">SIEM Detection Logic</div>
+    <div class="sec-header">Splunk — Port Scan Detection</div>
+    <div class="siem-rule">index=network sourcetype=firewall action=allowed
+| stats dc(dest_port) as unique_ports, count by src_ip, _time span=1m
+| where unique_ports > 20
+| eval risk="PORT_SCAN_DETECTED"
+| table _time, src_ip, unique_ports, risk</div>
+
+    <div class="sec-header">Elasticsearch/ELK — SYN Flood Detection</div>
+    <div class="siem-rule">{
+  "query": { "bool": { "must": [
+    { "term": { "tcp.flags.syn": true } },
+    { "term": { "tcp.flags.ack": false } }
+  ]}},
+  "aggs": { "by_src": {
+    "terms": { "field": "source.ip" },
+    "aggs": { "by_min": {
+      "date_histogram": { "field": "@timestamp", "interval": "1m" },
+      "aggs": { "syn_count": { "value_count": { "field": "dest.port" }}}
+    }}
+  }}
+}</div>
+
+    <div class="sec-header">Sigma Rule — Nmap Detection</div>
+    <div class="siem-rule">title: Nmap Scan Detection
+id: 8f3b2a1c-4d5e-4f6a-8b9c-0d1e2f3a4b5c
+status: production
+description: Detects likely Nmap network scan
+logsource:
+  category: network
+  product: zeek
+detection:
+  selection:
+    event_type: conn
+  condition:
+    - selection | count(id.resp_p) by id.orig_h > 50
+    - selection | count(id.resp_h) by id.orig_h > 20
+falsepositives:
+  - Vulnerability scanners, monitoring systems
+level: medium
+tags:
+  - attack.discovery
+  - attack.t1046</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Blue Team Monitoring Checklist</div>
+    <div class="grid2">
+      <div>
+        <div class="sec-header">Network IOCs</div>
+        <div style="display:grid;gap:5px">
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--red);font-size:12px">Sequential port connections (1→1024) in milliseconds</div>
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--red);font-size:12px">SYN packets with no data follow-up (RST response)</div>
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--amber);font-size:12px">Single source → many destinations in short window</div>
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--amber);font-size:12px">ICMP port unreachable storm (UDP scan indicator)</div>
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--amber);font-size:12px">Malformed TCP flags (NULL/FIN/Xmas scans)</div>
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--purple);font-size:12px">Nmap User-Agent in HTTP headers</div>
+          <div style="background:var(--bg3);padding:7px 10px;border-radius:4px;border-left:3px solid var(--purple);font-size:12px">OS fingerprint probes (unusual ICMP combinations)</div>
+        </div>
+      </div>
+      <div>
+        <div class="sec-header">Defensive Controls</div>
+        <div class="code"><span class="c"># iptables — rate limit SYN</span>
+iptables -A INPUT -p tcp --syn \
+  -m limit --limit 1/s \
+  --limit-burst 3 -j ACCEPT
+iptables -A INPUT -p tcp --syn -j DROP
+
+<span class="c"># Block after scan threshold (fail2ban)</span>
+[nmap-detector]
+enabled  = true
+filter   = nmap-scan
+logpath  = /var/log/syslog
+maxretry = 3
+bantime  = 3600
+findtime = 60
+
+<span class="c"># snort rule — SYN scan</span>
+alert tcp any any -> $HOME_NET any (
+  msg:"NMAP SYN Scan";
+  flags:S;
+  threshold:type both, track by_src,
+  count 5, seconds 1;
+  sid:10001;)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ LABS ═══════════════════ -->
+<div id="tab-labs" class="main">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Lab 1 — Home Lab Setup</div>
+      <div class="code"><span class="c"># Spin up vulnerable VMs</span>
+<span class="c"># Docker vulnerable targets</span>
+docker run <span class="k">-d --name</span> metasploitable \
+  -p 21:21 -p 22:22 -p 80:80 \
+  -p 445:445 -p 8080:8080 \
+  tleemcjr/metasploitable2
+
+<span class="c"># VulnHub / HackTheBox IPs</span>
+<span class="c"># Scan your local subnet</span>
+nmap <span class="k">-sS -sV -sC -A -T4</span> \
+  --script vuln \
+  192.168.56.0/24
+
+<span class="c"># Compare services found</span>
+<span class="c"># Identify misconfigurations</span>
+<span class="c"># Document in your report template</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Lab 2 — Docker Network Scanning</div>
+      <div class="code"><span class="c"># List docker networks</span>
+docker network ls
+docker network inspect bridge
+
+<span class="c"># Scan docker subnet</span>
+<span class="c"># Default: 172.17.0.0/16</span>
+nmap <span class="k">-sn</span> 172.17.0.0/24
+
+<span class="c"># Discover exposed services</span>
+nmap <span class="k">-sS -sV -p-</span> 172.17.0.0/24
+
+<span class="c"># Find containers by service</span>
+nmap <span class="k">--script</span> docker-version \
+  172.17.0.0/24
+
+<span class="c"># Check Docker API exposure</span>
+nmap <span class="k">-p 2375,2376</span> \
+  --script http-headers 172.17.0.1</div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Lab 3 — Kubernetes Node Discovery</div>
+      <div class="code"><span class="c"># K8s control plane ports</span>
+nmap <span class="k">-p 6443,8080,10250,10251</span> \
+  <span class="k">10259,2379,2380</span> 10.0.0.0/24
+
+<span class="c"># Kubelet API (unauthenticated check)</span>
+nmap <span class="k">-p 10250</span> \
+  --script http-get-requests 10.0.0.0/24
+
+<span class="c"># etcd exposure (no auth = critical)</span>
+nmap <span class="k">-p 2379,2380</span> \
+  --script http-title 10.0.0.0/24
+
+<span class="c"># NodePort range scan</span>
+nmap <span class="k">-p 30000-32767</span> 10.0.0.0/24
+
+<span class="c"># K8s dashboard check</span>
+nmap <span class="k">-p 8001,8443</span> \
+  --script http-title 10.0.0.0/24</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Lab 4 — Cloud Subnet Enumeration</div>
+      <div class="code"><span class="c"># AWS metadata detection</span>
+nmap <span class="k">-p 80</span> --script http-title \
+  --script-args http.path='/latest/meta-data' \
+  169.254.169.254
+
+<span class="c"># Common cloud service ports</span>
+nmap <span class="k">-sS -p</span> 22,80,443,3389,8080,8443 \
+  --open 10.0.0.0/16
+
+<span class="c"># Detect cloud management agents</span>
+nmap <span class="k">-p 1194,500,4500</span> 10.0.0.0/24
+
+<span class="c"># S3-compatible storage check</span>
+nmap <span class="k">-p 9000,9001</span> \
+  --script http-title 10.0.0.0/24
+
+<span class="c"># Azure/GCP metadata endpoints</span>
+nmap <span class="k">-p 80</span> 169.254.169.254
+nmap <span class="k">-p 80</span> metadata.google.internal</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Lab 5 — Enterprise Asset Discovery</div>
+    <div class="code"><span class="c"># Large /8 subnet scan strategy (phased)</span>
+
+<span class="c"># Phase 1: ICMP discovery (fastest)</span>
+nmap <span class="k">-sn -PE --min-rate 5000</span> 10.0.0.0/8 <span class="k">-oG</span> phase1_alive.gnmap &
+
+<span class="c"># Phase 2: Top 20 ports on live hosts</span>
+grep "Up" phase1_alive.gnmap | awk '{print $2}' > alive_hosts.txt
+nmap <span class="k">-sS --top-ports 20 -T4 --min-rate 3000 -iL</span> alive_hosts.txt <span class="k">-oA</span> phase2_top20
+
+<span class="c"># Phase 3: Full port scan on critical assets</span>
+grep "open" phase2_top20.gnmap | grep "445\|3389\|22" | awk '{print $2}' > critical.txt
+nmap <span class="k">-sS -p- -T4 --min-rate 5000 -iL</span> critical.txt <span class="k">-oA</span> phase3_full
+
+<span class="c"># Phase 4: Service enum on all open ports</span>
+nmap <span class="k">-sV -sC --open -iL</span> critical.txt <span class="k">-oA</span> phase4_services</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ROADMAP ═══════════════════ -->
+<div id="tab-roadmap" class="main">
+  <div class="card">
+    <div class="card-title">30-Day Nmap Mastery Roadmap</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--cyan)"></div>Week 1: Foundations</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Week 2: Intermediate</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Week 3: Advanced</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Week 4: Expert</div>
+    </div>
+    <div class="day-grid" id="day-grid"></div>
+    <div class="detail-panel" id="day-detail"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ AUTOMATION ═══════════════════ -->
+<div id="tab-auto" class="main">
+  <div class="card">
+    <div class="card-title">Bash Automation Script — Full Recon Pipeline</div>
+    <div class="code"><span class="f">#!/bin/bash</span>
+<span class="c"># nmap_recon.sh — Automated pentest scanner</span>
+<span class="c"># Usage: ./nmap_recon.sh 10.0.0.0/24 /output/dir</span>
+
+TARGET=<span class="s">"$1"</span>
+OUTPUT=<span class="s">"${2:-./nmap_output}"</span>
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+DIR=<span class="s">"${OUTPUT}/${TIMESTAMP}"</span>
+
+mkdir -p <span class="s">"$DIR"</span>
+echo <span class="s">"[*] Starting scan: $TARGET → $DIR"</span>
+
+<span class="c"># Phase 1: Host discovery</span>
+echo <span class="s">"[*] Phase 1: Host discovery..."</span>
+nmap <span class="k">-sn -T4 --min-rate 2000 -PE -PP -PS22,80,443</span> \
+  <span class="s">"$TARGET"</span> <span class="k">-oG</span> <span class="s">"$DIR/01_alive.gnmap"</span> 2>&1
+
+ALIVE=$(grep "Up" <span class="s">"$DIR/01_alive.gnmap"</span> | awk '{print $2}')
+echo <span class="s">"$ALIVE"</span> > <span class="s">"$DIR/alive_hosts.txt"</span>
+COUNT=$(echo <span class="s">"$ALIVE"</span> | wc -l)
+echo <span class="s">"[+] Found $COUNT alive hosts"</span>
+
+<span class="c"># Phase 2: Port scan</span>
+echo <span class="s">"[*] Phase 2: Full port scan..."</span>
+nmap <span class="k">-sS -p- -T4 --min-rate 5000 --max-retries 2</span> \
+  <span class="k">-iL</span> <span class="s">"$DIR/alive_hosts.txt"</span> \
+  <span class="k">-oA</span> <span class="s">"$DIR/02_ports"</span> 2>&1
+
+<span class="c"># Phase 3: Service detection</span>
+echo <span class="s">"[*] Phase 3: Service enumeration..."</span>
+nmap <span class="k">-sV -sC --open -iL</span> <span class="s">"$DIR/alive_hosts.txt"</span> \
+  <span class="k">-oA</span> <span class="s">"$DIR/03_services"</span> 2>&1
+
+<span class="c"># Phase 4: Vuln scan</span>
+echo <span class="s">"[*] Phase 4: Vulnerability scan..."</span>
+nmap <span class="k">--script vuln --open -iL</span> <span class="s">"$DIR/alive_hosts.txt"</span> \
+  <span class="k">-oA</span> <span class="s">"$DIR/04_vulns"</span> 2>&1
+
+<span class="c"># Generate summary</span>
+echo <span class="s">"[+] Scan complete. Summary:"</span>
+grep "open" <span class="s">"$DIR/02_ports.gnmap"</span> | \
+  awk '{print $2, $5}' | sort | uniq -c | sort -rn | head -20
+
+echo <span class="s">"[+] Reports saved to: $DIR"</span></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Python Automation — Nmap with python-nmap</div>
+    <div class="code"><span class="f">#!/usr/bin/env python3</span>
+<span class="c"># nmap_auto.py — Python-based scan orchestrator</span>
+<span class="k">import</span> nmap, json, sys, datetime
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="k">class</span> <span class="n">NmapScanner</span>:
+    <span class="k">def</span> __init__(self, target, output_dir=<span class="s">"./results"</span>):
+        self.nm = nmap.PortScanner()
+        self.target = target
+        self.output = Path(output_dir)
+        self.output.mkdir(exist_ok=True)
+        self.findings = []
+
+    <span class="k">def</span> <span class="n">discover_hosts</span>(self):
+        print(<span class="s">f"[*] Discovering hosts: {self.target}"</span>)
+        self.nm.scan(hosts=self.target, arguments=<span class="s">"-sn -T4"</span>)
+        <span class="k">return</span> [h <span class="k">for</span> h <span class="k">in</span> self.nm.all_hosts()
+                <span class="k">if</span> self.nm[h].state() == <span class="s">'up'</span>]
+
+    <span class="k">def</span> <span class="n">port_scan</span>(self, hosts):
+        print(<span class="s">f"[*] Scanning {len(hosts)} hosts..."</span>)
+        targets = <span class="s">" "</span>.join(hosts)
+        self.nm.scan(hosts=targets,
+                     arguments=<span class="s">"-sS -sV -sC --open -T4 -p 1-65535"</span>)
+
+        <span class="k">for</span> host <span class="k">in</span> self.nm.all_hosts():
+            <span class="k">for</span> proto <span class="k">in</span> self.nm[host].all_protocols():
+                ports = self.nm[host][proto].keys()
+                <span class="k">for</span> port <span class="k">in</span> ports:
+                    info = self.nm[host][proto][port]
+                    <span class="k">if</span> info[<span class="s">'state'</span>] == <span class="s">'open'</span>:
+                        self.findings.append({
+                            <span class="s">'host'</span>: host,
+                            <span class="s">'port'</span>: port,
+                            <span class="s">'proto'</span>: proto,
+                            <span class="s">'service'</span>: info.get(<span class="s">'name'</span>, <span class="s">''</span>),
+                            <span class="s">'version'</span>: info.get(<span class="s">'product'</span>, <span class="s">''</span>),
+                            <span class="s">'script'</span>: info.get(<span class="s">'script'</span>, {})
+                        })
+
+    <span class="k">def</span> <span class="n">report</span>(self):
+        ts = datetime.datetime.now().strftime(<span class="s">"%Y%m%d_%H%M%S"</span>)
+        out = self.output / <span class="s">f"scan_{ts}.json"</span>
+        <span class="k">with</span> open(out, <span class="s">'w'</span>) <span class="k">as</span> f:
+            json.dump(self.findings, f, indent=2)
+        print(<span class="s">f"[+] {len(self.findings)} open ports found"</span>)
+        print(<span class="s">f"[+] Report: {out}"</span>)
+        <span class="k">return</span> self.findings
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    scanner = NmapScanner(sys.argv[1])
+    hosts = scanner.discover_hosts()
+    scanner.port_scan(hosts)
+    scanner.report()</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">DevSecOps Integration</div>
+    <div class="grid2">
+      <div>
+        <div class="sec-header">GitHub Actions CI/CD Scan</div>
+        <div class="code">name: Network Security Scan
+on: [push, pull_request]
+jobs:
+  nmap-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Nmap
+        run: sudo apt-get install -y nmap
+      - name: Scan staging env
+        run: |
+          nmap -sS -sV --open \
+            --script vuln \
+            ${{ secrets.STAGING_IP }} \
+            -oX results.xml
+      - name: Parse results
+        run: python3 parse_nmap.py results.xml
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nmap-results
+          path: results.xml</div>
+      </div>
+      <div>
+        <div class="sec-header">Nmap XML Parser (Python)</div>
+        <div class="code"><span class="k">import</span> xml.etree.ElementTree <span class="k">as</span> ET
+
+<span class="k">def</span> parse_nmap(xml_file):
+    tree = ET.parse(xml_file)
+    root = tree.getroot()
+    findings = []
+    <span class="k">for</span> host <span class="k">in</span> root.findall(<span class="s">'host'</span>):
+        ip = host.find(
+          <span class="s">'address[@addrtype="ipv4"]'</span>
+        ).get(<span class="s">'addr'</span>)
+        <span class="k">for</span> port <span class="k">in</span> host.findall(
+          <span class="s">'.//port'</span>):
+          state = port.find(<span class="s">'state'</span>)
+          <span class="k">if</span> state.get(<span class="s">'state'</span>) == <span class="s">'open'</span>:
+            svc = port.find(<span class="s">'service'</span>)
+            findings.append({
+              <span class="s">'ip'</span>: ip,
+              <span class="s">'port'</span>: port.get(<span class="s">'portid'</span>),
+              <span class="s">'service'</span>: svc.get(<span class="s">'name'</span>)
+            })
+    <span class="k">return</span> findings</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MITRE ATT&CK ═══════════════════ -->
+<div id="tab-mitre" class="main">
+  <div class="card">
+    <div class="card-title">MITRE ATT&CK Mapping</div>
+    <table class="mitre-table">
+      <tr><th>Technique ID</th><th>Name</th><th>Nmap Method</th><th>Tactic</th><th>Detection</th></tr>
+      <tr>
+        <td><span class="tag tag-red">T1046</span></td>
+        <td>Network Service Discovery</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">-sS -sV -p-</span></td>
+        <td><span class="tag tag-amber">Discovery</span></td>
+        <td>High port count in short window</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">T1018</span></td>
+        <td>Remote System Discovery</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">-sn -PR -PE</span></td>
+        <td><span class="tag tag-amber">Discovery</span></td>
+        <td>ICMP sweep to multiple hosts</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">T1040</span></td>
+        <td>Network Sniffing</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">--script sniffer-detect</span></td>
+        <td><span class="tag tag-amber">Discovery</span></td>
+        <td>Promiscuous mode NICs</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">T1595</span></td>
+        <td>Active Scanning</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">-sS --top-ports</span></td>
+        <td><span class="tag tag-purple">Recon</span></td>
+        <td>External scan signatures</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">T1595.001</span></td>
+        <td>Scanning IP Blocks</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">nmap CIDR ranges</span></td>
+        <td><span class="tag tag-purple">Recon</span></td>
+        <td>NetFlow analysis</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">T1595.002</span></td>
+        <td>Vulnerability Scanning</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">--script vuln</span></td>
+        <td><span class="tag tag-purple">Recon</span></td>
+        <td>vuln script fingerprints</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">T1590</span></td>
+        <td>Gather Victim Network Info</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">-O --traceroute</span></td>
+        <td><span class="tag tag-purple">Recon</span></td>
+        <td>OS fingerprint probes</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">T1135</span></td>
+        <td>Network Share Discovery</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">smb-enum-shares</span></td>
+        <td><span class="tag tag-amber">Discovery</span></td>
+        <td>SMB session logs</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">T1087</span></td>
+        <td>Account Discovery</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">smb-enum-users, krb5</span></td>
+        <td><span class="tag tag-amber">Discovery</span></td>
+        <td>LDAP query volume spikes</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-red">T1110</span></td>
+        <td>Brute Force</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">--script ssh-brute</span></td>
+        <td><span class="tag tag-red">Credential Access</span></td>
+        <td>Auth failure rate alerts</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-purple">T1557</span></td>
+        <td>Man-in-the-Middle</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">arp-scan scripts</span></td>
+        <td><span class="tag tag-red">Collection</span></td>
+        <td>ARP table anomalies</td>
+      </tr>
+      <tr>
+        <td><span class="tag tag-amber">T1210</span></td>
+        <td>Exploit Public-Facing App</td>
+        <td><span style="font-family:monospace;font-size:11px;color:var(--cyan)">smb-vuln-ms17-010</span></td>
+        <td><span class="tag tag-red">Initial Access</span></td>
+        <td>IDS vuln exploit sigs</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">MITRE D3FEND Countermeasures</div>
+    <div class="grid3">
+      <div style="background:var(--bg3);padding:10px;border-radius:6px;border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:1px;margin-bottom:6px">HARDEN</div>
+        <div style="font-size:11px;line-height:1.6;color:var(--text)">Disable unused ports/services<br>Network segmentation<br>Zero-trust architecture<br>Service account least priv</div>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:6px;border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:6px">DETECT</div>
+        <div style="font-size:11px;line-height:1.6;color:var(--text)">SIEM correlation rules<br>NetFlow baseline anomaly<br>Honeypots / Canary tokens<br>IDS/IPS signatures</div>
+      </div>
+      <div style="background:var(--bg3);padding:10px;border-radius:6px;border:1px solid var(--border)">
+        <div style="font-size:11px;font-weight:700;color:var(--amber);letter-spacing:1px;margin-bottom:6px">RESPOND</div>
+        <div style="font-size:11px;line-height:1.6;color:var(--text)">Auto-block scanning IPs<br>Rate-limit firewall rules<br>Incident response playbook<br>Threat intel integration</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const days = [
+  {d:1,w:1,t:"TCP/IP Basics",lab:"Study TCP flags, port states. Wireshark capture of a SYN handshake.",cmd:"nmap -sT 127.0.0.1"},
+  {d:2,w:1,t:"First Scan",lab:"Run your first nmap scan. Explore output formats (-oN -oX -oG).",cmd:"nmap -sS 192.168.1.1"},
+  {d:3,w:1,t:"Host Discovery",lab:"Sweep your home network. Compare -sn vs -Pn results.",cmd:"nmap -sn 192.168.1.0/24"},
+  {d:4,w:1,t:"Port Ranges",lab:"Scan different port ranges. Document what you find.",cmd:"nmap -p 1-1024 192.168.1.1"},
+  {d:5,w:1,t:"SYN vs Connect",lab:"Run -sS and -sT. Capture both in Wireshark. Note differences.",cmd:"nmap -sS vs -sT"},
+  {d:6,w:1,t:"Output Mastery",lab:"Practice -oA, parse XML with Python. Build your first report.",cmd:"nmap -oA scan_$(date)"},
+  {d:7,w:1,t:"Week 1 Lab",lab:"Scan Metasploitable2. Document all open ports and services found.",cmd:"nmap -A metasploitable_ip"},
+  {d:8,w:2,t:"Timing Deep Dive",lab:"Run T0 through T5. Measure speed and IDS alert delta.",cmd:"nmap -T0 to -T5"},
+  {d:9,w:2,t:"UDP Scanning",lab:"Scan for DNS, SNMP, NTP. Note the slowness and workarounds.",cmd:"nmap -sU -p 53,161"},
+  {d:10,w:2,t:"OS Detection",lab:"Fingerprint live hosts. Research TTL and window size signatures.",cmd:"nmap -O --osscan-guess"},
+  {d:11,w:2,t:"Version Detection",lab:"Use -sV with varying intensity levels. Build service inventory.",cmd:"nmap -sV --version-all"},
+  {d:12,w:2,t:"NSE Basics",lab:"Run default scripts. Explore /usr/share/nmap/scripts/.",cmd:"nmap -sC 192.168.1.1"},
+  {d:13,w:2,t:"SMB Enum",lab:"Enumerate SMB shares, users, OS on a Windows target.",cmd:"nmap --script smb-enum-*"},
+  {d:14,w:2,t:"Week 2 Lab",lab:"Full -A scan on a network range. Write a professional report.",cmd:"nmap -A 192.168.1.0/24"},
+  {d:15,w:3,t:"Firewall Mapping",lab:"Use ACK scan to map firewall rules. Document filtered ports.",cmd:"nmap -sA 10.0.0.1"},
+  {d:16,w:3,t:"Evasion Techniques",lab:"Test fragmentation and decoy scans against a test firewall.",cmd:"nmap -f -D RND:5"},
+  {d:17,w:3,t:"Source Port Games",lab:"Scan using source port 53 and 80. Note FW bypass results.",cmd:"nmap -g 53 --source-port"},
+  {d:18,w:3,t:"Vuln Scanning",lab:"Run --script vuln on Metasploitable. Identify CVEs.",cmd:"nmap --script vuln"},
+  {d:19,w:3,t:"AD Enumeration",lab:"Set up a Windows AD lab. Enumerate DCs, users, shares.",cmd:"nmap -p 88,389,445"},
+  {d:20,w:3,t:"SNMP Attack",lab:"Brute community strings. Extract system MIBs.",cmd:"nmap -sU --script snmp-brute"},
+  {d:21,w:3,t:"Week 3 Lab",lab:"Full red team scenario: phishing → foothold → internal sweep → DC hunt",cmd:"Full attack chain"},
+  {d:22,w:4,t:"Bash Scripting",lab:"Build the full recon pipeline bash script from scratch.",cmd:"./nmap_recon.sh target"},
+  {d:23,w:4,t:"Python Nmap",lab:"Build python-nmap scanner with JSON reporting.",cmd:"python3 nmap_auto.py"},
+  {d:24,w:4,t:"K8s Scanning",lab:"Spin up minikube. Scan all K8s ports. Check for exposed APIs.",cmd:"nmap -p 6443,10250"},
+  {d:25,w:4,t:"Docker Networks",lab:"Map docker bridge network. Find exposed container services.",cmd:"nmap 172.17.0.0/24"},
+  {d:26,w:4,t:"SIEM Detection",lab:"Trigger scan, write Splunk/ELK rule to detect it, tune threshold.",cmd:"SIEM correlation"},
+  {d:27,w:4,t:"CI/CD Integration",lab:"Add nmap scan to GitHub Actions pipeline. Parse XML output.",cmd:"GH Actions nmap"},
+  {d:28,w:4,t:"Performance Tuning",lab:"Benchmark --min-rate values. Find max rate without packet loss.",cmd:"nmap --min-rate bench"},
+  {d:29,w:4,t:"Report Writing",lab:"Write a full pentest report from week's findings. CVSS scoring.",cmd:"CVSS v3.1 calc"},
+  {d:30,w:4,t:"Full Red Team",lab:"Complete simulated engagement: recon → scan → vuln → report. Defend with blue team SIEM.",cmd:"Full engagement"}
+];
+
+const weekColors = {1:'week1',2:'week2',3:'week3',4:'week4'};
+const grid = document.getElementById('day-grid');
+const detail = document.getElementById('day-detail');
+let selected = null;
+
+days.forEach(day => {
+  const cell = document.createElement('div');
+  cell.className = `day-cell ${weekColors[day.w]}`;
+  cell.innerHTML = `<div class="day-num">DAY ${day.d}</div><div class="day-topic">${day.t}</div>`;
+  cell.onclick = () => {
+    if (selected === day.d) {
+      selected = null;
+      detail.className = 'detail-panel';
+      return;
+    }
+    selected = day.d;
+    detail.className = 'detail-panel open';
+    detail.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--green)">DAY ${day.d}</span>
+        <span style="font-size:15px;font-weight:600;color:var(--text)">${day.t}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text);margin-bottom:8px;line-height:1.6"><b style="color:var(--muted)">LAB:</b> ${day.lab}</div>
+      <div style="background:#060a0e;border:1px solid rgba(0,255,136,0.08);border-left:3px solid var(--green);border-radius:4px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8d5b5">${day.cmd} <span class="cursor"></span></div>
+    `;
+  };
+  grid.appendChild(cell);
+});
+
+function show(tab) {
+  document.querySelectorAll('.main').forEach(m => m.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+</body>
+</html>

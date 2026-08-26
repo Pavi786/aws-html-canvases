@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Linux Advanced Scenario-Based Investigation Commands</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --panel2:#1c232c; --border:#30363d;
+    --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
+    --safe:#3fb950; --caution:#d29922; --destructive:#f85149;
+    --safe-bg:#0f2818; --caution-bg:#2b2210; --destructive-bg:#2d1214;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; line-height:1.5;}
+  header{position:sticky; top:0; z-index:10; background:var(--panel); border-bottom:1px solid var(--border); padding:14px 20px;}
+  header h1{margin:0 0 2px; font-size:18px; font-weight:600;}
+  header p{margin:0; color:var(--muted); font-size:13px;}
+  .controls{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; align-items:center;}
+  input#search{flex:1; min-width:180px; background:var(--panel2); border:1px solid var(--border);
+    color:var(--text); padding:8px 12px; border-radius:6px; font-size:13px;}
+  .tagbtn{border:1px solid var(--border); background:var(--panel2); color:var(--muted);
+    padding:6px 10px; border-radius:6px; font-size:12px; cursor:pointer;}
+  .tagbtn.active[data-tag="SAFE"]{background:var(--safe-bg); color:var(--safe); border-color:var(--safe);}
+  .tagbtn.active[data-tag="CAUTION"]{background:var(--caution-bg); color:var(--caution); border-color:var(--caution);}
+  .tagbtn.active[data-tag="DESTRUCTIVE"]{background:var(--destructive-bg); color:var(--destructive); border-color:var(--destructive);}
+  .tagbtn.active[data-tag="ALL"]{background:#1f3554; color:var(--accent); border-color:var(--accent);}
+  main{padding:16px 20px 60px; max-width:1000px; margin:0 auto;}
+  .domain{border:1px solid var(--border); border-radius:8px; margin-bottom:12px; background:var(--panel); overflow:hidden;}
+  .domain-head{display:flex; justify-content:space-between; align-items:center; padding:14px 16px; cursor:pointer; user-select:none;}
+  .domain-head:hover{background:var(--panel2);}
+  .domain-head h2{margin:0; font-size:15px; font-weight:600;}
+  .domain-head .count{color:var(--muted); font-size:12px;}
+  .chevron{transition:transform .15s; color:var(--muted);}
+  .domain.open .chevron{transform:rotate(90deg);}
+  .domain-body{display:none; padding:0 16px 12px;}
+  .domain.open .domain-body{display:block;}
+  .group{margin-top:10px;}
+  .group h3{font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); margin:0 0 6px; font-weight:600;}
+  ul.cmds{list-style:none; margin:0; padding:0;}
+  li.cmd{display:flex; gap:10px; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  li.cmd:last-child{border-bottom:none;}
+  code{background:var(--panel2); border:1px solid var(--border); color:var(--accent);
+    padding:2px 6px; border-radius:4px; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-size:12px; word-break:break-all; flex-shrink:0; max-width:56%;}
+  .desc{color:var(--text); flex:1;}
+  .badge{font-size:10px; font-weight:700; padding:2px 6px; border-radius:4px; flex-shrink:0; letter-spacing:.03em; align-self:center;}
+  .badge.SAFE{background:var(--safe-bg); color:var(--safe);}
+  .badge.CAUTION{background:var(--caution-bg); color:var(--caution);}
+  .badge.DESTRUCTIVE{background:var(--destructive-bg); color:var(--destructive);}
+  footer{max-width:1000px; margin:0 auto; padding:0 20px 40px; color:var(--muted); font-size:12px;}
+  footer .note{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin:10px 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Linux advanced scenario-based investigation commands</h1>
+  <p id="hdrcount">loading...</p>
+  <div class="controls">
+    <input type="text" id="search" placeholder="Search, e.g. cron, drop-in, timeline, kernel module...">
+    <button class="tagbtn active" data-tag="ALL">All</button>
+    <button class="tagbtn" data-tag="SAFE">Safe</button>
+    <button class="tagbtn" data-tag="CAUTION">Caution</button>
+    <button class="tagbtn" data-tag="DESTRUCTIVE">Destructive</button>
+  </div>
+</header>
+
+<main id="main"></main>
+
+<footer>
+  <div class="note">This tier is scenario-driven: real usernames, real paths, real drop-in directories, combined pipelines — the kind of one-liners you'd actually type mid-incident, not generic templates. Swap <code>username</code>/<code>host</code>/<code>service</code> for your real values.</div>
+</footer>
+
+<script>
+const DATA = [
+{
+  domain: "1. Targeted user forensics (specific account under suspicion)",
+  groups: [
+    {name:"Everything about one user, fast", items:[
+      ["find /home/kadhir -user kadhir -mtime -7 -ls 2>/dev/null","every file kadhir touched in the last 7 days","SAFE"],
+      ["find /home/kadhir -user kadhir -mmin -60 -ls 2>/dev/null","files kadhir touched in the last hour","SAFE"],
+      ["find / -user kadhir -newer /etc/passwd 2>/dev/null","files owned by kadhir newer than the last passwd edit","SAFE"],
+      ["grep -i kadhir /var/log/auth.log","every auth log line mentioning this user","SAFE"],
+      ["grep -i kadhir /var/log/secure","same, RHEL/CentOS path","SAFE"],
+      ["journalctl _UID=$(id -u kadhir)","every journal entry emitted by this user's UID","SAFE"],
+      ["last kadhir","login history for just this account","SAFE"],
+      ["lastb kadhir","failed login attempts for just this account","SAFE"],
+      ["ps -u kadhir -o pid,etime,cmd","everything kadhir is currently running, with runtime","SAFE"],
+      ["lsof -u kadhir","every open file/socket held by this user","SAFE"],
+      ["crontab -u kadhir -l","this user's personal cron jobs","SAFE"],
+      ["sudo -l -U kadhir","exactly what this user can sudo as","SAFE"],
+      ["chage -l kadhir","password aging/expiry state for this account","SAFE"],
+      ["id kadhir","confirm current uid/gid/group membership","SAFE"],
+      ["getent shadow kadhir","confirm the account isn't locked (! or * prefix)","SAFE"]
+    ]},
+    {name:"Home directory / dotfile inspection", items:[
+      ["cat /home/kadhir/.bash_history","raw shell history for the account (if not cleared)","SAFE"],
+      ["cat /home/kadhir/.bashrc","startup shell config — check for injected aliases/exports","SAFE"],
+      ["cat /home/kadhir/.bash_profile","login shell config, another injection point","SAFE"],
+      ["cat /home/kadhir/.profile","POSIX-shell login config, same purpose","SAFE"],
+      ["stat /home/kadhir/.bash_history","check mtime — was history file recently truncated/edited","SAFE"],
+      ["ls -la /home/kadhir/.ssh/","keys and config this account trusts for outbound SSH","SAFE"],
+      ["cat /home/kadhir/.ssh/authorized_keys","who can log in AS this account","SAFE"],
+      ["cat /home/kadhir/.ssh/known_hosts","what hosts this account has previously connected to","SAFE"],
+      ["find /home/kadhir -name \".*\" -type f -mtime -3 2>/dev/null","dotfiles changed in the last 3 days","SAFE"],
+      ["lsattr /home/kadhir/.bash_history","check if history file was made immutable to block logging","SAFE"],
+      ["readlink -f /home/kadhir/.bash_history","confirm it's not symlinked to /dev/null (classic history evasion)","SAFE"]
+    ]},
+    {name:"Account modification just occurred — verify", items:[
+      ["sudo usermod -U root","unlock the root account's password (rare, break-glass only)","DESTRUCTIVE"],
+      ["sudo usermod -L root","re-lock root's password after emergency use","CAUTION"],
+      ["grep root /etc/group","confirm exactly which groups have root in them","SAFE"],
+      ["awk -F: '$1==\"root\"{print}' /etc/passwd","confirm root's shell and home haven't been altered","SAFE"],
+      ["ausearch -m USER_ACCT -ua kadhir","auditd: account-management events tied to this user","SAFE"],
+      ["grep -i \"useradd\\|usermod\\|userdel\" /var/log/auth.log","every account-modification command that ran on this box","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "2. Config drop-in directory investigation (the *.d pattern)",
+  groups: [
+    {name:"SSH drop-ins", items:[
+      ["cat /etc/ssh/sshd_config.d/*.conf","every SSH override file, concatenated — this is where hardening scripts hide changes","SAFE"],
+      ["ls -la /etc/ssh/sshd_config.d/","who dropped a file here and when","SAFE"],
+      ["sshd -T | diff - <(sshd -T -f /etc/ssh/sshd_config)","spot exactly what a drop-in changed vs the base config","SAFE"]
+    ]},
+    {name:"sudo drop-ins", items:[
+      ["cat /etc/sudoers.d/*","every sudo override — the most common privilege-escalation injection point","SAFE"],
+      ["ls -la /etc/sudoers.d/ | sort -k6,7","sudoers overrides sorted by modification date, newest suspicious first","SAFE"],
+      ["find /etc/sudoers.d/ -newer /etc/passwd 2>/dev/null","sudo overrides added after the last account change","SAFE"]
+    ]},
+    {name:"systemd drop-ins", items:[
+      ["systemctl cat SERVICE","full effective unit file including every drop-in merged in","SAFE"],
+      ["ls -la /etc/systemd/system/SERVICE.service.d/","override snippets for one specific service","SAFE"],
+      ["find /etc/systemd/system -name \"*.conf\" -newer /etc/passwd 2>/dev/null","systemd overrides added recently","SAFE"],
+      ["systemctl list-unit-files --state=enabled","every service set to auto-start — hunt for persistence","SAFE"]
+    ]},
+    {name:"Other common *.d locations", items:[
+      ["ls /etc/cron.d/","system-wide scheduled task drop-ins (classic persistence spot)","SAFE"],
+      ["cat /etc/cron.d/* 2>/dev/null","contents of every cron.d file at once","SAFE"],
+      ["ls /etc/profile.d/","shell-startup scripts run for every login user","SAFE"],
+      ["cat /etc/profile.d/*.sh 2>/dev/null","contents of every profile.d startup script","SAFE"],
+      ["ls /etc/modprobe.d/","kernel module load overrides/blacklists","SAFE"],
+      ["ls /etc/logrotate.d/","per-service log rotation policies","SAFE"],
+      ["ls /etc/NetworkManager/conf.d/ 2>/dev/null","network manager overrides, if present","SAFE"],
+      ["ls /etc/rsyslog.d/","syslog routing overrides — check nothing is being silently dropped","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "3. Targeted log correlation (per-user, per-IP, per-service)",
+  groups: [
+    {name:"Per-user log slicing", items:[
+      ["grep -i santhosh /var/log/auth.log","every auth event mentioning this exact user","SAFE"],
+      ["grep -i santhosh /var/log/auth.log | grep -i fail","only the failed attempts for this user","SAFE"],
+      ["zgrep -i santhosh /var/log/auth.log.*.gz","same search across rotated/compressed logs","SAFE"],
+      ["journalctl _COMM=sshd | grep -i santhosh","journal-native equivalent of the auth.log grep","SAFE"],
+      ["awk '/santhosh/{print $1,$2,$3}' /var/log/auth.log | uniq -c","timestamps this user appears, deduplicated with counts","SAFE"]
+    ]},
+    {name:"Per-IP correlation", items:[
+      ["grep '203.0.113.7' /var/log/auth.log","every log line touching one suspicious source IP","SAFE"],
+      ["grep '203.0.113.7' /var/log/nginx/access.log","did this IP hit the web layer too","SAFE"],
+      ["awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -20","top 20 source IPs by request volume","SAFE"],
+      ["grep '203.0.113.7' /var/log/auth.log | grep -oP '(?<=user=)\\w+' | sort -u","which usernames this IP attempted","SAFE"]
+    ]},
+    {name:"Timeline correlation across sources", items:[
+      ["journalctl --since \"2026-08-20 14:00\" --until \"2026-08-20 15:00\"","every journal entry from every service in a 1-hour incident window","SAFE"],
+      ["journalctl --since \"2026-08-20 14:00\" --until \"2026-08-20 15:00\" -u sshd -u sudo -u nginx","same window, scoped to just the services you suspect","SAFE"],
+      ["ls -la --time-style=full-iso /var/log/ | sort -k6,7","which log files themselves were modified around the incident","SAFE"],
+      ["find /var/log -newermt \"2026-08-20 14:00\" ! -newermt \"2026-08-20 15:00\"","log files touched inside the incident window","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "4. File & timeline forensics (mtime/ctime/atime combos)",
+  groups: [
+    {name:"Recently changed anything, system-wide", items:[
+      ["find / -xdev -mmin -30 -type f 2>/dev/null","files modified in the last 30 minutes, one filesystem","SAFE"],
+      ["find / -xdev -cmin -30 -type f 2>/dev/null","files whose metadata (perms/owner) changed in last 30 min — catches chmod/chown even without content change","SAFE"],
+      ["find /etc -mtime -1 -type f 2>/dev/null","config files changed in the last 24 hours","SAFE"],
+      ["find / -xdev -newer /var/log/wtmp -type f 2>/dev/null","files newer than the last recorded login — narrows to 'since someone logged in'","SAFE"],
+      ["find / -xdev -type f \\( -newermt \"2026-08-20\" -a ! -newermt \"2026-08-21\" \\) 2>/dev/null","files changed on one specific calendar day","SAFE"]
+    ]},
+    {name:"Ownership / permission drift specific to one account", items:[
+      ["find /home/santhosh -user santhosh -mtime -7 -ls 2>/dev/null","this account's own files touched in the last week","SAFE"],
+      ["find / -user santhosh -perm -4000 2>/dev/null","SUID binaries owned by this specific user — major red flag","SAFE"],
+      ["find / -group santhosh 2>/dev/null","every file owned by this user's primary group","SAFE"],
+      ["find / -not -user root -a -not -user santhosh -a -path \"/home/santhosh/*\" 2>/dev/null","files inside this user's home NOT owned by them or root — planted files","SAFE"]
+    ]},
+    {name:"Hidden / disguised files", items:[
+      ["find / -xdev -name \".*\" -type f -mtime -3 2>/dev/null","recently modified dotfiles anywhere on the filesystem","SAFE"],
+      ["find /tmp /var/tmp /dev/shm -type f 2>/dev/null","anything sitting in world-writable temp/shm directories","SAFE"],
+      ["find / -xdev -name \" \" -o -name \"...\" -o -name \"..\\ \" 2>/dev/null","classic space/dot-disguised filenames used to hide in ls output","SAFE"],
+      ["find / -xdev -type f -exec file {} \\; 2>/dev/null | grep -i elf | grep -v '/usr/\\|/bin/\\|/sbin/'","binaries living outside normal system paths","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "5. Cron & scheduled task investigation",
+  groups: [
+    {name:"Enumerate every schedule on the box", items:[
+      ["crontab -l","current user's crontab","SAFE"],
+      ["crontab -l -u kadhir 2>/dev/null || echo none","confirm whether this account has any personal cron at all","SAFE"],
+      ["for u in $(cut -f1 -d: /etc/passwd); do echo \"== $u ==\"; crontab -u $u -l 2>/dev/null; done","every user's crontab in one pass","SAFE"],
+      ["cat /etc/crontab","system-wide crontab","SAFE"],
+      ["ls -la /var/spool/cron/crontabs/","raw crontab spool files with owner/mtime","SAFE"],
+      ["systemctl list-timers --all","systemd timer units (the modern cron replacement)","SAFE"],
+      ["systemctl cat TIMERNAME.timer","full definition of one specific timer","SAFE"],
+      ["find /etc/cron.hourly /etc/cron.daily /etc/cron.weekly /etc/cron.monthly -type f -ls","every script in the periodic run-parts directories","SAFE"]
+    ]},
+    {name:"Suspicious schedule patterns", items:[
+      ["grep -rE '(curl|wget|nc |bash -i|/dev/tcp)' /etc/cron* /var/spool/cron 2>/dev/null","cron entries that reach out to the network or open a shell","SAFE"],
+      ["find /etc/cron.d /etc/cron.daily -newer /etc/passwd 2>/dev/null","scheduled jobs added after the last account change","SAFE"],
+      ["at -l","pending one-shot 'at' jobs (rarer persistence mechanism)","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "6. Kernel module & driver investigation",
+  groups: [
+    {name:"What's loaded and why", items:[
+      ["lsmod","currently loaded kernel modules","SAFE"],
+      ["lsmod | sort","same, alphabetized for easier diffing against a known-good list","SAFE"],
+      ["modinfo MODULENAME","details, source, and signature status for one module","SAFE"],
+      ["cat /proc/modules","raw kernel module table with refcount and dependency info","SAFE"],
+      ["find /lib/modules/$(uname -r) -newer /etc/passwd 2>/dev/null","module files added after the last account change","SAFE"],
+      ["dmesg | grep -i \"module verification failed\"","kernel refused an unsigned/tampered module — serious finding","SAFE"],
+      ["cat /sys/module/MODULENAME/taint","whether loading this module tainted the kernel","SAFE"]
+    ]},
+    {name:"Module control", items:[
+      ["modprobe -r MODULENAME","unload a module (fails if in use)","CAUTION"],
+      ["rmmod MODULENAME","force unload a module","DESTRUCTIVE"],
+      ["cat /etc/modprobe.d/*.conf","module load overrides and blacklists","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "7. Container & Kubernetes targeted troubleshooting",
+  groups: [
+    {name:"One specific container, deep dive", items:[
+      ["docker inspect CONTAINER --format '{{.State.Pid}}'","host PID of a container's init process — bridges docker view to /proc view","SAFE"],
+      ["nsenter -t $(docker inspect CONTAINER --format '{{.State.Pid}}') -n ss -tlnp","inspect a container's network namespace from the host, no exec needed","SAFE"],
+      ["docker logs --since 30m CONTAINER","last 30 minutes of a specific container's logs","SAFE"],
+      ["docker exec CONTAINER cat /etc/resolv.conf","confirm what DNS the container itself is actually using","SAFE"],
+      ["docker top CONTAINER","processes running inside the container, from the host's view","SAFE"],
+      ["docker diff CONTAINER","every file changed vs the image's original filesystem","SAFE"]
+    ]},
+    {name:"Kubernetes pod-level", items:[
+      ["kubectl get pod PODNAME -o yaml","full rendered pod spec including injected env/volumes","SAFE"],
+      ["kubectl describe pod PODNAME","events, restarts, and scheduling decisions for one pod","SAFE"],
+      ["kubectl logs PODNAME -c CONTAINERNAME --previous","logs from the crashed instance before the current restart","SAFE"],
+      ["kubectl exec PODNAME -- printenv","environment variables actually visible inside the container","CAUTION"],
+      ["kubectl get events --sort-by=.lastTimestamp -n NAMESPACE","chronological event feed for a namespace during an incident","SAFE"],
+      ["kubectl top pod -n NAMESPACE","live CPU/memory usage per pod","SAFE"],
+      ["kubectl get pod PODNAME -o jsonpath='{.spec.nodeName}'","which node a pod is actually scheduled on","SAFE"]
+    ]}
+  ]
+},
+{
+  domain: "8. Security & hardening audit one-liners",
+  groups: [
+    {name:"Attack surface enumeration", items:[
+      ["find / -perm -4000 -type f -exec ls -la {} \\; 2>/dev/null","full detail on every SUID binary, not just the path","SAFE"],
+      ["find / -writable -type d 2>/dev/null | grep -v '^/proc'","every world-writable directory on the box","SAFE"],
+      ["find / -perm -0002 -type f 2>/dev/null | grep -v '^/proc'","world-writable files — potential tamper targets","SAFE"],
+      ["awk -F: '($3==0) {print}' /etc/passwd","every account with UID 0 — should only ever be root","SAFE"],
+      ["grep -v '^#' /etc/ssh/sshd_config | grep -v '^$'","effective SSH config with comments/blanks stripped, fast read","SAFE"],
+      ["ss -tlnp | awk '{print $4}' | grep -oE '[0-9]+$' | sort -un","every listening port on the box, sorted","SAFE"],
+      ["systemctl list-units --type=service --state=running","every service actually running right now, not just enabled","SAFE"]
+    ]},
+    {name:"Package / binary integrity", items:[
+      ["rpm -Va 2>/dev/null | grep '^..5'","RHEL: files whose checksum differs from the package manifest","SAFE"],
+      ["debsums -c 2>/dev/null","Debian/Ubuntu: same integrity check against dpkg manifests","SAFE"],
+      ["which -a python3","every python3 binary on PATH — catches a shadowing binary earlier in PATH","SAFE"],
+      ["type -a ls","resolve every definition of a command: alias, function, or binary","SAFE"]
+    ]}
+  ]
+}
+];
+
+const main = document.getElementById('main');
+let activeTag = 'ALL';
+
+function totalCount(){
+  return DATA.reduce((sum,d)=> sum + d.groups.reduce((s,g)=>s+g.items.length,0), 0);
+}
+
+function render(){
+  main.innerHTML = '';
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  DATA.forEach((d, di) => {
+    const domainEl = document.createElement('div');
+    domainEl.className = 'domain' + (di===0 || q ? ' open' : '');
+    let totalShown = 0;
+
+    const head = document.createElement('div');
+    head.className = 'domain-head';
+    head.innerHTML = `<h2>${d.domain}</h2><span class="count"></span><span class="chevron">▶</span>`;
+    head.onclick = () => domainEl.classList.toggle('open');
+    domainEl.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'domain-body';
+
+    d.groups.forEach(g => {
+      const items = g.items.filter(([cmd, desc, tag]) => {
+        const tagMatch = activeTag === 'ALL' || tag === activeTag;
+        const qMatch = !q || cmd.toLowerCase().includes(q) || desc.toLowerCase().includes(q);
+        return tagMatch && qMatch;
+      });
+      if(items.length === 0) return;
+      totalShown += items.length;
+      const groupEl = document.createElement('div');
+      groupEl.className = 'group';
+      groupEl.innerHTML = `<h3>${g.name}</h3>`;
+      const ul = document.createElement('ul');
+      ul.className = 'cmds';
+      items.forEach(([cmd, desc, tag]) => {
+        const li = document.createElement('li');
+        li.className = 'cmd';
+        li.innerHTML = `<code>${cmd}</code><span class="desc">${desc}</span><span class="badge ${tag}">${tag}</span>`;
+        ul.appendChild(li);
+      });
+      groupEl.appendChild(ul);
+      body.appendChild(groupEl);
+    });
+
+    head.querySelector('.count').textContent = totalShown + ' shown';
+    domainEl.appendChild(body);
+    if(totalShown > 0) main.appendChild(domainEl);
+  });
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.querySelectorAll('.tagbtn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tagbtn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTag = btn.dataset.tag;
+    render();
+  });
+});
+
+document.getElementById('hdrcount').textContent = totalCount() + ' scenario-based commands, real usernames/paths · 8 categories · this is the layer above the generic reference';
+render();
+</script>
+</body>
+</html>

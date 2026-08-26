@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS DevOps Universe - 25+ Services Explained</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #FF9900;
+            --bg-dark: #0a0e27;
+            --text-light: #e8eef7;
+            --text-muted: #a0afc0;
+            --border: #1a2444;
+            --card-bg: #0f1629;
+            --highlight: #00d4ff;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-dark) 100%);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: 280px; height: 100vh;
+            background: var(--bg-dark); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 1000; padding: 30px 0;
+        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+        .sidebar-header { padding: 0 20px 30px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 18px; margin-bottom: 5px; letter-spacing: 1px; }
+        .sidebar-header p { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+        .nav-section { margin-bottom: 25px; }
+        .nav-section-title { font-size: 11px; text-transform: uppercase; color: var(--primary); padding: 10px 20px; font-weight: 700; }
+        .nav-item { padding: 8px 20px; cursor: pointer; font-size: 13px; color: var(--text-muted); transition: all 0.3s ease; border-left: 3px solid transparent; }
+        .nav-item:hover { color: var(--text-light); background: rgba(255,153,0,0.05); border-left-color: var(--primary); }
+        .nav-item.active { color: var(--primary); background: rgba(255,153,0,0.1); border-left-color: var(--primary); font-weight: 600; }
+        .main-content { margin-left: 280px; padding: 40px; }
+        .header { margin-bottom: 60px; animation: slideIn 0.8s ease; }
+        .header h1 { font-size: 48px; font-weight: 800; margin-bottom: 10px; background: linear-gradient(135deg, var(--primary) 0%, var(--highlight) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { font-size: 16px; color: var(--text-muted); margin-bottom: 5px; }
+        .stat-row { display: flex; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
+        .stat { font-size: 13px; color: var(--text-muted); }
+        .stat-number { color: var(--primary); font-weight: 700; font-size: 16px; }
+        .category-header { font-size: 32px; font-weight: 800; margin: 60px 0 30px 0; padding-bottom: 15px; border-bottom: 2px solid var(--primary); }
+        .service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 30px; margin-bottom: 40px; }
+        .service-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 30px; cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .service-card:hover { border-color: var(--primary); background: rgba(255,153,0,0.02); transform: translateY(-4px); box-shadow: 0 20px 40px rgba(255,153,0,0.1); }
+        .service-badge { display: inline-block; background: rgba(255,153,0,0.15); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 15px; }
+        .service-name { font-size: 24px; font-weight: 800; margin-bottom: 15px; }
+        .service-layman { background: rgba(0,212,255,0.08); border-left: 3px solid var(--highlight); padding: 15px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; }
+        .service-layman-label { font-size: 10px; text-transform: uppercase; color: var(--highlight); letter-spacing: 1px; font-weight: 700; margin-bottom: 5px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .tab { padding: 10px 15px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid transparent; transition: all 0.3s ease; margin-bottom: -1px; }
+        .tab:hover { color: var(--text-light); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        .tech-detail { background: rgba(15,22,41,0.8); border: 1px solid var(--border); padding: 12px; border-radius: 6px; margin-bottom: 10px; font-size: 12px; font-family: 'Monaco', monospace; color: var(--highlight); overflow-x: auto; }
+        .code-block { background: rgba(0,0,0,0.4); border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin: 10px 0; font-size: 11px; font-family: 'Monaco', monospace; color: var(--highlight); overflow-x: auto; line-height: 1.5; }
+        .metric { display: inline-block; background: rgba(255,153,0,0.1); padding: 6px 12px; border-radius: 4px; font-size: 11px; margin: 3px 3px 3px 0; color: var(--primary); }
+        .comparison-table { width: 100%; font-size: 11px; border-collapse: collapse; margin: 10px 0; }
+        .comparison-table th { background: rgba(255,153,0,0.1); color: var(--primary); padding: 8px; text-align: left; border-bottom: 1px solid var(--border); font-weight: 700; }
+        .comparison-table td { padding: 8px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+        .footer { text-align: center; padding: 40px; border-top: 1px solid var(--border); margin-top: 60px; color: var(--text-muted); font-size: 12px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border); } .main-content { margin-left: 0; padding: 20px; } .service-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>AWS DevOps</h1>
+            <p>25+ Services Explored</p>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Compute</div>
+            <div class="nav-item" onclick="scrollTo('ec2')">EC2</div>
+            <div class="nav-item" onclick="scrollTo('lambda')">Lambda</div>
+            <div class="nav-item" onclick="scrollTo('ecs')">ECS/Fargate</div>
+            <div class="nav-item" onclick="scrollTo('eks')">EKS/Karpenter</div>
+            <div class="nav-item" onclick="scrollTo('autoscaling')">Auto Scaling</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Network</div>
+            <div class="nav-item" onclick="scrollTo('vpc')">VPC</div>
+            <div class="nav-item" onclick="scrollTo('cloudfront')">CloudFront</div>
+            <div class="nav-item" onclick="scrollTo('apigateway')">API Gateway</div>
+            <div class="nav-item" onclick="scrollTo('route53')">Route 53</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Storage & Data</div>
+            <div class="nav-item" onclick="scrollTo('s3')">S3</div>
+            <div class="nav-item" onclick="scrollTo('rds')">RDS/Aurora</div>
+            <div class="nav-item" onclick="scrollTo('dynamodb')">DynamoDB</div>
+            <div class="nav-item" onclick="scrollTo('elasticache')">ElastiCache</div>
+            <div class="nav-item" onclick="scrollTo('ebs')">EBS</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Messaging</div>
+            <div class="nav-item" onclick="scrollTo('sqs')">SQS</div>
+            <div class="nav-item" onclick="scrollTo('sns')">SNS</div>
+            <div class="nav-item" onclick="scrollTo('eventbridge')">EventBridge</div>
+            <div class="nav-item" onclick="scrollTo('kinesis')">Kinesis</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">CI/CD & IaC</div>
+            <div class="nav-item" onclick="scrollTo('codepipeline')">CodePipeline</div>
+            <div class="nav-item" onclick="scrollTo('codebuild')">CodeBuild</div>
+            <div class="nav-item" onclick="scrollTo('codedeploy')">CodeDeploy</div>
+            <div class="nav-item" onclick="scrollTo('ecr')">ECR</div>
+            <div class="nav-item" onclick="scrollTo('cloudformation')">CloudFormation</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Observability</div>
+            <div class="nav-item" onclick="scrollTo('cloudwatch')">CloudWatch</div>
+            <div class="nav-item" onclick="scrollTo('xray')">X-Ray</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Security</div>
+            <div class="nav-item" onclick="scrollTo('iam')">IAM</div>
+            <div class="nav-item" onclick="scrollTo('secretsmanager')">Secrets Manager</div>
+            <div class="nav-item" onclick="scrollTo('guardduty')">GuardDuty</div>
+            <div class="nav-item" onclick="scrollTo('waf')">WAF & Shield</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Orchestration</div>
+            <div class="nav-item" onclick="scrollTo('stepfunctions')">Step Functions</div>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">Cost</div>
+            <div class="nav-item" onclick="scrollTo('finops')">FinOps</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1>AWS DevOps Universe</h1>
+            <p>Complete exploration of 25+ AWS services for cloud architecture, deployment, and operations</p>
+            <div class="stat-row">
+                <div class="stat"><span class="stat-number">25+</span> Services</div>
+                <div class="stat"><span class="stat-number">3</span> Explanation Layers</div>
+                <div class="stat"><span class="stat-number">50+</span> Code Examples</div>
+                <div class="stat"><span class="stat-number">100%</span> Production Ready</div>
+            </div>
+        </div>
+
+        <!-- COMPUTE SECTION -->
+        <div class="category-header">🖥️ COMPUTE</div>
+        
+        <div class="service-grid">
+            <!-- EC2 -->
+            <div class="service-card" id="ec2">
+                <div class="service-badge">Compute</div>
+                <h3 class="service-name">EC2</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Renting computers in the cloud. Pick the size (CPU, RAM), OS (Linux/Windows), and how many you need. Pay by the hour. Can turn off when done. Like a rental car, but for servers.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Metrics</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Types:</strong> t3 (burstable), m5 (general), c5 (compute), r5 (memory), i3 (storage)</div>
+                    <div class="tech-detail"><strong>Pricing:</strong> On-Demand (hourly), Reserved (1-3yr discount), Spot (90% cheaper, interruptible)</div>
+                    <div class="tech-detail"><strong>AMI:</strong> Pre-configured OS images</div>
+                    <div class="tech-detail"><strong>Security:</strong> Security Groups (firewall), Key Pairs (SSH auth)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">aws ec2 run-instances \
+  --image-id ami-0c55b159cbfafe1f0 \
+  --instance-type t3.micro \
+  --key-name my-key \
+  --security-group-ids sg-12345678</div>
+                </div>
+                <div class="tab-content">
+                    <span class="metric">CPU</span><span class="metric">Network</span><span class="metric">Disk I/O</span><span class="metric">Status Checks</span>
+                </div>
+            </div>
+
+            <!-- LAMBDA -->
+            <div class="service-card" id="lambda">
+                <div class="service-badge">Compute</div>
+                <h3 class="service-name">Lambda</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Serverless functions. Write code, upload it, AWS runs it when needed. No servers to manage. Pay only for seconds it runs. Perfect for APIs, scheduled jobs, event processing.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Cold Starts</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Memory:</strong> 128 MB – 10,240 MB (CPU scales with memory)</div>
+                    <div class="tech-detail"><strong>Timeout:</strong> Max 15 minutes execution</div>
+                    <div class="tech-detail"><strong>Concurrency:</strong> 1000 concurrent by default</div>
+                    <div class="tech-detail"><strong>Triggers:</strong> API Gateway, S3, EventBridge, SQS, SNS, DynamoDB Streams</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">def lambda_handler(event, context):
+    body = json.loads(event['body'])
+    result = {'status': 'success', 'data': body}
+    return {
+        'statusCode': 200,
+        'body': json.dumps(result)
+    }</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail">First invocation ~1-2s (cold start), subsequent <100ms</div>
+                    <div class="tech-detail">Mitigation: Provisioned Concurrency, Snapstart (Java), smaller packages</div>
+                </div>
+            </div>
+
+            <!-- ECS -->
+            <div class="service-card" id="ecs">
+                <div class="service-badge">Compute</div>
+                <h3 class="service-name">ECS & Fargate</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Run Docker containers. ECS manages them. Fargate = serverless containers (AWS handles VMs). EC2 = you manage servers. Containers are like shipping containers for apps.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Comparison</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Task Definition:</strong> JSON blueprint (image, memory, ports, env vars)</div>
+                    <div class="tech-detail"><strong>Service:</strong> Keeps desired # of tasks running</div>
+                    <div class="tech-detail"><strong>Fargate:</strong> Serverless, pay for CPU+RAM, no instance management</div>
+                    <div class="tech-detail"><strong>EC2 Launch:</strong> You manage instances, more control</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">aws ecs create-service \
+  --cluster my-cluster \
+  --service-name my-service \
+  --task-definition my-app:1 \
+  --desired-count 3 \
+  --launch-type FARGATE</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Aspect</th><th>ECS on EC2</th><th>Fargate</th></tr>
+                        <tr><td>Instance Mgmt</td><td>You manage</td><td>AWS manages</td></tr>
+                        <tr><td>Cost</td><td>Cheaper</td><td>Higher</td></tr>
+                        <tr><td>Setup</td><td>Complex</td><td>Simple</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EKS -->
+            <div class="service-card" id="eks">
+                <div class="service-badge">Compute</div>
+                <h3 class="service-name">EKS & Karpenter</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Kubernetes on AWS. Industry-standard orchestrator for containers. Karpenter auto-scales EC2 nodes smartly. Choose if you have complex needs or multi-cloud plans.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Setup</button>
+                    <button class="tab" onclick="switchTab(event)">Karpenter</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Control Plane:</strong> AWS manages (you don't see it)</div>
+                    <div class="tech-detail"><strong>Worker Nodes:</strong> EC2 instances (managed or unmanaged)</div>
+                    <div class="tech-detail"><strong>Pod:</strong> Smallest K8s unit (like a container)</div>
+                    <div class="tech-detail"><strong>Pricing:</strong> $0.10/hour cluster + EC2 costs</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">eksctl create cluster \
+  --name my-cluster \
+  --region us-east-1 \
+  --nodegroup-name nodes \
+  --node-type t3.medium \
+  --nodes 3</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Karpenter:</strong> Auto-scales EC2 nodes based on pod requests</div>
+                    <div class="tech-detail"><strong>Benefits:</strong> Faster scale-ups, right-sized nodes, mixed spot/on-demand</div>
+                </div>
+            </div>
+
+            <!-- AUTO SCALING -->
+            <div class="service-card" id="autoscaling">
+                <div class="service-badge">Compute</div>
+                <h3 class="service-name">Auto Scaling</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Automatically add/remove servers based on demand. Peak traffic? Spin up more EC2s. Traffic drops? Shut them down. Set rules: "if CPU > 70%, add 2 servers". Saves money, keeps app responsive.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Policies</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Launch Template:</strong> Blueprint (AMI, type, storage, security groups)</div>
+                    <div class="tech-detail"><strong>ASG:</strong> Min/desired/max capacity, health checks</div>
+                    <div class="tech-detail"><strong>Cooldown Period:</strong> Wait before next scale action</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">aws autoscaling create-auto-scaling-group \
+  --auto-scaling-group-name web-asg \
+  --launch-template LaunchTemplateName=web \
+  --min-size 2 --max-size 10 \
+  --desired-capacity 3 \
+  --availability-zones us-east-1a us-east-1b</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Target Tracking:</strong> "Keep CPU at 50%" (simplest)</div>
+                    <div class="tech-detail"><strong>Step Scaling:</strong> "If CPU > 80%, add 2; if > 90%, add 5"</div>
+                    <div class="tech-detail"><strong>Scheduled:</strong> "Mon 8AM scale to 10, Fri 6PM scale to 2"</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NETWORK SECTION -->
+        <div class="category-header">🌐 NETWORK & CDN</div>
+        
+        <div class="service-grid">
+            <!-- VPC -->
+            <div class="service-card" id="vpc">
+                <div class="service-badge">Network</div>
+                <h3 class="service-name">VPC</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Your private cloud. Define IP ranges, create subnets (sections), control traffic. Like having your own private building with separate floors. Public = internet access, Private = internal only.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Components</button>
+                    <button class="tab" onclick="switchTab(event)">3-Tier Arch</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>CIDR Block:</strong> IP range (10.0.0.0/16 = 65,536 IPs)</div>
+                    <div class="tech-detail"><strong>Subnets:</strong> Public/Private subdivisions</div>
+                    <div class="tech-detail"><strong>Security Groups:</strong> Instance-level firewall (stateful)</div>
+                    <div class="tech-detail"><strong>NACLs:</strong> Subnet-level firewall (stateless)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Internet Gateway:</strong> Bridge to internet</div>
+                    <div class="tech-detail"><strong>NAT Gateway:</strong> Outbound internet for private subnets</div>
+                    <div class="tech-detail"><strong>Route Tables:</strong> Direct traffic (IGW, NAT, VPN)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">Layer 1 (Public): ALB, NAT Gateway
+Layer 2 (App): EC2/ECS instances
+Layer 3 (Data): RDS, ElastiCache, DynamoDB</div>
+                </div>
+            </div>
+
+            <!-- CLOUDFRONT -->
+            <div class="service-card" id="cloudfront">
+                <div class="service-badge">Network</div>
+                <h3 class="service-name">CloudFront</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Global CDN. Copies your content to 500+ servers worldwide. User in Tokyo? Gets file from Tokyo server, not US. Lightning-fast. Also blocks DDoS attacks.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Features</button>
+                    <button class="tab" onclick="switchTab(event)">Caching</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Origin:</strong> S3, ALB, API Gateway, custom domain</div>
+                    <div class="tech-detail"><strong>Edge Locations:</strong> 500+ worldwide servers</div>
+                    <div class="tech-detail"><strong>TTL:</strong> Cache duration (60s - 31536000s)</div>
+                    <div class="tech-detail"><strong>Invalidation:</strong> Force refresh cache</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Lambda@Edge:</strong> Run functions at edge</div>
+                    <div class="tech-detail"><strong>WAF Integration:</strong> Block malicious requests</div>
+                    <div class="tech-detail"><strong>SSL/TLS:</strong> HTTPS everywhere</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">Static assets: TTL 86400s (1 day+)
+HTML files: TTL 3600s (1 hour)
+API responses: TTL 0 (no-cache)</div>
+                </div>
+            </div>
+
+            <!-- API GATEWAY -->
+            <div class="service-card" id="apigateway">
+                <div class="service-badge">Network</div>
+                <h3 class="service-name">API Gateway</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Front door to your backend. Receives HTTP requests, routes to Lambda/ECS, returns responses. Handles auth, rate limiting, CORS automatically.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Features</button>
+                    <button class="tab" onclick="switchTab(event)">REST vs HTTP</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Methods:</strong> GET, POST, PUT, DELETE, PATCH</div>
+                    <div class="tech-detail"><strong>Integration:</strong> Lambda, HTTP, AWS service, Mock</div>
+                    <div class="tech-detail"><strong>Authorizers:</strong> Custom auth, JWT, Cognito, OAuth2</div>
+                    <div class="tech-detail"><strong>Models:</strong> JSON Schema validation</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Stage Variables:</strong> Different configs per env (dev, prod)</div>
+                    <div class="tech-detail"><strong>Usage Plans:</strong> Rate limiting, API keys, throttling</div>
+                    <div class="tech-detail"><strong>Logging:</strong> CloudWatch integration</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Aspect</th><th>REST API</th><th>HTTP API</th></tr>
+                        <tr><td>Latency</td><td>~100ms</td><td>~60ms</td></tr>
+                        <tr><td>Cost</td><td>Higher</td><td>70% cheaper</td></tr>
+                        <tr><td>Features</td><td>Full</td><td>Core only</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ROUTE 53 -->
+            <div class="service-card" id="route53">
+                <div class="service-badge">Network</div>
+                <h3 class="service-name">Route 53</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    DNS phone book. When user types "example.com", Route 53 says "send them to this IP". Does health checks: if server A dies, automatically sends traffic to server B.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Record Types</button>
+                    <button class="tab" onclick="switchTab(event)">Routing Policies</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Hosted Zone:</strong> Container for DNS records</div>
+                    <div class="tech-detail"><strong>TTL:</strong> How long to cache answer (lower = more queries)</div>
+                    <div class="tech-detail"><strong>Health Checks:</strong> Monitor endpoints, send alerts</div>
+                    <div class="tech-detail"><strong>Traffic Flow:</strong> Visual routing policy editor</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>A:</strong> IPv4 address</div>
+                    <div class="tech-detail"><strong>CNAME:</strong> Alias to another domain</div>
+                    <div class="tech-detail"><strong>Alias:</strong> AWS-specific (ALB, CloudFront, S3)</div>
+                    <div class="tech-detail"><strong>MX, TXT, NS:</strong> Mail, text records, nameservers</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Simple:</strong> One record, one value (most common)</div>
+                    <div class="tech-detail"><strong>Weighted:</strong> 70% to A, 30% to B (gradual migrations)</div>
+                    <div class="tech-detail"><strong>Latency:</strong> Route to nearest region (best performance)</div>
+                    <div class="tech-detail"><strong>Failover:</strong> Primary + standby (auto-switch on failure)</div>
+                    <div class="tech-detail"><strong>Geolocation:</strong> Route based on user location</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- STORAGE & DATA SECTION -->
+        <div class="category-header">💾 STORAGE & DATABASES</div>
+        
+        <div class="service-grid">
+            <!-- S3 -->
+            <div class="service-card" id="s3">
+                <div class="service-badge">Storage</div>
+                <h3 class="service-name">S3</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Infinite file storage. Upload anything (images, videos, backups). Access via URL or CLI. Cheap ($0.023/GB), durable (99.99%). Versioning, encryption, lifecycle management built-in. Most popular AWS service.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Storage Classes</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Bucket:</strong> Container, globally unique name</div>
+                    <div class="tech-detail"><strong>Object:</strong> File with key (path) and metadata</div>
+                    <div class="tech-detail"><strong>Regions:</strong> Lower latency when nearby</div>
+                    <div class="tech-detail"><strong>Versioning:</strong> Keep old versions, restore deleted files</div>
+                    <div class="tech-detail"><strong>Encryption:</strong> SSE-S3 (free), SSE-KMS, SSE-C</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">aws s3 cp myfile.txt s3://my-bucket/
+aws s3 sync ./local-folder s3://my-bucket/remote/
+aws s3 ls s3://my-bucket/ --recursive</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Class</th><th>Cost/GB</th><th>Retrieval</th><th>Use Case</th></tr>
+                        <tr><td>Standard</td><td>$0.023</td><td>Instant</td><td>Frequent access</td></tr>
+                        <tr><td>Standard-IA</td><td>$0.0125</td><td>Instant</td><td>Infrequent access</td></tr>
+                        <tr><td>Glacier</td><td>$0.004</td><td>3-5 hours</td><td>Backups, archives</td></tr>
+                        <tr><td>Deep Archive</td><td>$0.00099</td><td>12 hours</td><td>Compliance hold</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- RDS/AURORA -->
+            <div class="service-card" id="rds">
+                <div class="service-badge">Database</div>
+                <h3 class="service-name">RDS & Aurora</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Managed relational databases. AWS runs PostgreSQL, MySQL, Oracle, SQL Server for you. RDS = standard. Aurora = AWS-optimized, 5x faster, cheaper. No server management, automated backups, multi-AZ failover.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Features</button>
+                    <button class="tab" onclick="switchTab(event)">RDS vs Aurora</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Engines:</strong> PostgreSQL, MySQL, MariaDB, Oracle, SQL Server</div>
+                    <div class="tech-detail"><strong>Multi-AZ:</strong> Standby replica (automatic failover)</div>
+                    <div class="tech-detail"><strong>Read Replicas:</strong> Read-only copies (scale queries)</div>
+                    <div class="tech-detail"><strong>Backups:</strong> Automatic daily, point-in-time restore (35 days)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Encryption:</strong> At rest (KMS) and in transit (SSL/TLS)</div>
+                    <div class="tech-detail"><strong>Parameter Groups:</strong> Database config</div>
+                    <div class="tech-detail"><strong>Enhanced Monitoring:</strong> 60+ metrics per second</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Aspect</th><th>RDS</th><th>Aurora</th></tr>
+                        <tr><td>Engines</td><td>5+ options</td><td>PostgreSQL, MySQL</td></tr>
+                        <tr><td>Performance</td><td>Good</td><td>5-10x faster</td></tr>
+                        <tr><td>Scaling</td><td>Read replicas</td><td>Auto-scaling readers</td></tr>
+                        <tr><td>Failover</td><td>Manual/Multi-AZ</td><td>Automatic, instant</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DYNAMODB -->
+            <div class="service-card" id="dynamodb">
+                <div class="service-badge">Database</div>
+                <h3 class="service-name">DynamoDB</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    NoSQL database. Stores JSON, super fast, scales instantly. No SQL, no schemas. Great for mobile, IoT, real-time analytics. "Single table design" = everything in one table.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Single Table Design</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Partition Key:</strong> Primary key, distributes data</div>
+                    <div class="tech-detail"><strong>Sort Key:</strong> Optional, enables range queries</div>
+                    <div class="tech-detail"><strong>GSI/LSI:</strong> Secondary indexes</div>
+                    <div class="tech-detail"><strong>Throughput:</strong> Provisioned (fixed) or On-Demand (auto)</div>
+                    <div class="tech-detail"><strong>Streams:</strong> Capture changes (Lambda trigger)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">dynamodb = boto3.resource('dynamodb')
+table = dynamodb.Table('users')
+table.put_item(Item={
+    'user_id': 'user-123',
+    'email': 'john@example.com',
+    'created_at': 1696000000
+})</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">PK           SK                 Attributes
+USER#123     METADATA           {name, email}
+USER#123     ORDER#456          {amount, status}
+ORDER#456    ITEM#001           {product_id, qty}</div>
+                </div>
+            </div>
+
+            <!-- ELASTICACHE -->
+            <div class="service-card" id="elasticache">
+                <div class="service-badge">Cache</div>
+                <h3 class="service-name">ElastiCache</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Ultra-fast in-memory cache. Redis or Memcached. Holds frequently-accessed data in RAM. Microseconds response. Perfect for sessions, leaderboards, rate limiting, real-time data.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Redis vs Memcached</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Redis:</strong> Persistent, data types, pub/sub, Lua scripts</div>
+                    <div class="tech-detail"><strong>Memcached:</strong> Pure cache, simpler, distributed</div>
+                    <div class="tech-detail"><strong>Cluster Mode:</strong> Sharding across nodes (scale horizontally)</div>
+                    <div class="tech-detail"><strong>Replication:</strong> Primary + replicas (auto failover)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">import redis
+r = redis.Redis(host='cache-endpoint.com', port=6379)
+r.set('user:123:session', '{"id":123}', ex=3600)
+session = r.get('user:123:session')</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Feature</th><th>Redis</th><th>Memcached</th></tr>
+                        <tr><td>Data Types</td><td>Rich (lists, sets, hashes)</td><td>Strings only</td></tr>
+                        <tr><td>Persistence</td><td>Yes (RDB/AOF)</td><td>No (volatile)</td></tr>
+                        <tr><td>Replication</td><td>Yes</td><td>No</td></tr>
+                        <tr><td>Best For</td><td>Complex caching, queues</td><td>Simple key-value</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EBS -->
+            <div class="service-card" id="ebs">
+                <div class="service-badge">Storage</div>
+                <h3 class="service-name">EBS</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Virtual hard drives for EC2. Attach/detach volumes. Snapshots for backups. Types: gp3 (general), io2 (high-performance, databases), st1 (throughput, big data).
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Setup</button>
+                    <button class="tab" onclick="switchTab(event)">Volume Types</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Volume:</strong> Virtual hard disk, attach to EC2</div>
+                    <div class="tech-detail"><strong>Size:</strong> 1 GB – 64 TB</div>
+                    <div class="tech-detail"><strong>IOPS:</strong> Input/output operations per second</div>
+                    <div class="tech-detail"><strong>Snapshots:</strong> Backup to S3 (incremental, cheap)</div>
+                    <div class="tech-detail"><strong>Encryption:</strong> AES-256 at rest</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">sudo mkfs.ext4 /dev/nvme1n1
+sudo mount /dev/nvme1n1 /data
+aws ec2 create-snapshot --volume-id vol-123</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Type</th><th>Max IOPS</th><th>Use Case</th></tr>
+                        <tr><td>gp3</td><td>16,000</td><td>General purpose</td></tr>
+                        <tr><td>io2</td><td>64,000</td><td>Databases</td></tr>
+                        <tr><td>st1</td><td>500</td><td>Big data</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- MESSAGING SECTION -->
+        <div class="category-header">📨 MESSAGING & STREAMS</div>
+        
+        <div class="service-grid">
+            <!-- SQS -->
+            <div class="service-card" id="sqs">
+                <div class="service-badge">Messaging</div>
+                <h3 class="service-name">SQS</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Message queue. Producer puts work in, consumers pull and process. Decouples systems. If consumer crashes, messages wait. FIFO = ordered (exactly once), Standard = fast.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Standard vs FIFO</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Queue:</strong> Messages wait here</div>
+                    <div class="tech-detail"><strong>Visibility Timeout:</strong> Prevent double processing</div>
+                    <div class="tech-detail"><strong>Retention Period:</strong> How long messages stay (14 days default)</div>
+                    <div class="tech-detail"><strong>Dead Letter Queue:</strong> Failed messages go here</div>
+                    <div class="tech-detail"><strong>Long Polling:</strong> Wait for message (save cost)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">sqs.send_message(QueueUrl=queue_url,
+    MessageBody=json.dumps({'order_id': '123'}))
+
+messages = sqs.receive_message(QueueUrl=queue_url,
+    MaxNumberOfMessages=10, WaitTimeSeconds=20)</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Aspect</th><th>Standard</th><th>FIFO</th></tr>
+                        <tr><td>Ordering</td><td>Best effort</td><td>Guaranteed</td></tr>
+                        <tr><td>Duplicates</td><td>Possible</td><td>Never</td></tr>
+                        <tr><td>Throughput</td><td>Unlimited</td><td>Up to 300/s</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SNS -->
+            <div class="service-card" id="sns">
+                <div class="service-badge">Messaging</div>
+                <h3 class="service-name">SNS</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Publish-subscribe. Publish once, goes to many subscribers (email, SMS, SQS, Lambda, HTTP). Great for alerts, broadcasts, fan-out patterns.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Fan-out</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Topic:</strong> Channel where messages published</div>
+                    <div class="tech-detail"><strong>Subscriber:</strong> Email, SMS, SQS, Lambda, HTTP, SNS</div>
+                    <div class="tech-detail"><strong>Message Filter:</strong> Deliver only if attributes match</div>
+                    <div class="tech-detail"><strong>FIFO Topics:</strong> Ordered, exactly-once delivery</div>
+                    <div class="tech-detail"><strong>DLQ:</strong> Failed deliveries</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">sns.create_topic(Name='OrderAlerts')
+sns.subscribe(TopicArn=topic_arn, Protocol='email',
+    Endpoint='admin@example.com')
+sns.publish(TopicArn=topic_arn, Subject='Order',
+    Message='New order received!')</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">One message → Multiple subscriptions
+SNS Topic → SQS Queue → Worker
+         → Lambda → Process
+         → Email → Admin</div>
+                </div>
+            </div>
+
+            <!-- EVENTBRIDGE -->
+            <div class="service-card" id="eventbridge">
+                <div class="service-badge">Messaging</div>
+                <h3 class="service-name">EventBridge</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Event router. When something happens (EC2 starts, order placed, file uploaded), route it to targets (Lambda, SQS, SNS, etc.). Like a smart switchboard. Schedule tasks like cron.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Sources</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Event Bus:</strong> Channel for events</div>
+                    <div class="tech-detail"><strong>Rules:</strong> Match events, route to targets</div>
+                    <div class="tech-detail"><strong>Targets:</strong> Lambda, SQS, SNS, HTTP, ECS, etc.</div>
+                    <div class="tech-detail"><strong>Scheduler:</strong> Cron expressions for scheduled tasks</div>
+                    <div class="tech-detail"><strong>Pattern Matching:</strong> Filter events by attributes</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">events.put_rule(Name='DeploymentRule',
+    EventPattern=json.dumps({
+        'source': ['aws.ec2'],
+        'detail-type': ['EC2 Instance State-change'],
+        'detail': {'state': ['running']}
+    }))
+events.put_targets(Rule='DeploymentRule',
+    Targets=[{'Arn': lambda_arn, 'Id': '1'}])</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>AWS Sources:</strong> EC2, RDS, S3, CodePipeline, etc.</div>
+                    <div class="tech-detail"><strong>Custom Sources:</strong> PutEvents from your app</div>
+                    <div class="tech-detail"><strong>Scheduled:</strong> cron(0 8 * * ? *) = 8 AM daily</div>
+                </div>
+            </div>
+
+            <!-- KINESIS -->
+            <div class="service-card" id="kinesis">
+                <div class="service-badge">Messaging</div>
+                <h3 class="service-name">Kinesis</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Real-time data streaming. Thousands of events per second (stock ticks, logs, IoT sensor data). Data flows through stream, consumers process it in real-time. Like a firehose of events.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Use Cases</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Stream:</strong> Sequence of events</div>
+                    <div class="tech-detail"><strong>Shard:</strong> Unit of throughput (1 MB/s input, 4 MB/s output)</div>
+                    <div class="tech-detail"><strong>Records:</strong> Data + partition key</div>
+                    <div class="tech-detail"><strong>Retention:</strong> 24 hours default (up to 365 days)</div>
+                    <div class="tech-detail"><strong>Auto-scaling:</strong> Adjust shards based on throughput</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">kinesis.put_record(StreamName='MyStream',
+    Data=json.dumps({'sensor': 'temp', 'value': 23.5}),
+    PartitionKey='sensor-1')
+
+response = kinesis.get_records(ShardIterator=iterator)
+for record in response['Records']:
+    print(record['Data'])</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Real-time Analytics:</strong> Process events as they arrive</div>
+                    <div class="tech-detail"><strong>IoT Data Ingestion:</strong> Millions of sensors</div>
+                    <div class="tech-detail"><strong>Log Streaming:</strong> Aggregate logs from apps</div>
+                    <div class="tech-detail"><strong>Stock/Crypto Ticks:</strong> Real-time pricing</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CI/CD SECTION -->
+        <div class="category-header">⚙️ CI/CD & INFRASTRUCTURE</div>
+        
+        <div class="service-grid">
+            <!-- CODEPIPELINE -->
+            <div class="service-card" id="codepipeline">
+                <div class="service-badge">CI/CD</div>
+                <h3 class="service-name">CodePipeline</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Automated deployment pipeline. Code → Build → Test → Deploy. Triggered by git push. Orchestrates CodeBuild and CodeDeploy. From development to production automatically.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Stages</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Pipeline:</strong> Series of stages</div>
+                    <div class="tech-detail"><strong>Stage:</strong> Source, Build, Test, Deploy, Manual Approval</div>
+                    <div class="tech-detail"><strong>Action:</strong> Action within stage (CodeBuild, CodeDeploy, etc.)</div>
+                    <div class="tech-detail"><strong>Artifacts:</strong> Output from one stage to next</div>
+                    <div class="tech-detail"><strong>Approval:</strong> Manual gate before deployment</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">Source (GitHub) →
+Build (CodeBuild) →
+Test (CodeBuild) →
+Manual Approval →
+Deploy (CodeDeploy) → Live!</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">pipeline = codepipeline.create_pipeline(
+    name='my-pipeline',
+    roleArn=iam_role_arn,
+    stages=[
+        {
+            'name': 'Source',
+            'actions': [{
+                'name': 'SourceAction',
+                'actionTypeId': {'provider': 'GitHub'},
+                'configuration': {
+                    'Owner': 'myorg',
+                    'Repo': 'myrepo',
+                    'Branch': 'main'
+                }
+            }]
+        }
+    ]
+)</div>
+                </div>
+            </div>
+
+            <!-- CODEBUILD -->
+            <div class="service-card" id="codebuild">
+                <div class="service-badge">CI/CD</div>
+                <h3 class="service-name">CodeBuild</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Build server. Compiles code, runs tests, creates Docker images. Triggered by CodePipeline or git push. Pay only for build time (seconds). Scale automatically.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">buildspec.yml</button>
+                    <button class="tab" onclick="switchTab(event)">Environments</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Project:</strong> Build configuration</div>
+                    <div class="tech-detail"><strong>Environment:</strong> OS + runtime (Ubuntu, Windows, custom Docker)</div>
+                    <div class="tech-detail"><strong>Artifacts:</strong> Output (JAR, WAR, Docker image to ECR)</div>
+                    <div class="tech-detail"><strong>Cache:</strong> Speed up builds (Docker layers, npm cache)</div>
+                    <div class="tech-detail"><strong>Logs:</strong> CloudWatch Logs, S3</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.9
+  build:
+    commands:
+      - echo "Building..."
+      - pip install -r requirements.txt
+      - python -m pytest tests/
+  post_build:
+    commands:
+      - echo "Building Docker image..."
+      - docker build -t myapp:latest .
+artifacts:
+  files:
+    - '**/*'</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Ubuntu:</strong> Standard Linux</div>
+                    <div class="tech-detail"><strong>Windows:</strong> For .NET apps</div>
+                    <div class="tech-detail"><strong>Custom Docker:</strong> Bring your own image</div>
+                    <div class="tech-detail"><strong>Compute:</strong> small, medium, large (scale up for faster builds)</div>
+                </div>
+            </div>
+
+            <!-- CODEDEPLOY -->
+            <div class="service-card" id="codedeploy">
+                <div class="service-badge">CI/CD</div>
+                <h3 class="service-name">CodeDeploy</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Deployment automation. Takes your build artifacts, deploys to EC2/On-Premises/Lambda. Strategies: All-at-once, rolling, canary, blue-green. Rollback on failure.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">appspec.yml</button>
+                    <button class="tab" onclick="switchTab(event)">Strategies</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Application:</strong> What to deploy</div>
+                    <div class="tech-detail"><strong>Deployment Group:</strong> Where to deploy (EC2 instances, tags, ASG)</div>
+                    <div class="tech-detail"><strong>Revision:</strong> Version of code (S3 location, git commit)</div>
+                    <div class="tech-detail"><strong>Lifecycle Hooks:</strong> BeforeBlockTraffic, AfterBlockTraffic, ValidateService</div>
+                    <div class="tech-detail"><strong>Auto-rollback:</strong> On deployment failure or alarms</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">version: 0.0
+Resources:
+  - TargetService:
+      Type: AWS::EC2::Instance
+      Properties:
+        Name: MyApp
+Hooks:
+  BeforeInstall:
+    - location: scripts/stop.sh
+  ApplicationStart:
+    - location: scripts/start.sh
+  ApplicationStop:
+    - location: scripts/stop.sh</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>All-at-once:</strong> Deploy to all at once (fast, risky)</div>
+                    <div class="tech-detail"><strong>Rolling:</strong> 25% → 50% → 75% → 100% (gradual)</div>
+                    <div class="tech-detail"><strong>Canary:</strong> 5% first, then 95% (test with few first)</div>
+                    <div class="tech-detail"><strong>Blue-Green:</strong> Parallel environments, switch traffic instantly</div>
+                </div>
+            </div>
+
+            <!-- ECR -->
+            <div class="service-card" id="ecr">
+                <div class="service-badge">Registry</div>
+                <h3 class="service-name">ECR</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Docker image registry (like Docker Hub but private). Store your container images. ECS/EKS/Lambda pull from here. Integrated with CodeBuild, scanning for vulnerabilities.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Security</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Repository:</strong> Container for images (like a folder)</div>
+                    <div class="tech-detail"><strong>Image Tag:</strong> Version (latest, v1.0, abc123)</div>
+                    <div class="tech-detail"><strong>Image URI:</strong> 123456789.dkr.ecr.us-east-1.amazonaws.com/myapp:latest</div>
+                    <div class="tech-detail"><strong>Lifecycle Policy:</strong> Auto-delete old images</div>
+                    <div class="tech-detail"><strong>Image Scanning:</strong> Detect vulnerabilities</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">aws ecr get-login-password | docker login --username AWS --password-stdin 123456789.dkr.ecr.us-east-1.amazonaws.com
+docker build -t myapp:latest .
+docker tag myapp:latest 123456789.dkr.ecr.us-east-1.amazonaws.com/myapp:latest
+docker push 123456789.dkr.ecr.us-east-1.amazonaws.com/myapp:latest</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Private:</strong> Only you can access</div>
+                    <div class="tech-detail"><strong>Image Scanning:</strong> Automated vulnerability detection</div>
+                    <div class="tech-detail"><strong>Cross-Account Access:</strong> Share images with other AWS accounts</div>
+                </div>
+            </div>
+
+            <!-- CLOUDFORMATION -->
+            <div class="service-card" id="cloudformation">
+                <div class="service-badge">IaC</div>
+                <h3 class="service-name">CloudFormation</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Infrastructure as Code. Define AWS resources in YAML/JSON. Create, update, delete entire environments with one command. Version control your infrastructure. Reproducible deployments.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Template</button>
+                    <button class="tab" onclick="switchTab(event)">vs Terraform</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Stack:</strong> Collection of resources defined in template</div>
+                    <div class="tech-detail"><strong>Template:</strong> YAML/JSON describing resources</div>
+                    <div class="tech-detail"><strong>Parameters:</strong> Input values (instance type, size, etc.)</div>
+                    <div class="tech-detail"><strong>Outputs:</strong> Return values (IP addresses, URLs)</div>
+                    <div class="tech-detail"><strong>Change Sets:</strong> Preview changes before apply</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Simple EC2 Instance'
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0c55b159cbfafe1f0
+      InstanceType: t3.micro
+      KeyName: my-key
+Outputs:
+  InstanceId:
+    Value: !Ref MyInstance</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Aspect</th><th>CloudFormation</th><th>Terraform</th></tr>
+                        <tr><td>Provider</td><td>AWS only</td><td>Multi-cloud</td></tr>
+                        <tr><td>Language</td><td>YAML/JSON</td><td>HCL</td></tr>
+                        <tr><td>State Management</td><td>AWS</td><td>Local/Remote</td></tr>
+                        <tr><td>Learning Curve</td><td>Steep</td><td>Moderate</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- OBSERVABILITY SECTION -->
+        <div class="category-header">📊 OBSERVABILITY</div>
+        
+        <div class="service-grid">
+            <!-- CLOUDWATCH -->
+            <div class="service-card" id="cloudwatch">
+                <div class="service-badge">Monitoring</div>
+                <h3 class="service-name">CloudWatch</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Monitoring and logging. Collect metrics (CPU, memory, latency), logs (app output), and traces. Create dashboards, set alarms (email when CPU > 80%), trigger auto-scaling.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Queries</button>
+                    <button class="tab" onclick="switchTab(event)">Alarms</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Metrics:</strong> Data points over time (CPU%, memory, latency)</div>
+                    <div class="tech-detail"><strong>Logs:</strong> Text output from apps, Lambda, EC2</div>
+                    <div class="tech-detail"><strong>Log Insights:</strong> SQL-like queries on logs</div>
+                    <div class="tech-detail"><strong>Dashboards:</strong> Visual representation of metrics</div>
+                    <div class="tech-detail"><strong>Alarms:</strong> Trigger actions when threshold crossed</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">fields @timestamp, @message, @duration
+| filter @duration > 1000
+| stats avg(@duration) as avg_duration by bin(5m)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Types:</strong> Threshold, anomaly detection, composite</div>
+                    <div class="tech-detail"><strong>Actions:</strong> SNS notification, auto-scaling, EC2 stop/reboot</div>
+                    <div class="tech-detail"><strong>State:</strong> OK, ALARM, INSUFFICIENT_DATA</div>
+                </div>
+            </div>
+
+            <!-- X-RAY -->
+            <div class="service-card" id="xray">
+                <div class="service-badge">Tracing</div>
+                <h3 class="service-name">X-Ray</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Distributed tracing. Track request from user, through API, to database. See bottlenecks, errors, latency. "Where is my request slow?" X-Ray shows you.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Use Cases</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Trace:</strong> End-to-end request journey</div>
+                    <div class="tech-detail"><strong>Segment:</strong> Work done by service (Lambda, EC2, RDS)</div>
+                    <div class="tech-detail"><strong>Subsegment:</strong> Sub-operation within segment</div>
+                    <div class="tech-detail"><strong>Service Graph:</strong> Visualization of dependencies</div>
+                    <div class="tech-detail"><strong>Sampling:</strong> Trace subset of requests (reduce cost)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">from aws_xray_sdk.core import xray_recorder
+
+@xray_recorder.capture('process_order')
+def process_order(order_id):
+    # Automatically traced
+    result = db.query(order_id)
+    return result</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Find Latency:</strong> Which service is slow?</div>
+                    <div class="tech-detail"><strong>Error Analysis:</strong> Where do requests fail?</div>
+                    <div class="tech-detail"><strong>Dependencies:</strong> What services call what?</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECURITY SECTION -->
+        <div class="category-header">🔒 SECURITY & COMPLIANCE</div>
+        
+        <div class="service-grid">
+            <!-- IAM -->
+            <div class="service-card" id="iam">
+                <div class="service-badge">Security</div>
+                <h3 class="service-name">IAM</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Access control. Who can do what? Create users, groups, roles. Attach policies (permissions). Principle of least privilege = give minimal permissions needed. Everyone gets own credentials.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Policies</button>
+                    <button class="tab" onclick="switchTab(event)">Best Practices</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Users:</strong> Individual people</div>
+                    <div class="tech-detail"><strong>Groups:</strong> Collection of users (Developers, Admins)</div>
+                    <div class="tech-detail"><strong>Roles:</strong> Services assume (Lambda, EC2, ECS)</div>
+                    <div class="tech-detail"><strong>Policies:</strong> JSON defining permissions (Allow/Deny)</div>
+                    <div class="tech-detail"><strong>MFA:</strong> Multi-factor authentication (2FA)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::my-bucket/*"
+    }
+  ]
+}</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Least Privilege:</strong> Give minimal permissions needed</div>
+                    <div class="tech-detail"><strong>MFA Everywhere:</strong> Use 2FA for all users</div>
+                    <div class="tech-detail"><strong>Rotate Keys:</strong> Change access keys regularly</div>
+                    <div class="tech-detail"><strong>Assume Roles:</strong> Use roles, not long-lived keys</div>
+                </div>
+            </div>
+
+            <!-- SECRETS MANAGER -->
+            <div class="service-card" id="secretsmanager">
+                <div class="service-badge">Security</div>
+                <h3 class="service-name">Secrets Manager</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Secure vault for secrets. Store passwords, API keys, database credentials. Rotate automatically. Never hardcode secrets in code. Audit who accessed what.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">vs Parameter Store</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Secret:</strong> Encrypted value (password, key, token)</div>
+                    <div class="tech-detail"><strong>Rotation:</strong> Auto-rotate credentials (Lambda function)</div>
+                    <div class="tech-detail"><strong>Versioning:</strong> Keep old versions</div>
+                    <div class="tech-detail"><strong>Audit:</strong> CloudTrail logs who accessed secret</div>
+                    <div class="tech-detail"><strong>Encryption:</strong> KMS-encrypted at rest</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">import boto3
+client = boto3.client('secretsmanager')
+response = client.get_secret_value(SecretId='db-password')
+db_password = response['SecretString']</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Feature</th><th>Secrets Manager</th><th>Parameter Store</th></tr>
+                        <tr><td>Rotation</td><td>Automatic</td><td>Manual</td></tr>
+                        <tr><td>Cost</td><td>$0.40/month per secret</td><td>Free tier</td></tr>
+                        <tr><td>Use Case</td><td>DB passwords, API keys</td><td>Config values</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- GUARDDUTY / WAF -->
+            <div class="service-card" id="guardduty">
+                <div class="service-badge">Security</div>
+                <h3 class="service-name">GuardDuty & Config</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    GuardDuty = threat detection. Analyzes logs, finds suspicious activity (brute force, malware). Config = compliance. Tracks AWS resource configuration changes. Alert when something changes.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Features</button>
+                    <button class="tab" onclick="switchTab(event)">Findings</button>
+                    <button class="tab" onclick="switchTab(event)">Compliance</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>GuardDuty:</strong> Uses ML to find threats</div>
+                    <div class="tech-detail"><strong>Config:</strong> Tracks resource configuration</div>
+                    <div class="tech-detail"><strong>SecurityHub:</strong> Central dashboard for both</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Finding Types:</strong> EC2, Network, IAM, S3</div>
+                    <div class="tech-detail"><strong>Severity:</strong> Low, Medium, High</div>
+                    <div class="tech-detail"><strong>Auto-Response:</strong> Trigger Lambda on finding</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Config Rules:</strong> PCI-DSS, CIS Benchmarks</div>
+                    <div class="tech-detail"><strong>Compliance Tracking:</strong> Which resources don't comply</div>
+                    <div class="tech-detail"><strong>Remediation:</strong> Auto-fix non-compliant resources</div>
+                </div>
+            </div>
+
+            <!-- WAF -->
+            <div class="service-card" id="waf">
+                <div class="service-badge">Security</div>
+                <h3 class="service-name">WAF & Shield</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    WAF = Web Application Firewall. Block bad HTTP requests (SQL injection, XSS, bots). Shield = DDoS protection. AWS automatically defends against large attacks.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Rules</button>
+                    <button class="tab" onclick="switchTab(event)">Shield</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>Web ACL:</strong> Collection of rules</div>
+                    <div class="tech-detail"><strong>Rules:</strong> Match requests (IP, User-Agent, SQL patterns)</div>
+                    <div class="tech-detail"><strong>Scope:</strong> CloudFront, ALB, API Gateway</div>
+                    <div class="tech-detail"><strong>Managed Rules:</strong> Pre-built rules (OWASP, SQL Injection)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">Block if:
+- IP in blacklist
+- Contains SQL keywords (';', 'DROP', 'SELECT')
+- User-Agent = 'bot'
+- Request rate > 2000/5min (rate limiting)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Shield Standard:</strong> Free, basic DDoS protection</div>
+                    <div class="tech-detail"><strong>Shield Advanced:</strong> $3000/month, 24/7 support, advanced protection</div>
+                    <div class="tech-detail"><strong>DDoS Protection:</strong> Automatic mitigation of attacks</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORCHESTRATION SECTION -->
+        <div class="category-header">🎼 ORCHESTRATION</div>
+        
+        <div class="service-grid">
+            <!-- STEP FUNCTIONS -->
+            <div class="service-card" id="stepfunctions">
+                <div class="service-badge">Orchestration</div>
+                <h3 class="service-name">Step Functions</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Workflow orchestration. Chain Lambda functions, EC2, etc. "Do this, then that, if error do this". Like a state machine. Retries, error handling built-in. Visual workflow editor.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Technical</button>
+                    <button class="tab" onclick="switchTab(event)">Code</button>
+                    <button class="tab" onclick="switchTab(event)">Types</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>State Machine:</strong> Workflow definition</div>
+                    <div class="tech-detail"><strong>States:</strong> Task, Wait, Choice (if/else), Pass, Parallel</div>
+                    <div class="tech-detail"><strong>Execution:</strong> Run of state machine</div>
+                    <div class="tech-detail"><strong>Retries:</strong> Automatic retry on failure</div>
+                    <div class="tech-detail"><strong>Catch:</strong> Error handling, fallback states</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">{
+  "StartAt": "ProcessOrder",
+  "States": {
+    "ProcessOrder": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:...",
+      "Next": "CheckPayment"
+    },
+    "CheckPayment": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.status",
+          "StringEquals": "paid",
+          "Next": "SendConfirmation"
+        }
+      ]
+    }
+  }
+}</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>Standard:</strong> Up to 1 year execution (asynchronous)</div>
+                    <div class="tech-detail"><strong>Express:</strong> Up to 5 minutes (synchronous, high throughput)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FINOPS SECTION -->
+        <div class="category-header">💰 COST OPTIMIZATION (FinOps)</div>
+        
+        <div class="service-grid">
+            <div class="service-card" id="finops">
+                <div class="service-badge">Cost</div>
+                <h3 class="service-name">FinOps & Cost Management</h3>
+                <div class="service-layman">
+                    <div class="service-layman-label">🧑‍🏫 In Plain English</div>
+                    Reduce AWS spending. Use Reserved Instances (40% discount), Spot Instances (90% discount), right-size instances, turn off unused resources. Monitor bill weekly.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Levers</button>
+                    <button class="tab" onclick="switchTab(event)">Tools</button>
+                    <button class="tab" onclick="switchTab(event)">Quick Wins</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-detail"><strong>1. Reserved Instances:</strong> 40% off for 1-3 year commitment</div>
+                    <div class="tech-detail"><strong>2. Spot Instances:</strong> 90% off, but interruptible (good for non-critical)</div>
+                    <div class="tech-detail"><strong>3. Savings Plans:</strong> Flexible across instances, regions</div>
+                    <div class="tech-detail"><strong>4. Right-sizing:</strong> Use appropriate instance type (don't over-provision)</div>
+                    <div class="tech-detail"><strong>5. Auto-scaling:</strong> Turn off unused capacity</div>
+                    <div class="tech-detail"><strong>6. Data Transfer:</strong> Minimize inter-region data movement</div>
+                    <div class="tech-detail"><strong>7. Storage Lifecycle:</strong> Move old data to cheaper tiers</div>
+                    <div class="tech-detail"><strong>8. Reserved Capacity:</strong> Aurora, RDS, ElastiCache</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail"><strong>AWS Cost Explorer:</strong> Analyze spending by service, region, tag</div>
+                    <div class="tech-detail"><strong>Budgets:</strong> Set spending limits, get alerts</div>
+                    <div class="tech-detail"><strong>Reserved Instance Planner:</strong> Calculate savings</div>
+                    <div class="tech-detail"><strong>Compute Optimizer:</strong> Find over-provisioned instances</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-detail">1. Delete unused EBS volumes, snapshots ($0.05-0.10 per GB/month)</div>
+                    <div class="tech-detail">2. Delete unused Elastic IPs ($0.005/hour when not attached)</div>
+                    <div class="tech-detail">3. Turn off development EC2 at 6PM (save 70% if off nights/weekends)</div>
+                    <div class="tech-detail">4. Use S3 Intelligent-Tiering (auto-optimize storage class)</div>
+                    <div class="tech-detail">5. Enable CloudFront caching (reduce data transfer costs)</div>
+                    <div class="tech-detail">6. Use Auto Scaling (pay only for what you use)</div>
+                    <div class="tech-detail">7. Review NAT Gateway ($.45/hour + data transfer = expensive)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-stat">
+                <div><div class="footer-number">25+</div>Services Covered</div>
+                <div><div class="footer-number">75+</div>Code Examples</div>
+                <div><div class="footer-number">100%</div>Production Ready</div>
+            </div>
+            <p>AWS DevOps Universe Canvas | 2024 | Complete Technical Reference</p>
+        </div>
+    </div>
+
+    <script>
+        function scrollTo(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+                updateActiveNav(id);
+            }
+        }
+
+        function switchTab(event) {
+            const tab = event.target;
+            const tabs = tab.parentElement.querySelectorAll('.tab');
+            const contents = tab.parentElement.parentElement.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const index = Array.from(tabs).indexOf(tab);
+            contents[index].classList.add('active');
+        }
+
+        function updateActiveNav(id) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.textContent.toLowerCase().includes(id.split(/(?=[A-Z])/).join('-').toLowerCase()) ||
+                    item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Intersection Observer for auto-highlighting
+        const observerOptions = { threshold: 0.3 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateActiveNav(entry.target.id);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

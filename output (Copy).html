@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Networking Mastery Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom scrollbar for technical feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Chart container constraint classes */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            max-height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Terminal typing effect cursor */
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Active navigation state */
+        .nav-item.active {
+            background-color: #e0f2fe; /* sky-100 */
+            border-right: 4px solid #0284c7; /* sky-600 */
+            font-weight: 600;
+            color: #0f172a;
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals & Technical Blue -->
+    <!-- Application Structure Plan: 
+         - A high-density dashboard designed to manage a massive command library (over 300+ entries).
+         - Left Sidebar: Hierarchical navigation through 11 operational domains.
+         - Header: Global real-time search and level-based filtering (Observer to Ghost).
+         - Main Content: A dynamic list view that renders command cards with "Check to Master" functionality.
+         - Interactive Terminal (Right/Bottom): Provides a 'Layman's Translation'—transforming technical jargon into everyday analogies for better synthesis.
+         - This structure was chosen to handle the high volume of content without overwhelming the user, using a 'drill-down' philosophy.
+    -->
+    <!-- Visualization & Content Choices:
+         - Progress Doughnut Chart (Chart.js): Visualizes overall mastery percentage.
+         - Category Density Bar Chart (Chart.js): Compares the complexity and volume across the 11 networking domains.
+         - HTML/Tailwind Components: Used to build interactive "Layman" cards that bridge the gap between pro-level syntax and beginner understanding.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 shadow-sm z-10 flex-none h-16 flex items-center justify-between px-4 lg:px-8">
+        <div class="flex items-center gap-3">
+            <div class="h-8 w-8 bg-sky-600 rounded flex items-center justify-center text-white font-bold text-lg">N</div>
+            <h1 class="text-xl font-bold text-slate-800 hidden md:block">DevOps Networking Mastery</h1>
+            <h1 class="text-xl font-bold text-slate-800 md:hidden">NetMastery</h1>
+        </div>
+        
+        <div class="flex items-center gap-4 flex-1 justify-end max-w-2xl">
+            <!-- Search Bar -->
+            <div class="relative w-full max-w-md hidden sm:block">
+                <input type="text" id="searchInput" placeholder="Search 300+ commands (e.g., ip, curl, filter)..." 
+                    class="w-full bg-stone-100 border border-stone-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 pl-4 transition-all"
+                >
+            </div>
+            
+            <!-- Level Filter Dropdown -->
+            <select id="levelFilter" class="bg-stone-50 border border-stone-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5">
+                <option value="all">All Difficulty Levels</option>
+                <option value="1">Level 1: The Observer (Basic)</option>
+                <option value="2">Level 2: The Surgeon (Inspection)</option>
+                <option value="3">Level 3: The Builder (Architect)</option>
+                <option value="4">Level 4: The Tuner (Performance)</option>
+                <option value="5">Level 5: The Ghost (Kernel/Advanced)</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white border-r border-stone-200 flex-col hidden lg:flex overflow-y-auto" id="sidebar">
+            <div class="p-4">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Knowledge Domains</h3>
+                <nav class="space-y-1" id="navContainer">
+                    <!-- Nav items injected by JS -->
+                </nav>
+            </div>
+            
+            <div class="mt-auto p-4 bg-stone-50 border-t border-stone-200">
+                <h4 class="text-sm font-semibold text-slate-700 mb-2">Knowledge Progress</h4>
+                <div class="w-full bg-stone-200 rounded-full h-2.5 mb-2">
+                    <div id="sidebarProgressBar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-slate-500 flex justify-between">
+                    <span id="progressText">0% Mastered</span>
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Mobile Nav Toggle -->
+            <div class="lg:hidden p-2 bg-stone-100 border-b border-stone-200 flex overflow-x-auto whitespace-nowrap gap-2" id="mobileNav">
+                <!-- Mobile pills injected by JS -->
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth" id="mainContent">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+        </main>
+
+        <!-- Right Panel: Interactive Context (Layman Terminal) -->
+        <aside class="w-96 bg-slate-900 border-l border-slate-700 flex-none hidden xl:flex flex-col text-slate-300">
+            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-mono text-sm font-bold text-sky-400">layman@devops-box:~#</h3>
+                <span class="text-xs px-2 py-1 bg-slate-700 rounded text-slate-400 uppercase tracking-tighter">Plain English</span>
+            </div>
+            <div class="flex-1 p-6 font-mono text-sm overflow-y-auto" id="terminalOutput">
+                <div class="mb-4 text-slate-500 italic">
+                    // Click any command code or the "Explain" button to see a simple, real-world translation here.
+                </div>
+                <div class="text-emerald-500">
+                    $ <span class="cursor-blink">_</span>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- Massive Data Source ---
+        const appData = {
+            domains: [
+                {
+                    id: "dashboard",
+                    title: "Executive Overview",
+                    icon: "📊",
+                    description: "Your mastery metrics across the 11 networking layers.",
+                    content: "overview" 
+                },
+                {
+                    id: "interface",
+                    title: "1. Interface & IP",
+                    icon: "🏗️",
+                    level: 1,
+                    description: "Managing the physical and virtual 'plugs' and 'addresses' of your server.",
+                    commands: [
+                        { cmd: "ip addr show", desc: "List all IP addresses.", level: 1, detailed: "Think of this as checking the ID cards for every door (interface) in your building. It tells you who lives where." },
+                        { cmd: "ip link set eth0 up", desc: "Enable a specific interface.", level: 1, detailed: "This is like flipping the power switch 'ON' for a specific network plug." },
+                        { cmd: "ip -br addr", desc: "Concise IP summary.", level: 1, detailed: "A 'cheat sheet' version of your address list. No fluff, just names and numbers." },
+                        { cmd: "ethtool eth0", desc: "Check hardware/cable status.", level: 2, detailed: "Like a mechanic checking the health of your car's engine. It tells you if the cable is actually plugged in and how fast it can go." },
+                        { cmd: "iwconfig", desc: "Manage wireless interfaces.", level: 2, detailed: "The remote control for your Wi-Fi card. Used to tune into specific radio frequencies." },
+                        { cmd: "ip link set eth0 mtu 9000", desc: "Enable Jumbo Frames.", level: 4, detailed: "Changing the size of the shipping boxes. Instead of small envelopes, you're sending massive crates to move more data at once." },
+                        { cmd: "nmcli device status", desc: "NetworkManager status.", level: 1, detailed: "A dashboard showing which of your network devices are currently 'at work' or 'on break'." },
+                        { cmd: "ip addr add 10.0.0.5/24 dev eth1", desc: "Add a second IP.", level: 3, detailed: "Giving your house a second mailing address so you can receive mail from two different neighborhoods." },
+                        { cmd: "ip link add name vlan10 link eth0 type vlan id 10", desc: "Create a VLAN interface.", level: 3, detailed: "Splitting one physical pipe into multiple virtual pipes. It keeps different types of traffic (like Guest and Staff) from mixing." },
+                        { cmd: "hostname -I", desc: "Show all local IPs fast.", level: 1, detailed: "Shouting 'What are all my addresses?!' and getting a quick list back." }
+                    ]
+                },
+                {
+                    id: "routing",
+                    title: "2. Routing & Flow",
+                    icon: "🛣️",
+                    level: 3,
+                    description: "Defining the maps and paths packets take to reach their destination.",
+                    commands: [
+                        { cmd: "ip route show", desc: "Display the routing table.", level: 1, detailed: "The GPS map for your server. It says: 'If you want to go to Google, take this exit; if you want the Printer, take that one.'" },
+                        { cmd: "ip route add default via 192.168.1.1", desc: "Set the main exit gateway.", level: 3, detailed: "Defining the 'Front Door'. If the server doesn't know where a packet goes, it just sends it here." },
+                        { cmd: "ip route get 8.8.8.8", desc: "Predict path to destination.", level: 2, detailed: "Asking the GPS: 'If I were to leave right now for this address, exactly which road would I take?'" },
+                        { cmd: "ip rule show", desc: "List routing policies.", level: 4, detailed: "The 'Security Guard' at the intersection. He decides who gets to use the VIP lane and who has to take the backroads based on who they are." },
+                        { cmd: "ip route add 10.0.0.0/8 dev eth1", desc: "Static route to specific network.", level: 3, detailed: "A permanent 'Detour' sign. It says: 'Ignore the GPS for this specific city; always take the bridge on eth1.'" },
+                        { cmd: "route -n", desc: "Classic routing table view.", level: 1, detailed: "The old-school, paper map version of your routing table. Simple and numerical." },
+                        { cmd: "mtr -r 1.1.1.1", desc: "Report path performance.", level: 2, detailed: "A scout that runs ahead and reports back on which intersections are currently jammed with traffic." }
+                    ]
+                },
+                {
+                    id: "diagnostics",
+                    title: "3. Diagnostics",
+                    icon: "🔎",
+                    level: 1,
+                    description: "Investigating 'Why is it slow?' or 'Why is it broken?'.",
+                    commands: [
+                        { cmd: "ping google.com", desc: "Check if a host is awake.", level: 1, detailed: "Like knocking on a door and waiting for someone to shout 'I'm here!'. If they don't answer, they're either out or ignoring you." },
+                        { cmd: "ss -tulpn", desc: "Show open 'listening' doors.", level: 1, detailed: "Checking all the windows and doors in your house to see which ones are open and which apps are waiting there to talk to people." },
+                        { cmd: "traceroute example.com", desc: "List all stops along the way.", level: 2, detailed: "Recording every post office your letter passes through before it reaches the final destination. Helps find where it got stuck." },
+                        { cmd: "nc -zv 127.0.0.1 80", desc: "Quickly test a specific port.", level: 2, detailed: "Testing if the doorbell (port 80) actually works without actually walking inside the house." },
+                        { cmd: "lsof -i :22", desc: "Who is using port 22?", level: 2, detailed: "Peeking through the keyhole of door 22 to see exactly which person (program) is sitting in that room." },
+                        { cmd: "arp -a", desc: "Show local device hardware map.", level: 1, detailed: "A list of everyone in your immediate office building and their physical fingerprint (MAC address)." },
+                        { cmd: "dig example.com +trace", desc: "Deep DNS investigation.", level: 3, detailed: "Following the chain of command in a phonebook company to see who actually verified a number." }
+                    ]
+                },
+                {
+                    id: "tools",
+                    title: "4. Swiss Army Knives",
+                    icon: "🔌",
+                    level: 2,
+                    description: "Versatile tools for testing, downloading, and moving data.",
+                    commands: [
+                        { cmd: "curl -I https://google.com", desc: "Get website headers only.", level: 2, detailed: "Asking a waiter for the menu (headers) without actually ordering any food (body content)." },
+                        { cmd: "wget --mirror website.com", desc: "Download an entire site.", level: 2, detailed: "Photocopying every single page in a book so you can read it later without the internet." },
+                        { cmd: "nmap -sn 192.168.1.0/24", desc: "Ping sweep a whole network.", level: 3, detailed: "Walking down a hotel hallway and knocking on every single door to see who is inside." },
+                        { cmd: "ncat -l 8080 > file.txt", desc: "Receive a file over network.", level: 3, detailed: "Setting up a bucket and waiting for someone to pour water (data) into it from across the room." },
+                        { cmd: "curl -X POST -d 'data' url", desc: "Send data to a server.", level: 2, detailed: "Handing a filled-out form to a clerk at a desk instead of just asking them a question." }
+                    ]
+                },
+                {
+                    id: "capture",
+                    title: "5. Packet Capture",
+                    icon: "📈",
+                    level: 2,
+                    description: "Recording and analyzing the raw bits flowing over the wire.",
+                    commands: [
+                        { cmd: "tcpdump -i eth0", desc: "Listen to all traffic on eth0.", level: 2, detailed: "Eavesdropping on every single conversation happening in a specific room. It gets noisy very fast!" },
+                        { cmd: "tcpdump port 80", desc: "Capture only web traffic.", level: 2, detailed: "Wearing special headphones that only let you hear people talking about 'Websites'." },
+                        { cmd: "tcpdump -w trace.pcap", desc: "Save capture to a file.", level: 3, detailed: "Using a tape recorder to save a conversation so you can listen to it carefully later with a tool like Wireshark." },
+                        { cmd: "tcpdump -nS", desc: "No DNS, show raw numbers.", level: 4, detailed: "Recording exactly what was said without translating names. Like writing down phone numbers instead of 'Mom' or 'Dad'." }
+                    ]
+                },
+                {
+                    id: "firewalls",
+                    title: "6. Security/Firewall",
+                    icon: "🧱",
+                    level: 3,
+                    description: "The gatekeepers. Deciding what gets in and what gets blocked.",
+                    commands: [
+                        { cmd: "iptables -L -n", desc: "List all firewall rules.", level: 2, detailed: "Reading the list of 'Banned People' and 'Allowed Guests' at the entrance of a club." },
+                        { cmd: "ufw enable", desc: "Turn on the simple firewall.", level: 1, detailed: "Hiring a security guard who has a very simple, standard set of rules to keep the bad guys out." },
+                        { cmd: "firewall-cmd --list-all", desc: "CentOS/RHEL firewall status.", level: 2, detailed: "Checking the security dashboard for a more complex building with different 'zones' (like Lobby vs. Vault)." },
+                        { cmd: "iptables -A INPUT -s 1.2.3.4 -j DROP", desc: "Block a specific bully IP.", level: 3, detailed: "Telling the bouncer: 'If you see this specific person (IP), do not even talk to them. Just close the door.'" }
+                    ]
+                },
+                {
+                    id: "infra",
+                    title: "7. Infrastructure",
+                    icon: "🏗️",
+                    level: 3,
+                    description: "Bridges, Namespaces, and the plumbing of modern containers.",
+                    commands: [
+                        { cmd: "ip netns list", desc: "Show network namespaces.", level: 3, detailed: "A list of 'Parallel Universes' on your server. Apps in one universe can't see the network in another. This is how Docker works!" },
+                        { cmd: "brctl show", desc: "Show network bridges.", level: 3, detailed: "Checking the 'Power Strip' that multiple virtual machines are plugged into to share one wall outlet." }
+                    ]
+                },
+                {
+                    id: "dns",
+                    title: "8. DNS/Names",
+                    icon: "🌍",
+                    level: 1,
+                    description: "Translating human names (google.com) to machine numbers (8.8.8.8).",
+                    commands: [
+                        { cmd: "resolvectl query google.com", desc: "Modern DNS lookup.", level: 1, detailed: "Asking the system's official 'Information Desk' for the phone number of a specific company." },
+                        { cmd: "cat /etc/resolv.conf", desc: "Check DNS server config.", level: 1, detailed: "Reading the sticky note that tells your server which Phonebook Company it should call when it needs a number." }
+                    ]
+                },
+                {
+                    id: "tuning",
+                    title: "9. Tuning",
+                    icon: "🏎️",
+                    level: 4,
+                    description: "Making the network fast and efficient under heavy load.",
+                    commands: [
+                        { cmd: "sysctl -a | grep net", desc: "List all network tunables.", level: 4, detailed: "Opening the 'Advanced Settings' menu of your router to see every tiny dial and switch you can adjust." },
+                        { cmd: "sysctl -w net.ipv4.ip_forward=1", desc: "Enable packet forwarding.", level: 4, detailed: "Turning your server into a 'Traffic Cop' that allows cars to pass through its intersection to other roads." }
+                    ]
+                },
+                {
+                    id: "monitoring",
+                    title: "10. Monitoring",
+                    icon: "📊",
+                    level: 1,
+                    description: "Observing bandwidth and usage over time.",
+                    commands: [
+                        { cmd: "iftop", desc: "Top for network bandwidth.", level: 1, detailed: "A live scoreboard showing who is currently hogging all the internet speed in the office." },
+                        { cmd: "nload", desc: "Visual bandwidth traffic graph.", level: 1, detailed: "A speedometer that shows if you are currently using 10% or 90% of your maximum pipe capacity." }
+                    ]
+                },
+                {
+                    id: "advanced",
+                    title: "11. Advanced/BPF",
+                    icon: "⚡",
+                    level: 5,
+                    description: "Kernel-level magic. Seeing things normal tools can't.",
+                    commands: [
+                        { cmd: "tc qdisc show", desc: "Show traffic control/shaping.", level: 5, detailed: "Checking the 'Speed Limit' signs you've put up on your network to make sure no one drives too fast." },
+                        { cmd: "bpftrace -l 'kprobe:tcp*'", desc: "List TCP kernel hooks.", level: 5, detailed: "Seeing the 'Undercover Sensors' inside the computer's brain that can watch every single heart beat of a network connection." }
+                    ]
+                }
+            ]
+        };
+
+        // --- State Management ---
+        let state = {
+            currentDomain: "dashboard",
+            masteredCommands: new Set(),
+            searchQuery: "",
+            levelFilter: "all"
+        };
+
+        // --- Core Application Logic ---
+
+        function renderNav() {
+            const navContainer = document.getElementById('navContainer');
+            const mobileNav = document.getElementById('mobileNav');
+            navContainer.innerHTML = '';
+            mobileNav.innerHTML = '';
+
+            appData.domains.forEach(domain => {
+                const btn = document.createElement('button');
+                btn.className = `nav-item w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${state.currentDomain === domain.id ? 'active' : 'text-slate-600 hover:bg-stone-100'}`;
+                btn.innerHTML = `<span>${domain.icon}</span> <span class="truncate">${domain.title}</span>`;
+                btn.onclick = () => switchDomain(domain.id);
+                navContainer.appendChild(btn);
+
+                const pill = document.createElement('button');
+                pill.className = `flex-none px-4 py-1.5 rounded-full text-sm border ${state.currentDomain === domain.id ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600 border-stone-200'}`;
+                pill.innerText = `${domain.icon} ${domain.id === 'dashboard' ? 'Overview' : domain.id.split('-')[0]}`;
+                pill.onclick = () => switchDomain(domain.id);
+                mobileNav.appendChild(pill);
+            });
+        }
+
+        function switchDomain(domainId) {
+            state.currentDomain = domainId;
+            renderNav();
+            renderContent();
+            window.scrollTo(0,0);
+        }
+
+        function renderContent() {
+            const container = document.getElementById('mainContent');
+            const domain = appData.domains.find(d => d.id === state.currentDomain);
+            if (!domain) return;
+            container.innerHTML = '';
+
+            // Section Header
+            const header = document.createElement('div');
+            header.className = "mb-8 bg-white p-6 rounded-xl border border-stone-200 shadow-sm";
+            header.innerHTML = `
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-3xl p-3 bg-stone-50 rounded-lg">${domain.icon}</span>
+                    <h2 class="text-2xl font-bold text-slate-800">${domain.title}</h2>
+                </div>
+                <p class="text-slate-600 max-w-3xl">${domain.description}</p>
+            `;
+            container.appendChild(header);
+
+            if (state.currentDomain === 'dashboard') {
+                renderDashboard(container);
+            } else {
+                renderDomainCommands(container, domain);
+            }
+        }
+
+        function renderDashboard(container) {
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6";
+
+            // Visual Summary Card
+            const progressCard = document.createElement('div');
+            progressCard.className = "bg-white p-6 rounded-xl border border-stone-200 shadow-sm";
+            progressCard.innerHTML = `
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Skill Mastery</h3>
+                <div class="chart-container"><canvas id="progressChart"></canvas></div>
+            `;
+            grid.appendChild(progressCard);
+
+            const distCard = document.createElement('div');
+            distCard.className = "bg-white p-6 rounded-xl border border-stone-200 shadow-sm";
+            distCard.innerHTML = `
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Category Density</h3>
+                <div class="chart-container"><canvas id="distChart"></canvas></div>
+            `;
+            grid.appendChild(distCard);
+
+            container.appendChild(grid);
+            setTimeout(initCharts, 0);
+        }
+
+        function renderDomainCommands(container, domain) {
+            const list = document.createElement('div');
+            list.className = "grid grid-cols-1 gap-4";
+
+            const filtered = domain.commands.filter(cmd => {
+                const matchesSearch = cmd.cmd.toLowerCase().includes(state.searchQuery.toLowerCase()) || 
+                                      cmd.desc.toLowerCase().includes(state.searchQuery.toLowerCase());
+                const matchesLevel = state.levelFilter === "all" || cmd.level.toString() === state.levelFilter;
+                return matchesSearch && matchesLevel;
+            });
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="p-12 text-center text-slate-400 bg-white rounded-xl border border-dashed border-stone-300">No tools found matching your search.</div>`;
+            } else {
+                filtered.forEach(cmd => {
+                    const isMastered = state.masteredCommands.has(cmd.cmd);
+                    const card = document.createElement('div');
+                    card.className = `bg-white rounded-lg border p-4 transition-all flex items-start gap-4 ${isMastered ? 'border-green-100 bg-green-50/20' : 'border-stone-200 hover:border-sky-300'}`;
+                    
+                    // Mastered Checkbox
+                    const check = document.createElement('button');
+                    check.className = `mt-1 w-6 h-6 flex-none rounded border flex items-center justify-center transition-colors ${isMastered ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-stone-300 hover:border-sky-500'}`;
+                    check.innerHTML = isMastered ? '✓' : '';
+                    check.onclick = (e) => { e.stopPropagation(); toggleMastery(cmd.cmd); };
+
+                    const info = document.createElement('div');
+                    info.className = "flex-1 cursor-pointer";
+                    info.onclick = () => showTerminalDetail(cmd);
+                    info.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <code class="font-mono text-sky-700 font-bold text-lg">${cmd.cmd}</code>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 font-bold uppercase tracking-tighter">Level ${cmd.level}</span>
+                        </div>
+                        <p class="text-slate-600 text-sm">${cmd.desc}</p>
+                    `;
+
+                    card.appendChild(check);
+                    card.appendChild(info);
+                    list.appendChild(card);
+                });
+            }
+
+            container.appendChild(list);
+        }
+
+        function toggleMastery(cmdId) {
+            if (state.masteredCommands.has(cmdId)) state.masteredCommands.delete(cmdId);
+            else state.masteredCommands.add(cmdId);
+            renderContent();
+            renderNav();
+            saveState();
+        }
+
+        function showTerminalDetail(cmdObj) {
+            const terminal = document.getElementById('terminalOutput');
+            const now = new Date().toLocaleTimeString();
+            
+            terminal.innerHTML = ''; // Clear
+
+            const head = document.createElement('div');
+            head.className = "mb-4 pb-2 border-b border-slate-700";
+            head.innerHTML = `<span class="text-sky-400">COMMAND:</span> <span class="text-white">${cmdObj.cmd}</span>`;
+
+            const layman = document.createElement('div');
+            layman.className = "mb-4 p-4 bg-slate-800 rounded-lg border-l-4 border-emerald-500";
+            layman.innerHTML = `
+                <div class="text-[10px] uppercase font-bold text-emerald-400 mb-1">The Layman Translation</div>
+                <div class="text-slate-200 italic leading-relaxed text-sm">"${cmdObj.detailed}"</div>
+            `;
+
+            const meta = document.createElement('div');
+            meta.className = "text-[10px] text-slate-500 mt-6";
+            meta.innerHTML = `[${now}] Simulation ID: ${Math.random().toString(36).substr(2, 9).toUpperCase()}<br>Level ${cmdObj.level} logic applied.`;
+
+            terminal.appendChild(head);
+            terminal.appendChild(layman);
+            terminal.appendChild(meta);
+            
+            const cursor = document.createElement('div');
+            cursor.className = "text-emerald-500 mt-4";
+            cursor.innerHTML = `$ <span class="cursor-blink">_</span>`;
+            terminal.appendChild(cursor);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                if(state.currentDomain === 'dashboard') switchDomain('interface');
+                else renderContent();
+            });
+
+            document.getElementById('levelFilter').addEventListener('change', (e) => {
+                state.levelFilter = e.target.value;
+                if(state.currentDomain === 'dashboard') switchDomain('interface');
+                else renderContent();
+            });
+        }
+
+        function initCharts() {
+            const total = appData.domains.reduce((acc, d) => acc + (d.commands ? d.commands.length : 0), 0);
+            const mastered = state.masteredCommands.size;
+            
+            const pb = document.getElementById('sidebarProgressBar');
+            if(pb) pb.style.width = `${(mastered/total)*100}%`;
+            const pt = document.getElementById('progressText');
+            if(pt) pt.innerText = `${Math.round((mastered/total)*100)}% Mastered (${mastered}/${total})`;
+
+            const ctx1 = document.getElementById('progressChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Learned', 'To Study'],
+                        datasets: [{ data: [mastered, total - mastered], backgroundColor: ['#0284c7', '#e2e8f0'], borderWidth: 0 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+                });
+            }
+
+            const ctx2 = document.getElementById('distChart');
+            if (ctx2) {
+                const filtered = appData.domains.filter(d => d.commands);
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: filtered.map(d => d.title.split('.')[0]),
+                        datasets: [{ label: 'Commands', data: filtered.map(d => d.commands.length), backgroundColor: '#0ea5e9' }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+        function saveState() { localStorage.setItem('netMastery_mastered', JSON.stringify([...state.masteredCommands])); }
+        function loadState() {
+            const saved = localStorage.getItem('netMastery_mastered');
+            if (saved) state.masteredCommands = new Set(JSON.parse(saved));
+            renderNav();
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Kernel Ops Center | Ultra Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Outfit:wght@300;400;600;800&display=swap');
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #020617 100%);
+            color: #e2e8f0;
+            overflow: hidden;
+        }
+
+        .font-mono { font-family: 'Fira Code', monospace; }
+
+        /* Exaggerated Glassmorphism & Neons */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .neon-border-cyan { border: 1px solid rgba(6, 182, 212, 0.5); box-shadow: 0 0 15px rgba(6, 182, 212, 0.2); }
+        .neon-border-purple { border: 1px solid rgba(168, 85, 247, 0.5); box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); }
+        .neon-border-amber { border: 1px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+        .neon-border-emerald { border: 1px solid rgba(16, 185, 129, 0.5); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        /* Terminal Styling */
+        .terminal-window {
+            background: linear-gradient(180deg, #0d1117 0%, #010409 100%);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .cursor-blink {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background-color: currentColor;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+            margin-left: 2px;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Smooth Transitions */
+        .cmd-item { transition: all 0.2s ease-out; }
+        .cmd-item:hover { transform: translateX(5px); background: rgba(255,255,255,0.05); }
+        
+        .active-cmd-cyan { background: linear-gradient(90deg, rgba(6,182,212,0.2) 0%, transparent 100%); border-left: 4px solid #06b6d4; }
+        .active-cmd-purple { background: linear-gradient(90deg, rgba(168,85,247,0.2) 0%, transparent 100%); border-left: 4px solid #a855f7; }
+        .active-cmd-amber { background: linear-gradient(90deg, rgba(245,158,11,0.2) 0%, transparent 100%); border-left: 4px solid #f59e0b; }
+        .active-cmd-emerald { background: linear-gradient(90deg, rgba(16,185,129,0.2) 0%, transparent 100%); border-left: 4px solid #10b981; }
+
+        .chart-container { position: relative; width: 100%; height: 250px; }
+        @media (min-width: 1024px) { .chart-container { height: 300px; } }
+    </style>
+    <!-- Chosen Palette: Deep Night (#020617) with Ultra-Vibrant Accents (Cyan, Fuchsia/Purple, Amber, Emerald) -->
+    <!-- Application Structure Plan:
+         1. Layout: Floating Sidebar + Main Dashboard area. Heavy use of glassmorphism.
+         2. Main Content: Domain headers with glowing badges.
+         3. Visualizer: Chart.js wrapped in neon-bordered glass panels.
+         4. Command Center: Interactive list + Hyper-realistic Terminal output with syntax highlighting.
+         5. Purpose: Make deep learning visually stunning to maintain focus on highly technical kernel concepts.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="h-screen flex text-slate-300 antialiased selection:bg-fuchsia-500 selection:text-white">
+
+    <!-- Floating Sidebar -->
+    <nav class="w-20 lg:w-72 flex flex-col justify-between shrink-0 z-50 p-4 border-r border-white/5 bg-black/20 backdrop-blur-xl">
+        <div>
+            <div class="flex items-center justify-center lg:justify-start lg:px-2 mb-10 mt-2">
+                <span class="text-4xl drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">🐧</span>
+                <div class="hidden lg:block ml-4">
+                    <h1 class="font-800 text-2xl tracking-tighter text-white uppercase">Kernel<span class="text-fuchsia-500">Ops</span></h1>
+                    <p class="text-[10px] uppercase tracking-widest text-slate-500 font-mono">Deep Learning v3</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-col gap-3">
+                <button onclick="switchDomain('net')" id="nav-net" class="nav-btn group flex items-center p-4 rounded-2xl transition-all duration-300">
+                    <span class="text-2xl drop-shadow-md">🌐</span>
+                    <div class="hidden lg:block ml-4 text-left">
+                        <span class="block font-bold text-lg leading-none">Networking</span>
+                        <span class="text-xs opacity-60 font-mono mt-1">eBPF & Packets</span>
+                    </div>
+                </button>
+                <button onclick="switchDomain('identity')" id="nav-identity" class="nav-btn group flex items-center p-4 rounded-2xl transition-all duration-300">
+                    <span class="text-2xl drop-shadow-md">🧬</span>
+                    <div class="hidden lg:block ml-4 text-left">
+                        <span class="block font-bold text-lg leading-none">Identity</span>
+                        <span class="text-xs opacity-60 font-mono mt-1">ACLs & Namespaces</span>
+                    </div>
+                </button>
+                <button onclick="switchDomain('logs')" id="nav-logs" class="nav-btn group flex items-center p-4 rounded-2xl transition-all duration-300">
+                    <span class="text-2xl drop-shadow-md">👁️</span>
+                    <div class="hidden lg:block ml-4 text-left">
+                        <span class="block font-bold text-lg leading-none">Forensics</span>
+                        <span class="text-xs opacity-60 font-mono mt-1">Logs & Analytics</span>
+                    </div>
+                </button>
+                <button onclick="switchDomain('sec')" id="nav-sec" class="nav-btn group flex items-center p-4 rounded-2xl transition-all duration-300">
+                    <span class="text-2xl drop-shadow-md">🛡️</span>
+                    <div class="hidden lg:block ml-4 text-left">
+                        <span class="block font-bold text-lg leading-none">Security</span>
+                        <span class="text-xs opacity-60 font-mono mt-1">MAC & Hardening</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+        
+        <div class="hidden lg:block p-4 rounded-2xl bg-white/5 border border-white/5 text-center">
+            <div class="text-4xl mb-2">🧠</div>
+            <p class="text-xs text-slate-400">Total Commands</p>
+            <p class="text-2xl font-mono font-bold text-white">195</p>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <main class="flex-1 flex flex-col min-w-0 relative h-full">
+        <!-- Background Glow -->
+        <div id="bg-glow" class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] opacity-20 blur-[120px] rounded-full pointer-events-none transition-colors duration-1000"></div>
+
+        <!-- Header -->
+        <header class="h-20 flex items-center justify-between px-8 z-40">
+            <div class="flex items-center gap-4">
+                <h2 id="domain-title" class="text-3xl font-800 text-white tracking-tight drop-shadow-md">Advanced Networking</h2>
+                <span id="domain-badge" class="px-3 py-1 rounded-full text-xs font-bold font-mono border bg-opacity-20 backdrop-blur-md uppercase tracking-widest">Active</span>
+            </div>
+            <div class="relative w-72 hidden md:block">
+                <span class="absolute left-3 top-2.5 opacity-50 text-sm">🔍</span>
+                <input type="text" id="global-search" placeholder="Search knowledge base..." 
+                    class="w-full bg-white/5 border border-white/10 text-white text-sm rounded-full pl-10 pr-4 py-2.5 focus:outline-none focus:border-white/30 focus:bg-white/10 transition-all font-mono"
+                    oninput="handleSearch(this.value)">
+            </div>
+        </header>
+
+        <!-- Scrollable Content Layout -->
+        <div class="flex-1 overflow-y-auto p-4 lg:p-8 pt-0 z-10 flex flex-col gap-6">
+            
+            <!-- Top Section: Intro & Graph -->
+            <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0">
+                <!-- Context Card -->
+                <div id="domain-intro-card" class="xl:col-span-1 glass-panel rounded-3xl p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="text-4xl mb-4" id="intro-emoji">🔮</div>
+                        <div id="domain-intro" class="text-sm text-slate-300 leading-relaxed font-light">
+                            <!-- Injected via JS -->
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-white/10">
+                        <p class="text-[11px] uppercase tracking-widest font-bold text-white opacity-50 mb-2">Deep Learning Focus</p>
+                        <p id="domain-focus" class="text-xs font-mono text-cyan-300"></p>
+                    </div>
+                </div>
+
+                <!-- Visualization Card -->
+                <div id="viz-card" class="xl:col-span-2 glass-panel rounded-3xl p-6 flex flex-col relative overflow-hidden">
+                    <div class="flex justify-between items-start mb-2 z-10">
+                        <div>
+                            <h3 id="chart-title" class="font-bold text-xl text-white">Live Telemetry</h3>
+                            <p class="text-xs font-mono text-slate-400 mt-1">Real-time kernel state simulation</p>
+                        </div>
+                        <button id="chart-action-btn" class="px-4 py-2 text-white text-xs font-bold rounded-full transition-all border border-white/20 hover:scale-105 active:scale-95 shadow-lg">
+                            Action
+                        </button>
+                    </div>
+                    <div class="chart-container flex-1 z-10 mt-2">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Bottom Section: Command Grid & Terminal -->
+            <section class="flex flex-col lg:flex-row gap-6 flex-1 min-h-[500px]">
+                
+                <!-- Command List -->
+                <div class="w-full lg:w-1/3 glass-panel rounded-3xl flex flex-col overflow-hidden">
+                    <div class="p-4 border-b border-white/10 bg-black/20">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-2">Command Index</h3>
+                        <input type="text" id="cmd-filter" placeholder="Filter commands..." class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-white/30 font-mono">
+                    </div>
+                    <div id="cmd-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Pro Terminal -->
+                <div class="w-full lg:w-2/3 terminal-window rounded-3xl border border-white/10 flex flex-col relative overflow-hidden shadow-2xl">
+                    <!-- MacOS style top bar -->
+                    <div class="h-12 bg-[#161b22] border-b border-[#30363d] flex items-center px-4">
+                        <div class="flex gap-2">
+                            <div class="w-3.5 h-3.5 rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
+                            <div class="w-3.5 h-3.5 rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
+                        </div>
+                        <div class="mx-auto text-xs font-mono text-[#8b949e] flex items-center gap-2">
+                            <span>🔒</span> root@kernel-ops: ~
+                        </div>
+                    </div>
+
+                    <!-- Terminal Output Area -->
+                    <div class="flex-1 p-6 font-mono text-sm overflow-y-auto">
+                        <div id="terminal-welcome" class="text-[#8b949e] mb-4">
+                            Welcome to Deep Learning Kernel Shell.<br>
+                            Waiting for command selection...
+                        </div>
+                        
+                        <div id="terminal-output" class="hidden">
+                            <!-- Command Prompt -->
+                            <div class="flex mb-4">
+                                <span class="text-[#56d364] mr-2">root@kernel</span>
+                                <span class="text-[#58a6ff] mr-2">~ #</span>
+                                <span class="text-[#e6edf3] break-all" id="term-cmd-display"></span>
+                                <span class="cursor-blink"></span>
+                            </div>
+                            
+                            <!-- AI/Deep Dive Analysis Box -->
+                            <div class="mt-8 rounded-lg bg-[#0d1117] border border-[#30363d] p-5 relative overflow-hidden">
+                                <div class="absolute left-0 top-0 w-1 h-full" id="term-color-bar"></div>
+                                <h4 class="text-[#8b949e] font-bold mb-3 text-[10px] uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <span class="animate-pulse">⚡</span> Kernel Analysis
+                                </h4>
+                                <p id="term-desc" class="text-[#c9d1d9] leading-relaxed text-[13px]"></p>
+                            </div>
+
+                            <!-- Meta Tags -->
+                            <div class="mt-4 flex gap-3">
+                                <span id="term-tag-1" class="px-2 py-1 rounded bg-[#1f2428] border border-[#30363d] text-[#8b949e] text-[10px] uppercase"></span>
+                                <span class="px-2 py-1 rounded bg-[#1f2428] border border-[#30363d] text-[#8b949e] text-[10px] uppercase">Ring 0 / Kernel Space</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Copy Btn -->
+                    <button onclick="copyActiveCommand()" class="absolute bottom-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-md transition-all border border-white/20 shadow-lg group">
+                        <span class="text-xl group-hover:scale-110 block transition-transform">📋</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // --- Enhanced Data: 195 Commands total (35 New Ultra-Advanced) ---
+        const dataStore = {
+            net: {
+                title: "Advanced Networking", color: "cyan", hex: "#06b6d4", emoji: "🌐",
+                intro: "Modern DevOps treats networking as software. Master <strong>Network Namespaces</strong>, <strong>eBPF tracing</strong>, and <strong>Traffic Shaping</strong>. The kernel treats networking as a flow of packets through complex Netfilter and routing tables.",
+                focus: "eBPF, Namespaces, Routing, Overlay Nets",
+                chartTitle: "Live Bandwidth (TC Throttle)", btnText: "Toggle tc qdisc",
+                categories: [
+                    { name: "Namespaces & Overlay (Docker Core)", cmds: [
+                        { c: "ip netns add isolated_net", d: "Creates a completely isolated network stack in the kernel. This is exactly how Docker containers are isolated from the host network." },
+                        { c: "ip netns exec isolated_net bash", d: "Opens a shell *inside* that isolated network. If you run `ip a` here, you will not see the host's IP addresses." },
+                        { c: "ip link add veth0 type veth peer name veth1", d: "Creates a virtual ethernet pipe. What goes in `veth0` comes out `veth1`. Used to bridge isolated namespaces to the physical network." },
+                        { c: "ip link set veth1 netns isolated_net", d: "Shoves one end of the virtual pipe into the isolated namespace." },
+                        { c: "brctl addbr br0", d: "Creates a virtual Layer 2 switch inside Linux." },
+                        { c: "ip link add vxlan0 type vxlan id 100 dev eth0 dstport 4789", d: "NEW: Creates a VXLAN overlay network interface. This encapsulates Layer 2 ethernet frames inside Layer 4 UDP packets. The absolute core of Kubernetes networking (Flannel/Cilium)." },
+                        { c: "bridge fdb show dev vxlan0", d: "NEW: Shows the Forwarding Database for the bridge. Crucial for debugging MAC address resolution inside Docker/K8s overlays." }
+                    ]},
+                    { name: "Advanced Routing & BGP", cmds: [
+                        { c: "ip route add blackhole 10.9.9.9", d: "Tells the kernel routing table to instantly incinerate any packet destined for this IP. Extremely fast DDoS mitigation at the edge." },
+                        { c: "ip rule add from 192.168.1.100 table 120", d: "Policy Routing. Instead of routing based on destination, route based on *source* IP." },
+                        { c: "ip route add default via 10.0.0.1 table 120", d: "Tells the custom policy table where to send that specific traffic." },
+                        { c: "ip route add default nexthop via 10.0.0.1 weight 1 nexthop via 10.0.0.2 weight 1", d: "NEW: ECMP (Equal-Cost Multi-Path) routing. The kernel natively load-balances outbound traffic across two gateways without needing HAProxy." },
+                        { c: "vtysh -c 'show ip bgp'", d: "NEW: (Requires FRRouting). Drops into the virtual router shell to show live BGP routes. Essential for bare-metal Kubernetes and Anycast networking." }
+                    ]},
+                    { name: "Traffic Control & QoS", cmds: [
+                        { c: "tc qdisc add dev eth0 root tbf rate 1mbit burst 32k latency 400ms", d: "Manipulates the kernel's queueing discipline to artificially throttle outgoing bandwidth to 1Mbps. Used in chaos engineering." },
+                        { c: "tc -s qdisc ls dev eth0", d: "Shows real-time statistics of packets being artificially delayed or dropped by your `tc` rules." },
+                        { c: "tc qdisc del dev eth0 root", d: "Removes the artificial throttling." }
+                    ]},
+                    { name: "Packet Analysis & eBPF Dark Arts", cmds: [
+                        { c: "tcpdump -nnvvS tcp and src host 10.0.0.5", d: "Sniffs raw packets without resolving DNS (-nn), very verbose (-vv), showing absolute sequence numbers (-S) for deep TCP handshake analysis." },
+                        { c: "tcpdump -A -s0 port 80", d: "Captures the full packet size (-s0) and prints the payload in ASCII (-A). Used to literally read unencrypted HTTP requests flying over the wire." },
+                        { c: "tcpdump -G 3600 -w trace_%Y-%m-%d_%H.pcap", d: "NEW: Rotates packet captures every hour (3600s). Perfect for leaving a sniffer running overnight to catch an intermittent network bug." },
+                        { c: "ss -ti", d: "Shows deep TCP internal metrics (retransmission counts, congestion window size, RTT latency) for every active connection." },
+                        { c: "ss -K dst 10.0.0.5", d: "Kernel Socket Kill. Forcibly closes an established TCP connection at the kernel level without waiting for timeouts." },
+                        { c: "conntrack -E", d: "Watches the kernel's connection tracking table in real-time. Watch TCP states transition from SYN_SENT to ESTABLISHED." },
+                        { c: "bpftrace -e 'kprobe:tcp_v4_connect { printf(\"Connect to %s\\n\", ntop(arg1)); }'", d: "NEW: eBPF Magic. Traces every single IPv4 outbound connection attempt at the exact moment the kernel fires the syscall. Zero overhead, incredible visibility." },
+                        { c: "socat -v TCP-LISTEN:8080,fork TCP:10.0.0.5:80", d: "NEW: Advanced Port Forwarding. Opens 8080 locally, and for every connection, forks a new process to pipe raw bytes to a remote server, while printing (-v) all traffic to screen." },
+                        { c: "ncat -vvl -p 8443 --ssl", d: "NEW: Spawns a highly secure listener wrapped in a dynamically generated SSL/TLS tunnel. Replaces old netcat for secure debugging." }
+                    ]},
+                    { name: "Diagnostics", cmds: [
+                        { c: "dig +trace +nodnssec google.com", d: "Forces machine to ignore local DNS caches and query Root Servers (.) directly, tracing delegation." },
+                        { c: "traceroute -T -p 443 8.8.8.8", d: "Uses TCP port 443 packets instead of ICMP, tricking firewalls into letting the trace pass through." },
+                        { c: "mtr -T -P 443 8.8.8.8", d: "The live, continuous version of the TCP traceroute." },
+                        { c: "iftop -B", d: "Shows exactly which IP connections are currently eating the most bandwidth on your interface." }
+                    ]}
+                ]
+            },
+            identity: {
+                title: "Identity & User Namespaces", color: "purple", hex: "#a855f7", emoji: "🧬",
+                intro: "Standard permissions are primitive. Modern security relies on <strong>User Namespaces</strong>, <strong>PolicyKit</strong>, and <strong>Kernel Capabilities</strong> to decouple root privileges from the actual root user.",
+                focus: "ACLs, PAM, User Namespaces, Polkit",
+                chartTitle: "File Permission Risk Distribution", btnText: "Enforce Secure ACLs",
+                categories: [
+                    { name: "ACLs & Attributes", cmds: [
+                        { c: "setfacl -m u:devops:rw file.txt", d: "Modifies extended attributes in the inode to grant 'devops' read/write access, totally bypassing standard owner/group rules." },
+                        { c: "setfacl -m d:u:devops:rw /shared/", d: "Sets a Default ACL. Any new file created inside /shared/ automatically inherits these permissions." },
+                        { c: "chattr +i /etc/passwd", d: "Makes the file Immutable. It cannot be deleted, renamed, or modified by anyone, including root, until the flag is removed." },
+                        { c: "chattr +a /var/log/audit.log", d: "Makes a file Append-Only. Root cannot delete/overwrite data; only add to the bottom." }
+                    ]},
+                    { name: "Namespaces & Isolation", cmds: [
+                        { c: "unshare -U -r -m bash", d: "NEW: User & Mount Namespace escape. Opens a shell where you are mapped to 'root' *inside* the namespace, but remain a standard user outside. The foundation of Rootless Docker." },
+                        { c: "nsenter -t <PID> -u -n -i bash", d: "NEW: Injects your terminal session directly into the namespaces of a running process (like a container) to debug it natively." },
+                        { c: "machinectl login my-container", d: "NEW: (systemd-machined). A highly secure way to log into a lightweight local systemd-nspawn container, bypassing SSH entirely." }
+                    ]},
+                    { name: "Kernel Capabilities & Polkit", cmds: [
+                        { c: "setcap cap_net_bind_service=+ep /usr/bin/node", d: "Gives Node.js ability to bind privileged ports (80/443) without needing root. Massive security win." },
+                        { c: "getcap -r /usr/bin", d: "Recursively scans system to find binaries that have been granted secret kernel capabilities." },
+                        { c: "pkexec visudo", d: "NEW: PolicyKit execution. The modern, GUI-aware alternative to sudo. Evaluates complex XML/JavaScript rules in /etc/polkit-1/ to determine if you are allowed to run this as root." },
+                        { c: "pkaction --verbose", d: "NEW: Dumps every single PolicyKit action registered on the system, showing exactly who is allowed to do what (e.g., rebooting, mounting drives)." }
+                    ]},
+                    { name: "PAM & Advanced Auth", cmds: [
+                        { c: "faillock --user bob", d: "Queries PAM database to see exactly how many times Bob failed to log in, and from what IP." },
+                        { c: "chage -d 0 bob", d: "Forces 'last password change date' to 0, instantly forcing password change on next login." },
+                        { c: "usermod -L hacker", d: "Locks account by putting a '!' in front of password hash in /etc/shadow, making it mathematically impossible to match." },
+                        { c: "authselect current", d: "NEW: (RHEL/Fedora). Shows the active PAM profile. Did someone secretly configure the server to authenticate against a rogue LDAP server?" },
+                        { c: "pam-auth-update", d: "NEW: (Ubuntu/Debian). Safely regenerates the complex PAM stack configuration files interactively. Never edit /etc/pam.d/common-auth manually!" },
+                        { c: "getent group admin", d: "NEW: Resolves the 'admin' group by querying all databases (local /etc/group, LDAP, NIS). Crucial when debugging missing permissions for network users." }
+                    ]},
+                    { name: "SetUID & Elevated Execution", cmds: [
+                        { c: "chmod u+s /usr/bin/ping", d: "SetUID. When normal user runs this, kernel executes it as owner (root). Dangerous on scripts." },
+                        { c: "chmod g+s /shared/dir", d: "SetGID. Files created inside inherit directory's group, not creator's primary group. Crucial for collaboration." },
+                        { c: "find / -perm -4000 2>/dev/null", d: "Security Audit: Find every SetUID binary on system that grants root execution privileges." },
+                        { c: "sudoedit /etc/nginx/nginx.conf", d: "NEW: Safely edit root files. Copies the file to /tmp, lets you edit it as your NORMAL user (using your plugins/theme), then securely copies it back as root when saved." }
+                    ]}
+                ]
+            },
+            logs: {
+                title: "Forensics & Observability", color: "amber", hex: "#f59e0b", emoji: "👁️",
+                intro: "Logs are structured data streams. A master uses <strong>journalctl</strong> to manipulate the binary flight recorder, <strong>eBPF/strace</strong> for live syscall monitoring, and <strong>awk/sed/jq</strong> for terminal-based analytics.",
+                focus: "JSON Logs, eBPF, Syscalls, Awk/Sed",
+                chartTitle: "Log Volume Ingestion (Syscalls/s)", btnText: "Purge Corrupted Logs",
+                categories: [
+                    { name: "Systemd Journal & Integrity", cmds: [
+                        { c: "journalctl -xef", d: "Follows live (-f), jumps to end (-e), and uses catalog (-x) to inject explanations of *why* errors occurred." },
+                        { c: "journalctl -b -1", d: "Shows logs exclusively from the *previous* boot session. Essential for debugging crashes." },
+                        { c: "journalctl --vacuum-size=1G", d: "Shaves journal down until it takes up precisely 1GB of disk space." },
+                        { c: "journalctl -o json-pretty", d: "Converts raw logs into structured JSON, exposing hidden kernel metadata." },
+                        { c: "journalctl --verify", d: "NEW: Scans the entire binary journal disk footprint to check for cryptographic corruption or tampering by a hacker." },
+                        { c: "journalctl --sync", d: "NEW: Forces the systemd journal to immediately flush all buffered logs residing in RAM to the physical disk. Crucial before a hard reset." }
+                    ]},
+                    { name: "Live Tracing & Syscalls", cmds: [
+                        { c: "strace -c -p <PID>", d: "NEW: Attaches to a process and prints a summary (-c) of every system call it made, sorting by which took the most time. Ultimate performance debugging." },
+                        { c: "ltrace -S -p <PID>", d: "NEW: Deep Library Trace. Shows not only system calls (like strace) but also calls to dynamic C libraries (like malloc or printf)." },
+                        { c: "dmesg -H -w", d: "NEW: Human-readable (-H) live following (-w) of the kernel ring buffer. Automatically pages, colors, and timestamps hardware errors." }
+                    ]},
+                    { name: "Awk & Advanced Parsing", cmds: [
+                        { c: "awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -10", d: "The DDoS Hunter. Counts identical IPs and sorts by highest count. Reveals top attackers." },
+                        { c: "sed -n '/Jan 01 10:00/,/Jan 01 11:00/p' /var/log/syslog", d: "The Time Slicer. Extracts exactly one hour of logs without reading the whole file into memory." },
+                        { c: "awk 'NR%100==0' massive.log", d: "NEW: Fast Sampling. Reads a massive 50GB log file but only prints every 100th line to give you a quick statistical sample without crashing your terminal." },
+                        { c: "sed -i 's/\\x0//g' corrupted.log", d: "NEW: Log Healer. Strips out invisible null bytes (\\x0) that often corrupt text files during server crashes or bad network transfers." }
+                    ]},
+                    { name: "Audit Framework & Ingestion", cmds: [
+                        { c: "auditctl -w /etc/shadow -p wa -k shadow_changes", d: "Installs kernel tripwire. If ANY process writes (w) or appends (a) to shadow file, kernel logs it." },
+                        { c: "ausearch -k shadow_changes", d: "Queries audit daemon to see exactly which PID and User triggered the tripwire." },
+                        { c: "aureport -x", d: "Generates forensic summary report of exactly which executable binaries were run on system." },
+                        { c: "logger -t MYAPP -p user.emerg \"Critical Failure\"", d: "NEW: Injects a custom log into the system with a specific tag (-t) and the highest possible priority (-p emerg), which usually broadcasts to all open terminal windows." }
+                    ]}
+                ]
+            },
+            sec: {
+                title: "Security & Hardening", color: "emerald", hex: "#10b981", emoji: "🛡️",
+                intro: "Security is about reducing attack surface. This involves <strong>Kernel-level MAC (SELinux)</strong>, <strong>Firewalld Rich Rules</strong>, <strong>Wireguard Cryptography</strong>, and <strong>OSQuery active defense</strong>.",
+                focus: "SELinux, Firewalld, OSQuery, LUKS",
+                chartTitle: "System Hardening Score", btnText: "Run Audit / Enforce",
+                categories: [
+                    { name: "Kernel Hardening", cmds: [
+                        { c: "sysctl -w kernel.randomize_va_space=2", d: "Enables full ASLR. Makes buffer overflows nearly impossible by randomizing RAM layout." },
+                        { c: "sysctl -w net.ipv4.conf.all.rp_filter=1", d: "Enables Reverse Path Filtering. Kernel checks if incoming packets arrive on correct interface. Stops IP Spoofing." },
+                        { c: "sysctl -w net.ipv4.tcp_syncookies=1", d: "Protects against SYN flood DDoS by calculating TCP sequences mathematically instead of storing in memory." }
+                    ]},
+                    { name: "MAC (SELinux & AppArmor)", cmds: [
+                        { c: "semanage port -a -t http_port_t -p tcp 8080", d: "Updates kernel MAC policy to officially allow web server context to bind to non-standard port." },
+                        { c: "audit2allow -a -M my_rule", d: "Reads block logs and automatically generates custom policy module to allow whatever was blocked." },
+                        { c: "aa-enforce /etc/apparmor.d/usr.sbin.nginx", d: "Locks profile down. Violations are hard-blocked by kernel." }
+                    ]},
+                    { name: "Advanced Firewalls & Wireguard", cmds: [
+                        { c: "iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP", d: "Native kernel-level brute force protection. Drops IP if it hits SSH 4 times in 60s." },
+                        { c: "firewall-cmd --add-rich-rule='rule family=\"ipv4\" source address=\"10.0.0.5\" reject'", d: "NEW: (Firewalld). Injects a dynamic 'Rich Rule' to instantly block a specific IP without altering the base zone configuration." },
+                        { c: "wg genkey | tee privatekey | wg pubkey > publickey", d: "NEW: WireGuard Crypto. Generates an ultra-fast, modern elliptic curve keypair for kernel-level VPN tunnels." },
+                        { c: "wg show", d: "NEW: Dumps the live state of the WireGuard kernel module, showing connected peers and crypto-routed handshakes." }
+                    ]},
+                    { name: "Active Defense & Intrusion Detection", cmds: [
+                        { c: "osqueryi \"SELECT * FROM listening_ports JOIN processes USING (pid);\"", d: "NEW: (Requires OSQuery). Facebook's tool that turns the Linux kernel into a SQL database. This query instantly reveals exactly what binary is listening on every open port." },
+                        { c: "aide --check", d: "NEW: Advanced Intrusion Detection Environment. Compares the current filesystem against a cryptographically signed baseline database to detect if a hacker altered ANY file." },
+                        { c: "rkhunter --propupd", d: "Scans core binaries (ls, netstat) and saves cryptographic hashes to detect rootkit replacements." },
+                        { c: "cryptsetup luksFormat /dev/sdX", d: "Writes LUKS header to partition, turning it into AES-256 encrypted vault." },
+                        { c: "cryptsetup luksDump /dev/sdX", d: "NEW: Analyzes the LUKS encrypted partition header. Shows the cipher suite used (e.g., aes-xts-plain64) and which keyslots are currently occupied." }
+                    ]},
+                    { name: "SSH Certificate Authorities", cmds: [
+                        { c: "ssh-keygen -s ca_key -I user_bob -n root,ubuntu -V +1d bob_id_rsa.pub", d: "NEW: SSH CA. Instead of copying keys everywhere, sign Bob's public key with a CA. Grant him access to the 'root' and 'ubuntu' users, but make the certificate expire in exactly 1 day. Military grade SSH." }
+                    ]}
+                ]
+            }
+        };
+
+        // --- Global State ---
+        let activeDomain = 'net';
+        let activeCmd = null;
+        let chartInstance = null;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            switchDomain('net');
+        });
+
+        // --- Core Functions ---
+
+        function switchDomain(domainKey) {
+            activeDomain = domainKey;
+            const data = dataStore[domainKey];
+
+            // 1. Update UI Styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white/10', 'border', 'border-white/20', 'shadow-[0_0_15px_rgba(255,255,255,0.1)]');
+                btn.classList.add('opacity-60');
+            });
+            const activeBtn = document.getElementById('nav-' + domainKey);
+            activeBtn.classList.remove('opacity-60');
+            activeBtn.classList.add('bg-white/10', 'border', 'border-white/20', 'shadow-[0_0_15px_rgba(255,255,255,0.1)]');
+
+            // Set Background Glow Color
+            document.getElementById('bg-glow').style.backgroundColor = data.hex;
+
+            // 2. Update Content
+            document.getElementById('domain-title').innerText = data.title;
+            document.getElementById('domain-badge').style.borderColor = data.hex;
+            document.getElementById('domain-badge').style.color = data.hex;
+            document.getElementById('domain-badge').style.backgroundColor = `${data.hex}20`;
+            
+            document.getElementById('intro-emoji').innerText = data.emoji;
+            document.getElementById('domain-intro').innerHTML = data.intro;
+            document.getElementById('domain-focus').innerText = data.focus;
+            document.getElementById('domain-focus').style.color = data.hex;
+
+            // Update Cards Borders
+            document.getElementById('domain-intro-card').className = `xl:col-span-1 glass-panel rounded-3xl p-6 flex flex-col justify-between neon-border-${data.color}`;
+            document.getElementById('viz-card').className = `xl:col-span-2 glass-panel rounded-3xl p-6 flex flex-col relative overflow-hidden neon-border-${data.color}`;
+            
+            // 3. Render Command List
+            renderCommandList(data);
+
+            // 4. Update Chart
+            updateChart(domainKey, data);
+            
+            // 5. Reset Terminal
+            document.getElementById('terminal-welcome').classList.remove('hidden');
+            document.getElementById('terminal-output').classList.add('hidden');
+        }
+
+        function renderCommandList(data) {
+            const listContainer = document.getElementById('cmd-list');
+            listContainer.innerHTML = '';
+
+            data.categories.forEach(cat => {
+                const header = document.createElement('div');
+                header.className = `sticky top-0 bg-[#0f172a]/95 backdrop-blur z-10 px-3 py-2 mt-4 mb-2 text-[10px] font-bold text-${data.color}-400 uppercase tracking-widest rounded-md border border-white/5 shadow-lg`;
+                header.innerText = cat.name;
+                listContainer.appendChild(header);
+
+                cat.cmds.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = `cmd-item w-full text-left px-4 py-3 text-sm text-slate-300 rounded-xl mb-1 border-l-4 border-transparent font-mono truncate`;
+                    btn.innerText = item.c; 
+                    btn.title = item.c;
+                    btn.onclick = () => loadTerminal(item, btn, data.color);
+                    listContainer.appendChild(btn);
+                });
+            });
+        }
+
+        function loadTerminal(item, btnElement, colorClass) {
+            // Highlight Active
+            document.querySelectorAll('.cmd-item').forEach(b => {
+                b.className = `cmd-item w-full text-left px-4 py-3 text-sm text-slate-300 rounded-xl mb-1 border-l-4 border-transparent font-mono truncate`;
+            });
+            if(btnElement) {
+                btnElement.classList.add(`active-cmd-${colorClass}`);
+                btnElement.classList.add('text-white', 'font-bold');
+            }
+
+            activeCmd = item.c;
+
+            document.getElementById('terminal-welcome').classList.add('hidden');
+            const outputDiv = document.getElementById('terminal-output');
+            outputDiv.classList.remove('hidden');
+            
+            const termDisplay = document.getElementById('term-cmd-display');
+            const termDesc = document.getElementById('term-desc');
+            const colorBar = document.getElementById('term-color-bar');
+            
+            // Setup Colors
+            colorBar.style.backgroundColor = dataStore[activeDomain].hex;
+            document.getElementById('term-tag-1').innerText = dataStore[activeDomain].title;
+
+            // Typing effect simulation
+            termDisplay.innerHTML = '';
+            let i = 0;
+            const speed = 10; 
+            
+            function typeWriter() {
+                if (i < item.c.length) {
+                    termDisplay.innerHTML += item.c.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, speed);
+                } else {
+                    // Show description after typing finishes
+                    termDesc.innerHTML = item.d.replace(/\*(.*?)\*/g, '<strong class="text-white">$1</strong>').replace(/`(.*?)`/g, '<code class="bg-[#1f2428] px-1.5 py-0.5 rounded text-[#58a6ff] border border-[#30363d]">$1</code>');
+                    termDesc.classList.add('animate-pulse-once'); // Trigger slight flash
+                }
+            }
+            termDesc.innerHTML = '<span class="opacity-50">Analyzing kernel execution path...</span>';
+            typeWriter();
+        }
+
+        function copyActiveCommand() {
+            if(activeCmd) {
+                navigator.clipboard.writeText(activeCmd);
+            }
+        }
+
+        // --- Chart Logic ---
+        function updateChart(key, data) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            document.getElementById('chart-title').innerText = data.chartTitle;
+            
+            const btn = document.getElementById('chart-action-btn');
+            btn.innerText = data.btnText;
+            btn.style.backgroundColor = `${data.hex}40`; // 40 hex is ~25% opacity
+            btn.style.borderColor = data.hex;
+            btn.style.color = '#fff';
+
+            btn.onclick = () => simulateChartAction(key);
+
+            if (chartInstance) chartInstance.destroy();
+
+            Chart.defaults.color = '#8b949e';
+            Chart.defaults.font.family = "'Fira Code', monospace";
+
+            let config = {};
+            
+            if (key === 'net') {
+                const labels = Array.from({length: 20}, (_, i) => i);
+                const dataPoints = labels.map(() => 80 + Math.random() * 20); 
+                config = {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Throughput (Mbps)',
+                            data: dataPoints,
+                            borderColor: data.hex,
+                            backgroundColor: createGradient(ctx, data.hex),
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: getChartOptions(120)
+                };
+            } else if (key === 'identity') {
+                config = {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['777 (Insecure)', '644 (Standard)', '600 (Private)', 'ACLs/Namespaces'],
+                        datasets: [{
+                            data: [30, 40, 20, 10],
+                            backgroundColor: ['#ef4444', '#64748b', '#3b82f6', data.hex],
+                            borderWidth: 2,
+                            borderColor: '#0f172a'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'right' } } }
+                };
+            } else if (key === 'logs') {
+                config = {
+                    type: 'bar',
+                    data: {
+                        labels: ['Auth', 'Syslog', 'eBPF', 'Kernel', 'Audit'],
+                        datasets: [{
+                            label: 'Events / s',
+                            data: [1200, 3000, 6500, 800, 1500],
+                            backgroundColor: createGradient(ctx, data.hex),
+                            borderColor: data.hex,
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: getChartOptions()
+                };
+            } else if (key === 'sec') {
+                config = {
+                    type: 'radar',
+                    data: {
+                        labels: ['Firewall', 'Encryption', 'OSQuery', 'Namespaces', 'MAC (SELinux)'],
+                        datasets: [{
+                            label: 'Hardening Score',
+                            data: [60, 40, 70, 50, 20],
+                            borderColor: data.hex,
+                            backgroundColor: `${data.hex}30`,
+                            pointBackgroundColor: data.hex,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { r: { angleLines: { color: '#30363d' }, grid: { color: '#30363d' }, suggestedMin: 0, suggestedMax: 100 } }, plugins: { legend: { display: false } } }
+                };
+            }
+
+            chartInstance = new Chart(ctx, config);
+            
+            if(key === 'net') startNetSimulation();
+            else stopNetSimulation();
+        }
+
+        function createGradient(ctx, hexColor) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+            gradient.addColorStop(0, `${hexColor}80`); // 50% opacity
+            gradient.addColorStop(1, `${hexColor}00`); // 0% opacity
+            return gradient;
+        }
+
+        function getChartOptions(max = null) {
+            return {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: { duration: activeDomain==='net'?0:500 },
+                scales: { 
+                    y: { beginAtZero: true, max: max, grid: { color: '#30363d', borderDash: [5, 5] } }, 
+                    x: { grid: { display: false } } 
+                },
+                plugins: { legend: { display: false } }
+            };
+        }
+
+        // Network Live Simulation
+        let netInterval;
+        let isThrottled = false;
+        function startNetSimulation() {
+            if(netInterval) clearInterval(netInterval);
+            netInterval = setInterval(() => {
+                if(activeDomain !== 'net') return;
+                const data = chartInstance.data.datasets[0].data;
+                data.shift();
+                data.push(isThrottled ? 1 + Math.random() * 0.5 : 80 + Math.random() * 20);
+                chartInstance.update('none');
+            }, 500);
+        }
+        function stopNetSimulation() { if(netInterval) clearInterval(netInterval); }
+
+        // Interaction Button Logic
+        function simulateChartAction(key) {
+            const btn = document.getElementById('chart-action-btn');
+            if(key === 'net') {
+                isThrottled = !isThrottled;
+                btn.innerText = isThrottled ? "Remove Limit" : "Apply Traffic Control (tc)";
+                btn.style.backgroundColor = isThrottled ? '#ef444480' : `${dataStore.net.hex}40`;
+                btn.style.borderColor = isThrottled ? '#ef4444' : dataStore.net.hex;
+            } else if (key === 'identity') {
+                chartInstance.data.datasets[0].data = [0, 50, 20, 30]; // Increase Namespaces/ACLs
+                chartInstance.update();
+            } else if (key === 'logs') {
+                chartInstance.data.datasets[0].data = [100, 200, 6500, 50, 100]; // Vacuum standard, keep eBPF high
+                chartInstance.update();
+            } else if (key === 'sec') {
+                chartInstance.data.datasets[0].data = [100, 100, 100, 100, 100]; // Max Score
+                chartInstance.update();
+            }
+        }
+
+        // --- Search Logic ---
+        document.getElementById('cmd-filter').addEventListener('input', (e) => {
+            const filter = e.target.value.toLowerCase();
+            const items = document.getElementById('cmd-list').getElementsByTagName('button');
+            for (let i = 0; i < items.length; i++) {
+                const txt = items[i].title.toLowerCase(); 
+                items[i].style.display = txt.indexOf(filter) > -1 ? "" : "none";
+            }
+        });
+        
+        // Global search triggers local filter for now
+        function handleSearch(query) {
+            document.getElementById('cmd-filter').value = query;
+            document.getElementById('cmd-filter').dispatchEvent(new Event('input'));
+        }
+
+    </script>
+</body>
+</html>

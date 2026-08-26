@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure DevOps Study Bible ☁️</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --az: #0078d4;
+  --az2: #00bcf2;
+  --az3: #50e6ff;
+  --az-dim: rgba(0,120,212,0.12);
+  --az-border: rgba(0,188,242,0.25);
+  --bg: #07090f;
+  --bg2: #0d1017;
+  --surface: #111520;
+  --surface2: #181d2a;
+  --surface3: #1e243380;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --text: #e2e8f6;
+  --text2: #8b93aa;
+  --text3: #555e75;
+  --green: #22c55e;
+  --orange: #f59e0b;
+  --red: #ef4444;
+  --purple: #a78bfa;
+  --teal: #2dd4bf;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- TOPBAR ---- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 58px;
+  background: rgba(7,9,15,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+}
+
+.topbar-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; font-size: 1.05rem; letter-spacing: -0.5px;
+}
+
+.logo-box {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--az), var(--az2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 800; color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.topbar-logo span { color: var(--az2); }
+.topbar-sub { font-size: 0.75rem; color: var(--text3); font-family: 'IBM Plex Mono', monospace; margin-left: 4px; padding-left: 16px; border-left: 1px solid var(--border2); }
+
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.pill {
+  font-size: 0.68rem; font-family: 'IBM Plex Mono', monospace;
+  padding: 4px 10px; border-radius: 20px;
+  border: 1px solid var(--az-border); color: var(--az2);
+  background: var(--az-dim);
+}
+
+.progress-wrap {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.72rem; color: var(--text2); font-family: 'IBM Plex Mono', monospace;
+}
+.progress-bar-outer { width: 100px; height: 4px; background: var(--border2); border-radius: 2px; }
+.progress-bar-inner { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--az), var(--az3)); transition: width 0.4s ease; }
+
+/* ---- LAYOUT ---- */
+.layout {
+  display: flex;
+  margin-top: 58px;
+  min-height: calc(100vh - 58px);
+}
+
+/* ---- SIDEBAR ---- */
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  position: fixed;
+  top: 58px; left: 0; bottom: 0;
+  overflow-y: auto;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+}
+
+.sidebar::-webkit-scrollbar { width: 3px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+.sidebar-section {
+  padding: 6px 16px 2px;
+  font-size: 0.6rem;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-top: 8px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.15s ease;
+  font-size: 0.875rem; font-weight: 500;
+  color: var(--text2);
+}
+
+.nav-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.nav-item.active {
+  border-left-color: var(--az2);
+  background: linear-gradient(90deg, rgba(0,188,242,0.1), transparent);
+  color: var(--az2);
+}
+
+.nav-icon { font-size: 1rem; width: 22px; text-align: center; flex-shrink: 0; }
+.nav-count {
+  margin-left: auto;
+  font-size: 0.6rem; font-family: 'IBM Plex Mono', monospace;
+  color: var(--text3); background: var(--surface2);
+  padding: 1px 6px; border-radius: 8px;
+}
+
+/* ---- MAIN CONTENT ---- */
+.main {
+  margin-left: 250px;
+  flex: 1;
+  padding: 32px 32px 80px;
+  max-width: 1200px;
+}
+
+/* ---- SECTIONS ---- */
+.section { display: none; animation: sectionIn 0.3s ease; }
+.section.active { display: block; }
+
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- SECTION HEADER ---- */
+.sec-header {
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sec-eyebrow {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--text3); margin-bottom: 10px;
+}
+
+.sec-title {
+  font-size: 2rem; font-weight: 800; letter-spacing: -1px;
+  line-height: 1.1;
+}
+
+.sec-title em { font-style: normal; color: var(--az2); }
+.sec-desc { margin-top: 10px; color: var(--text2); font-size: 0.95rem; line-height: 1.6; max-width: 680px; }
+
+/* ---- CARDS GRID ---- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.cards-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+/* ---- TOPIC CARD ---- */
+.tcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.tcard:hover {
+  border-color: var(--az-border);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0,120,212,0.12);
+}
+
+.tcard-head {
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 12px;
+}
+
+.tcard-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; flex-shrink: 0;
+  background: var(--az-dim); border: 1px solid var(--az-border);
+}
+
+.tcard-meta { flex: 1; }
+.tcard-name { font-size: 1rem; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; }
+.tcard-service {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--az2); margin-top: 3px;
+}
+
+.tcard-tag {
+  font-size: 0.6rem; font-family: 'IBM Plex Mono', monospace;
+  padding: 3px 8px; border-radius: 4px;
+  text-transform: uppercase; letter-spacing: 1.5px; flex-shrink: 0;
+}
+
+.tag-compute  { background: rgba(0,120,212,0.15); color: #60b0ff; }
+.tag-network  { background: rgba(45,212,191,0.12); color: var(--teal); }
+.tag-storage  { background: rgba(245,158,11,0.12); color: var(--orange); }
+.tag-security { background: rgba(239,68,68,0.12); color: #f87171; }
+.tag-devops   { background: rgba(34,197,94,0.12); color: var(--green); }
+.tag-monitor  { background: rgba(167,139,250,0.12); color: var(--purple); }
+.tag-data     { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.tag-iac      { background: rgba(244,114,182,0.12); color: #f472b6; }
+.tag-msg      { background: rgba(99,102,241,0.12); color: #818cf8; }
+.tag-ha       { background: rgba(16,185,129,0.12); color: #34d399; }
+
+.tcard-body { padding: 14px 18px 16px; }
+.tcard-body p { font-size: 0.875rem; color: var(--text2); line-height: 1.65; }
+
+.analogy-box {
+  margin-top: 12px;
+  padding: 10px 13px;
+  background: rgba(0,188,242,0.06);
+  border-left: 3px solid var(--az);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem; line-height: 1.55;
+  color: #7b8499;
+}
+.analogy-box strong { color: var(--text); display: inline; }
+
+.key-points {
+  margin-top: 12px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.kp {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 0.82rem; color: var(--text2); line-height: 1.5;
+}
+.kp-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--az2); flex-shrink: 0; margin-top: 7px; }
+
+.warning-box {
+  margin-top: 12px;
+  padding: 9px 13px;
+  background: rgba(245,158,11,0.07);
+  border-left: 3px solid var(--orange);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.8rem; color: #c48c2b; line-height: 1.5;
+}
+.warning-box strong { color: var(--orange); }
+
+.tip-box {
+  margin-top: 12px;
+  padding: 9px 13px;
+  background: rgba(34,197,94,0.06);
+  border-left: 3px solid var(--green);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.8rem; color: #5a8f6a; line-height: 1.5;
+}
+.tip-box strong { color: var(--green); }
+
+/* compare table */
+.compare-table {
+  width: 100%; border-collapse: collapse; margin-top: 12px;
+  font-size: 0.8rem;
+}
+.compare-table th {
+  padding: 7px 10px; text-align: left;
+  background: var(--surface2); color: var(--text2);
+  font-weight: 600; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table td {
+  padding: 7px 10px; border-bottom: 1px solid var(--border);
+  color: var(--text2); vertical-align: top; line-height: 1.45;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table .az-cell { color: var(--az2); font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; }
+
+/* Full width card */
+.tcard.full { grid-column: 1 / -1; }
+
+/* ---- OVERVIEW HERO ---- */
+.hero {
+  background: linear-gradient(135deg, rgba(0,120,212,0.08) 0%, rgba(0,188,242,0.04) 50%, transparent 100%);
+  border: 1px solid var(--az-border);
+  border-radius: 16px;
+  padding: 32px 36px;
+  margin-bottom: 28px;
+  position: relative; overflow: hidden;
+}
+
+.hero::before {
+  content: 'Az';
+  position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
+  font-size: 8rem; font-weight: 800; color: rgba(0,188,242,0.04);
+  font-family: 'IBM Plex Mono', monospace; pointer-events: none;
+  letter-spacing: -4px;
+}
+
+.hero-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+.hero-title span { color: var(--az2); }
+.hero-desc { font-size: 0.9rem; color: var(--text2); line-height: 1.65; max-width: 600px; }
+
+.stats-row {
+  display: flex; gap: 24px; margin-top: 22px; flex-wrap: wrap;
+}
+.stat { display: flex; flex-direction: column; }
+.stat-num { font-size: 1.5rem; font-weight: 800; color: var(--az2); line-height: 1; }
+.stat-label { font-size: 0.72rem; color: var(--text3); margin-top: 3px; font-family: 'IBM Plex Mono', monospace; }
+
+/* ---- CHAPTER DIVIDER ---- */
+.chapter { 
+  display: flex; align-items: center; gap: 12px;
+  margin: 28px 0 16px; 
+}
+.chapter-line { flex: 1; height: 1px; background: var(--border); }
+.chapter-label {
+  font-size: 0.65rem; font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--text3);
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: 20px;
+}
+
+/* ---- FLOW DIAGRAM ---- */
+.flow {
+  display: flex; align-items: center; gap: 0;
+  flex-wrap: wrap; margin: 12px 0;
+}
+.flow-step {
+  padding: 6px 12px; border-radius: 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  font-size: 0.75rem; font-family: 'IBM Plex Mono', monospace;
+  color: var(--az2); white-space: nowrap;
+}
+.flow-arrow {
+  padding: 0 6px; color: var(--text3); font-size: 0.85rem;
+}
+
+/* ---- BADGE GRID ---- */
+.badge-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.badge {
+  font-size: 0.7rem; font-family: 'IBM Plex Mono', monospace;
+  padding: 3px 9px; border-radius: 4px;
+  border: 1px solid var(--az-border);
+  color: var(--az2); background: var(--az-dim);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Noise texture overlay */
+.noise { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.018; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+@media (max-width: 900px) {
+  .sidebar { width: 200px; }
+  .main { margin-left: 200px; padding: 20px; }
+}
+@media (max-width: 650px) {
+  .sidebar { position: relative; width: 100%; top: auto; height: auto; }
+  .layout { flex-direction: column; }
+  .main { margin-left: 0; }
+  .cards-grid, .cards-grid-3 { grid-template-columns: 1fr; }
+  .tcard.full { grid-column: auto; }
+}
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-box">Az</div>
+    Azure <span>DevOps</span> Study Bible
+    <span class="topbar-sub">12 core topics · layman-friendly</span>
+  </div>
+  <div class="topbar-right">
+    <div class="progress-wrap">
+      <span id="progressLabel">0 / 12</span>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+    </div>
+    <div class="pill">☁️ Azure</div>
+  </div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-section">Start Here</div>
+  <div class="nav-item active" data-section="overview" onclick="showSection('overview',this)">
+    <span class="nav-icon">🗺️</span> Overview
+    <span class="nav-count">intro</span>
+  </div>
+
+  <div class="sidebar-section">Core Topics</div>
+  <div class="nav-item" data-section="compute" onclick="showSection('compute',this)">
+    <span class="nav-icon">🖥️</span> Compute
+    <span class="nav-count">6</span>
+  </div>
+  <div class="nav-item" data-section="networking" onclick="showSection('networking',this)">
+    <span class="nav-icon">🌐</span> Networking
+    <span class="nav-count">8</span>
+  </div>
+  <div class="nav-item" data-section="storage" onclick="showSection('storage',this)">
+    <span class="nav-icon">💾</span> Storage
+    <span class="nav-count">5</span>
+  </div>
+  <div class="nav-item" data-section="identity" onclick="showSection('identity',this)">
+    <span class="nav-icon">🪪</span> Identity & Security
+    <span class="nav-count">6</span>
+  </div>
+
+  <div class="sidebar-section">DevOps Focused</div>
+  <div class="nav-item" data-section="cicd" onclick="showSection('cicd',this)">
+    <span class="nav-icon">🔁</span> CI/CD & DevOps
+    <span class="nav-count">5</span>
+  </div>
+  <div class="nav-item" data-section="containers" onclick="showSection('containers',this)">
+    <span class="nav-icon">📦</span> Containers & K8s
+    <span class="nav-count">4</span>
+  </div>
+  <div class="nav-item" data-section="monitoring" onclick="showSection('monitoring',this)">
+    <span class="nav-icon">📊</span> Monitoring
+    <span class="nav-count">5</span>
+  </div>
+  <div class="nav-item" data-section="iac" onclick="showSection('iac',this)">
+    <span class="nav-icon">📝</span> IaC & Automation
+    <span class="nav-count">4</span>
+  </div>
+
+  <div class="sidebar-section">Data & Integration</div>
+  <div class="nav-item" data-section="databases" onclick="showSection('databases',this)">
+    <span class="nav-icon">🗄️</span> Databases
+    <span class="nav-count">5</span>
+  </div>
+  <div class="nav-item" data-section="messaging" onclick="showSection('messaging',this)">
+    <span class="nav-icon">📨</span> Messaging
+    <span class="nav-count">4</span>
+  </div>
+
+  <div class="sidebar-section">Ops Essentials</div>
+  <div class="nav-item" data-section="ha" onclick="showSection('ha',this)">
+    <span class="nav-icon">🛡️</span> HA & Disaster Recovery
+    <span class="nav-count">4</span>
+  </div>
+  <div class="nav-item" data-section="cost" onclick="showSection('cost',this)">
+    <span class="nav-icon">💰</span> Cost Management
+    <span class="nav-count">4</span>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ═══════════════════ OVERVIEW ═══════════════════ -->
+<section class="section active" id="sec-overview">
+  <div class="hero">
+    <div class="hero-title">Your Azure <span>Study Buddy</span> is ready 🚀</div>
+    <div class="hero-desc">This guide covers all core Azure topics a DevOps engineer needs to know — explained in plain English with real-world analogies. No fluff. Click any topic in the sidebar to dive in.</div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num">12</div><div class="stat-label">Topic Sections</div></div>
+      <div class="stat"><div class="stat-num">60+</div><div class="stat-label">Concepts Covered</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Layman Friendly</div></div>
+    </div>
+  </div>
+
+  <div class="chapter"><div class="chapter-line"></div><div class="chapter-label">What is Azure?</div><div class="chapter-line"></div></div>
+
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">☁️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure is Microsoft's Cloud</div>
+          <div class="tcard-service">Microsoft Azure (founded 2010)</div>
+        </div>
+        <span class="tcard-tag tag-compute">Core</span>
+      </div>
+      <div class="tcard-body">
+        <p>Imagine you want to run a website. Normally you'd buy a server, plug it in, manage electricity, cooling, security — nightmare. Azure lets you <strong>rent</strong> all of that from Microsoft and only pay for what you use. No hardware. No data center. Just cloud.</p>
+        <div class="analogy-box"><strong>🏨 Think of it as:</strong> Renting a hotel room instead of buying a house. You get the bed, AC, wifi — without worrying about the plumbing.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🗺️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Global Infrastructure</div>
+          <div class="tcard-service">Regions, Availability Zones, Data Centers</div>
+        </div>
+        <span class="tcard-tag tag-ha">Global</span>
+      </div>
+      <div class="tcard-body">
+        <p>Azure has <strong>60+ regions</strong> worldwide — each region is a geographic location (like East US, West Europe). Inside each region are multiple <strong>Availability Zones</strong> — separate data centers with independent power & cooling so if one burns down, others keep running.</p>
+        <div class="analogy-box"><strong>🏙️ Think of it as:</strong> A city (Region) with multiple hospitals (AZs). If one hospital goes dark, patients go to the next one. No downtime.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">💳</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Subscriptions & Resource Groups</div>
+          <div class="tcard-service">Azure Hierarchy: Tenant → Sub → RG → Resource</div>
+        </div>
+        <span class="tcard-tag tag-compute">Org</span>
+      </div>
+      <div class="tcard-body">
+        <p>Everything in Azure is organized in a hierarchy. <strong>Tenant</strong> = your company's Azure account. <strong>Subscription</strong> = a billing container (like a department budget). <strong>Resource Group</strong> = a folder to group related resources. <strong>Resource</strong> = the actual thing (a VM, a database, etc).</p>
+        <div class="flow">
+          <div class="flow-step">Tenant</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Subscription</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Resource Group</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Resource</div>
+        </div>
+        <div class="analogy-box"><strong>🗂️ Think of it as:</strong> Company (Tenant) → Department (Sub) → Project Folder (RG) → Files (Resources).</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🎯</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Service Models: IaaS, PaaS, SaaS</div>
+          <div class="tcard-service">The 3 ways to consume cloud</div>
+        </div>
+        <span class="tcard-tag tag-compute">Concept</span>
+      </div>
+      <div class="tcard-body">
+        <p><strong>IaaS</strong> — You rent raw infrastructure (VMs, networks). You manage the OS and above. <strong>PaaS</strong> — You just write code, Azure handles the servers, OS, scaling. <strong>SaaS</strong> — You just use an app (like Office 365). Azure handles everything.</p>
+        <div class="compare-table" style="margin-top:12px">
+          <table class="compare-table"><thead><tr><th>Model</th><th>You Manage</th><th>Azure Example</th></tr></thead>
+          <tbody>
+            <tr><td>IaaS</td><td>OS, Apps, Data</td><td class="az-cell">Virtual Machines</td></tr>
+            <tr><td>PaaS</td><td>Apps, Data only</td><td class="az-cell">App Service, AKS</td></tr>
+            <tr><td>SaaS</td><td>Nothing!</td><td class="az-cell">Microsoft 365</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter"><div class="chapter-line"></div><div class="chapter-label">Navigate the topics below 👇</div><div class="chapter-line"></div></div>
+
+  <div class="cards-grid-3">
+    <div class="tcard" style="cursor:pointer" onclick="showSection('compute', document.querySelector('[data-section=compute]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">🖥️</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Compute</div>
+        <div style="font-size:0.8rem;color:var(--text2)">VMs, App Service, Functions, AKS, ACI, VMSS</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('networking', document.querySelector('[data-section=networking]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">🌐</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Networking</div>
+        <div style="font-size:0.8rem;color:var(--text2)">VNet, NSG, Load Balancer, Front Door, VPN, DNS</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('storage', document.querySelector('[data-section=storage]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">💾</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Storage</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Blob, Files, Disks, Queue, Table Storage</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('identity', document.querySelector('[data-section=identity]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">🪪</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Identity & Security</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Azure AD, RBAC, Key Vault, Defender, Policy</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('cicd', document.querySelector('[data-section=cicd]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">🔁</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">CI/CD & DevOps</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Pipelines, Repos, Boards, Artifacts, GitHub Actions</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('containers', document.querySelector('[data-section=containers]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">📦</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Containers & K8s</div>
+        <div style="font-size:0.8rem;color:var(--text2)">ACR, AKS, ACI, Helm Charts</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('monitoring', document.querySelector('[data-section=monitoring]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">📊</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Monitoring</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Monitor, Log Analytics, App Insights, Alerts</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('iac', document.querySelector('[data-section=iac]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">📝</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">IaC & Automation</div>
+        <div style="font-size:0.8rem;color:var(--text2)">ARM, Bicep, Terraform, Ansible</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('databases', document.querySelector('[data-section=databases]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">🗄️</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Databases</div>
+        <div style="font-size:0.8rem;color:var(--text2)">SQL, CosmosDB, PostgreSQL, Redis</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('messaging', document.querySelector('[data-section=messaging]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">📨</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Messaging</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Service Bus, Event Hub, Event Grid, Logic Apps</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('ha', document.querySelector('[data-section=ha]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">🛡️</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">HA & Disaster Recovery</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Availability Zones, ASR, Traffic Manager</div>
+      </div>
+    </div>
+    <div class="tcard" style="cursor:pointer" onclick="showSection('cost', document.querySelector('[data-section=cost]'))">
+      <div class="tcard-body" style="padding:16px">
+        <div style="font-size:1.8rem;margin-bottom:8px">💰</div>
+        <div style="font-weight:700;font-size:0.95rem;margin-bottom:4px">Cost Management</div>
+        <div style="font-size:0.8rem;color:var(--text2)">Cost Analysis, Budgets, Tags, Reservations</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COMPUTE ═══════════════════ -->
+<section class="section" id="sec-compute">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🖥️ Section 01 / 12</div>
+    <div class="sec-title">Azure <em>Compute</em></div>
+    <div class="sec-desc">Compute = the power to run your code. Azure gives you many ways to run apps — from raw VMs where you control everything, to serverless functions where you just upload code and Azure handles the rest.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🖥️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Virtual Machines (VMs)</div>
+          <div class="tcard-service">Azure Virtual Machines</div>
+        </div>
+        <span class="tcard-tag tag-compute">IaaS</span>
+      </div>
+      <div class="tcard-body">
+        <p>A VM is a computer that lives in Azure's data center. You pick the size (how many CPUs, how much RAM), choose an OS (Windows/Linux), and it's yours. You manage the OS, patches, software — full control.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Sizes range from B1s (1 vCPU, 1 GB) to M-series (hundreds of CPUs)</div>
+          <div class="kp"><div class="kp-dot"></div>You pay per second/hour even when idle — so turn them off when not needed!</div>
+          <div class="kp"><div class="kp-dot"></div>Use for: legacy apps, custom OS setups, full admin control needs</div>
+        </div>
+        <div class="analogy-box"><strong>🖥️ Think of it as:</strong> Renting a full computer from Microsoft. You control everything — but you're also responsible for keeping it updated and secure.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📈</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">VM Scale Sets (VMSS)</div>
+          <div class="tcard-service">Azure Virtual Machine Scale Sets</div>
+        </div>
+        <span class="tcard-tag tag-compute">IaaS</span>
+      </div>
+      <div class="tcard-body">
+        <p>VMSS automatically creates and deletes VMs based on demand. Traffic spike? Azure spins up more VMs. Traffic drops? It shuts extras down. You define the min/max and scaling rules.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Auto-scaling saves money — don't pay for idle capacity</div>
+          <div class="kp"><div class="kp-dot"></div>All VMs in a set are identical — same image, same config</div>
+          <div class="kp"><div class="kp-dot"></div>Works great behind a Load Balancer</div>
+        </div>
+        <div class="analogy-box"><strong>🏭 Think of it as:</strong> A factory that hires more workers when orders spike and sends them home when it's quiet — automatically.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🌐</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure App Service</div>
+          <div class="tcard-service">Azure App Service (Web Apps)</div>
+        </div>
+        <span class="tcard-tag tag-compute">PaaS</span>
+      </div>
+      <div class="tcard-body">
+        <p>Deploy web apps, REST APIs, or backends without worrying about servers. Just push your code (Node.js, Python, .NET, Java, PHP) and Azure handles the infrastructure, OS patches, scaling, and SSL certificates automatically.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Built-in CI/CD from GitHub, Azure DevOps, BitBucket</div>
+          <div class="kp"><div class="kp-dot"></div>Deployment slots — deploy to "staging" then swap to "production" with zero downtime</div>
+          <div class="kp"><div class="kp-dot"></div>Auto-scales based on CPU, memory, or request count</div>
+        </div>
+        <div class="analogy-box"><strong>🏠 Think of it as:</strong> A fully furnished apartment — you bring your stuff (code), Azure handles the building, plumbing, and electricity.</div>
+        <div class="tip-box"><strong>💡 DevOps tip:</strong> Use deployment slots for blue-green deployments. Zero risk code releases!</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">⚡</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Functions</div>
+          <div class="tcard-service">Azure Functions (Serverless)</div>
+        </div>
+        <span class="tcard-tag tag-compute">Serverless</span>
+      </div>
+      <div class="tcard-body">
+        <p>Serverless computing — you write a small piece of code (a "function") that runs ONLY when triggered. When idle, you pay nothing. When triggered (HTTP request, timer, queue message), Azure runs it instantly and you pay per execution.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Triggers: HTTP, Timer, Blob storage, Service Bus, Event Hub, CosmosDB</div>
+          <div class="kp"><div class="kp-dot"></div>Max execution time: 5 minutes (consumption plan) or unlimited (premium)</div>
+          <div class="kp"><div class="kp-dot"></div>Great for: image resizing, data processing, webhooks, scheduled jobs</div>
+        </div>
+        <div class="analogy-box"><strong>⚡ Think of it as:</strong> A light switch — it only uses power when you flip it. No server running 24/7 just waiting.</div>
+        <div class="warning-box"><strong>⚠️ Cold Start:</strong> First execution after idle can be slow (1-3s). Use Premium plan to avoid this for latency-sensitive apps.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📦</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Container Instances (ACI)</div>
+          <div class="tcard-service">Azure Container Instances</div>
+        </div>
+        <span class="tcard-tag tag-compute">Container</span>
+      </div>
+      <div class="tcard-body">
+        <p>Run a Docker container in Azure in seconds — no VM, no Kubernetes cluster needed. Just provide the container image and ACI runs it. Pay per second. Perfect for short-lived jobs, batch tasks, and dev/test environments.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Fastest way to run a container in Azure</div>
+          <div class="kp"><div class="kp-dot"></div>Not for production at scale — use AKS for that</div>
+          <div class="kp"><div class="kp-dot"></div>Can be part of a VNet for private networking</div>
+        </div>
+        <div class="analogy-box"><strong>📦 Think of it as:</strong> Ordering food delivery — you get exactly what you asked for, no need to set up a kitchen (no server needed).</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">⚙️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Kubernetes Service (AKS)</div>
+          <div class="tcard-service">AKS — Managed Kubernetes</div>
+        </div>
+        <span class="tcard-tag tag-compute">K8s</span>
+      </div>
+      <div class="tcard-body">
+        <p>AKS is managed Kubernetes — it runs and manages your containerized apps at scale. Azure handles the Kubernetes control plane (free!), you just manage the worker nodes and your workloads. Covered in depth in the Containers section.</p>
+        <div class="analogy-box"><strong>🚀 Think of it as:</strong> Azure is the captain and navigation system. You just tell it where to go (what containers to run), it handles everything else.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ NETWORKING ═══════════════════ -->
+<section class="section" id="sec-networking">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🌐 Section 02 / 12</div>
+    <div class="sec-title">Azure <em>Networking</em></div>
+    <div class="sec-desc">Networking connects all your Azure resources together and to the internet. Without it, nothing can talk to anything. Master this and you understand how data moves in the cloud.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🏗️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Virtual Network (VNet)</div>
+          <div class="tcard-service">Azure Virtual Network</div>
+        </div>
+        <span class="tcard-tag tag-network">Foundation</span>
+      </div>
+      <div class="tcard-body">
+        <p>A VNet is your own private network inside Azure. Resources inside a VNet can talk to each other securely. By default, nothing from the internet can reach inside unless you explicitly allow it. You define the IP address space (e.g., 10.0.0.0/16).</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Split VNets into Subnets — like rooms in a house</div>
+          <div class="kp"><div class="kp-dot"></div>VNet Peering — connect two VNets so they talk to each other</div>
+          <div class="kp"><div class="kp-dot"></div>Resources in different VNets can't talk by default — you must peer them</div>
+        </div>
+        <div class="analogy-box"><strong>🏠 Think of it as:</strong> Your private neighborhood. Houses inside can visit each other freely. Strangers from outside need an invitation (explicit rule).</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔀</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Subnets</div>
+          <div class="tcard-service">VNet Subnets</div>
+        </div>
+        <span class="tcard-tag tag-network">Segmentation</span>
+      </div>
+      <div class="tcard-body">
+        <p>Subnets divide your VNet into smaller sections. Put web servers in a "public subnet", databases in a "private subnet". This way, your DB never directly touches the internet — only the web servers can reach it.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Public subnet — has route to internet gateway (internet-facing)</div>
+          <div class="kp"><div class="kp-dot"></div>Private subnet — no direct internet access, only internal traffic</div>
+          <div class="kp"><div class="kp-dot"></div>Best practice: separate subnets for web, app, and data tiers</div>
+        </div>
+        <div class="analogy-box"><strong>🏘️ Think of it as:</strong> Floors in an office. Reception (public) = anyone can enter. Server room (private) = only employees with badge access.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🛡️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Network Security Groups (NSG)</div>
+          <div class="tcard-service">NSG — Firewall Rules for Azure Resources</div>
+        </div>
+        <span class="tcard-tag tag-security">Security</span>
+      </div>
+      <div class="tcard-body">
+        <p>NSGs are firewall rules that control traffic in/out of VMs or subnets. You create rules like "allow port 443 from internet" or "deny all traffic from IP x.x.x.x". Rules have a priority — lower number = checked first.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Inbound rules: control traffic coming into your resource</div>
+          <div class="kp"><div class="kp-dot"></div>Outbound rules: control traffic going out</div>
+          <div class="kp"><div class="kp-dot"></div>Default: Azure blocks all inbound, allows all outbound</div>
+        </div>
+        <div class="analogy-box"><strong>🚪 Think of it as:</strong> A bouncer at a club with a list. "Port 80 and 443 — come on in. Everything else — stay out."</div>
+        <div class="tip-box"><strong>💡 Tip:</strong> Apply NSGs at the subnet level (not just VM) for defence in depth — multiple security layers.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">⚖️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Load Balancer</div>
+          <div class="tcard-service">Azure Load Balancer (L4)</div>
+        </div>
+        <span class="tcard-tag tag-network">Traffic</span>
+      </div>
+      <div class="tcard-body">
+        <p>Distributes incoming network traffic across multiple VMs so no single server gets overwhelmed. Operates at Layer 4 (TCP/UDP) — it doesn't understand HTTP, just raw network packets. Automatically removes unhealthy VMs from rotation.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Public LB — distributes internet traffic to your VMs</div>
+          <div class="kp"><div class="kp-dot"></div>Internal LB — distributes traffic between services inside your VNet</div>
+          <div class="kp"><div class="kp-dot"></div>Health probes — checks if VMs are alive before sending traffic</div>
+        </div>
+        <div class="analogy-box"><strong>🚦 Think of it as:</strong> A traffic cop who sends cars to whichever toll booth has the shortest queue — evenly spreading the load.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔀</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Application Gateway</div>
+          <div class="tcard-service">Azure Application Gateway (L7 LB)</div>
+        </div>
+        <span class="tcard-tag tag-network">Traffic</span>
+      </div>
+      <div class="tcard-body">
+        <p>A smarter load balancer that understands HTTP/HTTPS. It can route based on URL — send "/api/*" to backend servers and "/images/*" to a storage account. Also includes a Web Application Firewall (WAF) to block SQL injection and XSS attacks.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>URL-based routing: different backends for different URL paths</div>
+          <div class="kp"><div class="kp-dot"></div>SSL termination: decrypt HTTPS at the gateway, send HTTP internally</div>
+          <div class="kp"><div class="kp-dot"></div>WAF mode: blocks common web attacks automatically</div>
+        </div>
+        <div class="analogy-box"><strong>📬 Think of it as:</strong> A smart mail sorter — "packages go to warehouse, letters go to office, parcels go to locker." The basic LB just delivers to the same door.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🌍</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Front Door</div>
+          <div class="tcard-service">Azure Front Door (Global CDN + LB)</div>
+        </div>
+        <span class="tcard-tag tag-network">Global</span>
+      </div>
+      <div class="tcard-body">
+        <p>Global load balancing + CDN + WAF in one. Routes users to the nearest Azure region for lowest latency. If one region goes down, it automatically routes to the next healthy one. Think of it as Application Gateway at a global scale.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Anycast routing: users connect to nearest Azure PoP globally</div>
+          <div class="kp"><div class="kp-dot"></div>Global failover: auto-redirects if a region fails</div>
+          <div class="kp"><div class="kp-dot"></div>Caching: serves static content from edge nodes (CDN)</div>
+        </div>
+        <div class="analogy-box"><strong>✈️ Think of it as:</strong> An airline with hubs worldwide. You always board at the nearest airport — not fly to New York just to connect to London.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔒</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">VPN Gateway</div>
+          <div class="tcard-service">Azure VPN Gateway</div>
+        </div>
+        <span class="tcard-tag tag-network">Connectivity</span>
+      </div>
+      <div class="tcard-body">
+        <p>Creates an encrypted tunnel between your on-premises network (your office) and Azure VNet over the public internet. So your office PCs can access Azure resources as if they were on the same local network.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Site-to-Site VPN: connect entire office network to Azure VNet</div>
+          <div class="kp"><div class="kp-dot"></div>Point-to-Site VPN: individual developer VPN to Azure</div>
+          <div class="kp"><div class="kp-dot"></div>Traffic goes over internet — not as fast as ExpressRoute</div>
+        </div>
+        <div class="analogy-box"><strong>🔐 Think of it as:</strong> A secret underground tunnel between your office and Azure's building — secure, private, goes under the public street (internet).</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🚄</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">ExpressRoute</div>
+          <div class="tcard-service">Azure ExpressRoute</div>
+        </div>
+        <span class="tcard-tag tag-network">Connectivity</span>
+      </div>
+      <div class="tcard-body">
+        <p>A dedicated private fiber connection from your office/datacenter directly into Azure's network — NOT over the public internet. Much faster, more reliable, lower latency. Great for enterprises with huge data transfers or strict compliance needs.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Bandwidth: 50 Mbps to 100 Gbps options</div>
+          <div class="kp"><div class="kp-dot"></div>More expensive than VPN but much more reliable</div>
+          <div class="kp"><div class="kp-dot"></div>Required for some financial/healthcare compliance standards</div>
+        </div>
+        <div class="analogy-box"><strong>🚄 Think of it as:</strong> A private high-speed rail line between your office and Azure. VPN = driving on the public highway. ExpressRoute = your own private bullet train track.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ STORAGE ═══════════════════ -->
+<section class="section" id="sec-storage">
+  <div class="sec-header">
+    <div class="sec-eyebrow">💾 Section 03 / 12</div>
+    <div class="sec-title">Azure <em>Storage</em></div>
+    <div class="sec-desc">Azure offers multiple storage types for different use cases. Files, objects, disks, queues — each has its purpose. Understanding when to use which storage type is key to building efficient systems.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🗂️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Blob Storage</div>
+          <div class="tcard-service">Azure Blob Storage (Object Store)</div>
+        </div>
+        <span class="tcard-tag tag-storage">Most Used</span>
+      </div>
+      <div class="tcard-body">
+        <p>The most popular Azure storage. Store any unstructured data — images, videos, PDFs, backups, logs, app packages. Access via URL. Massively scalable and cheap. Three access tiers to save money based on how often you access data.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div><strong>Hot tier</strong> — frequently accessed, higher storage cost, lower access cost</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Cool tier</strong> — accessed less often, cheaper storage, higher access cost</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Archive tier</strong> — rarely accessed (backups), cheapest storage, slowest retrieval (hours)</div>
+        </div>
+        <div class="analogy-box"><strong>🗄️ Think of it as:</strong> A giant Google Drive for your applications. Throw any file in, get a URL, share anywhere. Never fills up.</div>
+        <div class="tip-box"><strong>💡 DevOps use:</strong> Store build artifacts, pipeline logs, Terraform state files, and app config files in Blob Storage.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📁</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Files</div>
+          <div class="tcard-service">Azure Files (Managed File Share)</div>
+        </div>
+        <span class="tcard-tag tag-storage">SMB/NFS</span>
+      </div>
+      <div class="tcard-body">
+        <p>A fully managed file share in the cloud accessible via SMB or NFS protocol — the same protocol Windows file shares use. Mount it on VMs like a regular network drive (Z: drive). Share files between multiple VMs simultaneously.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Works with Windows and Linux VMs</div>
+          <div class="kp"><div class="kp-dot"></div>Great for legacy apps that need file share access</div>
+          <div class="kp"><div class="kp-dot"></div>Can replace on-premises file servers</div>
+        </div>
+        <div class="analogy-box"><strong>📁 Think of it as:</strong> A shared network drive in an office (like \\server\shared), except it lives in Azure. Multiple PCs can access the same files simultaneously.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">💿</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Managed Disks</div>
+          <div class="tcard-service">Azure Managed Disks (VM Disks)</div>
+        </div>
+        <span class="tcard-tag tag-storage">Block</span>
+      </div>
+      <div class="tcard-body">
+        <p>These are the virtual hard drives attached to VMs. When you create a VM, it gets an OS disk automatically. You can attach additional data disks for more storage. Azure manages the underlying hardware — no disk failures to worry about.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div><strong>Standard HDD</strong> — cheapest, for dev/test</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Standard SSD</strong> — web servers, lightly loaded apps</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Premium SSD</strong> — production databases, I/O intensive apps</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Ultra Disk</strong> — highest performance, SAP HANA, SQL databases</div>
+        </div>
+        <div class="analogy-box"><strong>💿 Think of it as:</strong> The hard drive inside your laptop — except Azure's "laptop" never physically fails because it's replicated 3x behind the scenes.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📋</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Queue Storage</div>
+          <div class="tcard-service">Azure Queue Storage</div>
+        </div>
+        <span class="tcard-tag tag-storage">Messaging</span>
+      </div>
+      <div class="tcard-body">
+        <p>A simple message queue for decoupling components. One service puts a message in the queue, another service reads and processes it. Messages wait in the queue until consumed. Simple and cheap — not as feature-rich as Service Bus.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Messages stay in queue for up to 7 days</div>
+          <div class="kp"><div class="kp-dot"></div>Stores millions of messages, very cheap</div>
+          <div class="kp"><div class="kp-dot"></div>Use for: background jobs, order processing, task queues</div>
+        </div>
+        <div class="analogy-box"><strong>📬 Think of it as:</strong> A suggestion box at a restaurant. Customers drop notes in, kitchen staff read and action them at their own pace. No one blocks anyone else.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🗃️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Table Storage</div>
+          <div class="tcard-service">Azure Table Storage (NoSQL)</div>
+        </div>
+        <span class="tcard-tag tag-storage">NoSQL</span>
+      </div>
+      <div class="tcard-body">
+        <p>A simple, cheap NoSQL key-value store. No SQL queries, no joins — just store rows of data with a Partition Key and Row Key. Great for storing large amounts of simple structured data cheaply. Part of Azure Storage accounts.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Much cheaper than CosmosDB for simple use cases</div>
+          <div class="kp"><div class="kp-dot"></div>No complex querying — lookup by key only</div>
+          <div class="kp"><div class="kp-dot"></div>Use for: logging, user sessions, simple entity storage</div>
+        </div>
+        <div class="analogy-box"><strong>📓 Think of it as:</strong> A giant spreadsheet with billions of rows — fast to look up by row number, but can't do complex filtering or joins.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ IDENTITY & SECURITY ═══════════════════ -->
+<section class="section" id="sec-identity">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🪪 Section 04 / 12</div>
+    <div class="sec-title">Identity & <em>Security</em></div>
+    <div class="sec-desc">Security is not optional in the cloud. Azure's identity and security services control WHO can access WHAT, and protect your resources from threats. As a DevOps engineer, you must understand these deeply.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🪪</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Active Directory (Entra ID)</div>
+          <div class="tcard-service">Microsoft Entra ID (formerly Azure AD)</div>
+        </div>
+        <span class="tcard-tag tag-security">Core IAM</span>
+      </div>
+      <div class="tcard-body">
+        <p>Azure's identity service — manages users, groups, and applications. When you log in to Azure portal, you authenticate with Entra ID. It's also used for Single Sign-On (SSO), Multi-Factor Authentication (MFA), and managing access to applications.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Users & Groups: manage who's in your Azure tenant</div>
+          <div class="kp"><div class="kp-dot"></div>App Registrations: let applications authenticate with Azure</div>
+          <div class="kp"><div class="kp-dot"></div>Managed Identities: let Azure services authenticate to each other without passwords</div>
+        </div>
+        <div class="analogy-box"><strong>🏢 Think of it as:</strong> Your company's HR department + security badge system. It knows who everyone is, what department they're in, and issues access badges.</div>
+        <div class="tip-box"><strong>💡 Managed Identity tip:</strong> Instead of storing credentials in code, give your VM or App a Managed Identity — Azure handles the auth automatically. No passwords!</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🎭</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">RBAC — Role-Based Access Control</div>
+          <div class="tcard-service">Azure RBAC</div>
+        </div>
+        <span class="tcard-tag tag-security">Permissions</span>
+      </div>
+      <div class="tcard-body">
+        <p>Controls what actions users or services can perform on Azure resources. You assign a Role (set of permissions) to a Principal (user/group/app) at a Scope (subscription, resource group, or single resource). Principle of Least Privilege — give only what's needed.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div><strong>Owner</strong> — full control, can manage access</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Contributor</strong> — can create/delete resources, can't manage access</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Reader</strong> — can only view resources, no changes</div>
+          <div class="kp"><div class="kp-dot"></div>Custom roles possible: create exact permission sets you need</div>
+        </div>
+        <div class="analogy-box"><strong>🎟️ Think of it as:</strong> A hotel keycard system. Some cards open all doors (Owner). Some open specific floors (Contributor). Some just let you look at the lobby (Reader).</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔐</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Key Vault</div>
+          <div class="tcard-service">Azure Key Vault</div>
+        </div>
+        <span class="tcard-tag tag-security">Secrets</span>
+      </div>
+      <div class="tcard-body">
+        <p>Securely stores and manages secrets (passwords, API keys), certificates (TLS/SSL certs), and cryptographic keys. Your applications fetch secrets from Key Vault at runtime — never hardcode sensitive values in code or config files again.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Secrets: store DB passwords, API keys, connection strings</div>
+          <div class="kp"><div class="kp-dot"></div>Keys: encryption keys for data at rest (HSM-backed)</div>
+          <div class="kp"><div class="kp-dot"></div>Certificates: manage TLS certs with auto-renewal</div>
+          <div class="kp"><div class="kp-dot"></div>Full audit log: who accessed which secret, when</div>
+        </div>
+        <div class="analogy-box"><strong>🏦 Think of it as:</strong> A bank vault with a camera. Your app shows its ID badge, gets what it needs, and everything is recorded. Secrets never leave in plain text.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🛡️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Microsoft Defender for Cloud</div>
+          <div class="tcard-service">Defender for Cloud (formerly Security Center)</div>
+        </div>
+        <span class="tcard-tag tag-security">Threat Detection</span>
+      </div>
+      <div class="tcard-body">
+        <p>Continuously monitors your Azure environment for security vulnerabilities and threats. Gives you a Secure Score — a percentage showing how well-protected you are. Alerts you when something suspicious happens like brute force attacks or unusual logins.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Secure Score: improve this to improve security posture</div>
+          <div class="kp"><div class="kp-dot"></div>Recommendations: "Your VM should have disk encryption" — click to fix</div>
+          <div class="kp"><div class="kp-dot"></div>Threat detection: alerts for SQL injection, crypto-mining, lateral movement</div>
+        </div>
+        <div class="analogy-box"><strong>🕵️ Think of it as:</strong> A security guard who constantly walks through your building, finds unlocked doors, and alerts you when someone is behaving suspiciously.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📋</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Policy</div>
+          <div class="tcard-service">Azure Policy</div>
+        </div>
+        <span class="tcard-tag tag-security">Governance</span>
+      </div>
+      <div class="tcard-body">
+        <p>Enforces organizational rules across your Azure environment. Define rules like "All VMs must have tags", "Storage accounts must be encrypted", "Resources can only be created in US East region" — and Azure either blocks violations or flags them for review.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Deny mode: block non-compliant resources from being created</div>
+          <div class="kp"><div class="kp-dot"></div>Audit mode: allow but flag for review</div>
+          <div class="kp"><div class="kp-dot"></div>Remediation: auto-fix existing non-compliant resources</div>
+        </div>
+        <div class="analogy-box"><strong>📜 Think of it as:</strong> The company rulebook enforced automatically. If someone tries to do something against the rules, Azure says "Nope, not allowed" before it even happens.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔒</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Multi-Factor Authentication (MFA)</div>
+          <div class="tcard-service">Entra ID MFA + Conditional Access</div>
+        </div>
+        <span class="tcard-tag tag-security">Auth</span>
+      </div>
+      <div class="tcard-body">
+        <p>MFA requires users to provide two forms of identity (password + phone/authenticator app). Conditional Access adds smart rules — like "only allow login from corporate devices" or "require MFA when logging in from outside the office network".</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>MFA blocks 99.9% of account compromise attacks</div>
+          <div class="kp"><div class="kp-dot"></div>Conditional Access: "If user is in unknown location → require MFA"</div>
+          <div class="kp"><div class="kp-dot"></div>Privileged Identity Management (PIM): just-in-time admin access</div>
+        </div>
+        <div class="analogy-box"><strong>🚪 Think of it as:</strong> A bank vault that needs both your key AND your thumbprint. Even if someone steals your key, they still can't get in without your thumb.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CI/CD ═══════════════════ -->
+<section class="section" id="sec-cicd">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🔁 Section 05 / 12</div>
+    <div class="sec-title">CI/CD & <em>Azure DevOps</em></div>
+    <div class="sec-desc">Azure DevOps is a complete suite for planning, building, testing, and deploying software. This is the heart of the DevOps engineer's daily work in Azure — automate everything so humans only do what matters.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard full">
+      <div class="tcard-head">
+        <div class="tcard-icon">🏢</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure DevOps — The Full Suite</div>
+          <div class="tcard-service">dev.azure.com — 5 integrated services</div>
+        </div>
+        <span class="tcard-tag tag-devops">Platform</span>
+      </div>
+      <div class="tcard-body">
+        <p>Azure DevOps is not one tool — it's 5 services in one platform. You can use all 5 or mix with GitHub/Jira:</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:12px">
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border)">
+            <div style="font-size:1.1rem;margin-bottom:4px">📋</div>
+            <div style="font-size:0.82rem;font-weight:700;color:var(--az2)">Boards</div>
+            <div style="font-size:0.75rem;color:var(--text2);margin-top:4px">Sprint planning, backlogs, Kanban boards</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border)">
+            <div style="font-size:1.1rem;margin-bottom:4px">🌿</div>
+            <div style="font-size:0.82rem;font-weight:700;color:var(--az2)">Repos</div>
+            <div style="font-size:0.75rem;color:var(--text2);margin-top:4px">Git repositories, pull requests, code review</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border)">
+            <div style="font-size:1.1rem;margin-bottom:4px">🔁</div>
+            <div style="font-size:0.82rem;font-weight:700;color:var(--az2)">Pipelines</div>
+            <div style="font-size:0.75rem;color:var(--text2);margin-top:4px">CI/CD, build, test, deploy automation</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border)">
+            <div style="font-size:1.1rem;margin-bottom:4px">📦</div>
+            <div style="font-size:0.82rem;font-weight:700;color:var(--az2)">Artifacts</div>
+            <div style="font-size:0.75rem;color:var(--text2);margin-top:4px">Package management (NuGet, npm, Maven)</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:12px;border:1px solid var(--border)">
+            <div style="font-size:1.1rem;margin-bottom:4px">🧪</div>
+            <div style="font-size:0.82rem;font-weight:700;color:var(--az2)">Test Plans</div>
+            <div style="font-size:0.75rem;color:var(--text2);margin-top:4px">Manual & automated test management</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔁</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Pipelines (CI)</div>
+          <div class="tcard-service">Continuous Integration Pipeline</div>
+        </div>
+        <span class="tcard-tag tag-devops">CI</span>
+      </div>
+      <div class="tcard-body">
+        <p>Every time a developer pushes code, the CI pipeline automatically kicks off — compiles the code, runs tests, builds a Docker image, pushes to container registry. Catches bugs early before they reach production. Defined in <strong>azure-pipelines.yml</strong>.</p>
+        <div class="flow" style="flex-wrap:wrap;gap:4px;margin-top:10px">
+          <div class="flow-step">Code Push</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Build</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Unit Tests</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Docker Build</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Push to ACR</div>
+        </div>
+        <div class="analogy-box"><strong>🏭 Think of it as:</strong> A quality check conveyor belt — every piece of code that rolls in gets tested automatically before being approved.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🚀</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Pipelines (CD)</div>
+          <div class="tcard-service">Continuous Delivery / Deployment</div>
+        </div>
+        <span class="tcard-tag tag-devops">CD</span>
+      </div>
+      <div class="tcard-body">
+        <p>After CI passes, CD automatically deploys the app to environments: Dev → Staging → Production. You can add approval gates (a human must approve before production deploy), environment-specific variables, and rollback mechanisms.</p>
+        <div class="flow" style="flex-wrap:wrap;gap:4px;margin-top:10px">
+          <div class="flow-step">Artifact</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Deploy Dev</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Approval Gate ✅</div><div class="flow-arrow">→</div>
+          <div class="flow-step">Deploy Prod</div>
+        </div>
+        <div class="analogy-box"><strong>✈️ Think of it as:</strong> Autopilot. Once a plane (code) passes safety checks, it automatically flies to each destination (environment) in order — pilot only needed to approve landing.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🐙</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">GitHub Actions for Azure</div>
+          <div class="tcard-service">GitHub Actions + Azure integration</div>
+        </div>
+        <span class="tcard-tag tag-devops">CI/CD</span>
+      </div>
+      <div class="tcard-body">
+        <p>GitHub Actions is GitHub's CI/CD tool that integrates deeply with Azure. Use Azure-specific actions like azure/login, azure/webapps-deploy, azure/aks-set-context. Modern teams often prefer GitHub Actions over Azure Pipelines for its simplicity and GitHub integration.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Defined in .github/workflows/*.yml files</div>
+          <div class="kp"><div class="kp-dot"></div>Triggered by push, PR, schedule, or manual click</div>
+          <div class="kp"><div class="kp-dot"></div>Azure publishes 300+ official GitHub Actions</div>
+        </div>
+        <div class="analogy-box"><strong>⚙️ Think of it as:</strong> GitHub Actions is like Azure Pipelines' cousin that lives next door — does the same job, lives in GitHub, works great with Azure too.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📦</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Artifacts</div>
+          <div class="tcard-service">Azure Artifacts (Package Feeds)</div>
+        </div>
+        <span class="tcard-tag tag-devops">Packages</span>
+      </div>
+      <div class="tcard-body">
+        <p>A private package registry — store and share your own internal NuGet, npm, Maven, or Python packages within your organization. Pipeline builds packages and pushes to Artifacts; other pipelines pull them as dependencies. No public npm account needed for internal code.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Upstream sources: proxy public registries (npmjs.com) AND serve your private packages</div>
+          <div class="kp"><div class="kp-dot"></div>Retention policies: auto-delete old versions to save space</div>
+          <div class="kp"><div class="kp-dot"></div>Role-based: control who can push/pull packages</div>
+        </div>
+        <div class="analogy-box"><strong>📚 Think of it as:</strong> Your company's private library. Instead of borrowing from the public library (npm), you store your custom books here so only company people can access them.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ CONTAINERS ═══════════════════ -->
+<section class="section" id="sec-containers">
+  <div class="sec-header">
+    <div class="sec-eyebrow">📦 Section 06 / 12</div>
+    <div class="sec-title">Containers & <em>Kubernetes</em></div>
+    <div class="sec-desc">Containers let you package your app with all its dependencies so it runs identically everywhere. Kubernetes orchestrates many containers at scale. This is modern DevOps — if you know containers, you're employable anywhere.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🐳</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Docker & Containers</div>
+          <div class="tcard-service">Docker (The Container Foundation)</div>
+        </div>
+        <span class="tcard-tag tag-compute">Foundation</span>
+      </div>
+      <div class="tcard-body">
+        <p>A container packages your app + its runtime + libraries into one portable unit. "Works on my machine" becomes "works everywhere." Docker is the tool that builds and runs containers. A <strong>Dockerfile</strong> defines what goes in the container.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Image = blueprint (like a class in OOP)</div>
+          <div class="kp"><div class="kp-dot"></div>Container = running instance of an image (like an object)</div>
+          <div class="kp"><div class="kp-dot"></div>Containers are isolated from each other but share the OS kernel</div>
+          <div class="kp"><div class="kp-dot"></div>Much lighter than VMs — starts in seconds vs minutes</div>
+        </div>
+        <div class="analogy-box"><strong>📦 Think of it as:</strong> Shipping containers on cargo ships. A container from China arrives in New York and opens exactly the same — the contents don't care what ship or port they're on.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🗃️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Container Registry (ACR)</div>
+          <div class="tcard-service">ACR — Private Docker Registry</div>
+        </div>
+        <span class="tcard-tag tag-compute">Registry</span>
+      </div>
+      <div class="tcard-body">
+        <p>ACR is your private Docker Hub inside Azure. Store, manage, and pull container images securely. CI pipeline builds a Docker image and pushes to ACR. AKS or App Service pulls from ACR to deploy. Supports geo-replication across regions.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Geo-replication: replicate images to multiple regions for faster pulls</div>
+          <div class="kp"><div class="kp-dot"></div>Image scanning: Defender scans images for vulnerabilities</div>
+          <div class="kp"><div class="kp-dot"></div>Tasks: build images in ACR without local Docker</div>
+        </div>
+        <div class="analogy-box"><strong>📸 Think of it as:</strong> Your company's private Instagram for Docker images. Only people with access can see/download your app's photos (images).</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">⚙️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Kubernetes Concepts</div>
+          <div class="tcard-service">K8s: Pods, Nodes, Services, Deployments</div>
+        </div>
+        <span class="tcard-tag tag-compute">K8s Core</span>
+      </div>
+      <div class="tcard-body">
+        <p>Kubernetes (K8s) orchestrates containers at scale. Key concepts:</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div><strong>Pod</strong> — smallest unit, 1 or more containers that share storage & network</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Node</strong> — a VM that runs pods (worker machine)</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Deployment</strong> — describes desired state (run 3 replicas of my app)</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Service</strong> — stable endpoint to access pods (pods can change, service doesn't)</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Ingress</strong> — HTTP router for the cluster (like App Gateway for K8s)</div>
+          <div class="kp"><div class="kp-dot"></div><strong>Namespace</strong> — virtual cluster inside a cluster, for separation</div>
+        </div>
+        <div class="analogy-box"><strong>🏙️ Think of it as:</strong> K8s is a city. Nodes = office buildings. Pods = offices inside buildings. Service = the building's reception desk address. Deployment = the city plan saying "we need 3 offices."</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🚀</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">AKS — Azure Kubernetes Service</div>
+          <div class="tcard-service">AKS — Managed K8s on Azure</div>
+        </div>
+        <span class="tcard-tag tag-compute">Managed K8s</span>
+      </div>
+      <div class="tcard-body">
+        <p>AKS is managed Kubernetes — Azure handles the control plane (the Kubernetes master/brain) for FREE. You only pay for the worker VMs (nodes) where your apps run. Azure handles upgrades, patching, and healing of the control plane.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Node Pools: groups of VMs (can mix sizes — GPU nodes for AI, regular for web)</div>
+          <div class="kp"><div class="kp-dot"></div>Cluster Autoscaler: automatically adds/removes nodes based on load</div>
+          <div class="kp"><div class="kp-dot"></div>Azure integrations: ACR pull, Key Vault secrets, Azure Monitor</div>
+          <div class="kp"><div class="kp-dot"></div>Upgrade: one command to upgrade Kubernetes version across all nodes</div>
+        </div>
+        <div class="analogy-box"><strong>🏗️ Think of it as:</strong> Azure is the foreman managing the construction crew (Kubernetes). You just say "I want 3 floors of office space" — Azure figures out the workforce, scaffolding, and safety.</div>
+        <div class="tip-box"><strong>💡 Helm:</strong> Use Helm charts to package K8s configs as reusable templates. Like apt/npm but for Kubernetes applications.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MONITORING ═══════════════════ -->
+<section class="section" id="sec-monitoring">
+  <div class="sec-header">
+    <div class="sec-eyebrow">📊 Section 07 / 12</div>
+    <div class="sec-title">Monitoring & <em>Observability</em></div>
+    <div class="sec-desc">You can't fix what you can't see. Observability is the ability to understand what's happening inside your system. Azure gives you powerful tools to watch metrics, read logs, trace requests, and get alerted before users notice problems.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📡</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Monitor</div>
+          <div class="tcard-service">Azure Monitor — The Central Hub</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Core</span>
+      </div>
+      <div class="tcard-body">
+        <p>The central monitoring service in Azure. Collects metrics (CPU, memory, disk) and logs from all Azure resources automatically. Everything else (Log Analytics, App Insights, Alerts) feeds into or off Azure Monitor.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Metrics: numerical data over time (CPU%, requests/sec, error rate)</div>
+          <div class="kp"><div class="kp-dot"></div>Activity Log: who did what in Azure (created VM, deleted RG)</div>
+          <div class="kp"><div class="kp-dot"></div>Resource logs: diagnostic data from individual services</div>
+          <div class="kp"><div class="kp-dot"></div>Dashboards: pin any metric to a visual dashboard</div>
+        </div>
+        <div class="analogy-box"><strong>🏥 Think of it as:</strong> The hospital's central nurse station — all patient (resource) vital signs feed into one screen. Nurses (DevOps) can see everything at a glance.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔍</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Log Analytics Workspace</div>
+          <div class="tcard-service">Azure Log Analytics + KQL</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Logs</span>
+      </div>
+      <div class="tcard-body">
+        <p>A centralized store for all your logs — from VMs, apps, containers, networks, security. Query logs using <strong>KQL</strong> (Kusto Query Language). Find errors, trace requests, generate reports. Logs are retained for 30-90 days by default.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>KQL — SQL-like language but optimized for log data</div>
+          <div class="kp"><div class="kp-dot"></div>Send logs from ALL Azure services to one workspace</div>
+          <div class="kp"><div class="kp-dot"></div>Build visualizations and workbooks from log queries</div>
+        </div>
+        <div class="analogy-box"><strong>📚 Think of it as:</strong> A Google search engine for all your app's diary entries (logs). Ask "show me all errors from last night at 3am" — instant results.</div>
+        <div class="tip-box"><strong>💡 KQL example:</strong> <code style="font-family:'IBM Plex Mono';font-size:0.75rem;color:var(--az2)">AppExceptions | where TimeGenerated > ago(1h) | summarize count() by type</code></div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔭</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Application Insights</div>
+          <div class="tcard-service">Azure Application Insights (APM)</div>
+        </div>
+        <span class="tcard-tag tag-monitor">APM</span>
+      </div>
+      <div class="tcard-body">
+        <p>APM (Application Performance Monitoring) for your code. Add the App Insights SDK to your app (Node, Python, Java, .NET) and it automatically tracks: request rates, response times, exception counts, dependency calls, and user sessions. Find slow queries and errors in production.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Live Metrics: real-time stream of what's happening right now</div>
+          <div class="kp"><div class="kp-dot"></div>Transaction search: find a specific user's request end-to-end</div>
+          <div class="kp"><div class="kp-dot"></div>Application map: visual diagram of how your services call each other</div>
+          <div class="kp"><div class="kp-dot"></div>Smart detection: ML finds anomalies automatically</div>
+        </div>
+        <div class="analogy-box"><strong>🩺 Think of it as:</strong> A fitness tracker for your app. Heartbeat (requests/sec), sleep quality (response time), health alerts (error spikes) — all in one dashboard.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🚨</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Alerts</div>
+          <div class="tcard-service">Azure Monitor Alerts + Action Groups</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Alerting</span>
+      </div>
+      <div class="tcard-body">
+        <p>Set up alerts that fire when metrics cross a threshold or logs match a pattern. When an alert fires, an Action Group handles the notification — call the on-call engineer (PagerDuty/phone), send an email, post to Slack/Teams, or trigger an Azure Function to auto-fix the problem.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Metric alert: "CPU > 90% for 5 minutes → alert"</div>
+          <div class="kp"><div class="kp-dot"></div>Log alert: "More than 10 errors in last 15 min → alert"</div>
+          <div class="kp"><div class="kp-dot"></div>Action Groups: teams of people/actions to notify. One group, many alerts</div>
+        </div>
+        <div class="analogy-box"><strong>🚒 Think of it as:</strong> A smoke detector. Smoke detected (metric threshold hit) → alarm sounds → fire station called (action group). Auto-response.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📊</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Workbooks & Dashboards</div>
+          <div class="tcard-service">Azure Monitor Workbooks + Dashboards</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Visualization</span>
+      </div>
+      <div class="tcard-body">
+        <p>Workbooks combine metrics, logs, and text into interactive reports. Dashboards are pinned metric/log charts visible on the Azure Portal home screen. Share operational dashboards with your team so everyone sees system health at a glance.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Workbooks: interactive reports combining multiple data sources</div>
+          <div class="kp"><div class="kp-dot"></div>Dashboards: real-time visual of key KPIs, shared with team</div>
+          <div class="kp"><div class="kp-dot"></div>Grafana integration: connect Azure Monitor to Grafana for richer visuals</div>
+        </div>
+        <div class="analogy-box"><strong>📺 Think of it as:</strong> A cockpit dashboard in a plane — all vital dials in one view. Pilot (DevOps) sees everything without looking at 50 different screens.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ IaC ═══════════════════ -->
+<section class="section" id="sec-iac">
+  <div class="sec-header">
+    <div class="sec-eyebrow">📝 Section 08 / 12</div>
+    <div class="sec-title">IaC & <em>Automation</em></div>
+    <div class="sec-desc">Infrastructure as Code (IaC) means defining your cloud infrastructure in text files — version controlled, repeatable, reviewable. No more clicking through the portal. If code reviews are good for apps, they're good for infrastructure too.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔧</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">ARM Templates</div>
+          <div class="tcard-service">Azure Resource Manager Templates (JSON)</div>
+        </div>
+        <span class="tcard-tag tag-iac">Native Azure</span>
+      </div>
+      <div class="tcard-body">
+        <p>ARM Templates are Azure's native IaC language — large JSON files that describe every Azure resource you want to create. They're powerful but verbose and hard to read. Azure guarantees idempotency — run the same template twice, get the same result.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>100% Azure native — no extra tools needed</div>
+          <div class="kp"><div class="kp-dot"></div>Can be stored in git and deployed via pipeline</div>
+          <div class="kp"><div class="kp-dot"></div>Downside: JSON is verbose and difficult for humans to write/read</div>
+        </div>
+        <div class="analogy-box"><strong>📐 Think of it as:</strong> An architectural blueprint in JSON. Exact, complete, but requires an architect to read. One blueprint → identical buildings every time.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">💪</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Bicep</div>
+          <div class="tcard-service">Azure Bicep — ARM's friendlier cousin</div>
+        </div>
+        <span class="tcard-tag tag-iac">Native Azure</span>
+      </div>
+      <div class="tcard-body">
+        <p>Bicep is Microsoft's answer to "ARM is too hard." It's a Domain Specific Language (DSL) that compiles to ARM JSON. Much cleaner syntax, IDE intellisense, modular. Write 30 lines of Bicep to replace 200 lines of ARM JSON. Azure-only tool.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Transpiles to ARM — same engine under the hood</div>
+          <div class="kp"><div class="kp-dot"></div>Modules: reuse Bicep files like functions/libraries</div>
+          <div class="kp"><div class="kp-dot"></div>Tight VS Code integration with autocomplete</div>
+          <div class="kp"><div class="kp-dot"></div>Microsoft-recommended for pure Azure environments</div>
+        </div>
+        <div class="analogy-box"><strong>✨ Think of it as:</strong> ARM Templates is assembly code. Bicep is Python. Same machine understands both — but Bicep is way nicer to write.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🌍</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Terraform</div>
+          <div class="tcard-service">HashiCorp Terraform (Multi-cloud IaC)</div>
+        </div>
+        <span class="tcard-tag tag-iac">Multi-Cloud</span>
+      </div>
+      <div class="tcard-body">
+        <p>Open-source IaC tool that works with Azure, AWS, GCP, and 1000+ providers. Uses HCL (HashiCorp Config Language). Plan → Apply → Destroy workflow. Terraform tracks state of your infra in a state file so it knows what changed.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div><code style="font-size:0.75rem;font-family:'IBM Plex Mono';color:var(--az2)">terraform plan</code> — shows what WILL change, no actual change yet</div>
+          <div class="kp"><div class="kp-dot"></div><code style="font-size:0.75rem;font-family:'IBM Plex Mono';color:var(--az2)">terraform apply</code> — applies the changes to real infra</div>
+          <div class="kp"><div class="kp-dot"></div><code style="font-size:0.75rem;font-family:'IBM Plex Mono';color:var(--az2)">terraform destroy</code> — tears down everything in state</div>
+          <div class="kp"><div class="kp-dot"></div>State file: must be stored remotely (Azure Blob) for teams</div>
+        </div>
+        <div class="analogy-box"><strong>🌍 Think of it as:</strong> A universal remote control that works with every TV brand (every cloud). Learn once, work everywhere.</div>
+        <div class="tip-box"><strong>💡 Career tip:</strong> Learn Terraform. It's the industry standard. Skills transfer between Azure, AWS, and GCP jobs.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🤖</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Ansible & Azure Automation</div>
+          <div class="tcard-service">Configuration Management</div>
+        </div>
+        <span class="tcard-tag tag-iac">Config Mgmt</span>
+      </div>
+      <div class="tcard-body">
+        <p>Terraform creates infra. Ansible configures it. Ansible uses YAML playbooks to install software, set configs, and manage VM state — agentless (uses SSH/WinRM). Azure Automation is Azure's native tool for runbooks and update management.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Ansible: install Nginx, configure firewall, deploy app — on any VM</div>
+          <div class="kp"><div class="kp-dot"></div>Azure Automation Runbooks: PowerShell/Python scripts that run on a schedule</div>
+          <div class="kp"><div class="kp-dot"></div>Update Management: auto-patch VMs across your fleet</div>
+        </div>
+        <div class="analogy-box"><strong>🏗️ Think of it as:</strong> Terraform builds the house (infra). Ansible furnishes it — installs furniture (software), sets the thermostat (config), arranges everything perfectly.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ DATABASES ═══════════════════ -->
+<section class="section" id="sec-databases">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🗄️ Section 09 / 12</div>
+    <div class="sec-title">Azure <em>Databases</em></div>
+    <div class="sec-desc">Azure offers managed databases for every use case — relational (SQL), NoSQL, cache, and analytics. "Managed" means Azure handles backups, patching, scaling, and HA. You just use the database.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🗃️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure SQL Database</div>
+          <div class="tcard-service">Azure SQL Database (Managed SQL Server)</div>
+        </div>
+        <span class="tcard-tag tag-data">Relational</span>
+      </div>
+      <div class="tcard-body">
+        <p>Fully managed SQL Server in the cloud. Write SQL queries, create tables, run stored procedures — exactly like SQL Server but Azure handles backups, patching, HA, and auto-scaling. 99.99% SLA. Built-in AI performance tuning.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>DTU vs vCore purchasing models — vCore is more flexible</div>
+          <div class="kp"><div class="kp-dot"></div>Serverless tier: auto-pauses when not used → save money</div>
+          <div class="kp"><div class="kp-dot"></div>Geo-replication: replicate DB to another region for DR</div>
+        </div>
+        <div class="analogy-box"><strong>🗃️ Think of it as:</strong> Hiring a fully managed DBA (database admin) who never sleeps — backups, tuning, and failover are all handled without you asking.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🌌</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Cosmos DB</div>
+          <div class="tcard-service">Azure Cosmos DB (Global NoSQL)</div>
+        </div>
+        <span class="tcard-tag tag-data">NoSQL</span>
+      </div>
+      <div class="tcard-body">
+        <p>Microsoft's flagship globally-distributed NoSQL database. Store data in multiple formats (JSON documents, key-value, graph, column-family). Distribute to any Azure region with a click. Single-digit millisecond reads/writes globally. Automatic indexing on all fields.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Multi-region writes: users in Asia write to Asia, reads from Asia = low latency</div>
+          <div class="kp"><div class="kp-dot"></div>5 consistency levels: from strict (always correct) to eventual (fastest)</div>
+          <div class="kp"><div class="kp-dot"></div>Serverless option: pay per request, not per hour</div>
+        </div>
+        <div class="analogy-box"><strong>🌍 Think of it as:</strong> A magical filing cabinet that instantly duplicates itself to every country — users in Tokyo read from Tokyo, users in NYC read from NYC. Always fast.</div>
+        <div class="warning-box"><strong>⚠️ Cost warning:</strong> CosmosDB charges per Request Unit (RU). Misconfigured queries can be very expensive. Always plan your data model carefully.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🐘</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Database for PostgreSQL</div>
+          <div class="tcard-service">Azure PostgreSQL Flexible Server</div>
+        </div>
+        <span class="tcard-tag tag-data">Relational</span>
+      </div>
+      <div class="tcard-body">
+        <p>Fully managed PostgreSQL. If your app uses Postgres, this is the Azure version — Azure handles patches, backups, HA (with standby replica). Supports extensions like PostGIS, pgvector. Flexible Server is the recommended option — you control maintenance windows.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>High availability: primary + standby in same or different zone</div>
+          <div class="kp"><div class="kp-dot"></div>Stop/Start: stop the DB to save money in dev environments</div>
+          <div class="kp"><div class="kp-dot"></div>Azure also offers managed MySQL and MariaDB</div>
+        </div>
+        <div class="analogy-box"><strong>🐘 Think of it as:</strong> Your Postgres database but you never have to install it, patch it, or back it up. Azure is the DBA on call 24/7.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">⚡</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Cache for Redis</div>
+          <div class="tcard-service">Azure Cache for Redis</div>
+        </div>
+        <span class="tcard-tag tag-data">Cache</span>
+      </div>
+      <div class="tcard-body">
+        <p>Managed Redis — an ultra-fast in-memory data store. Store frequently accessed data in Redis so your app gets sub-millisecond responses instead of hitting the database every time. Also used for user sessions, leaderboards, and pub/sub messaging.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>100x faster than hitting a SQL database</div>
+          <div class="kp"><div class="kp-dot"></div>TTL: data auto-expires after N seconds (set and forget)</div>
+          <div class="kp"><div class="kp-dot"></div>Use for: session storage, caching DB results, real-time counters</div>
+        </div>
+        <div class="analogy-box"><strong>📋 Think of it as:</strong> A sticky note on your monitor. Instead of opening a filing cabinet (DB) every time, you glance at the sticky note. Way faster — but small and temporary.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🏭</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Synapse Analytics</div>
+          <div class="tcard-service">Azure Synapse (Data Warehouse + Analytics)</div>
+        </div>
+        <span class="tcard-tag tag-data">Analytics</span>
+      </div>
+      <div class="tcard-body">
+        <p>Enterprise analytics platform — combines data warehousing, big data analytics, and data integration in one service. Analyze petabytes of data with SQL or Apache Spark. Connects to Power BI for dashboards. For DevOps, it's often used for application telemetry analysis at scale.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Serverless SQL pool: query data in Azure Data Lake without moving it</div>
+          <div class="kp"><div class="kp-dot"></div>Dedicated SQL pool: full data warehouse for BI reporting</div>
+          <div class="kp"><div class="kp-dot"></div>Spark pool: big data processing with Apache Spark</div>
+        </div>
+        <div class="analogy-box"><strong>🔬 Think of it as:</strong> A science lab that can analyze mountains of data. Where regular SQL is a kitchen knife, Synapse is a industrial food processor — for when the data is massive.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ MESSAGING ═══════════════════ -->
+<section class="section" id="sec-messaging">
+  <div class="sec-header">
+    <div class="sec-eyebrow">📨 Section 10 / 12</div>
+    <div class="sec-title">Messaging & <em>Integration</em></div>
+    <div class="sec-desc">Modern apps are made of microservices that need to communicate. Messaging services decouple components — Service A doesn't need to wait for Service B to be ready. They leave a message and move on. This is how scalable systems are built.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🚌</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Service Bus</div>
+          <div class="tcard-service">Azure Service Bus (Enterprise Messaging)</div>
+        </div>
+        <span class="tcard-tag tag-msg">Queuing</span>
+      </div>
+      <div class="tcard-body">
+        <p>Enterprise-grade message broker. Supports <strong>Queues</strong> (point-to-point) and <strong>Topics/Subscriptions</strong> (publish-subscribe). Messages are guaranteed to be delivered at least once. Perfect for order processing, financial transactions, decoupling microservices.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Queue: one sender, one consumer — message processed once</div>
+          <div class="kp"><div class="kp-dot"></div>Topic: one sender, many subscribers — each gets a copy</div>
+          <div class="kp"><div class="kp-dot"></div>Dead-letter queue: failed messages go here for inspection</div>
+          <div class="kp"><div class="kp-dot"></div>Guaranteed delivery: message not lost even if consumer is down</div>
+        </div>
+        <div class="analogy-box"><strong>📬 Think of it as:</strong> A reliable postal service. Drop a letter (message) in the box, it's guaranteed delivered — even if the recipient is sleeping. They'll find it when they wake up.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📡</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Event Hub</div>
+          <div class="tcard-service">Azure Event Hub (Big Data Streaming)</div>
+        </div>
+        <span class="tcard-tag tag-msg">Streaming</span>
+      </div>
+      <div class="tcard-body">
+        <p>Built for ingesting millions of events per second — like IoT sensor data, application telemetry, or clickstream data. Not for individual messages — for massive data streams. Consumers read events at their own pace. Data retained for up to 7 days.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Partitions: parallel lanes for reading events</div>
+          <div class="kp"><div class="kp-dot"></div>Consumer groups: different services read the same stream independently</div>
+          <div class="kp"><div class="kp-dot"></div>Kafka compatible: drop-in replacement for Apache Kafka</div>
+        </div>
+        <div class="analogy-box"><strong>🌊 Think of it as:</strong> A river — data constantly flows. Consumers are fishermen at different points in the river, each catching what they need at their own pace.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">⚡</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Event Grid</div>
+          <div class="tcard-service">Azure Event Grid (Reactive Events)</div>
+        </div>
+        <span class="tcard-tag tag-msg">Events</span>
+      </div>
+      <div class="tcard-body">
+        <p>Reactive event routing — reacts to things happening in Azure. "Blob uploaded? Call this webhook." "VM deleted? Send a Teams notification." Event Grid routes events from Azure services (publishers) to handlers (subscribers) in real-time, with a push model.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Publishers: Blob Storage, Resource Groups, IoT Hub, custom apps</div>
+          <div class="kp"><div class="kp-dot"></div>Handlers: Azure Functions, Logic Apps, Webhooks, Event Hub</div>
+          <div class="kp"><div class="kp-dot"></div>Serverless, auto-scales, pay per event</div>
+        </div>
+        <div class="analogy-box"><strong>🔔 Think of it as:</strong> A push notification system. "Something happened" → immediately notify whoever cares about that thing. Like phone notifications but for cloud events.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔗</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Logic Apps</div>
+          <div class="tcard-service">Azure Logic Apps (Low-code Integration)</div>
+        </div>
+        <span class="tcard-tag tag-msg">Integration</span>
+      </div>
+      <div class="tcard-body">
+        <p>Visual workflow builder — connect services without code. "When email arrives with attachment → save to Blob Storage → send Teams notification → update CRM." 400+ connectors for Salesforce, SAP, Twitter, GitHub, SQL, etc. Like Zapier/IFTTT but for enterprise.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>No-code/low-code — business analysts can build workflows</div>
+          <div class="kp"><div class="kp-dot"></div>400+ built-in connectors to SaaS and Azure services</div>
+          <div class="kp"><div class="kp-dot"></div>Good for B2B integrations (EDI, AS2, SFTP workflows)</div>
+        </div>
+        <div class="analogy-box"><strong>🔗 Think of it as:</strong> LEGO for business workflows. Snap blocks together: "If this → do that → then that." No programming needed for simple automation.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ HA & DR ═══════════════════ -->
+<section class="section" id="sec-ha">
+  <div class="sec-header">
+    <div class="sec-eyebrow">🛡️ Section 11 / 12</div>
+    <div class="sec-title">High Availability & <em>Disaster Recovery</em></div>
+    <div class="sec-desc">HA means your system stays up even when individual components fail. DR means your system recovers fast when something catastrophic happens (data center fire, region outage). Design for failure — it WILL happen.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🏙️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Availability Zones (AZ)</div>
+          <div class="tcard-service">Azure Availability Zones</div>
+        </div>
+        <span class="tcard-tag tag-ha">HA</span>
+      </div>
+      <div class="tcard-body">
+        <p>Physical data centers within a region with independent power, cooling, and networking. Spread your VMs/services across 3 AZs — if AZ 1 has a power failure, AZ 2 and 3 continue serving traffic. The Zone-redundant SLA is 99.99% uptime.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Zone-redundant: Azure automatically spreads across 3 AZs</div>
+          <div class="kp"><div class="kp-dot"></div>Zone-pinned: you choose which AZ (for latency-sensitive scenarios)</div>
+          <div class="kp"><div class="kp-dot"></div>Key services support AZ: VMs, SQL, Storage, AKS, App Gateway</div>
+        </div>
+        <div class="analogy-box"><strong>🏥 Think of it as:</strong> A hospital city with 3 hospitals in different neighborhoods. If one gets flooded, ambulances auto-route to the others. Patients (users) don't notice.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔄</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Availability Sets</div>
+          <div class="tcard-service">Azure Availability Sets (VM HA)</div>
+        </div>
+        <span class="tcard-tag tag-ha">HA</span>
+      </div>
+      <div class="tcard-body">
+        <p>Older HA mechanism for VMs within a single data center. Azure guarantees VMs in an Availability Set are on different physical racks (Update Domains and Fault Domains). Protects against planned maintenance and hardware failures within one AZ.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Fault Domains: different power+network rack (protects hardware failure)</div>
+          <div class="kp"><div class="kp-dot"></div>Update Domains: different update timing (protects during Azure maintenance)</div>
+          <div class="kp"><div class="kp-dot"></div>Note: prefer Availability Zones over Availability Sets for new deployments</div>
+        </div>
+        <div class="analogy-box"><strong>🔌 Think of it as:</strong> Making sure your backup generators are on different circuits. If one fuse blows, the other generator still runs.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🆘</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Site Recovery (ASR)</div>
+          <div class="tcard-service">Azure Site Recovery</div>
+        </div>
+        <span class="tcard-tag tag-ha">DR</span>
+      </div>
+      <div class="tcard-body">
+        <p>Disaster Recovery as a Service. Replicates your VMs and on-premises servers to another Azure region continuously. If primary region goes down, failover to secondary in minutes. RTO (Recovery Time Objective) can be under 15 minutes. Test failovers without impacting production.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Replication: VMs + their disks replicated to secondary region</div>
+          <div class="kp"><div class="kp-dot"></div>RPO: Recovery Point Objective — how much data you can afford to lose (minutes)</div>
+          <div class="kp"><div class="kp-dot"></div>Test failover: simulate disaster without impacting real users</div>
+        </div>
+        <div class="analogy-box"><strong>🆘 Think of it as:</strong> A shadow city — an exact copy of your city being built in another location at all times. If the original city floods, everyone moves to the shadow city immediately.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🌍</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Traffic Manager</div>
+          <div class="tcard-service">Azure Traffic Manager (DNS-based LB)</div>
+        </div>
+        <span class="tcard-tag tag-ha">Global LB</span>
+      </div>
+      <div class="tcard-body">
+        <p>DNS-based global traffic routing. Directs users to the best endpoint based on routing method: Performance (closest region), Priority (failover), Weighted (% split), Geographic (route US users to US). Works with any internet-facing endpoint — even non-Azure!</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Failover routing: primary → secondary if primary health check fails</div>
+          <div class="kp"><div class="kp-dot"></div>Performance routing: route to lowest latency region for each user</div>
+          <div class="kp"><div class="kp-dot"></div>Weighted routing: 90% to v1, 10% to v2 (canary deploy)</div>
+        </div>
+        <div class="analogy-box"><strong>🗺️ Think of it as:</strong> A GPS that always finds the fastest route. If the motorway (primary region) is closed, GPS automatically reroutes you to the next fastest road (secondary region).</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COST ═══════════════════ -->
+<section class="section" id="sec-cost">
+  <div class="sec-header">
+    <div class="sec-eyebrow">💰 Section 12 / 12</div>
+    <div class="sec-title">Cost <em>Management</em></div>
+    <div class="sec-desc">The cloud is pay-as-you-go — which means if you're not careful, bills explode. Cost management is a core DevOps skill. Understanding how to estimate, track, control, and optimize cloud spend is what separates good engineers from great ones.</div>
+  </div>
+  <div class="cards-grid">
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">📊</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Azure Cost Analysis</div>
+          <div class="tcard-service">Azure Cost Management + Billing</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Visibility</span>
+      </div>
+      <div class="tcard-body">
+        <p>Visualize your Azure spending. Break down costs by resource, resource group, service type, tag, or time period. See what's costing the most and spot unexpected spikes. Compare current month vs last month. Export cost data to CSV or Power BI.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Daily cost breakdown by service or resource</div>
+          <div class="kp"><div class="kp-dot"></div>Filter by tags: "show me all costs tagged Environment=Production"</div>
+          <div class="kp"><div class="kp-dot"></div>Forecast: ML-powered spend prediction for end of month</div>
+        </div>
+        <div class="analogy-box"><strong>🧾 Think of it as:</strong> Your monthly bank statement with smart categorization. "You spent $400 on VMs, $80 on storage, $200 on AKS last month."</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🔔</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Budgets & Alerts</div>
+          <div class="tcard-service">Azure Budgets</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Control</span>
+      </div>
+      <div class="tcard-body">
+        <p>Set a monthly spending budget and get email alerts when you reach 50%, 75%, 90%, or 100% of it. You can even trigger Action Groups (send email, call webhook) so teams are notified immediately when costs spike unexpectedly.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Set budgets at subscription, resource group, or resource level</div>
+          <div class="kp"><div class="kp-dot"></div>Alert thresholds: email at 80%, call on-call at 100%</div>
+          <div class="kp"><div class="kp-dot"></div>Actual vs Forecasted budget — warns before you hit the limit</div>
+        </div>
+        <div class="analogy-box"><strong>💳 Think of it as:</strong> A credit card with a self-imposed limit and an alarm. Spend $800 of your $1000 limit? You get a warning. Spend $1000? You (and your boss) get a text.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">🏷️</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Resource Tags</div>
+          <div class="tcard-service">Azure Tags (Cost Allocation)</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Allocation</span>
+      </div>
+      <div class="tcard-body">
+        <p>Tags are key-value labels you apply to any Azure resource. Use them to track costs per team, project, or environment. "Project=CRM, Environment=Prod, Owner=TeamA" — then filter Cost Analysis by these tags to see exactly what each team is spending.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Common tags: Environment, Project, CostCenter, Owner, Application</div>
+          <div class="kp"><div class="kp-dot"></div>Azure Policy can enforce mandatory tags — prevent untagged resources</div>
+          <div class="kp"><div class="kp-dot"></div>Tags don't inherit — parent RG tags don't flow to child resources automatically</div>
+        </div>
+        <div class="analogy-box"><strong>🏷️ Think of it as:</strong> Labeling your groceries before putting them in a shared fridge. At billing time, everyone pays for what they labeled — no arguments about "whose cheese is this?"</div>
+        <div class="tip-box"><strong>💡 Best practice:</strong> Define a tagging policy on Day 1. Going back to tag hundreds of untagged resources later is painful.</div>
+      </div>
+    </div>
+
+    <div class="tcard">
+      <div class="tcard-head">
+        <div class="tcard-icon">💎</div>
+        <div class="tcard-meta">
+          <div class="tcard-name">Reservations & Savings Plans</div>
+          <div class="tcard-service">Azure Reservations + Savings Plans</div>
+        </div>
+        <span class="tcard-tag tag-monitor">Savings</span>
+      </div>
+      <div class="tcard-body">
+        <p>Commit to 1 or 3 years of usage upfront (or monthly) and get up to 72% discount vs pay-as-you-go. Reservations lock to a specific VM size/region. Savings Plans are more flexible — commit to a $/hour spend, applies to any eligible compute.</p>
+        <div class="key-points">
+          <div class="kp"><div class="kp-dot"></div>Reservation: 1yr or 3yr commitment for specific VM = up to 72% off</div>
+          <div class="kp"><div class="kp-dot"></div>Savings Plan: commit $X/hr of compute = up to 65% off, any VM type</div>
+          <div class="kp"><div class="kp-dot"></div>Spot VMs: up to 90% off — but can be evicted anytime (for batch jobs)</div>
+          <div class="kp"><div class="kp-dot"></div>Dev/Test pricing: 40-55% off if subscription is flagged as Dev/Test</div>
+        </div>
+        <div class="analogy-box"><strong>✈️ Think of it as:</strong> Booking a hotel room 1 year in advance vs booking last-minute. Commit early → massive discount. Pay-as-you-go → rack rate.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+const visited = new Set(['overview']);
+
+function showSection(id, navEl) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  if (navEl) navEl.classList.add('active');
+  visited.add(id);
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateProgress() {
+  const total = 12;
+  const pct = Math.round((visited.size / total) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = visited.size + ' / ' + total;
+}
+
+// Track all nav items
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const sec = item.getAttribute('data-section');
+    if (sec) visited.add(sec);
+    updateProgress();
+  });
+});
+
+updateProgress();
+</script>
+</body>
+</html>

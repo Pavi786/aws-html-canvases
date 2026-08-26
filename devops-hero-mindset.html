@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Hero Mindset Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #04070a;
+    --surface: #080e14;
+    --card: #0c1520;
+    --border: #162030;
+    --border2: #1e3248;
+    --gold: #f5c542;
+    --gold2: #e8a800;
+    --blue: #3b82f6;
+    --cyan: #06b6d4;
+    --green: #10b981;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+    --orange: #f97316;
+    --text: #dce8f5;
+    --textdim: #5a7a9a;
+    --textmid: #8aa5c0;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 32px 24px 60px;
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(245,197,66,0.06) 0%, transparent 55%),
+      radial-gradient(ellipse at 10% 80%, rgba(59,130,246,0.04) 0%, transparent 45%);
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+  }
+  .crown { font-size: 48px; display: block; margin-bottom: 10px; animation: float 3s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: clamp(32px, 6vw, 68px);
+    color: #fff;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+  h1 em { color: var(--gold); font-style: normal; }
+  .tagline {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--textdim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+  .divider-gold {
+    width: 80px; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 18px auto 0;
+  }
+
+  /* ── HERO QUOTE ── */
+  .hero-quote {
+    max-width: 780px;
+    margin: 0 auto 40px;
+    background: linear-gradient(135deg, rgba(245,197,66,0.06), rgba(59,130,246,0.04));
+    border: 1px solid rgba(245,197,66,0.2);
+    border-left: 3px solid var(--gold);
+    padding: 20px 24px;
+    border-radius: 3px;
+  }
+  .hero-quote p {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #e8f4ff;
+    line-height: 1.5;
+  }
+  .hero-quote span {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    margin-top: 8px;
+    letter-spacing: 2px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    max-width: 1400px;
+    margin: 0 auto 18px;
+  }
+  .section-label-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    padding: 5px 14px;
+    border-radius: 2px;
+  }
+  .lbl-gold { color: var(--gold); border: 1px solid rgba(245,197,66,0.3); background: rgba(245,197,66,0.05); }
+  .lbl-blue { color: var(--blue); border: 1px solid rgba(59,130,246,0.3); background: rgba(59,130,246,0.05); }
+  .lbl-green { color: var(--green); border: 1px solid rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+  .lbl-purple { color: var(--purple); border: 1px solid rgba(139,92,246,0.3); background: rgba(139,92,246,0.05); }
+  .lbl-orange { color: var(--orange); border: 1px solid rgba(249,115,22,0.3); background: rgba(249,115,22,0.05); }
+  .label-line { flex:1; height:1px; background: var(--border); }
+
+  /* ── GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    max-width: 1400px;
+    margin: 0 auto 40px;
+  }
+  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  @media(max-width:900px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:600px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .card-head {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-icon { font-size: 20px; }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    flex: 1;
+  }
+  .card-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 2px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .tag-gold { background: rgba(245,197,66,0.12); color: var(--gold); border: 1px solid rgba(245,197,66,0.2); }
+  .tag-blue { background: rgba(59,130,246,0.1); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+  .tag-green { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .tag-red { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .tag-purple { background: rgba(139,92,246,0.1); color: var(--purple); border: 1px solid rgba(139,92,246,0.2); }
+  .tag-orange { background: rgba(249,115,22,0.1); color: var(--orange); border: 1px solid rgba(249,115,22,0.2); }
+
+  .card-body { padding: 12px 18px 16px; }
+
+  /* ── MINDSET ROW ── */
+  .mindset-row {
+    display: flex;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(22,32,48,0.8);
+    align-items: flex-start;
+  }
+  .mindset-row:last-child { border-bottom: none; }
+  .mindset-bullet {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .mindset-content {}
+  .mindset-title {
+    font-weight: 500;
+    font-size: 13px;
+    color: #dce8f5;
+  }
+  .mindset-desc {
+    font-size: 12px;
+    color: var(--textdim);
+    margin-top: 2px;
+    font-weight: 300;
+  }
+  .mindset-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    margin-top: 4px;
+    padding: 4px 8px;
+    background: rgba(245,197,66,0.05);
+    border-left: 2px solid rgba(245,197,66,0.3);
+    border-radius: 1px;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .compare {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .compare th {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+  }
+  .th-bad { color: var(--red); }
+  .th-good { color: var(--green); }
+  .compare td {
+    padding: 7px 10px;
+    vertical-align: top;
+    border-bottom: 1px solid rgba(22,32,48,0.7);
+    line-height: 1.4;
+  }
+  .compare tr:last-child td { border-bottom: none; }
+  .compare .bad { color: #7a9ab0; }
+  .compare .good { color: #c8f0e0; font-weight: 500; }
+  .compare .arrow { color: var(--textdim); text-align: center; font-size: 14px; }
+
+  /* ── FLOW STEPS ── */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .flow-step {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 13px;
+    top: 30px;
+    bottom: -10px;
+    width: 1px;
+    background: var(--border2);
+  }
+  .flow-num {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(245,197,66,0.1);
+    border: 1px solid rgba(245,197,66,0.3);
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+  .flow-text {}
+  .flow-title { font-weight: 500; font-size: 13px; color: #dce8f5; }
+  .flow-desc { font-size: 12px; color: var(--textdim); margin-top: 2px; }
+
+  /* ── BIG QUOTE CARD ── */
+  .big-card {
+    background: linear-gradient(135deg, rgba(245,197,66,0.04), rgba(59,130,246,0.03));
+    border: 1px solid rgba(245,197,66,0.15);
+    border-radius: 4px;
+    padding: 24px 28px;
+    max-width: 1400px;
+    margin: 0 auto 16px;
+  }
+
+  /* ── PILLARS ── */
+  .pillar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: 2px solid;
+    border-radius: 3px;
+    padding: 18px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .pillar:hover { transform: translateY(-3px); }
+  .pillar-icon { font-size: 32px; margin-bottom: 10px; }
+  .pillar-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  .pillar-desc { font-size: 12px; color: var(--textdim); line-height: 1.5; }
+  .pillar-word {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    margin-top: 10px;
+    letter-spacing: 1px;
+  }
+
+  /* ── QUESTION CARD ── */
+  .q-list { list-style: none; }
+  .q-list li {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(22,32,48,0.8);
+    font-size: 13px;
+    align-items: flex-start;
+    color: var(--textmid);
+  }
+  .q-list li:last-child { border-bottom: none; }
+  .q-list li::before {
+    content: '?';
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ── LEVEL METER ── */
+  .level-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(22,32,48,0.7);
+  }
+  .level-item:last-child { border-bottom: none; }
+  .level-label { font-size: 12px; color: var(--textmid); width: 130px; flex-shrink: 0; }
+  .level-bar-wrap { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .level-bar { height: 100%; border-radius: 3px; }
+  .level-score { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--textdim); width: 35px; text-align: right; }
+
+  /* ── DAY CARD ── */
+  .day-row {
+    display: flex;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid rgba(22,32,48,0.7);
+    align-items: flex-start;
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    width: 55px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .day-text { font-size: 12px; color: var(--textmid); }
+  .day-title { font-size: 13px; font-weight: 500; color: var(--text); }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    margin-top: 50px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--border2);
+    letter-spacing: 3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <span class="crown">👑</span>
+  <h1>Think Like a <em>DevOps Hero</em></h1>
+  <p class="tagline">// The mindset, mental models & daily habits of a pro DevOps engineer</p>
+  <div class="divider-gold"></div>
+</div>
+
+<!-- HERO QUOTE -->
+<div class="hero-quote">
+  <p>"A junior DevOps knows WHAT the tool is. A senior DevOps knows WHY it exists. A hero DevOps knows WHEN NOT to use it — and what to use instead."</p>
+  <span>— The Core Truth of DevOps Mastery</span>
+</div>
+
+<!-- SECTION 1: THE 5 PILLARS OF HERO THINKING -->
+<div class="section-label">
+  <div class="section-label-text lbl-gold">🏛️ The 5 Pillars — How Every Hero DevOps Thinks</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:40px;">
+  <div class="pillar" style="border-top-color: var(--gold);">
+    <div class="pillar-icon">🔭</div>
+    <div class="pillar-title" style="color:var(--gold)">Systems Thinking</div>
+    <div class="pillar-desc">Never fix just the symptom. Ask "why did this break?" 5 times until you find the real root cause. See the WHOLE system, not just your piece</div>
+    <div class="pillar-word" style="background:rgba(245,197,66,0.1);color:var(--gold)">THE BIG PICTURE</div>
+  </div>
+  <div class="pillar" style="border-top-color: var(--red);">
+    <div class="pillar-icon">💥</div>
+    <div class="pillar-title" style="color:var(--red)">Assume Failure</div>
+    <div class="pillar-desc">Pros build expecting things WILL break — not hoping they won't. Every design decision asks: "What happens when this fails at 3am?"</div>
+    <div class="pillar-word" style="background:rgba(239,68,68,0.1);color:var(--red)">DESIGN FOR CHAOS</div>
+  </div>
+  <div class="pillar" style="border-top-color: var(--green);">
+    <div class="pillar-icon">⚙️</div>
+    <div class="pillar-title" style="color:var(--green)">Automate Everything</div>
+    <div class="pillar-desc">If you do it twice manually, you automate it on the third time. Every repetitive task is a bug waiting to happen. Your hands = technical debt</div>
+    <div class="pillar-word" style="background:rgba(16,185,129,0.1);color:var(--green)">ZERO TOIL</div>
+  </div>
+  <div class="pillar" style="border-top-color: var(--blue);">
+    <div class="pillar-icon">📏</div>
+    <div class="pillar-title" style="color:var(--blue)">Measure Before Guessing</div>
+    <div class="pillar-desc">Heroes never say "I think it's the DB." They say "metrics show DB latency spiked at 14:32, here's the query." Data beats opinion every time</div>
+    <div class="pillar-word" style="background:rgba(59,130,246,0.1);color:var(--blue)">METRICS FIRST</div>
+  </div>
+  <div class="pillar" style="border-top-color: var(--purple);">
+    <div class="pillar-icon">🤝</div>
+    <div class="pillar-title" style="color:var(--purple)">Platform Empathy</div>
+    <div class="pillar-desc">Your job is to make developers faster. Every tool you build, every pipeline you create — ask "Does this make dev's life easier or just mine?"</div>
+    <div class="pillar-word" style="background:rgba(139,92,246,0.1);color:var(--purple)">BUILD FOR OTHERS</div>
+  </div>
+</div>
+
+<!-- SECTION 2: JUNIOR vs HERO THINKING -->
+<div class="section-label">
+  <div class="section-label-text lbl-blue">🔄 Junior Brain vs Hero Brain — Real Scenarios</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:40px;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔥</span>
+      <span class="card-title">When Production is DOWN</span>
+      <span class="card-tag tag-red">INCIDENT</span>
+    </div>
+    <div class="card-body">
+      <table class="compare">
+        <tr><th class="th-bad">😰 Junior thinks...</th><th class="arrow"></th><th class="th-good">🦸 Hero thinks...</th></tr>
+        <tr>
+          <td class="bad">"Let me restart everything and hope it fixes"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Check metrics first — CPU? Memory? Error rate? Which service? What changed in last 30 mins?"</td>
+        </tr>
+        <tr>
+          <td class="bad">"I'll fix it first, understand later"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Restore service first (rollback), understand root cause second, prevent it third"</td>
+        </tr>
+        <tr>
+          <td class="bad">"I'll fix it quietly, nobody needs to know"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Communicate status every 10 mins. Write a postmortem. Share learning with team"</td>
+        </tr>
+        <tr>
+          <td class="bad">"It's the developer's bad code, not my fault"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Prod is EVERYONE's responsibility. Let me help find and fix it together"</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🛠️</span>
+      <span class="card-title">When Asked to Deploy a New Feature</span>
+      <span class="card-tag tag-blue">DEPLOY</span>
+    </div>
+    <div class="card-body">
+      <table class="compare">
+        <tr><th class="th-bad">😰 Junior thinks...</th><th class="arrow"></th><th class="th-good">🦸 Hero thinks...</th></tr>
+        <tr>
+          <td class="bad">"Deploy to prod, fingers crossed"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Deploy canary to 5% users first. Watch error rate + latency for 15 mins. Then roll forward"</td>
+        </tr>
+        <tr>
+          <td class="bad">"It works on my machine"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Does it work in staging with prod-like traffic? Did integration tests pass in CI?"</td>
+        </tr>
+        <tr>
+          <td class="bad">"Deploy at any time, it's just a small change"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Deploy during low-traffic window. Have rollback plan ready. Alert team before and after"</td>
+        </tr>
+        <tr>
+          <td class="bad">"No one said we need a rollback plan"</td>
+          <td class="arrow">→</td>
+          <td class="good">"I always have a rollback ready BEFORE I deploy. Never deploy without an exit door"</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">💬</span>
+      <span class="card-title">When Manager/Dev Asks "How Long Will This Take?"</span>
+      <span class="card-tag tag-gold">COMMUNICATION</span>
+    </div>
+    <div class="card-body">
+      <table class="compare">
+        <tr><th class="th-bad">😰 Junior thinks...</th><th class="arrow"></th><th class="th-good">🦸 Hero thinks...</th></tr>
+        <tr>
+          <td class="bad">"I don't know, maybe 2 days?"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Based on similar tasks, 2-3 days. Risks: unknown dependencies in legacy system could add a day. I'll update you if that changes"</td>
+        </tr>
+        <tr>
+          <td class="bad">"Yes I'll do it" (and secretly panic)</td>
+          <td class="arrow">→</td>
+          <td class="good">"Yes, and here's what I need from you: access to X and clarification on Y before I start"</td>
+        </tr>
+        <tr>
+          <td class="bad">"That's impossible to do in 1 week"</td>
+          <td class="arrow">→</td>
+          <td class="good">"1 week is tight. Here's what I can deliver in 1 week and what moves to week 2. Which is higher priority?"</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔧</span>
+      <span class="card-title">When Building New Infrastructure</span>
+      <span class="card-tag tag-green">DESIGN</span>
+    </div>
+    <div class="card-body">
+      <table class="compare">
+        <tr><th class="th-bad">😰 Junior thinks...</th><th class="arrow"></th><th class="th-good">🦸 Hero thinks...</th></tr>
+        <tr>
+          <td class="bad">"Let me click through the AWS console and set it up"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Everything is code. Terraform. No snowflake servers. If I can't recreate it in 30 mins, it's a liability"</td>
+        </tr>
+        <tr>
+          <td class="bad">"Let me use the most powerful/latest tool"</td>
+          <td class="arrow">→</td>
+          <td class="good">"What's the SIMPLEST thing that works? Start simple, add complexity only when the simple thing breaks"</td>
+        </tr>
+        <tr>
+          <td class="bad">"I'll document it later"</td>
+          <td class="arrow">→</td>
+          <td class="good">"README written before I start. Architecture diagram in the PR. Future-me at 3am needs to understand this"</td>
+        </tr>
+        <tr>
+          <td class="bad">"One big server for everything = easy"</td>
+          <td class="arrow">→</td>
+          <td class="good">"Single point of failure. What's the blast radius if this goes down? How do I isolate failure?"</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- SECTION 3: THE HERO'S PROBLEM SOLVING BRAIN -->
+<div class="section-label">
+  <div class="section-label-text lbl-green">🧠 The Hero's Problem-Solving Flow — Every Single Time</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid" style="margin-bottom:40px;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔍</span>
+      <span class="card-title">When Something Is Broken</span>
+      <span class="card-tag tag-red">DEBUGGING FLOW</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-text">
+            <div class="flow-title">DON'T TOUCH ANYTHING FIRST</div>
+            <div class="flow-desc">Breathe. Observe. Collect data before acting. Every change you make without data makes debugging harder</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-text">
+            <div class="flow-title">WHAT CHANGED? (It's always a change)</div>
+            <div class="flow-desc">Check: deployments in last 1hr, config changes, certificate expiry, traffic spike, cron jobs that ran, cloud provider incidents</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-text">
+            <div class="flow-title">NARROW THE BLAST RADIUS</div>
+            <div class="flow-desc">1 service or all? 1 region or all? 1 user or all? Internal or external? This tells you WHERE the problem is</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-text">
+            <div class="flow-title">CHECK METRICS → LOGS → TRACES (in order)</div>
+            <div class="flow-desc">Metrics tell you WHAT is wrong. Logs tell you WHERE. Traces tell you WHY across services. This order saves hours</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-text">
+            <div class="flow-title">RESTORE FIRST, ROOT-CAUSE SECOND</div>
+            <div class="flow-desc">Rollback to restore service. THEN investigate. Never debug a burning building while users suffer. Speed of recovery matters most</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">6</div>
+          <div class="flow-text">
+            <div class="flow-title">WRITE THE POSTMORTEM</div>
+            <div class="flow-desc">Timeline, root cause, impact, action items. Blameless — systems fail, not people. Heroes turn outages into improvements</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🧩</span>
+      <span class="card-title">When Asked to Pick a Tool / Tech</span>
+      <span class="card-tag tag-gold">DECISION FLOW</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-text">
+            <div class="flow-title">UNDERSTAND THE PROBLEM FIRST</div>
+            <div class="flow-desc">"What pain are we solving?" Don't pick a tool without knowing the actual problem. Tool-first thinking = technical debt</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-text">
+            <div class="flow-title">DO WE ACTUALLY NEED THIS?</div>
+            <div class="flow-desc">"Does our current system already solve this 80%?" Hero engineers resist adding complexity. Every new tool = new failure mode to manage</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-text">
+            <div class="flow-title">COMPARE OPTIONS WITH REAL CRITERIA</div>
+            <div class="flow-desc">Operational overhead? Team learning curve? Cost? Community support? Vendor lock-in risk? Maturity? Not just "X is cool right now"</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-text">
+            <div class="flow-title">PROTOTYPE IN ISOLATION</div>
+            <div class="flow-desc">Spend 2 days doing a proof-of-concept before committing. Find the ugly edges before you're locked in. Fail fast, decide fast</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-text">
+            <div class="flow-title">DOCUMENT THE DECISION (ADR)</div>
+            <div class="flow-desc">Write WHY you chose it and what you rejected. When someone asks in 2 years "why do we use X?", the answer exists</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📐</span>
+      <span class="card-title">When Designing New Infrastructure</span>
+      <span class="card-tag tag-blue">DESIGN FLOW</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-text">
+            <div class="flow-title">DRAW IT FIRST (even in paint)</div>
+            <div class="flow-desc">Architecture diagram before touching a terminal. Where does traffic enter? Where does data live? What connects to what?</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-text">
+            <div class="flow-title">FIND ALL SINGLE POINTS OF FAILURE</div>
+            <div class="flow-desc">Circle every part of the diagram that if removed = entire system down. Then decide: is each acceptable or must it be redundant?</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-text">
+            <div class="flow-title">ASK "WHAT IF THIS NODE DIES?"</div>
+            <div class="flow-desc">For every component: what if it's gone for 5 mins? 1 hour? 1 day? Your answer determines your HA (High Availability) design</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-text">
+            <div class="flow-title">PLAN YOUR BLAST RADIUS</div>
+            <div class="flow-desc">If service A fails, can it take down B and C too? Use circuit breakers, timeouts, bulkheads. Contain the damage zone</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">5</div>
+          <div class="flow-text">
+            <div class="flow-title">SECURITY FROM DAY ONE (not day 90)</div>
+            <div class="flow-desc">Least privilege: only access what's needed. Encrypt in transit + at rest. Log who did what. Secrets in Vault, not in Git. Always</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SECTION 4: THE HERO'S MENTAL MODELS -->
+<div class="section-label">
+  <div class="section-label-text lbl-purple">💡 Mental Models — How Heroes See Problems Differently</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid" style="margin-bottom:40px;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🏗️</span>
+      <span class="card-title">The "Cattle Not Pets" Model</span>
+      <span class="card-tag tag-purple">INFRASTRUCTURE</span>
+    </div>
+    <div class="card-body">
+      <div class="mindset-row">
+        <div class="mindset-bullet">🐕</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Pet Server (Junior way)</div>
+          <div class="mindset-desc">Precious named servers: "This is DB-Mumbai-01, been running since 2019, we know all its quirks." When it breaks — panic</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">🐄</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Cattle Server (Hero way)</div>
+          <div class="mindset-desc">Every server is replaceable and numbered. If one gets sick, shoot it and create a new one from code in 5 mins. Immutable infrastructure</div>
+        </div>
+      </div>
+      <div class="mindset-code">Hero rule: "If you SSH'd into a server to fix it, you've already failed."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📉</span>
+      <span class="card-title">The "Blast Radius" Model</span>
+      <span class="card-tag tag-red">FAILURE DESIGN</span>
+    </div>
+    <div class="card-body">
+      <div class="mindset-row">
+        <div class="mindset-bullet">💣</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Always ask: "How big is the explosion?"</div>
+          <div class="mindset-desc">Before every change: if this fails, how many users/services/teams are affected? 100%? 5%? Can I reduce this?</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">🔒</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Blast radius reduction techniques</div>
+          <div class="mindset-desc">Feature flags (turn off bad feature without redeploy), canary deployments, circuit breakers, namespace isolation in K8s</div>
+        </div>
+      </div>
+      <div class="mindset-code">Hero rule: "Small blast radius = safe to deploy often. Big blast radius = deploy rarely and nervously."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔄</span>
+      <span class="card-title">The "Shift Left" Model</span>
+      <span class="card-tag tag-blue">QUALITY</span>
+    </div>
+    <div class="card-body">
+      <div class="mindset-row">
+        <div class="mindset-bullet">➡️</div>
+        <div class="mindset-content">
+          <div class="mindset-title">What "shift left" means in plain English</div>
+          <div class="mindset-desc">Find problems EARLIER in the pipeline. Security scan at commit time = cheap. Security scan after breach = expensive. Same applies to tests, performance, config</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">💰</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Cost of fixing a bug by stage</div>
+          <div class="mindset-desc">Dev laptop: $1 · CI pipeline: $10 · Staging: $100 · Production: $10,000. Heroes push quality checks as left as possible</div>
+        </div>
+      </div>
+      <div class="mindset-code">Hero rule: "Make the pipeline the quality gate, not prod incidents."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🏔️</span>
+      <span class="card-title">The "Toil Elimination" Model</span>
+      <span class="card-tag tag-green">AUTOMATION</span>
+    </div>
+    <div class="card-body">
+      <div class="mindset-row">
+        <div class="mindset-bullet">🔁</div>
+        <div class="mindset-content">
+          <div class="mindset-title">What is "Toil"?</div>
+          <div class="mindset-desc">Manual, repetitive, automatable work that doesn't improve the system permanently. Restarting pods manually. Copying configs. Filling tickets for deploys</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">🎯</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Google's SRE rule: Max 50% toil</div>
+          <div class="mindset-desc">If more than half your week is manual repetitive work, you are not an engineer — you are a button pusher. Heroes automate until toil is near zero</div>
+        </div>
+      </div>
+      <div class="mindset-code">Hero rule: "If I do it more than twice, the third time I write a script."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🌡️</span>
+      <span class="card-title">The "Four Golden Signals" Model</span>
+      <span class="card-tag tag-gold">OBSERVABILITY</span>
+    </div>
+    <div class="card-body">
+      <div class="mindset-row">
+        <div class="mindset-bullet">⚡</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Latency — "Is it SLOW?"</div>
+          <div class="mindset-desc">How long does a request take? Success vs error latency (a slow error is worse than a fast error). p95 and p99 matter more than average</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">📈</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Traffic — "How BUSY is it?"</div>
+          <div class="mindset-desc">Requests/sec, connections, messages/sec. Baselines help you spot "is this normal Friday traffic or a DDoS attack?"</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">❌</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Errors — "Is it BROKEN?"</div>
+          <div class="mindset-desc">HTTP 5xx rate, failed jobs, timeouts. Even 0.1% error rate on 1M requests = 1,000 angry users. Alert on error RATE not count</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">📊</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Saturation — "Is it FULL?"</div>
+          <div class="mindset-desc">CPU, memory, disk, connections approaching limit. Systems degrade BEFORE they fail. Alert at 80% not 100%</div>
+        </div>
+      </div>
+      <div class="mindset-code">Hero rule: "If your alerts don't cover these 4 signals, you're flying blind."</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🔐</span>
+      <span class="card-title">The "Least Privilege" Model</span>
+      <span class="card-tag tag-red">SECURITY</span>
+    </div>
+    <div class="card-body">
+      <div class="mindset-row">
+        <div class="mindset-bullet">🔑</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Only give access that is NEEDED</div>
+          <div class="mindset-desc">A pod that reads from S3 does NOT need to delete from S3. A dev who deploys doesn't need to access production DB. Default = deny</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">🕵️</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Assume breach mentality</div>
+          <div class="mindset-desc">Design as if attackers are already inside your network. Segment everything. mTLS between services. No implicit trust = zero-trust</div>
+        </div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">📋</div>
+        <div class="mindset-content">
+          <div class="mindset-title">Audit everything</div>
+          <div class="mindset-desc">Log who did what, when, from where. K8s audit logs, AWS CloudTrail, Vault audit. "What did this service account do at 3am?" must be answerable</div>
+        </div>
+      </div>
+      <div class="mindset-code">Hero rule: "If you can't answer who touched what in the last 24hrs, you have no security."</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SECTION 5: QUESTIONS HEROES ASK -->
+<div class="section-label">
+  <div class="section-label-text lbl-orange">❓ Questions Heroes Always Ask (That Juniors Never Think To)</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid grid-3" style="margin-bottom:40px;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🏗️</span>
+      <span class="card-title">Before Building Anything</span>
+      <span class="card-tag tag-gold">DESIGN CHECK</span>
+    </div>
+    <div class="card-body">
+      <ul class="q-list">
+        <li>What happens when this fails at 3am on a Sunday?</li>
+        <li>Can we recreate this entire environment from code in under 30 minutes?</li>
+        <li>If I get hit by a bus tomorrow, can someone else understand and run this?</li>
+        <li>What's the rollback plan if this goes wrong in prod?</li>
+        <li>Have I considered the cost implications at 10x current scale?</li>
+        <li>Is the simplest solution I'm ignoring actually good enough?</li>
+        <li>What new failure modes am I introducing that didn't exist before?</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🚨</span>
+      <span class="card-title">During an Incident</span>
+      <span class="card-tag tag-red">INCIDENT BRAIN</span>
+    </div>
+    <div class="card-body">
+      <ul class="q-list">
+        <li>What changed in the last 30-60 minutes? (It's always a change)</li>
+        <li>Is this 1 user, some users, or all users? 1 region or all regions?</li>
+        <li>What do the metrics say — latency? error rate? saturation?</li>
+        <li>Can we mitigate NOW (rollback/reroute) and investigate after?</li>
+        <li>Who else needs to know about this right now?</li>
+        <li>What's the user-visible impact? Can I quantify it?</li>
+        <li>Is there a runbook for this? If not, I'm writing one after this</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">📏</span>
+      <span class="card-title">Every Week as a Pro</span>
+      <span class="card-tag tag-blue">GROWTH CHECK</span>
+    </div>
+    <div class="card-body">
+      <ul class="q-list">
+        <li>What repetitive task did I do this week that I should automate?</li>
+        <li>Which alert fired that was noise? (Fix the alert, not the alert fatigue)</li>
+        <li>Did any deploy make me nervous? Why? Fix the thing that made it scary</li>
+        <li>What would I have done differently in last week's incident?</li>
+        <li>Am I learning something new this week or just operating?</li>
+        <li>Is my on-call rotation sustainable? What's causing the most pages?</li>
+        <li>Did I write documentation or is tribal knowledge growing in my head?</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- SECTION 6: HERO'S DAILY HABITS -->
+<div class="section-label">
+  <div class="section-label-text lbl-green">📅 The Hero's Daily Operating Rhythm</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:40px;">
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🌅</span>
+      <span class="card-title">Morning Ritual (First 20 Mins)</span>
+      <span class="card-tag tag-green">DAILY HABIT</span>
+    </div>
+    <div class="card-body">
+      <div class="day-row">
+        <div class="day-time">0 min</div>
+        <div class="day-text">
+          <div class="day-title">Check overnight alerts & anomalies</div>
+          <div class="mindset-desc">Did any alert fire while I was sleeping? Any unusual traffic pattern in Grafana? Takes 5 mins but catches issues before users report them</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-time">5 min</div>
+        <div class="day-text">
+          <div class="day-title">Review what's deploying today</div>
+          <div class="mindset-desc">What's in the pipeline today? Any risky changes? Should I be extra alert? Co-ordinate with dev team on timing</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-time">10 min</div>
+        <div class="day-text">
+          <div class="day-title">Glance at cost dashboard</div>
+          <div class="mindset-desc">Did yesterday's infra cost spike? New expensive resource someone created? Catching cost issues early = thousands saved monthly</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-time">15 min</div>
+        <div class="day-text">
+          <div class="day-title">Read 1 thing about DevOps/Cloud</div>
+          <div class="mindset-desc">Blog, release notes, CVE bulletin, architecture case study. Just 1 thing/day = 250 things/year = always growing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">⚡</span>
+      <span class="card-title">The Hero's Weekly Growth Loop</span>
+      <span class="card-tag tag-purple">COMPOUND GROWTH</span>
+    </div>
+    <div class="card-body">
+      <div class="day-row">
+        <div class="day-time">MON</div>
+        <div class="day-text">
+          <div class="day-title">Review last week's alerts + toil list</div>
+          <div class="mindset-desc">What was annoying? What was manual? That's your automation target for this week</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-time">WED</div>
+        <div class="day-text">
+          <div class="day-title">Automate or improve 1 thing</div>
+          <div class="mindset-desc">Doesn't have to be huge. A better alert. A cleaner script. A documented runbook. Compound improvements = mastery</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-time">FRI</div>
+        <div class="day-text">
+          <div class="day-title">Write it down (doc, wiki, ADR)</div>
+          <div class="mindset-desc">Every decision, every lesson, every new setup. Your future team (and you) will thank you</div>
+        </div>
+      </div>
+      <div class="day-row">
+        <div class="day-time">WEEKLY</div>
+        <div class="day-text">
+          <div class="day-title">Help or teach 1 person something</div>
+          <div class="mindset-desc">Teaching forces you to REALLY understand. Plus it builds reputation as the person who makes others better — that's how you get promoted</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SECTION 7: HERO IDENTITY -->
+<div class="big-card">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;flex-wrap:wrap;">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">🧬 What You ARE as a Hero</div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">✅</div>
+        <div class="mindset-content"><div class="mindset-title">You are a PRODUCT owner of infrastructure</div><div class="mindset-desc">Your platforms have users (developers). Treat them like customers</div></div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">✅</div>
+        <div class="mindset-content"><div class="mindset-title">You are a TEACHER, not a gatekeeper</div><div class="mindset-desc">Share knowledge freely. Heroes make the team better, not irreplaceable</div></div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">✅</div>
+        <div class="mindset-content"><div class="mindset-title">You are a RISK manager</div><div class="mindset-desc">Your real job is identifying and reducing risk in software delivery</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--red);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">🚫 What You're NOT</div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">❌</div>
+        <div class="mindset-content"><div class="mindset-title">Not a "button pusher" who just runs commands</div><div class="mindset-desc">You understand WHY before you run commands</div></div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">❌</div>
+        <div class="mindset-content"><div class="mindset-title">Not a tool collector</div><div class="mindset-desc">You use the SIMPLEST tool that solves the problem</div></div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">❌</div>
+        <div class="mindset-content"><div class="mindset-title">Not a lone hero who hoards knowledge</div><div class="mindset-desc">Heroes document, share, automate — so the team wins together</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;">💬 How Heroes Speak</div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">💬</div>
+        <div class="mindset-content"><div class="mindset-title">"Here's the data, here's the trade-off"</div><div class="mindset-desc">Never just "I think" — always back opinions with metrics or evidence</div></div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">💬</div>
+        <div class="mindset-content"><div class="mindset-title">"I don't know yet — let me find out"</div><div class="mindset-desc">Heroes say this freely. Fake certainty destroys trust faster than admitting gaps</div></div>
+      </div>
+      <div class="mindset-row">
+        <div class="mindset-bullet">💬</div>
+        <div class="mindset-content"><div class="mindset-title">"We can do X now, Y next sprint"</div><div class="mindset-desc">Always offer a path forward. Never just "no." Prioritize, don't block</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEVEL METER -->
+<div class="section-label" style="margin-top:40px;">
+  <div class="section-label-text lbl-gold">📊 Self-Assess Your Hero Mindset Score</div>
+  <div class="label-line"></div>
+</div>
+
+<div class="grid grid-2" style="margin-bottom:0;">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🎯</span>
+      <span class="card-title">Rate Yourself Honestly (1–10)</span>
+      <span class="card-tag tag-gold">SELF CHECK</span>
+    </div>
+    <div class="card-body">
+      <div class="level-item">
+        <div class="level-label">Systems Thinking</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:60%;background:linear-gradient(90deg,var(--blue),var(--cyan))"></div></div>
+        <div class="level-score">6/10</div>
+      </div>
+      <div class="level-item">
+        <div class="level-label">Assume Failure First</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:50%;background:linear-gradient(90deg,var(--red),var(--orange))"></div></div>
+        <div class="level-score">5/10</div>
+      </div>
+      <div class="level-item">
+        <div class="level-label">Automate Everything</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:65%;background:linear-gradient(90deg,var(--green),var(--cyan))"></div></div>
+        <div class="level-score">6.5/10</div>
+      </div>
+      <div class="level-item">
+        <div class="level-label">Measure Before Guess</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:55%;background:linear-gradient(90deg,var(--gold),var(--orange))"></div></div>
+        <div class="level-score">5.5/10</div>
+      </div>
+      <div class="level-item">
+        <div class="level-label">Document Everything</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:40%;background:linear-gradient(90deg,var(--purple),var(--blue))"></div></div>
+        <div class="level-score">4/10</div>
+      </div>
+      <div class="level-item">
+        <div class="level-label">Security by Default</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:45%;background:linear-gradient(90deg,var(--red),var(--purple))"></div></div>
+        <div class="level-score">4.5/10</div>
+      </div>
+      <div class="level-item">
+        <div class="level-label">Platform Empathy</div>
+        <div class="level-bar-wrap"><div class="level-bar" style="width:50%;background:linear-gradient(90deg,var(--cyan),var(--blue))"></div></div>
+        <div class="level-score">5/10</div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--textdim);margin-top:12px;padding-top:10px;border-top:1px solid var(--border);">* Edit this score honestly after each month. These numbers should only go UP.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-icon">🗺️</span>
+      <span class="card-title">Your 90-Day Mindset Challenge</span>
+      <span class="card-tag tag-green">ACTION PLAN</span>
+    </div>
+    <div class="card-body">
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-num">W1</div>
+          <div class="flow-text">
+            <div class="flow-title">Write your first Postmortem (even for a small thing)</div>
+            <div class="flow-desc">Pick any recent problem. Write: what happened, timeline, root cause, action items. Practice the habit now</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">W2</div>
+          <div class="flow-text">
+            <div class="flow-title">Automate 1 manual task you do weekly</div>
+            <div class="flow-desc">Bash script, Python, Ansible — anything. Just make it run without your hands. Track the time you save</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">W3</div>
+          <div class="flow-text">
+            <div class="flow-title">Draw the architecture of your current system</div>
+            <div class="flow-desc">From scratch. No looking. Circle every single point of failure. Be honest. This shows you your gaps</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">W4</div>
+          <div class="flow-text">
+            <div class="flow-title">Set up the Four Golden Signals for 1 service</div>
+            <div class="flow-desc">Latency + Traffic + Errors + Saturation dashboard in Grafana. Alert on them. This trains your metric-first brain</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">M2</div>
+          <div class="flow-text">
+            <div class="flow-title">Intentionally break something in staging</div>
+            <div class="flow-desc">Kill a pod. Throttle CPU. Block a network path. Practice finding it using ONLY your dashboards and logs. Build the muscle</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-num">M3</div>
+          <div class="flow-text">
+            <div class="flow-title">Teach someone else something you learned</div>
+            <div class="flow-desc">Brown bag session, Slack post, wiki article, PR review with detailed comments. Teaching = mastery proof</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer" style="margin-top:50px;">
+  ── DEVOPS HERO MINDSET CANVAS // TOOLS ARE LEARNABLE — THINKING IS MASTERY ──
+</div>
+
+</body>
+</html>

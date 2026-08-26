@@ -1,0 +1,1628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybersecurity Mastery — Plain English Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f4ff;
+  --white: #ffffff;
+  --dark: #1a1a2e;
+  --muted: #6b7280;
+  --s1: #6366f1; --s1l: #eef2ff; --s1b: #c7d2fe;
+  --s2: #0ea5e9; --s2l: #e0f7ff; --s2b: #bae6fd;
+  --s3: #10b981; --s3l: #ecfdf5; --s3b: #a7f3d0;
+  --s4: #f59e0b; --s4l: #fffbeb; --s4b: #fde68a;
+  --s5: #ef4444; --s5l: #fef2f2; --s5b: #fecaca;
+  --s6: #8b5cf6; --s6l: #f5f3ff; --s6b: #ddd6fe;
+  --s7: #ec4899; --s7l: #fdf2f8; --s7b: #fbcfe8;
+  --s8: #14b8a6; --s8l: #f0fdfa; --s8b: #99f6e4;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  font-family: 'Nunito', sans-serif;
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+/* ─── BG DOODLES ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 10% 20%, #6366f120 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, #ec489920 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, #0ea5e910 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── HERO ─── */
+.hero {
+  text-align: center;
+  margin-bottom: 60px;
+  animation: popIn 0.7s ease;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: var(--dark);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  padding: 6px 18px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hero h1 {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: clamp(36px, 7vw, 76px);
+  line-height: 1.05;
+  color: var(--dark);
+  margin-bottom: 16px;
+}
+
+.hero h1 .highlight {
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto 28px;
+  line-height: 1.7;
+  font-weight: 600;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.stat-pill {
+  background: var(--white);
+  border-radius: 100px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 12px #0001;
+  border: 2px solid #e5e7eb;
+}
+
+/* ─── PROGRESS ─── */
+.progress-bar-wrap {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 20px 28px;
+  margin-bottom: 50px;
+  box-shadow: 0 4px 20px #0000000d;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  animation: popIn 0.7s 0.1s both;
+}
+.pb-label { font-weight: 800; font-size: 13px; white-space: nowrap; }
+.pb-track {
+  flex: 1;
+  height: 12px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.pb-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #ec4899);
+  border-radius: 10px;
+  transition: width 0.5s;
+  width: 0%;
+}
+.pb-count { font-weight: 900; color: #6366f1; font-size: 15px; white-space: nowrap; min-width: 55px; text-align: right; }
+
+/* ─── STAGE ─── */
+.stage {
+  margin-bottom: 52px;
+  animation: popIn 0.5s ease both;
+}
+.stage:nth-child(1){animation-delay:0.15s}
+.stage:nth-child(2){animation-delay:0.2s}
+.stage:nth-child(3){animation-delay:0.25s}
+.stage:nth-child(4){animation-delay:0.3s}
+.stage:nth-child(5){animation-delay:0.35s}
+.stage:nth-child(6){animation-delay:0.4s}
+.stage:nth-child(7){animation-delay:0.45s}
+.stage:nth-child(8){animation-delay:0.5s}
+
+/* Stage header banner */
+.stage-banner {
+  border-radius: 20px 20px 0 0;
+  padding: 22px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  cursor: default;
+}
+
+.stage-emoji {
+  font-size: 36px;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage-info { flex: 1; }
+
+.stage-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.stage-title {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: clamp(18px, 3vw, 24px);
+  line-height: 1.2;
+}
+
+.stage-plain {
+  font-size: 13px;
+  opacity: 0.75;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+.stage-time {
+  background: rgba(255,255,255,0.4);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Stage body */
+.stage-body {
+  background: var(--white);
+  border-radius: 0 0 20px 20px;
+  border: 2px solid;
+  border-top: none;
+  overflow: hidden;
+}
+
+/* Phase grid */
+.phases {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0;
+}
+
+.phase {
+  padding: 22px 24px;
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+}
+
+.phase:hover { background: #fafbff; }
+.phase.done { opacity: 0.6; }
+.phase.done .phase-title { text-decoration: line-through; }
+
+.phase-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.phase-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  border: 2.5px solid #d1d5db;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 900;
+  color: transparent;
+  background: transparent;
+  transition: all 0.2s;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.phase.done .phase-check {
+  border-color: var(--sc);
+  background: var(--sc);
+  color: #fff;
+}
+
+.phase-content { flex: 1; }
+
+.phase-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 4px;
+}
+
+.phase-plain {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* Expand/collapse */
+.phase-toggle-btn {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sc);
+  background: var(--sl);
+  border: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: opacity 0.2s;
+}
+.phase-toggle-btn:hover { opacity: 0.8; }
+
+.phase-detail {
+  display: none;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed #e5e7eb;
+}
+.phase.open .phase-detail { display: block; }
+
+.detail-section { margin-bottom: 12px; }
+
+.detail-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--sc);
+  margin-bottom: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.detail-items { display: flex; flex-direction: column; gap: 5px; }
+
+.detail-item {
+  font-size: 12.5px;
+  color: #374151;
+  line-height: 1.5;
+  font-weight: 600;
+  display: flex;
+  gap: 8px;
+}
+
+.detail-item::before {
+  content: '✦';
+  color: var(--sc);
+  flex-shrink: 0;
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.tools-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tool-tag {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  padding: 3px 9px;
+  border-radius: 5px;
+  background: var(--sl);
+  color: var(--sc);
+  border: 1px solid var(--sb);
+}
+
+.layman-box {
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+.layman-box strong { color: #b45309; }
+
+/* Stage color vars injected per stage */
+.s1 { --sc: var(--s1); --sl: var(--s1l); --sb: var(--s1b); }
+.s2 { --sc: var(--s2); --sl: var(--s2l); --sb: var(--s2b); }
+.s3 { --sc: var(--s3); --sl: var(--s3l); --sb: var(--s3b); }
+.s4 { --sc: var(--s4); --sl: var(--s4l); --sb: var(--s4b); }
+.s5 { --sc: var(--s5); --sl: var(--s5l); --sb: var(--s5b); }
+.s6 { --sc: var(--s6); --sl: var(--s6l); --sb: var(--s6b); }
+.s7 { --sc: var(--s7); --sl: var(--s7l); --sb: var(--s7b); }
+.s8 { --sc: var(--s8); --sl: var(--s8l); --sb: var(--s8b); }
+
+/* Banner bg by stage */
+.s1 .stage-banner { background: linear-gradient(135deg, #6366f1, #818cf8); color: #fff; }
+.s2 .stage-banner { background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #fff; }
+.s3 .stage-banner { background: linear-gradient(135deg, #10b981, #34d399); color: #fff; }
+.s4 .stage-banner { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #fff; }
+.s5 .stage-banner { background: linear-gradient(135deg, #ef4444, #f87171); color: #fff; }
+.s6 .stage-banner { background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: #fff; }
+.s7 .stage-banner { background: linear-gradient(135deg, #ec4899, #f472b6); color: #fff; }
+.s8 .stage-banner { background: linear-gradient(135deg, #14b8a6, #2dd4bf); color: #fff; }
+
+.s1 .stage-body { border-color: var(--s1b); }
+.s2 .stage-body { border-color: var(--s2b); }
+.s3 .stage-body { border-color: var(--s3b); }
+.s4 .stage-body { border-color: var(--s4b); }
+.s5 .stage-body { border-color: var(--s5b); }
+.s6 .stage-body { border-color: var(--s6b); }
+.s7 .stage-body { border-color: var(--s7b); }
+.s8 .stage-body { border-color: var(--s8b); }
+
+/* Connector arrow */
+.connector {
+  text-align: center;
+  font-size: 28px;
+  margin: -16px 0;
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── FINAL CARD ─── */
+.final-card {
+  background: linear-gradient(135deg, #1a1a2e, #2d2d4e);
+  border-radius: 24px;
+  padding: 48px 40px;
+  text-align: center;
+  color: #fff;
+  margin-top: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.final-card::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, #6366f140, transparent 70%);
+}
+
+.final-card::after {
+  content: '';
+  position: absolute;
+  bottom: -40px; left: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, #ec489940, transparent 70%);
+}
+
+.final-card h2 {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: clamp(26px, 4vw, 42px);
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.final-card p {
+  font-size: 15px;
+  color: #a5b4fc;
+  max-width: 500px;
+  margin: 0 auto 28px;
+  line-height: 1.7;
+  font-weight: 600;
+  position: relative;
+  z-index: 1;
+}
+
+.final-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.final-stat {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.final-stat-num {
+  font-family: 'Fredoka One', sans-serif;
+  font-size: 28px;
+  color: #a5b4fc;
+  margin-bottom: 4px;
+}
+
+.final-stat-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 600px) {
+  .phase { min-width: 100%; }
+  .stage-emoji { width: 44px; height: 44px; font-size: 26px; }
+  .hero h1 { font-size: 36px; }
+  .final-card { padding: 32px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">// YOUR COMPLETE CYBERSECURITY MAP //</div>
+    <h1>Cybersecurity <span class="highlight">Mastery</span><br>In Plain English</h1>
+    <div class="hero-sub">No jargon overload. Every stage explained like you're 15 years old — but with everything a professional needs to know. Click any phase to expand it.</div>
+    <div class="hero-stats">
+      <span class="stat-pill">📚 8 Stages</span>
+      <span class="stat-pill">⚡ 40+ Phases</span>
+      <span class="stat-pill">🕐 12–24 Months</span>
+      <span class="stat-pill">✅ Track Your Progress</span>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar-wrap">
+    <div class="pb-label">🎯 YOUR PROGRESS</div>
+    <div class="pb-track"><div class="pb-fill" id="pbFill"></div></div>
+    <div class="pb-count" id="pbCount">0 / 0</div>
+  </div>
+
+  <!-- ═══════════════════════════════ -->
+  <!-- STAGE 1 -->
+  <!-- ═══════════════════════════════ -->
+  <div class="stage s1">
+    <div class="stage-banner">
+      <div class="stage-emoji">🧠</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 01</div>
+        <div class="stage-title">Getting Your Brain Ready</div>
+        <div class="stage-plain">Before touching any hacking tool, build the right mindset and workspace</div>
+      </div>
+      <div class="stage-time">Week 1</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s1">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🗺️ Understand the Big Picture</div>
+              <div class="phase-plain">Know what cybersecurity IS before you start learning it</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="detail-section">
+                  <div class="detail-label">In Simple Words</div>
+                  <div class="layman-box"><strong>Think of it like this:</strong> The internet is a giant city. Hackers are burglars. Cybersecurity professionals are the security guards, detectives, and architects who design buildings that can't be broken into.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">3 Career Paths</div>
+                  <div class="detail-items">
+                    <div class="detail-item">🔴 RED TEAM = The attacker (finds holes in security)</div>
+                    <div class="detail-item">🔵 BLUE TEAM = The defender (monitors and stops attacks)</div>
+                    <div class="detail-item">🟣 PURPLE TEAM = Does both (highest demand right now)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Do This Now</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Watch NetworkChuck's "Cybersecurity Career Roadmap" on YouTube (free, 20 min)</div>
+                    <div class="detail-item">Follow 5 cybersecurity people on LinkedIn or Twitter/X — absorb the culture</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s1">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🖥️ Build Your Hacking Lab</div>
+              <div class="phase-plain">Set up a safe practice environment on your own computer</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="detail-section">
+                  <div class="detail-label">In Simple Words</div>
+                  <div class="layman-box"><strong>Think of it like this:</strong> A hacking lab is like a fake bank vault inside a locked room in your house. You practice cracking it without any legal risk. Nothing touches the real internet.</div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Exact Steps</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Install VirtualBox (free) from virtualbox.org — it lets you run fake computers inside your real one</div>
+                    <div class="detail-item">Download Kali Linux from kali.org — this is the hacker's OS with 600+ tools pre-installed</div>
+                    <div class="detail-item">Download Metasploitable2 — a deliberately broken Linux system you can legally attack</div>
+                    <div class="detail-item">Set both on "Host-Only Network" so they can't touch the real internet</div>
+                    <div class="detail-item">Take a VM snapshot — like a save file in a video game — before doing anything risky</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">VirtualBox</span>
+                    <span class="tool-tag">Kali Linux</span>
+                    <span class="tool-tag">Metasploitable2</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s1">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">📝 Create Your Learning Accounts</div>
+              <div class="phase-plain">Sign up for the platforms where you'll actually practice hacking</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="detail-section">
+                  <div class="detail-label">Sign Up For (All Free)</div>
+                  <div class="detail-items">
+                    <div class="detail-item">TryHackMe.com — like Duolingo but for hacking. Guided, beginner-friendly</div>
+                    <div class="detail-item">HackTheBox.com — real machines to hack, like a gym for hackers</div>
+                    <div class="detail-item">OverTheWire.org — puzzles that teach Linux commands through games</div>
+                    <div class="detail-item">GitHub.com — your portfolio. Where you save your code and show employers</div>
+                    <div class="detail-item">CyberDefenders.org — practice being a defender / incident responder</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 2 -->
+  <div class="stage s2">
+    <div class="stage-banner">
+      <div class="stage-emoji">🌐</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 02</div>
+        <div class="stage-title">How the Internet Actually Works</div>
+        <div class="stage-plain">Networking is the skeleton of everything — attacks travel through networks</div>
+      </div>
+      <div class="stage-time">Weeks 2–5</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s2">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">📦 The OSI Model (7 Layers)</div>
+              <div class="phase-plain">How data gets from your computer to a website and back</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Think of it like sending a letter:</strong> You write it (Layer 7 - App), put it in an envelope (Layer 6), address it (Layer 5-4), hand it to the post office (Layer 3-2), who puts it on a truck (Layer 1 - Physical).</div>
+                <div class="detail-section">
+                  <div class="detail-label">7 Layers (Memorize This)</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Layer 7 — Application: What you use (Chrome, WhatsApp)</div>
+                    <div class="detail-item">Layer 6 — Presentation: Encryption/decryption (HTTPS)</div>
+                    <div class="detail-item">Layer 5 — Session: Keeping the connection alive</div>
+                    <div class="detail-item">Layer 4 — Transport: TCP/UDP — reliable or fast delivery</div>
+                    <div class="detail-item">Layer 3 — Network: IP addresses — WHERE to send it</div>
+                    <div class="detail-item">Layer 2 — Data Link: MAC addresses — HOW to deliver on local network</div>
+                    <div class="detail-item">Layer 1 — Physical: Actual cables, Wi-Fi signals, electricity</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Memory Trick</div>
+                  <div class="detail-items">
+                    <div class="detail-item">"Please Do Not Throw Sausage Pizza Away" = P(hysical) D(ata Link) N(etwork) T(ransport) S(ession) P(resentation) A(pplication)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s2">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">📮 IP Addresses & Subnetting</div>
+              <div class="phase-plain">Every device has an address — learn how to read them</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Think of IP addresses like house addresses:</strong> 192.168.1.5 = House 5, Street 1, District 168, City 192. The /24 tells you how big the neighbourhood is (254 houses).</div>
+                <div class="detail-section">
+                  <div class="detail-label">Key Concepts</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Private IPs (your home): 192.168.x.x, 10.x.x.x, 172.16.x.x</div>
+                    <div class="detail-item">Public IP: What the world sees when you browse (like your building's front door)</div>
+                    <div class="detail-item">/24 = 254 usable IPs (most home/office networks) </div>
+                    <div class="detail-item">/32 = just 1 IP (a single host), /8 = 16 million IPs (huge)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Practice Here</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">subnettingpractice.com</span>
+                    <span class="tool-tag">TryHackMe: Pre-Security</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s2">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🗣️ Protocols & Port Numbers</div>
+              <div class="phase-plain">The "languages" computers speak — and their door numbers</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Ports are like apartment numbers:</strong> The IP is the building, the port is which apartment. HTTP always lives in apartment 80, HTTPS in 443, SSH in 22.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Must-Know Ports</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Port 22 = SSH (remote login — like TeamViewer but for nerds)</div>
+                    <div class="detail-item">Port 80 = HTTP (websites without encryption)</div>
+                    <div class="detail-item">Port 443 = HTTPS (websites WITH encryption — the padlock 🔒)</div>
+                    <div class="detail-item">Port 21 = FTP (old-school file transfer — often poorly secured)</div>
+                    <div class="detail-item">Port 445 = SMB (Windows file sharing — target of WannaCry ransomware)</div>
+                    <div class="detail-item">Port 53 = DNS (the internet's phonebook — translates names to IPs)</div>
+                    <div class="detail-item">Port 3389 = RDP (Remote Desktop — hackers love finding this open)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s2">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🔬 Wireshark — See Real Network Traffic</div>
+              <div class="phase-plain">Like an X-ray machine that shows you every packet flying through your network</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Think of Wireshark like:</strong> Reading all the letters being delivered in your neighbourhood. You can see WHO is talking to WHO, and if they forgot to seal their envelope (no encryption), you can read the message inside.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Practice Tasks</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Capture traffic while browsing a website — spot DNS queries and HTTP responses</div>
+                    <div class="detail-item">Use filter "http" to find unencrypted web requests</div>
+                    <div class="detail-item">Download PCAP files from malware-traffic-analysis.net and analyze attack traffic</div>
+                    <div class="detail-item">Find login credentials in a plain FTP capture (eye-opening!)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Wireshark</span>
+                    <span class="tool-tag">tcpdump</span>
+                    <span class="tool-tag">NetworkMiner</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 3 -->
+  <div class="stage s3">
+    <div class="stage-banner">
+      <div class="stage-emoji">🐧</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 03</div>
+        <div class="stage-title">Become a Linux & Coding Ninja</div>
+        <div class="stage-plain">Your weapons: the terminal, Bash scripts, and Python code</div>
+      </div>
+      <div class="stage-time">Weeks 3–7</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s3">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">⌨️ Master the Linux Terminal</div>
+              <div class="phase-plain">Stop using the mouse. The terminal is faster, more powerful, and the only option when you're hacked into a server</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Think of the terminal like texting your computer:</strong> Instead of clicking icons, you type instructions directly. It's faster AND it works even when there's no graphical interface (which is most servers).</div>
+                <div class="detail-section">
+                  <div class="detail-label">Commands You MUST Know</div>
+                  <div class="detail-items">
+                    <div class="detail-item">ls -la → show ALL files including hidden ones (like dir in Windows)</div>
+                    <div class="detail-item">grep "password" file.txt → search for the word "password" inside a file</div>
+                    <div class="detail-item">find / -name "*.conf" → find ALL config files on the whole system</div>
+                    <div class="detail-item">chmod 777 file → give everyone full permission on a file</div>
+                    <div class="detail-item">cat /etc/passwd → see all user accounts on a Linux system</div>
+                    <div class="detail-item">ps aux → see every process running on the machine</div>
+                    <div class="detail-item">netstat -ano → see all open network connections</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Best Practice Challenge</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Complete ALL 33 levels of OverTheWire Bandit — pure Linux terminal puzzles. This single challenge will make you comfortable in any terminal.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s3">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">📜 Bash Scripting</div>
+              <div class="phase-plain">Write little programs that automate boring repeated tasks</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Bash scripts are like macros in Excel:</strong> Instead of manually running 100 commands, you write them once in a script and run it in one click. Hackers automate everything.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Build These Scripts</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Ping sweeper — automatically check which computers in a subnet are online</div>
+                    <div class="detail-item">Log parser — scan auth.log and list all failed SSH login attempts</div>
+                    <div class="detail-item">Directory backup — compress important folders with a timestamp automatically</div>
+                    <div class="detail-item">Port checker — check if a specific port is open on a given IP</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s3">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🐍 Python for Hacking</div>
+              <div class="phase-plain">The #1 language in cybersecurity — used to build tools, write exploits, and automate attacks</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Python is like LEGO for hackers:</strong> With a few blocks you can build a port scanner, a brute-force tool, a data parser, or a reverse shell. Every professional tool you'll use can be customized or extended with Python.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Key Libraries to Learn</div>
+                  <div class="detail-items">
+                    <div class="detail-item">socket — for making raw network connections (build your own scanner)</div>
+                    <div class="detail-item">requests — for interacting with websites (brute force logins, crawl pages)</div>
+                    <div class="detail-item">subprocess — run system commands from inside your Python script</div>
+                    <div class="detail-item">hashlib — generate and crack password hashes</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Build These Projects</div>
+                  <div class="detail-items">
+                    <div class="detail-item">TCP port scanner in under 20 lines of Python</div>
+                    <div class="detail-item">Password hash cracker using a wordlist (rockyou.txt)</div>
+                    <div class="detail-item">Simple keylogger (for educational understanding only)</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Resources</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Black Hat Python (Book)</span>
+                    <span class="tool-tag">HackInScience.org</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 4 -->
+  <div class="stage s4">
+    <div class="stage-banner">
+      <div class="stage-emoji">⚔️</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 04</div>
+        <div class="stage-title">Offensive Security — Start Hacking Legally</div>
+        <div class="stage-plain">Learn to attack systems so you understand how to defend them</div>
+      </div>
+      <div class="stage-time">Months 2–5</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s4">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🔍 Reconnaissance with Nmap</div>
+              <div class="phase-plain">The first step of every hack — figure out what's running on a target</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Nmap is like knocking on every door in a building:</strong> It finds which doors (ports) are open, what's behind them (services), and sometimes even who lives there (OS version). All before you try to break in.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Core Commands</div>
+                  <div class="detail-items">
+                    <div class="detail-item">nmap -sV -sC [IP] → scan for open ports + what software is running + run default scripts</div>
+                    <div class="detail-item">nmap -p- [IP] → scan ALL 65,535 ports (not just the common 1000)</div>
+                    <div class="detail-item">nmap -A [IP] → aggressive mode: OS detection + traceroute + scripts</div>
+                    <div class="detail-item">nmap -oN results.txt [IP] → save your scan to a file (always do this)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s4">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">💉 Web App Hacking (OWASP Top 10)</div>
+              <div class="phase-plain">Learn the 10 most common ways websites get hacked</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>OWASP is like the "Most Wanted" list of web vulnerabilities:</strong> If you know how to find and exploit these 10, you can test 80% of all web apps professionally.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Top 3 You Must Master First</div>
+                  <div class="detail-items">
+                    <div class="detail-item">SQL Injection — trick a login form into spitting out the entire database. Example: type ' OR 1=1-- in a username field</div>
+                    <div class="detail-item">XSS (Cross-Site Scripting) — inject JavaScript into a website that runs in OTHER people's browsers. Used for cookie theft</div>
+                    <div class="detail-item">File Upload — upload a PHP file disguised as an image to get code running on the server</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Practice Grounds (All Free)</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">PortSwigger Academy</span>
+                    <span class="tool-tag">DVWA (local)</span>
+                    <span class="tool-tag">Burp Suite</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s4">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">💥 Metasploit Framework</div>
+              <div class="phase-plain">The Swiss Army knife of exploitation — automates known attacks</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Metasploit is like a master key ring:</strong> It has 2,000+ keys (exploits) for known vulnerabilities in software. You search for the key that fits the lock (vulnerability), insert it, and you're in.</div>
+                <div class="detail-section">
+                  <div class="detail-label">The Basic Attack Flow</div>
+                  <div class="detail-items">
+                    <div class="detail-item">1. msfconsole → launch Metasploit</div>
+                    <div class="detail-item">2. search ms17-010 → find the EternalBlue exploit (used by WannaCry)</div>
+                    <div class="detail-item">3. use [module] → select it</div>
+                    <div class="detail-item">4. set RHOSTS [target IP] → tell it the target</div>
+                    <div class="detail-item">5. run → launch the exploit → get a shell on the target machine</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Metasploit</span>
+                    <span class="tool-tag">msfvenom</span>
+                    <span class="tool-tag">Meterpreter</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s4">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🪜 Privilege Escalation (PrivEsc)</div>
+              <div class="phase-plain">You got in as a normal user — now become admin/root</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>PrivEsc is like sneaking from a visitor pass to a master key:</strong> You start with limited access. You find a misconfiguration or weakness that lets you upgrade your own permissions to full administrator.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Common Linux PrivEsc Techniques</div>
+                  <div class="detail-items">
+                    <div class="detail-item">SUID binaries — find files that run as root even when a normal user executes them</div>
+                    <div class="detail-item">Sudo misconfigurations — "sudo -l" to find commands you can run as root</div>
+                    <div class="detail-item">Writable cron jobs — if root runs a script you can edit, add your own commands</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Key Resources</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">GTFOBins.github.io</span>
+                    <span class="tool-tag">LinPEAS</span>
+                    <span class="tool-tag">WinPEAS</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s4">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🏰 Active Directory Attacks</div>
+              <div class="phase-plain">How to hack Windows company networks — used in 95% of enterprise orgs</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Active Directory is like a company's ID card system:</strong> It controls who can access what. Hack the AD server and you can impersonate anyone, unlock any door, and access every system in the company.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Key Attack Techniques</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Kerberoasting — request encrypted passwords for service accounts, crack them offline</div>
+                    <div class="detail-item">Pass-the-Hash — steal a password hash and use it WITHOUT knowing the actual password</div>
+                    <div class="detail-item">BloodHound — draws a map showing the shortest path to become Domain Admin</div>
+                    <div class="detail-item">DCSync — trick the domain controller into handing you ALL password hashes</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Build This Lab</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Windows Server 2019 VM (domain controller) + 2 Windows 10 client VMs = full AD practice lab</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">BloodHound</span>
+                    <span class="tool-tag">Impacket</span>
+                    <span class="tool-tag">Mimikatz</span>
+                    <span class="tool-tag">CrackMapExec</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s4">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🎯 Your First 10 CTF Machines</div>
+              <div class="phase-plain">Solve real hack challenges — this is where theory becomes skill</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>CTF machines are like escape rooms for hackers:</strong> You get a locked machine. You must find weaknesses, break in, find a hidden flag (a secret code), and prove you did it. Real skills, no consequences.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Progression Order</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Start: TryHackMe "Complete Beginner" path (very guided)</div>
+                    <div class="detail-item">Then: TryHackMe "Jr Penetration Tester" path</div>
+                    <div class="detail-item">Then: HackTheBox "Starting Point" Tier 0, 1, 2</div>
+                    <div class="detail-item">Then: HTB Easy retired machines — try 30–60 min alone BEFORE looking up hints</div>
+                    <div class="detail-item">Always: Write a writeup for each machine you complete (builds your portfolio)</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 5 -->
+  <div class="stage s5">
+    <div class="stage-banner">
+      <div class="stage-emoji">🛡️</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 05</div>
+        <div class="stage-title">Defensive Security — Protect & Detect</div>
+        <div class="stage-plain">Learn to spot attacks, analyze incidents, and hunt threats</div>
+      </div>
+      <div class="stage-time">Months 4–7</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s5">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">📊 SIEM & Log Analysis</div>
+              <div class="phase-plain">Read thousands of logs and spot the needle in the haystack</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>A SIEM is like a security camera system for your entire network:</strong> Every device — servers, firewalls, laptops — sends their activity logs to one central place. You monitor them to detect attacks happening in real-time.</div>
+                <div class="detail-section">
+                  <div class="detail-label">What to Learn</div>
+                  <div class="detail-items">
+                    <div class="detail-item">What is a log? — timestamped record of events (login, file access, network connection)</div>
+                    <div class="detail-item">What to look for: failed logins in bulk = brute force. New admin account created at 3am = breach</div>
+                    <div class="detail-item">Write detection rules (like email filters, but for attack patterns)</div>
+                    <div class="detail-item">Build an ELK Stack (free) on a VM and forward logs from your Kali machine to it</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Splunk (free tier)</span>
+                    <span class="tool-tag">ELK Stack</span>
+                    <span class="tool-tag">Wazuh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s5">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🚨 Incident Response (IR)</div>
+              <div class="phase-plain">What to do WHEN (not if) a hack happens — the fire drill for breaches</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>IR is like being a paramedic for hacked systems:</strong> Someone got breached. You get called in. You stop the bleeding, figure out what happened, remove the attacker, fix the damage, and prevent it from happening again.</div>
+                <div class="detail-section">
+                  <div class="detail-label">The 6 IR Steps (PICERL)</div>
+                  <div class="detail-items">
+                    <div class="detail-item">1. Preparation — have a plan before the attack (policies, tools, playbooks)</div>
+                    <div class="detail-item">2. Identification — confirm an attack is happening (not a false alarm)</div>
+                    <div class="detail-item">3. Containment — isolate infected systems so the attack doesn't spread</div>
+                    <div class="detail-item">4. Eradication — remove the malware, close the backdoor, patch the hole</div>
+                    <div class="detail-item">5. Recovery — bring systems back online safely</div>
+                    <div class="detail-item">6. Lessons Learned — write a report so it never happens the same way again</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s5">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🔬 Digital Forensics</div>
+              <div class="phase-plain">Detective work on computers — recover evidence and reconstruct attacks</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Digital Forensics is like CSI for computers:</strong> Someone deleted files before they left. You recover them. An attacker erased their tracks. You find them anyway. You recreate exactly what happened, minute by minute.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Key Skills</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Memory forensics — analyze a RAM dump to find running malware, decrypted passwords, open network connections</div>
+                    <div class="detail-item">Disk forensics — recover deleted files, find browser history, timeline reconstruction</div>
+                    <div class="detail-item">Log analysis — trace the attacker's every move from the log trail they left behind</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Volatility 3</span>
+                    <span class="tool-tag">Autopsy</span>
+                    <span class="tool-tag">FTK Imager</span>
+                    <span class="tool-tag">Plaso</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s5">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🦠 Malware Analysis</div>
+              <div class="phase-plain">Dissect viruses and ransomware to understand what they do</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Malware analysis is like a bomb disposal expert studying an unexploded bomb:</strong> You take it apart carefully in a safe environment to understand how it works, what it was designed to do, and how to neutralize it.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Two Types of Analysis</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Static — examine the malware file WITHOUT running it. Check strings, imports, file type, obfuscation</div>
+                    <div class="detail-item">Dynamic — run it inside a sandbox and watch what it does. What files does it create? What network connections?</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Safe Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">any.run (online sandbox)</span>
+                    <span class="tool-tag">VirusTotal</span>
+                    <span class="tool-tag">Ghidra (NSA tool)</span>
+                    <span class="tool-tag">Detect-It-Easy</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 6 -->
+  <div class="stage s6">
+    <div class="stage-banner">
+      <div class="stage-emoji">☁️</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 06</div>
+        <div class="stage-title">Cloud & Advanced Attack Surfaces</div>
+        <div class="stage-plain">The modern company lives in the cloud — learn to attack and defend it</div>
+      </div>
+      <div class="stage-time">Months 8–12</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s6">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">☁️ Cloud Security (AWS/Azure/GCP)</div>
+              <div class="phase-plain">Misconfigured cloud = open vault. The #1 cause of breaches today</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Cloud security is like locking your house when it's invisible:</strong> Companies store data on AWS/Azure/GCP servers they don't physically own. If you misconfigure them (leave the door unlocked), anyone in the world can walk in. And many do.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Common Cloud Vulnerabilities</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Public S3 bucket — a storage folder accidentally made accessible to the entire internet (contains thousands of leaked files every year)</div>
+                    <div class="detail-item">Over-permissive IAM roles — a single compromised user account can access everything because permissions weren't restricted</div>
+                    <div class="detail-item">SSRF to steal cloud credentials — trick a server into fetching its own internal metadata and giving you the master keys</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Free Practice Grounds</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">flaws.cloud</span>
+                    <span class="tool-tag">CloudGoat</span>
+                    <span class="tool-tag">AWS Free Tier</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s6">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">📱 Mobile Security</div>
+              <div class="phase-plain">Your phone holds your bank, emails, location — make it your expertise</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Mobile security is hacking apps on phones:</strong> Apps often store passwords in plain text, send data over unencrypted connections, or trust the user's device too much. You intercept traffic, decompile apps, and find these flaws.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Key Skills</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Intercept mobile app traffic with Burp Suite (even HTTPS with SSL pinning bypass)</div>
+                    <div class="detail-item">Decompile APKs to read the app's source code (jadx tool)</div>
+                    <div class="detail-item">Use Frida to hook into running apps and modify their behavior in real-time</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Frida</span>
+                    <span class="tool-tag">MobSF</span>
+                    <span class="tool-tag">APKTool</span>
+                    <span class="tool-tag">jadx</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s6">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">⚙️ Reverse Engineering</div>
+              <div class="phase-plain">Take apart compiled software to understand what it does without source code</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Reverse engineering is like reading a shredded manual:</strong> Software is compiled into machine code (1s and 0s). RE tools reconstruct it into something human-readable so you can understand what a program does — especially useful for malware analysis and cracking software protections.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Start With</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Learn x86 Assembly basics — just enough to read what Ghidra shows you</div>
+                    <div class="detail-item">Use Ghidra (free, NSA-built) to decompile a simple malware sample</div>
+                    <div class="detail-item">Solve "crackme" challenges on crackmes.one — programs that check for a secret password</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Tools</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">Ghidra</span>
+                    <span class="tool-tag">IDA Free</span>
+                    <span class="tool-tag">x64dbg</span>
+                    <span class="tool-tag">crackmes.one</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 7 -->
+  <div class="stage s7">
+    <div class="stage-banner">
+      <div class="stage-emoji">🏅</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 07</div>
+        <div class="stage-title">Get Certified & Get Hired</div>
+        <div class="stage-plain">Prove your skills with credentials employers actually respect</div>
+      </div>
+      <div class="stage-time">Month 6 onwards</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s7">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🟢 CompTIA Security+ (Entry)</div>
+              <div class="phase-plain">Your first stepping stone — globally recognized, widely required</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="detail-section">
+                  <div class="detail-label">What It Is</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Multiple choice exam covering all core security domains</div>
+                    <div class="detail-item">Required for all US DoD (military) cybersecurity jobs</div>
+                    <div class="detail-item">Study time: 6–8 weeks, ~$392 to sit the exam</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Free Resources</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">professormesser.com</span>
+                    <span class="tool-tag">r/CompTIA (Reddit)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s7">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🔴 OSCP (Offensive Gold Standard)</div>
+              <div class="phase-plain">A 24-hour live hacking exam. The most respected pentesting cert in the world</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>OSCP is a 24-hour exam where you hack real machines:</strong> No multiple choice. No theory. You're given 5+ machines and must break into them and document your findings. Pass = you can actually hack. Fail = try again.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Prerequisites (Do First)</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Complete TryHackMe "Jr Pentester" path</div>
+                    <div class="detail-item">Complete 50+ HackTheBox machines (easy and medium)</div>
+                    <div class="detail-item">TCM Security "Practical Ethical Hacking" course</div>
+                    <div class="detail-item">When you can root HTB medium machines solo — you're ready</div>
+                  </div>
+                </div>
+                <div class="detail-section">
+                  <div class="detail-label">Cost & Provider</div>
+                  <div class="tools-row">
+                    <span class="tool-tag">OffSec PEN-200 ($1499)</span>
+                    <span class="tool-tag">or $99/month sub</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s7">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🔵 CISSP (For Senior/Management)</div>
+              <div class="phase-plain">The MBA of cybersecurity — needed for director-level and CISO roles</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>CISSP is for experienced professionals moving into leadership:</strong> It covers all 8 security domains from a management perspective. Companies pay CISSP holders $130K–$200K+ annually. But you need 5 years of experience to qualify.</div>
+                <div class="detail-section">
+                  <div class="detail-label">When to Pursue</div>
+                  <div class="detail-items">
+                    <div class="detail-item">After 5+ years of hands-on experience in 2+ security domains</div>
+                    <div class="detail-item">When you're targeting senior security engineer or management roles</div>
+                    <div class="detail-item">Study time: 3–6 months, exam $749 USD via ISC²</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s7">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">💼 Build Your Portfolio</div>
+              <div class="phase-plain">Certs prove you studied. A portfolio proves you can DO the work</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="detail-section">
+                  <div class="detail-label">Build These Assets</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Write CTF writeups on Medium.com or a GitHub Pages blog</div>
+                    <div class="detail-item">Post your Python hacking tools on GitHub with README explanations</div>
+                    <div class="detail-item">Document your home lab with screenshots on LinkedIn</div>
+                    <div class="detail-item">Start a bug bounty on HackerOne/Bugcrowd — even $0 reports show real-world activity</div>
+                    <div class="detail-item">LinkedIn profile: list all certs, HTB rank, projects, and GitHub link</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="connector">⬇️</div>
+
+  <!-- STAGE 8 -->
+  <div class="stage s8">
+    <div class="stage-banner">
+      <div class="stage-emoji">🚀</div>
+      <div class="stage-info">
+        <div class="stage-num">STAGE 08</div>
+        <div class="stage-title">Become Elite & Build Your Name</div>
+        <div class="stage-plain">The best jobs don't get posted — they go to people who are known</div>
+      </div>
+      <div class="stage-time">Year 2+</div>
+    </div>
+    <div class="stage-body">
+      <div class="phases">
+
+        <div class="phase s8">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">💰 Bug Bounty Hunting</div>
+              <div class="phase-plain">Companies PAY you real money to find vulnerabilities in their systems</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Bug bounties are like paid treasure hunts:</strong> Companies list their apps on platforms like HackerOne. You try to break them. If you find a real vulnerability and report it responsibly, they pay you — sometimes $100, sometimes $100,000+.</div>
+                <div class="detail-section">
+                  <div class="detail-label">How to Start</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Create a HackerOne.com or Bugcrowd.com account</div>
+                    <div class="detail-item">Start with programs that have "VDP" (Vulnerability Disclosure Program) — no payout but good practice</div>
+                    <div class="detail-item">Focus on 1 bug class you know well (XSS, SSRF, IDOR) and find it everywhere</div>
+                    <div class="detail-item">Your first report doesn't have to be paid — it proves real-world experience</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s8">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🔬 Security Research & CVEs</div>
+              <div class="phase-plain">Discover new vulnerabilities nobody has found before</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>A CVE is like naming a discovered asteroid after yourself:</strong> CVE = Common Vulnerabilities and Exposures. When YOU find a new bug in widely-used software, you get a CVE number credited to your name. It lives on your LinkedIn forever and is extremely prestigious.</div>
+                <div class="detail-section">
+                  <div class="detail-label">How to Find Your First CVE</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Pick an open-source project on GitHub with many stars</div>
+                    <div class="detail-item">Look for outdated dependencies (npm audit, safety check)</div>
+                    <div class="detail-item">Test the web interface with Burp Suite for OWASP vulnerabilities</div>
+                    <div class="detail-item">Contact the vendor privately with your findings (responsible disclosure)</div>
+                    <div class="detail-item">They'll issue a CVE with your name if it's confirmed valid</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s8">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🎙️ Speak, Teach & Publish</div>
+              <div class="phase-plain">Share what you know — this is the fastest way to career growth</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>Teaching others is the best proof you truly understand something:</strong> Write a blog post, speak at BSides, mentor someone on Reddit. The community rewards generosity. The people who share the most get the best job offers.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Actions to Take</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Speak at BSides (free local security conference — search "BSides [your city]")</div>
+                    <div class="detail-item">Write 1 technical blog post per month about something you learned</div>
+                    <div class="detail-item">Release a tool on GitHub and explain how it works in a YouTube video</div>
+                    <div class="detail-item">Answer questions on r/cybersecurity, r/netsec, or Twitter/X #infosec</div>
+                    <div class="detail-item">Mentor 1 person who is 6 months behind where you are right now</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="phase s8">
+          <div class="phase-check-row">
+            <div class="phase-check" onclick="toggleDone(event,this)">✓</div>
+            <div class="phase-content">
+              <div class="phase-title">🤖 AI & Emerging Threats</div>
+              <div class="phase-plain">The next frontier — AI is changing both attacks and defenses</div>
+              <button class="phase-toggle-btn" onclick="togglePhase(event,this)">▼ See Details</button>
+              <div class="phase-detail">
+                <div class="layman-box" style="margin-bottom:12px"><strong>AI security is the new gold rush:</strong> Attackers use AI to write better phishing emails, find vulnerabilities faster, and evade detection. Defenders use AI to detect threats in real-time. Whoever understands both sides will be indispensable.</div>
+                <div class="detail-section">
+                  <div class="detail-label">Emerging Areas to Study</div>
+                  <div class="detail-items">
+                    <div class="detail-item">Prompt injection — trick AI assistants into ignoring their safety rules (new field, few experts)</div>
+                    <div class="detail-item">LLM security — find vulnerabilities in AI-powered apps (data leakage, SSRF via AI agents)</div>
+                    <div class="detail-item">AI-powered threat hunting — use ML models to detect anomalies in network traffic</div>
+                    <div class="detail-item">Adversarial machine learning — fool AI image classifiers and malware detectors</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL CARD -->
+  <div class="final-card">
+    <h2>🎓 You Made It, Buddy!</h2>
+    <p>Check off every phase on this canvas and you'll be one of the most well-rounded cybersecurity professionals in the field. The journey is long but every step compounds.</p>
+    <div class="final-grid">
+      <div class="final-stat">
+        <div class="final-stat-num">8</div>
+        <div class="final-stat-label">Stages to Master</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num">40+</div>
+        <div class="final-stat-label">Phases Covered</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num">~$0</div>
+        <div class="final-stat-label">Min Cost to Start</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num">$70K+</div>
+        <div class="final-stat-label">Entry Salary</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num">24mo</div>
+        <div class="final-stat-label">To Proficiency</div>
+      </div>
+      <div class="final-stat">
+        <div class="final-stat-num">∞</div>
+        <div class="final-stat-label">Demand for Skills</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function togglePhase(event, btn) {
+  event.stopPropagation();
+  const phase = btn.closest('.phase');
+  phase.classList.toggle('open');
+  btn.textContent = phase.classList.contains('open') ? '▲ Hide Details' : '▼ See Details';
+}
+
+function toggleDone(event, chk) {
+  event.stopPropagation();
+  const phase = chk.closest('.phase');
+  phase.classList.toggle('done');
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = document.querySelectorAll('.phase').length;
+  const done = document.querySelectorAll('.phase.done').length;
+  const pct = total > 0 ? (done / total) * 100 : 0;
+  document.getElementById('pbFill').style.width = pct + '%';
+  document.getElementById('pbCount').textContent = done + ' / ' + total;
+}
+
+updateProgress();
+</script>
+</body>
+</html>

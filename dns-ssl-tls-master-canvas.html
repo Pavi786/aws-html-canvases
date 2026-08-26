@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNS · SSL/TLS · CSR · CA · CRT — Master Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080d0a;
+  --bg2:     #0c1410;
+  --bg3:     #101a14;
+  --bg4:     #162019;
+  --bg5:     #1c2a20;
+  --border:  #1e3024;
+  --border2: #2a4535;
+  --green:   #22c55e;
+  --green2:  #16a34a;
+  --teal:    #2dd4bf;
+  --cyan:    #67e8f9;
+  --amber:   #fbbf24;
+  --orange:  #fb923c;
+  --red:     #f87171;
+  --purple:  #c084fc;
+  --blue:    #60a5fa;
+  --text:    #e2f0e8;
+  --text2:   #7da88a;
+  --text3:   #3d6648;
+  --code-bg: #050908;
+  --dns:     #2dd4bf;
+  --ssl:     #60a5fa;
+  --csr:     #c084fc;
+  --ca:      #fbbf24;
+  --crt:     #fb923c;
+  --sec:     #f87171;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;overflow-x:hidden;}
+
+/* ── SIDEBAR ── */
+#sb{width:285px;min-width:285px;background:var(--bg2);border-right:1px solid var(--border);height:100vh;position:sticky;top:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.sb-head{padding:22px 18px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg2);z-index:10;}
+.sb-head h1{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);line-height:1.5;}
+.sb-head p{font-size:10px;color:var(--text3);margin-top:3px;font-family:'JetBrains Mono',monospace;}
+.ng{font-size:9.5px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);padding:13px 18px 5px;}
+.ni{display:flex;align-items:center;gap:7px;padding:6px 18px;font-size:11.5px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .15s;text-decoration:none;line-height:1.4;}
+.ni:hover{background:var(--bg3);color:var(--text);border-left-color:var(--border2);}
+.ni.active{background:rgba(34,197,94,.07);color:var(--green);border-left-color:var(--green);}
+.nt{font-size:9px;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.05em;margin-left:auto;flex-shrink:0;}
+.t-dns{background:rgba(45,212,191,.12);color:var(--teal);}
+.t-ssl{background:rgba(96,165,250,.12);color:var(--blue);}
+.t-csr{background:rgba(192,132,252,.12);color:var(--purple);}
+.t-ca{background:rgba(251,191,36,.12);color:var(--amber);}
+.t-crt{background:rgba(251,146,60,.12);color:var(--orange);}
+.t-sec{background:rgba(248,113,113,.12);color:var(--red);}
+.t-all{background:rgba(34,197,94,.1);color:var(--green);}
+
+/* ── MAIN ── */
+#main{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--border2) transparent;}
+.prog{height:2px;background:var(--border);position:sticky;top:0;z-index:100;}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--teal),var(--green),var(--amber));width:0%;transition:width .1s;}
+
+/* ── HERO ── */
+.hero{background:linear-gradient(135deg,#080d0a 0%,#0a1a10 40%,#08130d 100%);padding:56px 56px 46px;border-bottom:1px solid var(--border);position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-80px;right:-80px;width:360px;height:360px;background:radial-gradient(circle,rgba(34,197,94,.05) 0%,transparent 70%);pointer-events:none;}
+.hero::after{content:'SECURITY';position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:100px;font-weight:800;color:rgba(34,197,94,.03);letter-spacing:.12em;pointer-events:none;}
+.h-eye{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--teal);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.h-title{font-size:38px;font-weight:800;line-height:1.1;background:linear-gradient(135deg,#ffffff 0%,#86efac 55%,#22c55e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px;}
+.h-sub{font-size:14px;color:var(--text2);max-width:620px;line-height:1.75;}
+.h-badges{display:flex;gap:8px;margin-top:22px;flex-wrap:wrap;}
+.hb{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;}
+.hb-dns{background:rgba(45,212,191,.12);color:var(--teal);border:1px solid rgba(45,212,191,.25);}
+.hb-ssl{background:rgba(96,165,250,.12);color:var(--blue);border:1px solid rgba(96,165,250,.25);}
+.hb-key{background:rgba(192,132,252,.12);color:var(--purple);border:1px solid rgba(192,132,252,.25);}
+.hb-sec{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+.hb-pgs{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+
+/* ── SECTION DIVIDER ── */
+.sdiv{display:flex;align-items:center;gap:10px;padding:16px 56px;background:var(--bg);border-bottom:1px solid var(--border);}
+.sdiv-l{font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);white-space:nowrap;}
+.sdiv-line{flex:1;height:1px;background:var(--border);}
+.sdiv-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+
+/* ── SECTION ── */
+.sec{padding:48px 56px;border-bottom:1px solid var(--border);}
+.sec:nth-child(even){background:rgba(12,20,16,.6);}
+.sh{display:flex;align-items:flex-start;gap:14px;margin-bottom:26px;}
+.snum{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);margin-top:5px;min-width:32px;}
+.stitle{font-size:24px;font-weight:700;color:var(--text);line-height:1.2;}
+.sbadge{font-size:9.5px;padding:2px 8px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:.08em;margin-top:6px;display:inline-block;}
+.sb-dns{background:rgba(45,212,191,.1);color:var(--teal);border:1px solid rgba(45,212,191,.2);}
+.sb-ssl{background:rgba(96,165,250,.1);color:var(--blue);border:1px solid rgba(96,165,250,.2);}
+.sb-csr{background:rgba(192,132,252,.1);color:var(--purple);border:1px solid rgba(192,132,252,.2);}
+.sb-ca{background:rgba(251,191,36,.1);color:var(--amber);border:1px solid rgba(251,191,36,.2);}
+.sb-crt{background:rgba(251,146,60,.1);color:var(--orange);border:1px solid rgba(251,146,60,.2);}
+.sb-sec{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+.sb-all{background:rgba(34,197,94,.08);color:var(--green);border:1px solid rgba(34,197,94,.2);}
+
+.prose{font-size:14px;color:var(--text2);line-height:1.9;max-width:840px;}
+.prose p{margin-bottom:12px;}
+.prose strong{color:var(--text);font-weight:600;}
+.prose em{color:var(--teal);font-style:normal;font-family:'JetBrains Mono',monospace;font-size:12.5px;background:rgba(45,212,191,.07);padding:1px 5px;border-radius:3px;}
+
+/* ── LEVEL TABS ── */
+.level-block{max-width:840px;margin:18px 0;}
+.level-header{display:flex;gap:0;margin-bottom:0;}
+.lbtn{padding:7px 16px;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text3);transition:all .15s;}
+.lbtn:first-child{border-radius:6px 0 0 0;}
+.lbtn:last-child{border-radius:0 6px 0 0;}
+.lbtn.active{background:var(--bg4);color:var(--green);border-bottom-color:var(--bg4);}
+.level-content{border:1px solid var(--border);border-top:none;border-radius:0 6px 6px 6px;background:var(--bg4);padding:20px 22px;}
+.lp{display:none;font-size:13.5px;color:var(--text2);line-height:1.85;}
+.lp.show{display:block;}
+.lp strong{color:var(--text);}
+.lp em{color:var(--teal);font-style:normal;font-family:'JetBrains Mono',monospace;font-size:12px;background:rgba(45,212,191,.07);padding:1px 4px;border-radius:3px;}
+
+/* ── CODE BLOCKS ── */
+.cb{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin:16px 0;max-width:840px;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:var(--bg3);border-bottom:1px solid var(--border);}
+.cl{font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;color:var(--teal);letter-spacing:.1em;text-transform:uppercase;}
+.cf{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--text3);}
+.cbody{padding:16px 18px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.85;color:#b8d4c0;overflow-x:auto;white-space:pre;}
+.kw{color:#c792ea;}
+.str{color:#a5d6a7;}
+.cm{color:#3d6648;font-style:italic;}
+.num{color:#f78c6c;}
+.key{color:#80cbc4;}
+.val{color:#a5d6a7;}
+.ann{color:#ffcb6b;}
+.hl{background:rgba(34,197,94,.08);display:block;margin:0 -18px;padding:0 18px;}
+.cmd{color:#67e8f9;}
+
+/* ── ASCII DIAGRAM ── */
+.asc{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:22px 24px;margin:16px 0;max-width:840px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5a8a68;line-height:1.9;overflow-x:auto;white-space:pre;}
+.asc .hl-green{color:var(--green);}
+.asc .hl-teal{color:var(--teal);}
+.asc .hl-amber{color:var(--amber);}
+.asc .hl-blue{color:var(--blue);}
+.asc .hl-red{color:var(--red);}
+.asc .hl-purple{color:var(--purple);}
+
+/* ── CALLOUTS ── */
+.co{border-radius:8px;padding:14px 16px;margin:16px 0;max-width:840px;display:flex;gap:10px;font-size:13px;line-height:1.75;}
+.co-icon{font-size:15px;margin-top:1px;flex-shrink:0;}
+.co-info{background:rgba(96,165,250,.07);border:1px solid rgba(96,165,250,.2);color:#a0c4ff;}
+.co-warn{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.18);color:#fcd34d;}
+.co-tip{background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.18);color:#7eecd9;}
+.co-danger{background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.2);color:#fca5a5;}
+.co strong{color:inherit;font-weight:700;}
+
+/* ── TABLES ── */
+.dt{width:100%;max-width:840px;border-collapse:collapse;font-size:12.5px;margin:16px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.dt th{background:var(--bg3);color:var(--text);font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:9px 13px;text-align:left;border-bottom:1px solid var(--border2);}
+.dt td{padding:9px 13px;color:var(--text2);border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6;}
+.dt tr:last-child td{border-bottom:none;}
+.dt tr:hover td{background:rgba(34,197,94,.03);}
+.dt code{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(45,212,191,.08);padding:1px 5px;border-radius:3px;color:var(--teal);}
+
+/* ── CARDS ── */
+.cg{display:grid;gap:12px;margin:16px 0;max-width:840px;}
+.cg2{grid-template-columns:1fr 1fr;}
+.cg3{grid-template-columns:1fr 1fr 1fr;}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px 18px;}
+.ct{font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+.cd{font-size:12px;color:var(--text2);line-height:1.75;}
+.c-dns{border-top:2px solid var(--teal);}
+.c-ssl{border-top:2px solid var(--blue);}
+.c-csr{border-top:2px solid var(--purple);}
+.c-ca{border-top:2px solid var(--amber);}
+.c-crt{border-top:2px solid var(--orange);}
+.c-sec{border-top:2px solid var(--red);}
+.c-green{border-top:2px solid var(--green);}
+
+/* ── STEP LIST ── */
+.sl{list-style:none;max-width:840px;margin:16px 0;}
+.si{display:flex;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.si:last-child{border-bottom:none;}
+.sn{width:26px;height:26px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--green);flex-shrink:0;margin-top:2px;}
+.sc{flex:1;}
+.stl{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.sd{font-size:12.5px;color:var(--text2);line-height:1.75;}
+.sd code{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(45,212,191,.08);padding:1px 4px;border-radius:3px;color:var(--teal);}
+
+/* ── ANNO BAR ── */
+.ab{display:flex;align-items:stretch;max-width:840px;margin:16px 0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.ab-s{width:4px;flex-shrink:0;}
+.ab-body{padding:12px 14px;background:var(--bg3);flex:1;}
+.ab-label{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;}
+.ab-text{font-size:13px;color:var(--text2);line-height:1.65;}
+.ab-text strong{color:var(--text);}
+
+/* ── H3 H4 ── */
+h3.sub{font-size:15px;font-weight:700;color:var(--teal);margin:26px 0 10px;display:flex;align-items:center;gap:7px;}
+h3.sub::before{content:'▸';font-size:9px;color:var(--green);}
+h4.sub2{font-size:12.5px;font-weight:700;color:var(--text);margin:18px 0 7px;letter-spacing:.04em;}
+
+/* ── INLINE CODE ── */
+code{font-family:'JetBrains Mono',monospace;font-size:11.5px;background:rgba(45,212,191,.07);padding:1px 5px;border-radius:3px;color:var(--teal);}
+
+/* ── TAG LIST ── */
+.tl{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0;}
+.tp{padding:3px 9px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;background:var(--bg4);border:1px solid var(--border2);color:var(--text2);}
+
+/* ── COMPARE ── */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;max-width:840px;margin:16px 0;}
+.cc{background:var(--bg3);padding:13px 15px;}
+.cc-h{background:var(--bg4);font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+.cc-l{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:3px;}
+.cc-v{font-size:12.5px;color:var(--text2);line-height:1.5;}
+
+/* ── IQ CARD (Interview Q) ── */
+.iq{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px 18px;max-width:840px;margin:14px 0;}
+.iq-q{font-size:13.5px;font-weight:700;color:var(--amber);margin-bottom:10px;display:flex;gap:8px;}
+.iq-q::before{content:'Q:';font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3);margin-top:2px;}
+.iq-a{font-size:12.5px;color:var(--text2);line-height:1.75;padding-left:22px;}
+.iq-a::before{content:'A: ';font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);font-weight:700;}
+
+/* ── FOOTER ── */
+.footer{padding:36px 56px;background:var(--bg2);border-top:1px solid var(--border);font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sb">
+  <div class="sb-head">
+    <h1>DNS · SSL/TLS<br>Master Canvas</h1>
+    <p>Senior DevOps · 10 Topics · Production</p>
+  </div>
+
+  <div class="ng">DNS Fundamentals</div>
+  <a class="ni active" href="#s1">01 What is DNS? <span class="nt t-dns">DNS</span></a>
+  <a class="ni" href="#s2">02 DNS Step-by-Step Flow <span class="nt t-dns">DNS</span></a>
+  <a class="ni" href="#s3">03 DNS Record Types <span class="nt t-dns">DNS</span></a>
+  <a class="ni" href="#s4">04 DNS in DevOps / K8s <span class="nt t-dns">DNS</span></a>
+  <a class="ni" href="#s5">05 TTL & Propagation <span class="nt t-dns">DNS</span></a>
+  <a class="ni" href="#s6">06 DNS Debugging <span class="nt t-dns">DNS</span></a>
+
+  <div class="ng">SSL / TLS</div>
+  <a class="ni" href="#s7">07 What is SSL/TLS? <span class="nt t-ssl">SSL</span></a>
+  <a class="ni" href="#s8">08 TLS Handshake <span class="nt t-ssl">SSL</span></a>
+  <a class="ni" href="#s9">09 Symmetric vs Asymmetric <span class="nt t-ssl">SSL</span></a>
+
+  <div class="ng">Keys & Certificates</div>
+  <a class="ni" href="#s10">10 Private Key / Public Key <span class="nt t-csr">KEY</span></a>
+  <a class="ni" href="#s11">11 CSR Deep Dive <span class="nt t-csr">CSR</span></a>
+  <a class="ni" href="#s12">12 CA — Certificate Authority <span class="nt t-ca">CA</span></a>
+  <a class="ni" href="#s13">13 CRT — Certificate File <span class="nt t-crt">CRT</span></a>
+  <a class="ni" href="#s14">14 Chain of Trust <span class="nt t-crt">CRT</span></a>
+
+  <div class="ng">End-to-End Flow</div>
+  <a class="ni" href="#s15">15 Full Production Flow <span class="nt t-all">ALL</span></a>
+  <a class="ni" href="#s16">16 NGINX SSL Config <span class="nt t-ssl">SSL</span></a>
+  <a class="ni" href="#s17">17 Kubernetes TLS Secrets <span class="nt t-ssl">SSL</span></a>
+  <a class="ni" href="#s18">18 cert-manager + Let's Encrypt <span class="nt t-ca">CA</span></a>
+  <a class="ni" href="#s19">19 AWS ACM vs Manual <span class="nt t-ssl">SSL</span></a>
+
+  <div class="ng">Security & Ops</div>
+  <a class="ni" href="#s20">20 Security Best Practices <span class="nt t-sec">SEC</span></a>
+  <a class="ni" href="#s21">21 Troubleshooting Guide <span class="nt t-sec">SEC</span></a>
+  <a class="ni" href="#s22">22 Interview Questions <span class="nt t-all">Q&A</span></a>
+  <a class="ni" href="#s23">23 Cheat Sheet <span class="nt t-all">REF</span></a>
+</nav>
+
+<!-- MAIN -->
+<main id="main">
+<div class="prog"><div class="prog-f" id="pf"></div></div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="h-eye">// senior devops · security engineer · 15+ years</div>
+  <h1 class="h-title">DNS · SSL/TLS · CSR<br>CA · CRT · Private Keys</h1>
+  <p class="h-sub">A massive, structured study canvas covering every layer of internet security — from "what is DNS?" to production-grade certificate management, TLS handshakes, and real-world troubleshooting.</p>
+  <div class="h-badges">
+    <span class="hb hb-dns">⬡ DNS</span>
+    <span class="hb hb-ssl">⬡ SSL/TLS</span>
+    <span class="hb hb-key">⬡ CSR · CA · CRT</span>
+    <span class="hb hb-sec">⬡ Security</span>
+    <span class="hb hb-pgs">23 Sections</span>
+  </div>
+</div>
+
+<!-- ═══ DNS FUNDAMENTALS ═══ -->
+<div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-l">DNS Fundamentals</span><div class="sdiv-line"></div></div>
+
+<!-- S1 -->
+<section class="sec" id="s1">
+  <div class="sh"><span class="snum">01 /</span><div><div class="stitle">What is DNS?</div><span class="sbadge sb-dns">DNS</span></div></div>
+
+  <div class="level-block">
+    <div class="level-header">
+      <button class="lbtn active" onclick="showLevel(this,'l1-1')">🧒 Layman</button>
+      <button class="lbtn" onclick="showLevel(this,'l1-2')">⚙️ DevOps</button>
+      <button class="lbtn" onclick="showLevel(this,'l1-3')">🚀 Pro</button>
+    </div>
+    <div class="level-content">
+      <div class="lp show" id="l1-1">
+        <strong>Imagine the internet is a giant city.</strong> Every house (website) has a number address — like <em>93.184.216.34</em>. But who can remember that? So there's a giant phone book called <strong>DNS</strong> that says: "Google.com? That lives at 142.250.80.46". When you type google.com, your computer secretly looks it up in this phone book before connecting. That phone book is DNS — the <strong>Domain Name System</strong>.
+      </div>
+      <div class="lp" id="l1-2">
+        DNS is a globally distributed, hierarchical naming system that translates human-readable domain names into IP addresses. It operates as a UDP/TCP service on port 53. The system is hierarchical: <em>root servers → TLD servers → authoritative nameservers</em>. Without DNS, every application would need to hardcode IPs, making the internet unmanageable. Modern DevOps relies heavily on DNS for service discovery, load balancing, geo-routing, and health checks.
+      </div>
+      <div class="lp" id="l1-3">
+        DNS is a distributed, fault-tolerant database with ~1,500+ root servers globally (anycast) and billions of queries per second. It supports DNSSEC (signed zones), split-horizon DNS (different answers for internal vs external clients), DNS-over-HTTPS (DoH), and DNS-over-TLS (DoT) for privacy. In cloud architectures, Route53 supports weighted routing, latency-based routing, failover, and geolocation policies — all implemented via DNS. DNS cache poisoning (BGP hijacking) remains a critical attack surface; DNSSEC and RPZ (Response Policy Zones) are mitigations.
+      </div>
+    </div>
+  </div>
+
+  <div class="ab"><div class="ab-s" style="background:var(--teal)"></div><div class="ab-body"><div class="ab-label">Real World Analogy</div><div class="ab-text">When you type <strong>whatsapp.com</strong>, your browser doesn't know the IP. It asks DNS. DNS says "157.240.16.60". Your browser then connects to that IP. Without DNS, you'd have to type <strong>157.240.16.60</strong> every time you want to open WhatsApp.</div></div></div>
+</section>
+
+<!-- S2 -->
+<section class="sec" id="s2">
+  <div class="sh"><span class="snum">02 /</span><div><div class="stitle">How DNS Works — Step by Step</div><span class="sbadge sb-dns">DNS</span></div></div>
+
+  <div class="prose"><p>When you type <strong>www.example.com</strong> in your browser, here's exactly what happens under the hood — a journey that takes milliseconds but involves 5 different servers.</p></div>
+
+  <div class="asc">You type: <span class="hl-green">www.example.com</span>
+         │
+         ▼
+┌─────────────────┐     Checks local cache first
+│  Your Browser   │ ──► (already resolved? done in 0ms)
+└────────┬────────┘
+         │ Cache miss → ask OS
+         ▼
+┌─────────────────┐     Checks /etc/hosts + local DNS cache
+│   OS Resolver   │ ──► Linux: /etc/resolv.conf → 8.8.8.8
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│  <span class="hl-blue">Recursive Resolver</span>           │  (ISP / 8.8.8.8 / 1.1.1.1)
+│  "I'll find the answer      │
+│   for you"                  │
+└────────┬────────────────────┘
+         │ "Who handles .com?"
+         ▼
+┌─────────────────────────────┐
+│  <span class="hl-amber">Root Name Server</span>             │  13 sets (a.root-servers.net etc)
+│  "I don't know example.com  │  Anycast — hundreds of nodes
+│   but .com is handled by    │  worldwide
+│   Verisign → a.gtld-servers"│
+└────────┬────────────────────┘
+         │ "Who handles example.com?"
+         ▼
+┌─────────────────────────────┐
+│  <span class="hl-teal">TLD Name Server</span> (.com)       │  Managed by registries
+│  "example.com NS records    │  (Verisign for .com)
+│   point to ns1.example.com" │
+└────────┬────────────────────┘
+         │ "What is www.example.com IP?"
+         ▼
+┌─────────────────────────────┐
+│  <span class="hl-green">Authoritative Name Server</span>    │  Your DNS (Route53 / Cloudflare)
+│  "www.example.com →         │  This is where YOU configure
+│   93.184.216.34"            │  your DNS records
+└────────┬────────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Recursive      │  Caches response (TTL: 300s)
+│  Resolver       │  Returns IP to browser
+└────────┬────────┘
+         │
+         ▼
+   Browser connects to <span class="hl-green">93.184.216.34</span> on port 80/443</div>
+
+  <ol class="sl">
+    <li class="si"><div class="sn">1</div><div class="sc"><div class="stl">Browser Cache Check</div><div class="sd">Browser checks its own DNS cache. Chrome: visit <code>chrome://net-internals/#dns</code>. If found and TTL not expired → done instantly.</div></div></li>
+    <li class="si"><div class="sn">2</div><div class="sc"><div class="stl">OS Cache + /etc/hosts</div><div class="sd">OS checks <code>/etc/hosts</code> (Linux/Mac) or <code>C:\Windows\System32\drivers\etc\hosts</code>. Then checks OS DNS cache. Override any DNS by adding entries here.</div></div></li>
+    <li class="si"><div class="sn">3</div><div class="sc"><div class="stl">Recursive Resolver</div><div class="sd">Configured in <code>/etc/resolv.conf</code>. Your ISP's resolver, or public ones (8.8.8.8 Google, 1.1.1.1 Cloudflare). Does the hard work of finding the answer.</div></div></li>
+    <li class="si"><div class="sn">4</div><div class="sc"><div class="stl">Root Servers → TLD → Authoritative</div><div class="sd">Full recursive lookup happens. Root servers point to TLD, TLD points to your authoritative NS, which has the actual A/AAAA record.</div></div></li>
+    <li class="si"><div class="sn">5</div><div class="sc"><div class="stl">Response Cached & Returned</div><div class="sd">Answer cached at resolver for TTL duration. Browser connects to IP. Subsequent lookups within TTL are instant.</div></div></li>
+  </ol>
+</section>
+
+<!-- S3 -->
+<section class="sec" id="s3">
+  <div class="sh"><span class="snum">03 /</span><div><div class="stitle">DNS Record Types — Complete Guide</div><span class="sbadge sb-dns">DNS</span></div></div>
+
+  <table class="dt">
+    <thead><tr><th>Record</th><th>Full Name</th><th>Purpose</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><code>A</code></td><td>Address</td><td>Maps domain to IPv4 address</td><td><code>example.com → 93.184.216.34</code></td></tr>
+      <tr><td><code>AAAA</code></td><td>IPv6 Address</td><td>Maps domain to IPv6 address</td><td><code>example.com → 2606:2800::1</code></td></tr>
+      <tr><td><code>CNAME</code></td><td>Canonical Name</td><td>Alias — points one domain to another domain</td><td><code>www → example.com</code></td></tr>
+      <tr><td><code>MX</code></td><td>Mail Exchange</td><td>Where to deliver email for the domain</td><td><code>example.com → mail.google.com (10)</code></td></tr>
+      <tr><td><code>TXT</code></td><td>Text</td><td>Arbitrary text — SPF, DKIM, domain verification</td><td><code>v=spf1 include:sendgrid.net ~all</code></td></tr>
+      <tr><td><code>NS</code></td><td>Name Server</td><td>Which servers are authoritative for this domain</td><td><code>ns1.cloudflare.com, ns2.cloudflare.com</code></td></tr>
+      <tr><td><code>PTR</code></td><td>Pointer</td><td>Reverse DNS — IP → domain name</td><td><code>34.216.184.93.in-addr.arpa → example.com</code></td></tr>
+      <tr><td><code>SRV</code></td><td>Service</td><td>Service location — used by SIP, XMPP, K8s</td><td><code>_https._tcp.example.com → 443 server.com</code></td></tr>
+      <tr><td><code>CAA</code></td><td>Cert Auth</td><td>Which CAs can issue certs for domain</td><td><code>0 issue "letsencrypt.org"</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">CNAME vs A Record — Critical Difference</h3>
+  <div class="cgrid">
+    <div class="cc cc-h" style="color:var(--teal);">A Record</div>
+    <div class="cc cc-h" style="color:var(--blue);">CNAME Record</div>
+    <div class="cc"><div class="cc-v">Points directly to an IP address. Requires you to update if IP changes. <strong>Cannot be used on root domain on many providers</strong> (but Route53 ALIAS can).</div></div>
+    <div class="cc"><div class="cc-v">Points to another domain name. The resolver does an additional lookup. Automatically follows IP changes. <strong>Cannot coexist with other record types at same name.</strong></div></div>
+    <div class="cc"><code>api.example.com A 93.184.216.34</code></div>
+    <div class="cc"><code>www.example.com CNAME example.com</code></div>
+  </div>
+
+  <h3 class="sub">TXT Records — The Swiss Army Knife</h3>
+  <div class="cb">
+    <div class="ch"><span class="cl">DNS TXT</span><span class="cf">common use cases</span></div>
+    <div class="cbody"><span class="cm"># SPF — allow Google and Sendgrid to send email for you</span>
+v=spf1 include:_spf.google.com include:sendgrid.net ~all
+
+<span class="cm"># DKIM — public key for email signing verification</span>
+google._domainkey  TXT  v=DKIM1; k=rsa; p=MIGfMA0GCSq...
+
+<span class="cm"># Domain verification — prove you own the domain to Google/AWS/GitHub</span>
+_github-challenge-myorg.example.com  TXT  "abc123verifytoken"
+
+<span class="cm"># DMARC — email policy</span>
+_dmarc.example.com  TXT  v=DMARC1; p=reject; rua=mailto:dmarc@example.com
+
+<span class="cm"># Let's Encrypt DNS-01 challenge</span>
+_acme-challenge.example.com  TXT  "randomtoken123fromLetsEncrypt"</div>
+  </div>
+</section>
+
+<!-- S4 -->
+<section class="sec" id="s4">
+  <div class="sh"><span class="snum">04 /</span><div><div class="stitle">DNS in Real DevOps — K8s, Ingress, Route53</div><span class="sbadge sb-dns">DNS</span></div></div>
+
+  <h3 class="sub">Kubernetes Internal DNS (CoreDNS)</h3>
+  <div class="asc">Every Pod in K8s gets DNS resolution via <span class="hl-green">CoreDNS</span>
+
+Pod A wants to reach Service "api-svc" in namespace "production":
+
+<span class="hl-teal">api-svc.production.svc.cluster.local</span>
+    │         │         │      │
+  service  namespace  svc   cluster domain
+
+Pod's /etc/resolv.conf:
+  nameserver 10.96.0.10          ← CoreDNS ClusterIP
+  search default.svc.cluster.local svc.cluster.local cluster.local
+  options ndots:5
+
+So "curl api-svc" works because search domains are tried automatically.</div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Route53 + ExternalDNS on EKS</span></div>
+    <div class="cbody"><span class="cm"># ExternalDNS watches Ingress & Service objects</span>
+<span class="cm"># and auto-creates Route53 records</span>
+
+<span class="cm"># Ingress annotation to trigger ExternalDNS</span>
+<span class="ann">external-dns.alpha.kubernetes.io/hostname</span>: <span class="val">api.example.com</span>
+<span class="ann">external-dns.alpha.kubernetes.io/ttl</span>: <span class="str">"60"</span>
+
+<span class="cm"># ExternalDNS auto-creates:</span>
+<span class="cm"># api.example.com → CNAME → k8s-lb-123.us-east-1.elb.amazonaws.com</span>
+
+<span class="cm"># Verify it worked</span>
+<span class="cmd">aws route53 list-resource-record-sets \
+  --hosted-zone-id Z1234567890 \
+  --query "ResourceRecordSets[?Name=='api.example.com.']"</span></div>
+  </div>
+
+  <h3 class="sub">Cloudflare DNS Patterns</h3>
+  <div class="cg cg3">
+    <div class="card c-dns"><div class="ct">Proxy Mode (Orange Cloud)</div><div class="cd">Traffic goes through Cloudflare CDN/WAF. Real server IP hidden. DDoS protection. IP shown is Cloudflare's. <strong>Use for public HTTP/S.</strong></div></div>
+    <div class="card c-dns"><div class="ct">DNS-Only (Grey Cloud)</div><div class="cd">Direct DNS resolution — returns your real IP. No Cloudflare proxy. Use for non-HTTP services (MX, FTP, SSH, game servers).</div></div>
+    <div class="card c-dns"><div class="ct">Cloudflare Tunnels</div><div class="cd">No inbound ports needed. Cloudflared daemon creates outbound tunnel. Zero-trust access. Best for internal services exposed publicly.</div></div>
+  </div>
+</section>
+
+<!-- S5 -->
+<section class="sec" id="s5">
+  <div class="sh"><span class="snum">05 /</span><div><div class="stitle">TTL, Propagation & Caching</div><span class="sbadge sb-dns">DNS</span></div></div>
+
+  <div class="prose"><p><strong>TTL (Time To Live)</strong> is the number of seconds a resolver is allowed to cache a DNS answer before re-querying. Getting TTL wrong is one of the most common DevOps migration mistakes.</p></div>
+
+  <table class="dt">
+    <thead><tr><th>Scenario</th><th>Recommended TTL</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>Stable production record</td><td>3600–86400s (1–24h)</td><td>Fewer queries, better performance</td></tr>
+      <tr><td>Planned migration in 24h</td><td>60s</td><td>Set low 24h before cutover</td></tr>
+      <tr><td>Active cutover/failover</td><td>30–60s</td><td>Fast TTL means fast failover</td></tr>
+      <tr><td>Health-check based routing</td><td>10–30s</td><td>Route53 health checks need low TTL</td></tr>
+      <tr><td>After migration complete</td><td>Increase back to 3600+</td><td>Reduce resolver load</td></tr>
+    </tbody>
+  </table>
+
+  <div class="co co-warn"><span class="co-icon">⚠</span><div><strong>DNS Propagation Myth:</strong> "Propagation takes 24–48 hours" is outdated. Modern DNS with low TTL propagates in minutes. The delay is just old caches respecting high TTL. Always set TTL to 60s <strong>24 hours before</strong> any migration!</div></div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Check TTL and cached values</span></div>
+    <div class="cbody"><span class="cm"># Check current TTL of a record</span>
+<span class="cmd">dig +nocmd example.com A +multiline +noall +answer</span>
+<span class="cm"># Output shows TTL as seconds remaining in cache</span>
+
+<span class="cm"># Check from specific resolver</span>
+<span class="cmd">dig @8.8.8.8 example.com A</span>    <span class="cm"># Google resolver</span>
+<span class="cmd">dig @1.1.1.1 example.com A</span>    <span class="cm"># Cloudflare resolver</span>
+<span class="cmd">dig @ns1.cloudflare.com example.com A</span>  <span class="cm"># Direct authoritative</span>
+
+<span class="cm"># Check propagation across global resolvers</span>
+<span class="cm"># Use: https://dnschecker.org or https://whatsmydns.net</span></div>
+  </div>
+</section>
+
+<!-- S6 -->
+<section class="sec" id="s6">
+  <div class="sh"><span class="snum">06 /</span><div><div class="stitle">DNS Debugging — dig, nslookup, Real Commands</div><span class="sbadge sb-dns">DNS</span></div></div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Essential DNS debugging toolkit</span></div>
+    <div class="cbody"><span class="cm">## ── dig (modern, preferred) ──────────────────────────────</span>
+
+<span class="cm"># Basic A record lookup</span>
+<span class="cmd">dig example.com</span>
+
+<span class="cm"># Specific record type</span>
+<span class="cmd">dig example.com MX</span>
+<span class="cmd">dig example.com TXT</span>
+<span class="cmd">dig example.com NS</span>
+<span class="cmd">dig example.com AAAA</span>
+
+<span class="cm"># Trace the full resolution path (see all servers queried)</span>
+<span class="cmd">dig +trace example.com</span>
+
+<span class="cm"># Short answer only</span>
+<span class="cmd">dig +short example.com</span>
+
+<span class="cm"># Reverse DNS (IP to hostname)</span>
+<span class="cmd">dig -x 93.184.216.34</span>
+
+<span class="cm"># Check all records</span>
+<span class="cmd">dig example.com ANY</span>
+
+<span class="cm">## ── nslookup (cross-platform) ────────────────────────────</span>
+
+<span class="cmd">nslookup example.com</span>
+<span class="cmd">nslookup example.com 8.8.8.8</span>   <span class="cm"># specific resolver</span>
+<span class="cmd">nslookup -type=MX example.com</span>
+
+<span class="cm">## ── host (simple) ────────────────────────────────────────</span>
+<span class="cmd">host example.com</span>
+<span class="cmd">host -t MX example.com</span>
+
+<span class="cm">## ── Inside Kubernetes Pod ────────────────────────────────</span>
+<span class="cmd">kubectl exec -it my-pod -- nslookup kubernetes.default</span>
+<span class="cmd">kubectl exec -it my-pod -- cat /etc/resolv.conf</span>
+<span class="cmd">kubectl exec -it my-pod -- dig api-svc.production.svc.cluster.local</span>
+
+<span class="cm">## ── CoreDNS logs ─────────────────────────────────────────</span>
+<span class="cmd">kubectl logs -n kube-system -l k8s-app=kube-dns --tail=50</span></div>
+  </div>
+
+  <h3 class="sub">Common DNS Issues</h3>
+  <table class="dt">
+    <thead><tr><th>Error / Symptom</th><th>Root Cause</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>SERVFAIL</td><td>Authoritative NS unreachable or misconfigured zone</td><td><code>dig +trace domain.com</code> to find failing hop</td></tr>
+      <tr><td>NXDOMAIN</td><td>Domain doesn't exist at all</td><td>Check spelling, check if record was deleted</td></tr>
+      <tr><td>Slow DNS inside K8s</td><td>ndots:5 causes many search domain retries</td><td>Use FQDN with trailing dot or set ndots:1</td></tr>
+      <tr><td>Old IP still resolving</td><td>High TTL, cached at resolver</td><td>Flush with <code>ipconfig /flushdns</code> or wait TTL</td></tr>
+      <tr><td>CNAME at root apex fails</td><td>CNAME can't coexist with SOA/NS</td><td>Use ALIAS/ANAME record (Route53, Cloudflare)</td></tr>
+      <tr><td>Split-horizon confusion</td><td>Internal and external resolvers return different IPs</td><td>Check which resolver is being used</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ═══ SSL / TLS ═══ -->
+<div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-l">SSL / TLS</span><div class="sdiv-line"></div></div>
+
+<!-- S7 -->
+<section class="sec" id="s7">
+  <div class="sh"><span class="snum">07 /</span><div><div class="stitle">What is SSL/TLS — HTTP vs HTTPS</div><span class="sbadge sb-ssl">SSL/TLS</span></div></div>
+
+  <div class="level-block">
+    <div class="level-header">
+      <button class="lbtn active" onclick="showLevel(this,'l7-1')">🧒 Layman</button>
+      <button class="lbtn" onclick="showLevel(this,'l7-2')">⚙️ DevOps</button>
+      <button class="lbtn" onclick="showLevel(this,'l7-3')">🚀 Pro</button>
+    </div>
+    <div class="level-content">
+      <div class="lp show" id="l7-1">
+        Imagine sending a letter. <strong>HTTP</strong> is like sending it on a postcard — everyone who handles it (mailman, post office) can read everything. <strong>HTTPS</strong> is like putting that letter in a locked box — only the receiver has the key. The lock is called <strong>TLS</strong>. When you see 🔒 in your browser, it means your data is in a locked box and nobody can read it on the way.
+      </div>
+      <div class="lp" id="l7-2">
+        <strong>SSL</strong> (Secure Sockets Layer) is deprecated — don't use SSL 3.0 or TLS 1.0/1.1. <strong>TLS</strong> (Transport Layer Security) is the current standard. TLS 1.2 is still widely used; <strong>TLS 1.3</strong> is the modern standard (faster handshake, better cipher suites). HTTPS = HTTP running over TLS. It provides: <em>Confidentiality</em> (encryption), <em>Integrity</em> (tampering detection via MAC), <em>Authentication</em> (certificate verifies server identity).
+      </div>
+      <div class="lp" id="l7-3">
+        TLS 1.3 reduced handshake from 2-RTT to 1-RTT (and supports 0-RTT resumption for returning clients). Cipher suite negotiation in TLS 1.3 is simplified — only 5 suites, no RC4/DES/3DES. Forward Secrecy is mandatory (ECDHE key exchange means session keys aren't derivable even if server private key is compromised later). In production, enforce TLS 1.2+ with <code>ssl_protocols TLSv1.2 TLSv1.3;</code>, disable weak ciphers, and enable HSTS. OCSP stapling reduces latency by bundling cert revocation status in the TLS handshake.
+      </div>
+    </div>
+  </div>
+
+  <div class="cg cg2">
+    <div class="card c-ssl"><div class="ct" style="color:var(--red)">🔓 HTTP (Port 80)</div><div class="cd">All data in plain text. Anyone on the network can read passwords, cookies, messages. No server identity verification. Never use for any sensitive data. Attackers can inject content (malvertising).</div></div>
+    <div class="card c-green"><div class="ct" style="color:var(--green)">🔒 HTTPS (Port 443)</div><div class="cd">Encrypted with TLS. Server identity verified by certificate. Data integrity guaranteed. <strong>Mandatory</strong> in 2024 for any production workload. Google penalizes non-HTTPS in rankings.</div></div>
+  </div>
+</section>
+
+<!-- S8 -->
+<section class="sec" id="s8">
+  <div class="sh"><span class="snum">08 /</span><div><div class="stitle">TLS Handshake — Step by Step</div><span class="sbadge sb-ssl">SSL/TLS</span></div></div>
+
+  <div class="prose"><p>The TLS handshake establishes an encrypted channel before any HTTP data is exchanged. Here's exactly what happens every time you open a banking website:</p></div>
+
+  <div class="asc"><span class="hl-blue">CLIENT (Browser)</span>                           <span class="hl-green">SERVER (Nginx/Apache)</span>
+
+1. <span class="hl-teal">ClientHello</span> ──────────────────────────────────────────►
+   • TLS version: 1.3
+   • Supported cipher suites (list)
+   • Client random (32 bytes)
+   • Supported extensions (SNI, ALPN)
+   • SNI: "api.example.com" ← tells server which cert to use!
+
+                                          2. <span class="hl-teal">ServerHello</span> ◄────
+                                             • Chosen cipher suite
+                                             • Server random (32 bytes)
+                                             • Session ID
+
+                                       3. <span class="hl-amber">Certificate</span> ◄────────
+                                          • Server's TLS certificate
+                                          • Full chain (intermediate + root)
+
+                                    4. <span class="hl-amber">ServerKeyExchange</span> ◄──
+                                       • ECDHE public key
+                                       (for forward secrecy)
+
+                                       5. <span class="hl-amber">ServerHelloDone</span> ◄───
+
+6. <span class="hl-purple">ClientKeyExchange</span> ─────────────────────────────────────►
+   • Client ECDHE public key
+   Both sides compute: Pre-Master Secret → Master Secret → Session Keys
+
+7. <span class="hl-purple">ChangeCipherSpec</span> ──────────────────────────────────────►
+   "I'm switching to encrypted now"
+
+8. <span class="hl-purple">Finished (encrypted)</span> ──────────────────────────────────►
+
+                                    9. <span class="hl-green">ChangeCipherSpec</span> ◄──
+                                   10. <span class="hl-green">Finished (encrypted)</span> ◄
+
+══ HANDSHAKE COMPLETE ══ All subsequent HTTP traffic is encrypted ══
+
+<span class="hl-green">TLS 1.3 improvement:</span> This whole dance takes only 1 RTT (vs 2 RTT in TLS 1.2)
+<span class="hl-teal">0-RTT:</span> Resuming sessions can send data immediately (but no replay protection)</div>
+
+  <h3 class="sub">Certificate Verification During Handshake</h3>
+  <ol class="sl">
+    <li class="si"><div class="sn">1</div><div class="sc"><div class="stl">Cert Chain Validation</div><div class="sd">Browser checks: Server Cert → signed by → Intermediate CA → signed by → Root CA. Root CA must be in browser's trusted store (OS truststore).</div></div></li>
+    <li class="si"><div class="sn">2</div><div class="sc"><div class="stl">Domain Validation</div><div class="sd">Browser checks: does the cert's CN or SAN field match the domain I'm connecting to? <code>api.example.com</code> must match <code>CN=api.example.com</code> or <code>SAN: DNS:api.example.com</code>.</div></div></li>
+    <li class="si"><div class="sn">3</div><div class="sc"><div class="stl">Expiry Check</div><div class="sd">Browser checks <code>notBefore</code> and <code>notAfter</code> fields. Certificate expired → hard browser error. No workaround for users.</div></div></li>
+    <li class="si"><div class="sn">4</div><div class="sc"><div class="stl">Revocation Check (OCSP/CRL)</div><div class="sd">Has this cert been revoked? Browser queries OCSP responder or checks CRL (Certificate Revocation List). OCSP stapling: server pre-fetches and includes revocation status.</div></div></li>
+  </ol>
+</section>
+
+<!-- S9 -->
+<section class="sec" id="s9">
+  <div class="sh"><span class="snum">09 /</span><div><div class="stitle">Encryption — Symmetric vs Asymmetric</div><span class="sbadge sb-ssl">SSL/TLS</span></div></div>
+
+  <div class="asc">SYMMETRIC ENCRYPTION
+─────────────────────────────────────────────
+<span class="hl-green">Same key</span> used to encrypt AND decrypt
+
+  🔑 Alice: encrypt("Hello") with key123 → "Xk9pQ..."
+  🔑 Bob:   decrypt("Xk9pQ...") with key123 → "Hello"
+
+  Problem: How do you share key123 securely?
+  → If you email it, attacker intercepts it!
+
+  Used in TLS for: <span class="hl-teal">bulk data encryption (AES-256-GCM)</span>
+  FAST — gigabits per second
+─────────────────────────────────────────────
+
+ASYMMETRIC ENCRYPTION
+─────────────────────────────────────────────
+<span class="hl-amber">Two keys:</span> Public Key + Private Key (mathematically paired)
+
+  Anyone can encrypt with PUBLIC key  → 🔓 (share freely)
+  Only YOU can decrypt with PRIVATE key → 🔑 (NEVER share!)
+
+  Also works in reverse for SIGNING:
+  You SIGN with private key → anyone VERIFIES with public key
+
+  Example (Bank website):
+  1. Bank has private key (secret, on server)
+  2. Bank shares public key (in certificate)
+  3. Browser uses public key to encrypt session key
+  4. Bank uses private key to decrypt session key
+  5. Both now have session key → switch to AES (fast!)
+
+  Used in TLS for: <span class="hl-teal">handshake key exchange + certificate signing</span>
+  SLOW — much more computation
+─────────────────────────────────────────────
+
+TLS USES BOTH:
+  <span class="hl-purple">Asymmetric</span> to securely exchange a symmetric key
+  <span class="hl-green">Symmetric</span> (AES) for all actual data transfer</div>
+</section>
+
+<!-- ═══ KEYS & CERTIFICATES ═══ -->
+<div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-l">Keys &amp; Certificates</span><div class="sdiv-line"></div></div>
+
+<!-- S10 -->
+<section class="sec" id="s10">
+  <div class="sh"><span class="snum">10 /</span><div><div class="stitle">Private Key, Public Key — The Foundation</div><span class="sbadge sb-csr">KEYS</span></div></div>
+
+  <div class="level-block">
+    <div class="level-header">
+      <button class="lbtn active" onclick="showLevel(this,'l10-1')">🧒 Layman</button>
+      <button class="lbtn" onclick="showLevel(this,'l10-2')">⚙️ DevOps</button>
+      <button class="lbtn" onclick="showLevel(this,'l10-3')">🚀 Pro</button>
+    </div>
+    <div class="level-content">
+      <div class="lp show" id="l10-1">
+        Think of a mailbox. The <strong>public key</strong> is like the slot on the mailbox — anyone can drop a letter in (encrypt data to you). The <strong>private key</strong> is like the key to the mailbox door — only you can open it and read letters. You give everyone the public key. You NEVER share the private key. If you lose the private key, you can't read mail. If someone steals it, they can read all your mail.
+      </div>
+      <div class="lp" id="l10-2">
+        Keys are generated together as a <strong>keypair</strong>. They're mathematically linked — data encrypted with the public key can only be decrypted with the corresponding private key. Common algorithms: <em>RSA-2048</em> (legacy, still common), <em>RSA-4096</em> (more secure, slower), <em>ECDSA P-256/P-384</em> (smaller, faster, modern). Private key = <code>key.pem</code> on your server. Public key is embedded in the certificate (<code>cert.pem</code>). Private key never leaves your server — not even the CA sees it.
+      </div>
+      <div class="lp" id="l10-3">
+        RSA security relies on integer factorization hardness. EC (Elliptic Curve) relies on ECDLP — provides equivalent security with shorter keys (P-256 ≈ RSA-3072). For post-quantum readiness, NIST standardized CRYSTALS-Dilithium and CRYSTALS-Kyber in 2024. Private key should be stored: encrypted at rest (passphrase or HSM), permissions 0600, owned by service user, ideally in Vault/KMS. Key rotation should be annual minimum. If key is compromised: immediately revoke cert (CA OCSP/CRL), generate new keypair, issue new cert, redeploy — within hours, not days.
+      </div>
+    </div>
+  </div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Generate keys with OpenSSL</span></div>
+    <div class="cbody"><span class="cm">## ── RSA Key Generation ───────────────────────────────────</span>
+<span class="cm"># Generate 2048-bit RSA private key</span>
+<span class="cmd">openssl genrsa -out private.key 2048</span>
+
+<span class="cm"># Generate 4096-bit with passphrase protection</span>
+<span class="cmd">openssl genrsa -aes256 -out private-encrypted.key 4096</span>
+
+<span class="cm"># Extract public key from private key</span>
+<span class="cmd">openssl rsa -in private.key -pubout -out public.key</span>
+
+<span class="cm">## ── EC Key Generation (modern, preferred) ─────────────────</span>
+<span class="cm"># Generate EC private key (P-256 = prime256v1)</span>
+<span class="cmd">openssl ecparam -name prime256v1 -genkey -noout -out ec-private.key</span>
+
+<span class="cm"># P-384 (stronger, FIPS compliant)</span>
+<span class="cmd">openssl ecparam -name secp384r1 -genkey -noout -out ec-private.key</span>
+
+<span class="cm">## ── Inspect a private key ────────────────────────────────</span>
+<span class="cmd">openssl rsa -in private.key -text -noout</span>
+<span class="cm"># Shows: modulus, public exponent, private exponent, primes</span>
+
+<span class="cm">## ── File permissions (CRITICAL!) ────────────────────────</span>
+<span class="cmd">chmod 600 private.key</span>         <span class="cm"># Only owner can read/write</span>
+<span class="cmd">chown nginx:nginx private.key</span>  <span class="cm"># Service user owns it</span>
+<span class="cmd">ls -la private.key</span>
+<span class="cm"># Should show: -rw------- 1 nginx nginx private.key</span></div>
+  </div>
+
+  <div class="co co-danger"><span class="co-icon">⚠</span><div><strong>NEVER commit private.key to Git.</strong> Use <code>git-secrets</code>, <code>trufflehog</code>, or GitHub secret scanning. One leaked key = full cert compromise. Add <code>*.key</code> and <code>*.pem</code> to <code>.gitignore</code> immediately.</div></div>
+</section>
+
+<!-- S11 -->
+<section class="sec" id="s11">
+  <div class="sh"><span class="snum">11 /</span><div><div class="stitle">CSR — Certificate Signing Request Deep Dive</div><span class="sbadge sb-csr">CSR</span></div></div>
+
+  <div class="level-block">
+    <div class="level-header">
+      <button class="lbtn active" onclick="showLevel(this,'l11-1')">🧒 Layman</button>
+      <button class="lbtn" onclick="showLevel(this,'l11-2')">⚙️ DevOps</button>
+    </div>
+    <div class="level-content">
+      <div class="lp show" id="l11-1">
+        A CSR is like a <strong>passport application form</strong>. When you want a passport, you fill out a form with your name, birthdate, etc., and submit it to the passport office. The CSR is that form — it contains info about your website (name, company, location) and your <strong>public key</strong>. You send it to the Certificate Authority (the "passport office"). They verify your info and issue you a certificate (your "passport").
+      </div>
+      <div class="lp" id="l11-2">
+        A CSR is a <strong>PKCS#10 formatted</strong> file containing: your public key + metadata about the domain/organization. It's digitally signed with your private key (proving you own the corresponding private key). The CA signs your CSR to produce a certificate. Critical: the private key NEVER leaves your server — only the CSR (with embedded public key) is sent to the CA. Regenerating a certificate? Generate a new keypair + new CSR. Reusing old keys with new CSR is a security risk.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">What a CSR Contains</h3>
+  <table class="dt">
+    <thead><tr><th>Field</th><th>Full Name</th><th>Example</th><th>Required?</th></tr></thead>
+    <tbody>
+      <tr><td><code>CN</code></td><td>Common Name</td><td><code>api.example.com</code></td><td>Yes (legacy, SAN preferred)</td></tr>
+      <tr><td><code>SAN</code></td><td>Subject Alt Names</td><td><code>DNS:api.example.com, DNS:*.example.com</code></td><td>Critical — browsers use this</td></tr>
+      <tr><td><code>O</code></td><td>Organization</td><td><code>Example Corp Ltd</code></td><td>OV/EV certs</td></tr>
+      <tr><td><code>OU</code></td><td>Org Unit</td><td><code>Engineering</code></td><td>Optional (deprecated)</td></tr>
+      <tr><td><code>L</code></td><td>Locality (City)</td><td><code>San Francisco</code></td><td>OV/EV certs</td></tr>
+      <tr><td><code>ST</code></td><td>State</td><td><code>California</code></td><td>OV/EV certs</td></tr>
+      <tr><td><code>C</code></td><td>Country</td><td><code>US</code></td><td>2-letter ISO code</td></tr>
+      <tr><td>Public Key</td><td>—</td><td>RSA-2048 or EC P-256 public key</td><td>Yes (auto-embedded)</td></tr>
+      <tr><td>Signature</td><td>—</td><td>Signed with your private key</td><td>Yes (proves key ownership)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Generate CSR with OpenSSL</span></div>
+    <div class="cbody"><span class="cm">## ── Method 1: Interactive ────────────────────────────────</span>
+<span class="cmd">openssl req -new -newkey rsa:2048 -nodes \
+  -keyout private.key \
+  -out request.csr</span>
+<span class="cm"># Will prompt for CN, O, OU, L, ST, C</span>
+
+<span class="cm">## ── Method 2: One-liner with all fields ─────────────────</span>
+<span class="cmd">openssl req -new -newkey rsa:2048 -nodes \
+  -keyout private.key \
+  -out request.csr \
+  -subj "/C=US/ST=California/L=San Francisco/O=Example Corp/CN=api.example.com"</span>
+
+<span class="cm">## ── Method 3: Config file (recommended for SANs) ─────────</span>
+<span class="cm"># Create csr.conf</span>
+cat > csr.conf &lt;&lt;EOF
+[req]
+default_bits       = 2048
+prompt             = no
+default_md         = sha256
+req_extensions     = req_ext
+distinguished_name = dn
+
+[dn]
+C  = US
+ST = California
+L  = San Francisco
+O  = Example Corp
+CN = api.example.com
+
+[req_ext]
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = api.example.com
+DNS.2 = www.api.example.com
+DNS.3 = *.api.example.com    <span class="cm"># wildcard</span>
+IP.1  = 192.168.1.100        <span class="cm"># IP SAN (internal)</span>
+EOF
+
+<span class="cmd">openssl req -new -config csr.conf \
+  -keyout private.key \
+  -out request.csr</span>
+
+<span class="cm">## ── Verify your CSR ──────────────────────────────────────</span>
+<span class="cmd">openssl req -text -noout -verify -in request.csr</span>
+<span class="cm"># Check: Subject, Public Key Info, Requested Extensions (SANs)</span></div>
+  </div>
+
+  <div class="co co-warn"><span class="co-icon">⚠</span><div><strong>SAN is mandatory since 2017.</strong> Browsers deprecated CN-only matching. Every cert MUST have SANs. If you generate a CSR without SAN, browsers will show <code>NET::ERR_CERT_COMMON_NAME_INVALID</code> — even if CN matches perfectly.</div></div>
+</section>
+
+<!-- S12 -->
+<section class="sec" id="s12">
+  <div class="sh"><span class="snum">12 /</span><div><div class="stitle">CA — Certificate Authority</div><span class="sbadge sb-ca">CA</span></div></div>
+
+  <div class="level-block">
+    <div class="level-header">
+      <button class="lbtn active" onclick="showLevel(this,'l12-1')">🧒 Layman</button>
+      <button class="lbtn" onclick="showLevel(this,'l12-2')">⚙️ DevOps</button>
+      <button class="lbtn" onclick="showLevel(this,'l12-3')">🚀 Pro</button>
+    </div>
+    <div class="level-content">
+      <div class="lp show" id="l12-1">
+        A CA is like the <strong>government passport office</strong>. When you get a passport, the government vouches: "This person is who they say they are." Your browser comes with a list of trusted "government offices" (DigiCert, Let's Encrypt etc). If a website has a certificate signed by one of these trusted offices, the browser trusts it. If it's signed by someone unknown (self-signed), the browser shows a scary warning — like showing a passport you made yourself at home.
+      </div>
+      <div class="lp" id="l12-2">
+        A CA is an organization trusted to verify domain ownership and sign certificates. <strong>DV (Domain Validated)</strong>: only verifies domain control (HTTP challenge or DNS TXT). <strong>OV (Organization Validated)</strong>: verifies company identity too. <strong>EV (Extended Validation)</strong>: full legal identity — shows company name in old browser address bars. Let's Encrypt provides free DV certs. AWS ACM provides free DV certs for AWS services. DigiCert, Sectigo, GlobalSign for paid OV/EV.
+      </div>
+      <div class="lp" id="l12-3">
+        CA hierarchy: Root CA (offline, air-gapped) signs Intermediate CAs. Intermediate CAs sign end-entity certs. If a Root CA is compromised, every cert it's ever issued must be revoked — catastrophic. Keeping Root CA offline and using Intermediates limits blast radius. CAA DNS records let you specify which CAs can issue for your domain — prevents rogue issuance. HPKP (cert pinning) was deprecated — too risky. Certificate Transparency (CT) logs are mandatory — all CAs must submit certs to public logs, enabling detection of misissued certs.
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">CA Verification Methods</h3>
+  <div class="cg cg3">
+    <div class="card c-ca"><div class="ct">HTTP-01 Challenge</div><div class="cd">CA sends a token. You serve it at <code>/.well-known/acme-challenge/TOKEN</code> on port 80. CA fetches it. Domain control proven. ❌ No wildcards. Needs port 80 open.</div></div>
+    <div class="card c-ca"><div class="ct">DNS-01 Challenge</div><div class="cd">CA sends a token. You create <code>_acme-challenge.yourdomain TXT token</code>. CA queries DNS. ✅ Supports wildcards. Works for private clusters. Needs DNS API access.</div></div>
+    <div class="card c-ca"><div class="ct">OV/EV — Manual</div><div class="cd">CA sends email to domain registrant. May call company phone number. Checks legal business registration. Takes 1–7 days. ✅ Highest trust level.</div></div>
+  </div>
+
+  <h3 class="sub">Public CA vs Private CA</h3>
+  <div class="cgrid">
+    <div class="cc cc-h" style="color:var(--amber);">Public CA</div>
+    <div class="cc cc-h" style="color:var(--purple);">Private / Internal CA</div>
+    <div class="cc"><div class="cc-v">Trusted by all browsers/OSes out of the box. Required for public-facing websites. Examples: Let's Encrypt (free), DigiCert, Sectigo, AWS ACM.</div></div>
+    <div class="cc"><div class="cc-v">You run your own CA. Must manually install root cert on all machines that need to trust it. Perfect for internal services, K8s clusters, mTLS. Tools: cfssl, step-ca, HashiCorp Vault PKI, cert-manager with self-signed.</div></div>
+    <div class="cc"><div class="cc-v">Cannot issue wildcard DV for non-public domains. Must prove domain control to internet.</div></div>
+    <div class="cc"><div class="cc-v">Full control. Can issue certs for internal hostnames (<code>api.internal</code>, <code>10.0.0.5</code>). No public internet required. No domain control proof needed.</div></div>
+  </div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Create your own Private CA with OpenSSL</span></div>
+    <div class="cbody"><span class="cm">## ── Step 1: Create Root CA ────────────────────────────────</span>
+<span class="cm"># Generate Root CA private key (keep this VERY safe)</span>
+<span class="cmd">openssl genrsa -aes256 -out root-ca.key 4096</span>
+
+<span class="cm"># Self-sign the Root CA certificate (10 year validity)</span>
+<span class="cmd">openssl req -new -x509 -days 3650 \
+  -key root-ca.key \
+  -out root-ca.crt \
+  -subj "/C=US/O=My Corp/CN=My Corp Root CA"</span>
+
+<span class="cm">## ── Step 2: Create Intermediate CA ──────────────────────</span>
+<span class="cmd">openssl genrsa -out intermediate.key 4096</span>
+<span class="cmd">openssl req -new -key intermediate.key \
+  -out intermediate.csr \
+  -subj "/C=US/O=My Corp/CN=My Corp Intermediate CA"</span>
+
+<span class="cm"># Root CA signs the Intermediate CA cert (5 year)</span>
+<span class="cmd">openssl x509 -req -days 1825 \
+  -in intermediate.csr \
+  -CA root-ca.crt -CAkey root-ca.key \
+  -CAcreateserial -out intermediate.crt \
+  -extensions v3_ca</span>
+
+<span class="cm">## ── Step 3: Sign a server cert with Intermediate CA ─────</span>
+<span class="cmd">openssl x509 -req -days 365 \
+  -in server.csr \
+  -CA intermediate.crt -CAkey intermediate.key \
+  -CAcreateserial -out server.crt</span></div>
+  </div>
+</section>
+
+<!-- S13 -->
+<section class="sec" id="s13">
+  <div class="sh"><span class="snum">13 /</span><div><div class="stitle">CRT — The Certificate File</div><span class="sbadge sb-crt">CRT</span></div></div>
+
+  <div class="prose"><p>A certificate (<em>.crt</em>, <em>.pem</em>, <em>.cer</em>) is the <strong>signed document</strong> that proves your identity. It contains your public key, domain info, validity period, and the CA's digital signature.</p></div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Inspect a certificate completely</span></div>
+    <div class="cbody"><span class="cm"># View full certificate details</span>
+<span class="cmd">openssl x509 -in certificate.crt -text -noout</span>
+
+<span class="cm"># Key fields to check:</span>
+<span class="cm"># Subject: CN=api.example.com (who the cert is for)</span>
+<span class="cm"># Issuer: CN=R3, O=Let's Encrypt (who signed it)</span>
+<span class="cm"># Validity:</span>
+<span class="cm">#   Not Before: Jan 1 00:00:00 2024 GMT</span>
+<span class="cm">#   Not After : Apr 1 00:00:00 2024 GMT</span>
+<span class="cm"># Subject Alt Names: DNS:api.example.com, DNS:*.example.com</span>
+<span class="cm"># Public Key: RSA 2048-bit</span>
+<span class="cm"># Signature Algorithm: sha256WithRSAEncryption</span>
+
+<span class="cm"># Quick: just check expiry date</span>
+<span class="cmd">openssl x509 -in certificate.crt -noout -dates</span>
+
+<span class="cm"># Check cert of a live website</span>
+<span class="cmd">echo | openssl s_client -connect api.example.com:443 -servername api.example.com 2>/dev/null \
+  | openssl x509 -text -noout</span>
+
+<span class="cm"># Get cert expiry of live server</span>
+<span class="cmd">echo | openssl s_client -connect api.example.com:443 2>/dev/null \
+  | openssl x509 -noout -dates</span>
+
+<span class="cm"># Verify cert matches private key (fingerprints must match!)</span>
+<span class="cmd">openssl rsa  -noout -modulus -in private.key   | openssl md5</span>
+<span class="cmd">openssl x509 -noout -modulus -in certificate.crt | openssl md5</span>
+<span class="cm"># Both must produce identical MD5 hash</span></div>
+  </div>
+
+  <h3 class="sub">Certificate File Formats — The Confusion</h3>
+  <table class="dt">
+    <thead><tr><th>Format/Extension</th><th>Encoding</th><th>Content</th><th>Use Case</th></tr></thead>
+    <tbody>
+      <tr><td><code>.pem</code></td><td>Base64 (text)</td><td>Cert, key, or chain. Starts with <code>-----BEGIN...</code></td><td>Linux/NGINX/Apache — universal</td></tr>
+      <tr><td><code>.crt</code></td><td>Usually PEM</td><td>Certificate only</td><td>NGINX, web servers</td></tr>
+      <tr><td><code>.key</code></td><td>PEM</td><td>Private key only</td><td>Private key file</td></tr>
+      <tr><td><code>.csr</code></td><td>PEM</td><td>Certificate Signing Request</td><td>Sent to CA</td></tr>
+      <tr><td><code>.cer</code></td><td>DER (binary)</td><td>Certificate only</td><td>Windows, Java</td></tr>
+      <tr><td><code>.der</code></td><td>Binary</td><td>Any (binary version of PEM)</td><td>Java keystores</td></tr>
+      <tr><td><code>.pfx</code> / <code>.p12</code></td><td>Binary</td><td>Cert + Private Key + Chain (bundle)</td><td>Windows IIS, Java PKCS#12</td></tr>
+      <tr><td><code>.jks</code></td><td>Binary</td><td>Java Key Store</td><td>Tomcat, Java apps</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Format conversions</span></div>
+    <div class="cbody"><span class="cm"># PEM → DER (binary)</span>
+<span class="cmd">openssl x509 -in cert.pem -outform DER -out cert.der</span>
+
+<span class="cm"># DER → PEM</span>
+<span class="cmd">openssl x509 -in cert.der -inform DER -out cert.pem</span>
+
+<span class="cm"># PEM cert + key → PFX (for Windows/IIS)</span>
+<span class="cmd">openssl pkcs12 -export -out bundle.pfx \
+  -inkey private.key -in cert.pem -certfile chain.pem</span>
+
+<span class="cm"># PFX → PEM</span>
+<span class="cmd">openssl pkcs12 -in bundle.pfx -out bundle.pem -nodes</span>
+
+<span class="cm"># Create fullchain.pem (cert + intermediates bundled)</span>
+<span class="cmd">cat cert.pem intermediate.pem root.pem > fullchain.pem</span></div>
+  </div>
+</section>
+
+<!-- S14 -->
+<section class="sec" id="s14">
+  <div class="sh"><span class="snum">14 /</span><div><div class="stitle">Chain of Trust — Root → Intermediate → Server</div><span class="sbadge sb-crt">CRT</span></div></div>
+
+  <div class="asc">            <span class="hl-amber">ROOT CA</span>
+         (e.g. ISRG Root X1)
+         Self-signed, offline
+         Stored in OS/browser trust store
+         Validity: 20-30 years
+              │
+              │ Signs (issues certificate to)
+              ▼
+       <span class="hl-teal">INTERMEDIATE CA</span>
+       (e.g. Let's Encrypt R3)
+       Signed by Root CA
+       Online — issues server certs
+       Validity: 3-5 years
+       REASON: If compromised, only revoke
+       Intermediate, not the Root!
+              │
+              │ Signs (issues certificate to)
+              ▼
+       <span class="hl-green">SERVER CERTIFICATE</span>
+       (e.g. *.example.com)
+       Signed by Intermediate CA
+       Contains: domain, public key, expiry
+       Validity: 90 days (Let's Encrypt)
+                 1-2 years (commercial CA)
+              │
+              │ Presented to
+              ▼
+       <span class="hl-blue">BROWSER / CLIENT</span>
+       Verifies chain:
+       Server Cert signed by Intermediate? ✓
+       Intermediate signed by Root? ✓
+       Root in trusted store? ✓
+       Domain matches SAN? ✓
+       Not expired? ✓
+       → Connection TRUSTED 🔒
+
+<span class="hl-red">IMPORTANT:</span> You must serve the FULL CHAIN (server cert + intermediate)
+Your server must send BOTH files. Root is already in the browser — don't include it.
+fullchain.pem = server.crt + intermediate.crt  (not root.crt)</div>
+
+  <div class="co co-warn"><span class="co-icon">⚠</span><div><strong>Missing intermediate cert</strong> is a top-5 SSL misconfiguration. Your browser might work (it caches intermediates) but mobile apps, curl, and APIs will fail with "unable to verify certificate chain". Always test with <code>openssl s_client -connect domain:443</code> and check for "Verify return code: 0 (ok)".</div></div>
+</section>
+
+<!-- ═══ END-TO-END FLOW ═══ -->
+<div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-l">End-to-End Production Flow</span><div class="sdiv-line"></div></div>
+
+<!-- S15 -->
+<section class="sec" id="s15">
+  <div class="sh"><span class="snum">15 /</span><div><div class="stitle">Full Production Certificate Flow</div><span class="sbadge sb-all">ALL</span></div></div>
+
+  <div class="prose"><p>This is the complete real-world flow for getting a certificate from a public CA and deploying it. This is what happens every time you set up HTTPS for a new service.</p></div>
+
+  <div class="asc">╔══════════════════════════════════════════════════════════════╗
+║          COMPLETE TLS CERTIFICATE PRODUCTION FLOW            ║
+╚══════════════════════════════════════════════════════════════╝
+
+STEP 1: <span class="hl-green">GENERATE PRIVATE KEY</span> (on your server, never leave!)
+──────────────────────────────────────────────────────────────
+$ openssl genrsa -out private.key 2048
+Result: private.key  ← 🔑 STAYS ON YOUR SERVER FOREVER
+
+STEP 2: <span class="hl-teal">GENERATE CSR</span> (from private key + your domain info)
+──────────────────────────────────────────────────────────────
+$ openssl req -new -key private.key -out request.csr \
+    -subj "/CN=api.example.com" -addext "subjectAltName=DNS:api.example.com"
+Result: request.csr  ← Contains public key + domain info
+                       SAFE TO SHARE — no secret data in here
+
+STEP 3: <span class="hl-amber">SUBMIT CSR TO CA</span>
+──────────────────────────────────────────────────────────────
+Option A — Let's Encrypt (automated via certbot):
+  $ certbot certonly --webroot -w /var/www/html -d api.example.com
+  Let's Encrypt: serves challenge at /.well-known/acme-challenge/
+  You copy CSR, CA does HTTP-01 validation
+
+Option B — Commercial CA (DigiCert, Sectigo):
+  Upload request.csr to CA web portal
+  CA sends domain validation email to whois email
+  You click confirm link
+
+STEP 4: <span class="hl-purple">CA ISSUES CERTIFICATE</span>
+──────────────────────────────────────────────────────────────
+CA validates: "Does requester control api.example.com?" ✓
+CA creates certificate:
+  - Embeds your public key (from CSR)
+  - Adds validity dates
+  - Adds SAN fields
+  - Signs it with CA private key
+You receive: certificate.crt + intermediate.crt (chain)
+
+STEP 5: <span class="hl-blue">INSTALL ON SERVER</span>
+──────────────────────────────────────────────────────────────
+You now have:
+  private.key    ← your private key (already on server)
+  certificate.crt ← server cert from CA
+  intermediate.crt ← intermediate CA cert
+
+Combine chain:
+  cat certificate.crt intermediate.crt > fullchain.pem
+
+STEP 6: <span class="hl-green">CONFIGURE NGINX</span>
+──────────────────────────────────────────────────────────────
+  ssl_certificate     /etc/ssl/fullchain.pem;
+  ssl_certificate_key /etc/ssl/private.key;
+
+STEP 7: <span class="hl-teal">BROWSER VERIFICATION</span>
+──────────────────────────────────────────────────────────────
+User opens https://api.example.com
+Browser receives: fullchain.pem
+Browser checks:
+  ✓ Server cert signed by Let's Encrypt R3 (Intermediate)?
+  ✓ Intermediate signed by ISRG Root X1 (Root)?
+  ✓ Root in my trusted store?
+  ✓ SAN: DNS:api.example.com matches current domain?
+  ✓ Not expired?
+→ Green lock shown 🔒</div>
+
+  <div class="cg cg3" style="margin-top:20px;">
+    <div class="card c-csr"><div class="ct">Your Server Generates</div><div class="cd">Private key, CSR. You own and protect the private key. CSR is sent to CA.</div></div>
+    <div class="card c-ca"><div class="ct">CA Provides</div><div class="cd">Signed certificate + intermediate chain. CA never sees your private key. CA validates your domain ownership.</div></div>
+    <div class="card c-green"><div class="ct">You Deploy</div><div class="cd">Install cert + key on NGINX/Apache/K8s. Configure your server to serve fullchain. Test with openssl s_client.</div></div>
+  </div>
+</section>
+
+<!-- S16 -->
+<section class="sec" id="s16">
+  <div class="sh"><span class="snum">16 /</span><div><div class="stitle">NGINX SSL Configuration</div><span class="sbadge sb-ssl">SSL</span></div></div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">NGINX</span><span class="cf">/etc/nginx/sites-available/api.example.com</span></div>
+    <div class="cbody"><span class="cm"># Redirect HTTP → HTTPS</span>
+server {
+    listen 80;
+    server_name api.example.com;
+    return 301 https://$host$request_uri;
+}
+
+<span class="cm"># HTTPS server block</span>
+server {
+    listen 443 ssl http2;
+    server_name api.example.com;
+
+    <span class="cm"># Certificate chain (server cert + intermediates, NOT root)</span>
+    ssl_certificate     /etc/ssl/certs/fullchain.pem;
+    ssl_certificate_key /etc/ssl/private/private.key;
+
+    <span class="cm"># TLS versions — disable old insecure versions</span>
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    <span class="cm"># Cipher suites — modern, secure</span>
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;  <span class="cm"># Let TLS 1.3 choose</span>
+
+    <span class="cm"># Session optimization</span>
+    ssl_session_timeout 1d;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off;         <span class="cm"># Forward secrecy</span>
+
+    <span class="cm"># OCSP Stapling — faster cert validation</span>
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    ssl_trusted_certificate /etc/ssl/certs/chain.pem;
+    resolver 8.8.8.8 1.1.1.1 valid=300s;
+
+    <span class="cm"># Security headers</span>
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header Referrer-Policy "no-referrer-when-downgrade";
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</div>
+  </div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Test NGINX config</span></div>
+    <div class="cbody"><span class="cm"># Test config syntax</span>
+<span class="cmd">nginx -t</span>
+
+<span class="cm"># Reload without downtime</span>
+<span class="cmd">nginx -s reload</span>
+
+<span class="cm"># Test TLS from command line</span>
+<span class="cmd">curl -vI https://api.example.com</span>
+<span class="cmd">openssl s_client -connect api.example.com:443 -tls1_3</span>
+
+<span class="cm"># Verify TLS grade at: https://www.ssllabs.com/ssltest/</span>
+<span class="cm"># Target: A+ rating</span></div>
+  </div>
+</section>
+
+<!-- S17 -->
+<section class="sec" id="s17">
+  <div class="sh"><span class="snum">17 /</span><div><div class="stitle">Kubernetes TLS Secrets & Ingress</div><span class="sbadge sb-ssl">SSL</span></div></div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH + YAML</span><span class="cf">K8s TLS Secret + Ingress</span></div>
+    <div class="cbody"><span class="cm">## ── Create TLS Secret ────────────────────────────────────</span>
+<span class="cmd">kubectl create secret tls api-tls-secret \
+  --cert=fullchain.pem \
+  --key=private.key \
+  --namespace=production</span>
+
+<span class="cm"># Secret is base64 encoded, stored in etcd</span>
+<span class="cm"># Verify:</span>
+<span class="cmd">kubectl describe secret api-tls-secret -n production</span>
+<span class="cm"># Should show: tls.crt and tls.key entries</span>
+
+<span class="cm">## ── Ingress using TLS Secret ─────────────────────────────</span>
+---
+<span class="kw">apiVersion</span>: <span class="val">networking.k8s.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Ingress</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">api-ingress</span>
+  <span class="kw">namespace</span>: <span class="val">production</span>
+  <span class="kw">annotations</span>:
+    <span class="ann">nginx.ingress.kubernetes.io/ssl-redirect</span>: <span class="str">"true"</span>
+    <span class="ann">nginx.ingress.kubernetes.io/force-ssl-redirect</span>: <span class="str">"true"</span>
+<span class="kw">spec</span>:
+  <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+  <span class="kw">tls</span>:
+    - <span class="kw">hosts</span>:
+        - <span class="val">api.example.com</span>
+      <span class="kw">secretName</span>: <span class="val">api-tls-secret</span>     <span class="cm"># Must be in same namespace</span>
+  <span class="kw">rules</span>:
+    - <span class="kw">host</span>: <span class="val">api.example.com</span>
+      <span class="kw">http</span>:
+        <span class="kw">paths</span>:
+          - <span class="kw">path</span>: <span class="val">/</span>
+            <span class="kw">pathType</span>: <span class="val">Prefix</span>
+            <span class="kw">backend</span>:
+              <span class="kw">service</span>:
+                <span class="kw">name</span>: <span class="val">api-service</span>
+                <span class="kw">port</span>: { <span class="kw">number</span>: <span class="num">8080</span> }</div>
+  </div>
+</section>
+
+<!-- S18 -->
+<section class="sec" id="s18">
+  <div class="sh"><span class="snum">18 /</span><div><div class="stitle">cert-manager + Let's Encrypt — Full Automation</div><span class="sbadge sb-ca">CA</span></div></div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">YAML</span><span class="cf">cert-manager ClusterIssuer + Certificate</span></div>
+    <div class="cbody"><span class="cm">## ── 1. ClusterIssuer ─────────────────────────────────────</span>
+<span class="kw">apiVersion</span>: <span class="val">cert-manager.io/v1</span>
+<span class="kw">kind</span>: <span class="val">ClusterIssuer</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">letsencrypt-prod</span>
+<span class="kw">spec</span>:
+  <span class="kw">acme</span>:
+    <span class="kw">server</span>: <span class="val">https://acme-v02.api.letsencrypt.org/directory</span>
+    <span class="kw">email</span>: <span class="val">ops@example.com</span>
+    <span class="kw">privateKeySecretRef</span>:
+      <span class="kw">name</span>: <span class="val">letsencrypt-prod-key</span>
+    <span class="kw">solvers</span>:
+      - <span class="kw">http01</span>:                         <span class="cm"># For public clusters</span>
+          <span class="kw">ingress</span>:
+            <span class="kw">ingressClassName</span>: <span class="val">nginx</span>
+      - <span class="kw">selector</span>:
+          <span class="kw">dnsZones</span>: [<span class="val">"example.com"</span>]
+        <span class="kw">dns01</span>:                           <span class="cm"># For wildcards / private</span>
+          <span class="kw">route53</span>:
+            <span class="kw">region</span>: <span class="val">us-east-1</span>
+            <span class="kw">hostedZoneID</span>: <span class="val">Z1234567</span>
+---
+<span class="cm">## ── 2. Annotate Ingress (auto-cert) ─────────────────────</span>
+<span class="kw">metadata</span>:
+  <span class="kw">annotations</span>:
+    <span class="ann">cert-manager.io/cluster-issuer</span>: <span class="str">"letsencrypt-prod"</span>
+<span class="kw">spec</span>:
+  <span class="kw">tls</span>:
+    - <span class="kw">hosts</span>: [<span class="val">api.example.com</span>]
+      <span class="kw">secretName</span>: <span class="val">api-tls</span>   <span class="cm"># cert-manager creates this</span>
+---
+<span class="cm">## ── 3. OR: Explicit Certificate resource ─────────────────</span>
+<span class="kw">apiVersion</span>: <span class="val">cert-manager.io/v1</span>
+<span class="kw">kind</span>: <span class="val">Certificate</span>
+<span class="kw">metadata</span>:
+  <span class="kw">name</span>: <span class="val">api-cert</span>
+<span class="kw">spec</span>:
+  <span class="kw">secretName</span>: <span class="val">api-tls-secret</span>
+  <span class="kw">duration</span>: <span class="val">2160h</span>         <span class="cm"># 90 days</span>
+  <span class="kw">renewBefore</span>: <span class="val">360h</span>       <span class="cm"># Renew 15 days before expiry</span>
+  <span class="kw">isCA</span>: <span class="val">false</span>
+  <span class="kw">privateKey</span>:
+    <span class="kw">algorithm</span>: <span class="val">ECDSA</span>
+    <span class="kw">size</span>: <span class="num">256</span>
+  <span class="kw">dnsNames</span>:
+    - <span class="val">api.example.com</span>
+    - <span class="val">*.example.com</span>        <span class="cm"># wildcard needs DNS-01</span>
+  <span class="kw">issuerRef</span>:
+    <span class="kw">name</span>: <span class="val">letsencrypt-prod</span>
+    <span class="kw">kind</span>: <span class="val">ClusterIssuer</span></div>
+  </div>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Monitor cert-manager</span></div>
+    <div class="cbody"><span class="cmd">kubectl get certificate -A                    </span><span class="cm"># List all certs</span>
+<span class="cmd">kubectl describe certificate api-cert -n prod  </span><span class="cm"># Detailed status</span>
+<span class="cmd">kubectl get challenges -A                      </span><span class="cm"># ACME challenges</span>
+<span class="cmd">kubectl get orders -A                          </span><span class="cm"># Certificate orders</span>
+<span class="cmd">kubectl logs -n cert-manager deploy/cert-manager --tail=50</span></div>
+  </div>
+</section>
+
+<!-- S19 -->
+<section class="sec" id="s19">
+  <div class="sh"><span class="snum">19 /</span><div><div class="stitle">AWS ACM vs Manual Certificates</div><span class="sbadge sb-ssl">SSL</span></div></div>
+
+  <table class="dt">
+    <thead><tr><th>Feature</th><th>AWS ACM</th><th>Manual (Let's Encrypt / DigiCert)</th></tr></thead>
+    <tbody>
+      <tr><td>Cost</td><td>Free for ALB/CloudFront</td><td>Free (LE) or $10-500/yr (commercial)</td></tr>
+      <tr><td>Private key access</td><td>AWS manages it — you never see it</td><td>You own and manage it</td></tr>
+      <tr><td>On EC2/NGINX</td><td>❌ Cannot export — ALB/CF only</td><td>✅ Can install anywhere</td></tr>
+      <tr><td>Auto renewal</td><td>✅ Fully automatic</td><td>✅ via certbot/cert-manager</td></tr>
+      <tr><td>Wildcard</td><td>✅ DNS-01 via Route53</td><td>✅ DNS-01 challenge</td></tr>
+      <tr><td>Multi-region</td><td>✅ Regional ACM certs</td><td>Manual deployment needed</td></tr>
+      <tr><td>Best for</td><td>ALB, CloudFront, API Gateway, ELB</td><td>EC2, Kubernetes, on-prem, any server</td></tr>
+    </tbody>
+  </table>
+
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">AWS ACM — Request and validate cert</span></div>
+    <div class="cbody"><span class="cm"># Request certificate</span>
+<span class="cmd">aws acm request-certificate \
+  --domain-name api.example.com \
+  --subject-alternative-names "*.example.com" \
+  --validation-method DNS \
+  --region us-east-1</span>
+
+<span class="cm"># Get CNAME records to add to DNS for validation</span>
+<span class="cmd">aws acm describe-certificate \
+  --certificate-arn arn:aws:acm:us-east-1:123:certificate/abc \
+  --query "Certificate.DomainValidationOptions"</span>
+
+<span class="cm"># Add the CNAME to Route53 — ACM validates and issues</span>
+<span class="cm"># Then attach ARN to ALB:</span>
+<span class="cmd">aws elbv2 add-listener-certificates \
+  --listener-arn arn:aws:elasticloadbalancing:... \
+  --certificates CertificateArn=arn:aws:acm:...</span></div>
+  </div>
+</section>
+
+<!-- ═══ SECURITY & OPS ═══ -->
+<div class="sdiv"><div class="sdiv-line"></div><span class="sdiv-l">Security &amp; Operations</span><div class="sdiv-line"></div></div>
+
+<!-- S20 -->
+<section class="sec" id="s20">
+  <div class="sh"><span class="snum">20 /</span><div><div class="stitle">Security Best Practices</div><span class="sbadge sb-sec">SECURITY</span></div></div>
+
+  <div class="cg cg2">
+    <div class="card c-green"><div class="ct">✅ Private Key Protection</div><div class="cd">
+      • Store in HashiCorp Vault PKI or AWS KMS<br>
+      • File permissions: <code>chmod 600 private.key</code><br>
+      • Never in Docker images or environment variables<br>
+      • Never in Git (add to .gitignore)<br>
+      • Use HSM for high-security environments<br>
+      • Audit access with auditd/CloudTrail
+    </div></div>
+    <div class="card c-sec"><div class="ct">⛔ What Happens if Key Leaks</div><div class="cd">
+      • Attacker can impersonate your server<br>
+      • Decrypt past traffic if perfect forward secrecy was NOT used<br>
+      • Immediately: revoke cert at CA<br>
+      • Generate new keypair + new CSR<br>
+      • Issue new cert and redeploy<br>
+      • Rotate all sessions/tokens that used old cert
+    </div></div>
+  </div>
+
+  <h3 class="sub">Certificate Rotation Checklist</h3>
+  <div class="cb">
+    <div class="ch"><span class="cl">BASH</span><span class="cf">Cert expiry monitoring + automation</span></div>
+    <div class="cbody"><span class="cm"># Check days until expiry</span>
+<span class="cmd">openssl x509 -enddate -noout -in cert.pem | \
+  awk -F= '{print $2}' | xargs -I{} date -d {} +%s | \
+  xargs -I{} echo "Expires: $(( ({} - $(date +%s)) / 86400 )) days"</span>
+
+<span class="cm"># Bash script to alert when cert expires within 30 days</span>
+#!/bin/bash
+DOMAIN="api.example.com"
+EXPIRY=$(echo | openssl s_client -connect $DOMAIN:443 2>/dev/null \
+  | openssl x509 -noout -enddate 2>/dev/null | cut -d= -f2)
+EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s)
+NOW_EPOCH=$(date +%s)
+DAYS_LEFT=$(( ($EXPIRY_EPOCH - $NOW_EPOCH) / 86400 ))
+if [ $DAYS_LEFT -lt 30 ]; then
+  echo "ALERT: $DOMAIN cert expires in $DAYS_LEFT days!"
+  <span class="cm"># Send to Slack/PagerDuty/email</span>
+fi
+
+<span class="cm"># K8s: Check all cert expiry dates</span>
+<span class="cmd">kubectl get secret -A -o json | jq -r '
+  .items[] | select(.type=="kubernetes.io/tls") |
+  "\(.metadata.namespace)/\(.metadata.name): " +
+  (.data["tls.crt"] | @base64d | 
+   (split("\n") | map(select(startswith("-----BEGIN"))) | length | tostring))
+'</span>
+
+<span class="cm"># Use cert-manager to auto-monitor</span>
+<span class="cmd">kubectl get certificate -A -o wide</span>
+<span class="cm"># Check "READY" column — False = issue or renewing</span></div>
+  </div>
+
+  <h3 class="sub">Production Security Hardening</h3>
+  <table class="dt">
+    <thead><tr><th>Item</th><th>Action</th><th>Priority</th></tr></thead>
+    <tbody>
+      <tr><td>TLS Versions</td><td>Disable TLS 1.0, 1.1. Allow only 1.2, 1.3</td><td>🔴 Critical</td></tr>
+      <tr><td>Weak Ciphers</td><td>Disable RC4, 3DES, NULL, EXPORT ciphers</td><td>🔴 Critical</td></tr>
+      <tr><td>HSTS</td><td><code>Strict-Transport-Security: max-age=63072000</code></td><td>🟡 High</td></tr>
+      <tr><td>OCSP Stapling</td><td>Enable <code>ssl_stapling on</code> in NGINX</td><td>🟡 High</td></tr>
+      <tr><td>CAA Records</td><td>Add <code>example.com CAA 0 issue "letsencrypt.org"</code></td><td>🟡 High</td></tr>
+      <tr><td>CT Monitoring</td><td>Monitor crt.sh for unauthorized cert issuance</td><td>🟢 Medium</td></tr>
+      <tr><td>Key Size</td><td>RSA ≥ 2048-bit or ECDSA P-256</td><td>🔴 Critical</td></tr>
+      <tr><td>Cert Transparency</td><td>Verify certs at crt.sh after issuance</td><td>🟢 Medium</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- S21 -->
+<section class="sec" id="s21">
+  <div class="sh"><span class="snum">21 /</span><div><div class="stitle">Troubleshooting — Real Errors & Fixes</div><span class="sbadge sb-sec">TROUBLESHOOT</span></div></div>
+
+  <h3 class="sub">Error: NET::ERR_CERT_COMMON_NAME_INVALID</h3>
+  <div class="ab"><div class="ab-s" style="background:var(--red)"></div><div class="ab-body"><div class="ab-label">Cause</div><div class="ab-text"><strong>SAN (Subject Alternative Names) missing or doesn't match the domain.</strong> Since 2017, browsers ignore CN and only check SAN. You might have a cert for <code>example.com</code> but accessing <code>api.example.com</code>.</div></div></div>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">Debug + Fix</span></div><div class="cbody"><span class="cm"># Check what SANs are in the cert</span>
+<span class="cmd">openssl x509 -in cert.pem -text -noout | grep -A5 "Subject Alternative"</span>
+<span class="cm"># OR for live site:</span>
+<span class="cmd">echo | openssl s_client -connect api.example.com:443 2>/dev/null | \
+  openssl x509 -text -noout | grep -A5 "Subject Alternative"</span>
+
+<span class="cm"># FIX: Regenerate CSR with SANs in config file (see Section 11)</span>
+<span class="cm"># Then reissue cert with CA</span></div></div>
+
+  <h3 class="sub">Error: Certificate Has Expired</h3>
+  <div class="ab"><div class="ab-s" style="background:var(--red)"></div><div class="ab-body"><div class="ab-label">Cause</div><div class="ab-text">notAfter date has passed. Even by 1 second = hard failure for all clients. No browser bypass exists for this. Automated renewal with cert-manager or certbot prevents this.</div></div></div>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">Debug + Fix</span></div><div class="cbody"><span class="cm"># Check expiry</span>
+<span class="cmd">echo | openssl s_client -connect api.example.com:443 2>/dev/null | \
+  openssl x509 -noout -dates</span>
+
+<span class="cm"># EMERGENCY: certbot renew now</span>
+<span class="cmd">certbot renew --force-renewal</span>
+<span class="cmd">nginx -s reload</span>
+
+<span class="cm"># K8s: force cert-manager renewal</span>
+<span class="cmd">kubectl annotate certificate api-cert -n production \
+  cert-manager.io/issuer-kind- --overwrite</span>
+<span class="cm"># OR delete the cert object to trigger re-issuance</span>
+<span class="cmd">kubectl delete certificate api-cert -n production</span></div></div>
+
+  <h3 class="sub">Error: SSL Handshake Failed</h3>
+  <div class="ab"><div class="ab-s" style="background:var(--orange)"></div><div class="ab-body"><div class="ab-label">Common Causes</div><div class="ab-text">TLS version mismatch (client wants 1.3, server only supports 1.1), cipher suite mismatch, no SNI support, firewall blocking 443, wrong port.</div></div></div>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">Debug SSL handshake</span></div><div class="cbody"><span class="cm"># Verbose handshake debug</span>
+<span class="cmd">openssl s_client -connect api.example.com:443 -debug -tls1_2</span>
+<span class="cmd">openssl s_client -connect api.example.com:443 -debug -tls1_3</span>
+
+<span class="cm"># With SNI (needed for virtual hosting)</span>
+<span class="cmd">openssl s_client -connect api.example.com:443 -servername api.example.com</span>
+
+<span class="cm"># Check supported protocols/ciphers on server</span>
+<span class="cmd">nmap --script ssl-enum-ciphers -p 443 api.example.com</span>
+
+<span class="cm"># Test with curl and see cert chain</span>
+<span class="cmd">curl -vI https://api.example.com 2>&1 | grep -E "SSL|TLS|certificate|expire"</span></div></div>
+
+  <h3 class="sub">Error: Mixed Content</h3>
+  <div class="ab"><div class="ab-s" style="background:var(--amber)"></div><div class="ab-body"><div class="ab-label">Cause</div><div class="ab-text">HTTPS page loading HTTP resources (images, scripts, CSS). Browser blocks HTTP resources on HTTPS pages. Common after migrating to HTTPS.</div></div></div>
+  <div class="cb"><div class="ch"><span class="cl">BASH + NGINX</span><span class="cf">Fix mixed content</span></div><div class="cbody"><span class="cm"># Add Content-Security-Policy upgrade header in NGINX</span>
+add_header Content-Security-Policy "upgrade-insecure-requests";
+
+<span class="cm"># OR tell app to always generate HTTPS URLs</span>
+<span class="cm"># For apps behind proxy, set these headers:</span>
+proxy_set_header X-Forwarded-Proto https;
+proxy_set_header X-Forwarded-SSL on;
+
+<span class="cm"># Find mixed content in browser DevTools:</span>
+<span class="cm"># F12 → Console tab → look for "Mixed Content" warnings</span>
+<span class="cm"># F12 → Security tab → shows exactly what is insecure</span></div></div>
+
+  <h3 class="sub">Error: Invalid Certificate Chain</h3>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">Verify and fix certificate chain</span></div><div class="cbody"><span class="cm"># Verify chain is complete</span>
+<span class="cmd">openssl s_client -connect api.example.com:443 -showcerts</span>
+<span class="cm"># Should show 2 certs: server cert + intermediate</span>
+<span class="cm"># "Verify return code: 0 (ok)" = chain is valid</span>
+<span class="cm"># "Verify return code: 21 (unable to verify)" = broken chain</span>
+
+<span class="cm"># Verify chain locally</span>
+<span class="cmd">openssl verify -CAfile intermediate.pem server.crt</span>
+
+<span class="cm"># Build correct fullchain.pem</span>
+<span class="cmd">cat server.crt intermediate.crt > fullchain.pem</span>
+<span class="cm"># Order matters! server cert FIRST, then intermediates</span>
+<span class="cm"># Do NOT include root CA in fullchain.pem</span>
+
+<span class="cm"># Check what's in fullchain</span>
+<span class="cmd">openssl crl2pkcs7 -nocrl -certfile fullchain.pem | \
+  openssl pkcs7 -print_certs -noout</span></div></div>
+</section>
+
+<!-- S22 -->
+<section class="sec" id="s22">
+  <div class="sh"><span class="snum">22 /</span><div><div class="stitle">Interview Questions & Answers</div><span class="sbadge sb-all">Q&A</span></div></div>
+
+  <div class="iq"><div class="iq-q">What is the difference between a Certificate and a Private Key?</div><div class="iq-a">A <strong>private key</strong> is the secret mathematical key you generate and never share. A <strong>certificate</strong> contains your public key (paired with private key) + domain info + CA signature. The certificate is PUBLIC — shared with every browser. The private key is SECRET — never leaves your server. Together they enable TLS: cert proves who you are, private key proves you actually own that cert.</div></div>
+
+  <div class="iq"><div class="iq-q">What is a CSR and why is it needed?</div><div class="iq-a">A CSR (Certificate Signing Request) is a formatted file containing your public key and domain metadata, signed with your private key. It's needed because: (1) you can't just say "I own example.com" — you need to submit a verifiable request, (2) the CA needs your public key to embed in the certificate, (3) your signature on the CSR proves you have the corresponding private key. The CA never sees your private key — only the public key embedded in the CSR.</div></div>
+
+  <div class="iq"><div class="iq-q">Why do you need to include the intermediate certificate?</div><div class="iq-a">Browsers trust Root CAs that ship in the OS. CAs don't sign your cert directly with the Root (it's kept offline). An Intermediate CA (signed by Root) signs your cert. So the chain is: Your cert → Intermediate → Root. If you omit the intermediate, the browser can't complete the chain to a trusted root → SSL error. Browsers may cache intermediates, but APIs and mobile apps won't.</div></div>
+
+  <div class="iq"><div class="iq-q">What is the difference between HTTP-01 and DNS-01 ACME challenges?</div><div class="iq-a"><strong>HTTP-01</strong>: Let's Encrypt gives a token. You serve it at <code>/.well-known/acme-challenge/TOKEN</code> on port 80. Simple but requires public internet access and port 80. No wildcard support. <strong>DNS-01</strong>: Let's Encrypt gives a token. You create a TXT record <code>_acme-challenge.yourdomain</code>. Supports wildcards (<code>*.example.com</code>). Works for private clusters. Needs DNS API credentials.</div></div>
+
+  <div class="iq"><div class="iq-q">What happens during TLS handshake and how are session keys generated?</div><div class="iq-a">Both client and server exchange random numbers and a key exchange algorithm (ECDHE). Using Diffie-Hellman math, they independently compute the same pre-master secret. From this, they derive symmetric session keys (one for each direction). The private key is NOT used to encrypt session data — it's used only to authenticate (sign) during handshake. This is Forward Secrecy: even if you later steal the private key, you can't decrypt past sessions because session keys were ephemeral.</div></div>
+
+  <div class="iq"><div class="iq-q">What is SNI and why is it important?</div><div class="iq-a">SNI (Server Name Indication) is a TLS extension where the client sends the hostname it's connecting to during the handshake — before the server presents a certificate. Without SNI, a server can only have one TLS cert per IP. With SNI, a single IP can serve hundreds of different certs for different domains (virtual hosting). NGINX uses SNI to pick which <code>ssl_certificate</code> to present. K8s Ingress uses SNI to route TLS traffic to the right certificate. SNI hostname is visible to network observers (not encrypted in TLS 1.2; encrypted in TLS 1.3 with ESNI).</div></div>
+
+  <div class="iq"><div class="iq-q">What is Perfect Forward Secrecy and why does it matter?</div><div class="iq-a">PFS means each session uses a fresh, ephemeral key pair (ECDHE). Even if the server's long-term private key is compromised years later, past encrypted sessions cannot be decrypted — there's no mathematical relationship between the long-term key and session keys. Without PFS (RSA key exchange): steal private key today → decrypt all past traffic. With PFS (ECDHE): steal private key today → can only impersonate future connections, NOT decrypt past traffic. Enable with: <code>ssl_ciphers ECDHE-RSA-AES256-GCM-SHA384</code>.</div></div>
+
+  <div class="iq"><div class="iq-q">How would you set up SSL for a private Kubernetes cluster with no public internet access?</div><div class="iq-a">Options: (1) <strong>Private CA</strong>: Use cert-manager with a self-signed ClusterIssuer. Install root cert on all clients. (2) <strong>DNS-01 challenge</strong>: Even without inbound access, you can use DNS-01 (Route53/Azure DNS) — cert-manager creates TXT records, Let's Encrypt validates them. No inbound port 80/443 needed. (3) <strong>Internal CA via Vault</strong>: HashiCorp Vault PKI Engine acts as intermediate CA. cert-manager uses Vault issuer. Best for large orgs with many internal services needing mTLS.</div></div>
+</section>
+
+<!-- S23 -->
+<section class="sec" id="s23">
+  <div class="sh"><span class="snum">23 /</span><div><div class="stitle">Cheat Sheet — Quick Reference</div><span class="sbadge sb-all">REF</span></div></div>
+
+  <h3 class="sub">DNS Commands</h3>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">DNS cheatsheet</span></div><div class="cbody"><span class="cmd">dig example.com A</span>                       <span class="cm"># A record</span>
+<span class="cmd">dig example.com MX</span>                      <span class="cm"># Mail records</span>
+<span class="cmd">dig +trace example.com</span>                  <span class="cm"># Full resolution trace</span>
+<span class="cmd">dig @1.1.1.1 example.com</span>                <span class="cm"># Specific resolver</span>
+<span class="cmd">dig +short example.com</span>                  <span class="cm"># Just the IP</span>
+<span class="cmd">dig -x 93.184.216.34</span>                    <span class="cm"># Reverse DNS</span>
+<span class="cmd">nslookup -type=TXT _acme-challenge.dom</span>  <span class="cm"># TXT record</span></div></div>
+
+  <h3 class="sub">OpenSSL Commands</h3>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">OpenSSL cheatsheet</span></div><div class="cbody"><span class="cm"># Key generation</span>
+<span class="cmd">openssl genrsa -out key.pem 2048</span>
+<span class="cmd">openssl ecparam -name prime256v1 -genkey -noout -out ec.key</span>
+
+<span class="cm"># CSR generation</span>
+<span class="cmd">openssl req -new -key key.pem -out req.csr -subj "/CN=example.com"</span>
+
+<span class="cm"># Self-signed cert (testing only)</span>
+<span class="cmd">openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days 365 -nodes</span>
+
+<span class="cm"># View certificate</span>
+<span class="cmd">openssl x509 -in cert.pem -text -noout</span>
+<span class="cmd">openssl x509 -in cert.pem -noout -dates</span>
+<span class="cmd">openssl x509 -in cert.pem -noout -subject -issuer</span>
+
+<span class="cm"># View CSR</span>
+<span class="cmd">openssl req -in req.csr -text -noout</span>
+
+<span class="cm"># Test live server</span>
+<span class="cmd">openssl s_client -connect example.com:443 -servername example.com</span>
+<span class="cmd">echo | openssl s_client -connect example.com:443 2>/dev/null | openssl x509 -dates -noout</span>
+
+<span class="cm"># Verify key matches cert</span>
+<span class="cmd">openssl rsa  -noout -modulus -in key.pem  | md5sum</span>
+<span class="cmd">openssl x509 -noout -modulus -in cert.pem | md5sum</span>  <span class="cm"># Must match!</span>
+
+<span class="cm"># Format conversions</span>
+<span class="cmd">openssl x509 -in cert.pem -outform DER -out cert.der</span>
+<span class="cmd">openssl pkcs12 -export -out bundle.pfx -inkey key.pem -in cert.pem -certfile chain.pem</span>
+<span class="cmd">cat server.crt intermediate.crt > fullchain.pem</span>  <span class="cm"># Build chain</span></div></div>
+
+  <h3 class="sub">Kubernetes TLS Commands</h3>
+  <div class="cb"><div class="ch"><span class="cl">BASH</span><span class="cf">kubectl TLS cheatsheet</span></div><div class="cbody"><span class="cmd">kubectl create secret tls my-tls --cert=cert.pem --key=key.pem -n prod</span>
+<span class="cmd">kubectl get secret my-tls -n prod -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout</span>
+<span class="cmd">kubectl get certificate -A</span>
+<span class="cmd">kubectl describe certificate api-cert -n prod</span>
+<span class="cmd">kubectl get challenges -A</span>
+<span class="cmd">kubectl logs -n cert-manager deploy/cert-manager --tail=100</span></div></div>
+
+  <h3 class="sub">The Big Picture — Key Relationships</h3>
+  <div class="asc">┌─────────────────────────────────────────────────────────────┐
+│                    YOU (Server Admin)                        │
+│                                                             │
+│  Generate:  <span class="hl-red">private.key</span>  (NEVER SHARE!)                    │
+│             + CSR (from private.key) → Send to CA            │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ CSR
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  CERTIFICATE AUTHORITY (CA)                  │
+│                                                             │
+│  Validates: Do you control the domain? (HTTP/DNS challenge) │
+│  Signs:     Your CSR → Issues <span class="hl-amber">server.crt</span>                    │
+│  Returns:   <span class="hl-amber">server.crt</span> + <span class="hl-teal">intermediate.crt</span>               │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ Cert files
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   YOUR WEB SERVER (NGINX)                    │
+│                                                             │
+│  ssl_certificate_key <span class="hl-red">private.key</span>                           │
+│  ssl_certificate     <span class="hl-amber">fullchain.pem</span> (server + intermediate)  │
+└──────────────────────┬──────────────────────────────────────┘
+                       │ TLS Handshake
+                       ▼
+┌─────────────────────────────────────────────────────────────┐
+│                     BROWSER / CLIENT                         │
+│                                                             │
+│  1. Receives fullchain.pem                                  │
+│  2. Verifies: Intermediate signed by Root? ✓                │
+│  3. Root in truststore? ✓                                   │
+│  4. Domain matches SAN? ✓                                   │
+│  5. Not expired? ✓                                          │
+│  6. Uses public key to encrypt session key                  │
+│  7. All data encrypted with AES-256 session key → 🔒       │
+└─────────────────────────────────────────────────────────────┘</div>
+
+  <h3 class="sub">Production Mistakes to NEVER Make</h3>
+  <div class="cg cg2">
+    <div class="card c-sec"><div class="ct">❌ Fatal Mistakes</div><div class="cd" style="line-height:2.1;font-size:12px;">
+      1. Committed <code>private.key</code> to GitHub<br>
+      2. Forgot to include intermediate in chain<br>
+      3. Set TTL to 86400 before DNS migration<br>
+      4. Generated CSR without SAN fields<br>
+      5. Expired cert in production (no monitoring)<br>
+      6. Used self-signed cert in production<br>
+      7. Stored private key in environment variable<br>
+      8. Reused same private key for years<br>
+      9. Disabled cert verification in code (<code>verify=False</code>)<br>
+      10. Not testing cert chain end-to-end before deploy
+    </div></div>
+    <div class="card c-green"><div class="ct">✅ Production Checklist</div><div class="cd" style="line-height:2.1;font-size:12px;">
+      1. cert-manager or certbot auto-renewal configured<br>
+      2. Alert when cert expires in 30 days<br>
+      3. Always serve fullchain.pem (cert + intermediate)<br>
+      4. TLS 1.2+ only, disable 1.0/1.1<br>
+      5. HSTS header with long max-age<br>
+      6. CAA record restricts to your CAs only<br>
+      7. Private key in Vault or KMS, not on disk<br>
+      8. Test with <code>ssllabs.com/ssltest</code> after every change<br>
+      9. DNS TTL set to 60s before any migration<br>
+      10. Monitor crt.sh for unauthorized cert issuance
+    </div></div>
+  </div>
+
+  <div class="tl">
+    <span class="tp">DNS</span><span class="tp">TLS 1.3</span><span class="tp">HTTPS</span><span class="tp">private.key</span><span class="tp">CSR</span>
+    <span class="tp">cert-manager</span><span class="tp">Let's Encrypt</span><span class="tp">CA</span><span class="tp">fullchain.pem</span>
+    <span class="tp">NGINX SSL</span><span class="tp">K8s TLS Secret</span><span class="tp">AWS ACM</span><span class="tp">AGIC</span>
+    <span class="tp">SAN</span><span class="tp">OCSP Stapling</span><span class="tp">Forward Secrecy</span><span class="tp">HSTS</span>
+    <span class="tp">dig</span><span class="tp">openssl s_client</span><span class="tp">Chain of Trust</span><span class="tp">Root CA</span>
+    <span class="tp">Intermediate CA</span><span class="tp">HTTP-01</span><span class="tp">DNS-01</span><span class="tp">ACME</span>
+  </div>
+</section>
+
+<div class="footer">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+    <span>DNS · SSL/TLS · CSR · CA · CRT Master Canvas — 23 Sections</span>
+    <span style="color:var(--border2);">Senior DevOps · Security Engineer · 15+ Years Production Experience</span>
+  </div>
+</div>
+
+</main>
+
+<script>
+// Level tab switching
+function showLevel(btn, targetId) {
+  const container = btn.closest('.level-block');
+  container.querySelectorAll('.lbtn').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.lp').forEach(p => p.classList.remove('show'));
+  btn.classList.add('active');
+  const el = document.getElementById(targetId);
+  if (el) el.classList.add('show');
+}
+
+// Progress bar
+const main = document.getElementById('main');
+const pf = document.getElementById('pf');
+main.addEventListener('scroll', () => {
+  const pct = main.scrollTop / (main.scrollHeight - main.clientHeight) * 100;
+  pf.style.width = Math.min(pct, 100) + '%';
+});
+
+// Active nav
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('#sb .ni[href^="#"]');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = '#' + e.target.id;
+      navItems.forEach(n => n.classList.toggle('active', n.getAttribute('href') === id));
+    }
+  });
+}, { root: main, threshold: 0.25 });
+sections.forEach(s => observer.observe(s));
+
+// Smooth scroll
+navItems.forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    const t = document.querySelector(item.getAttribute('href'));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

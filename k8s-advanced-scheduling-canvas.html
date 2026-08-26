@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Advanced Scheduling & Placement Master Canvas</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --k8s-blue: #326CE5;
+            --k8s-dark: #0d1117;
+            --text-light: #e8eef7;
+            --text-muted: #8b949e;
+            --border: #1f2937;
+            --card-bg: #161b22;
+            --highlight: #58a6ff;
+            --success: #3fb950;
+            --danger: #f85149;
+            --warning: #d29922;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Fira Code', 'Monaco', monospace;
+            background: linear-gradient(135deg, var(--k8s-dark) 0%, #0a0e27 100%);
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: 300px; height: 100vh;
+            background: var(--k8s-dark); border-right: 1px solid var(--border);
+            overflow-y: auto; z-index: 1000; padding: 30px 0;
+        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--k8s-blue); border-radius: 3px; }
+        .sidebar-header { padding: 0 20px 30px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+        .sidebar-header h1 { font-size: 16px; margin-bottom: 5px; letter-spacing: 2px; color: var(--k8s-blue); font-weight: 900; }
+        .sidebar-header p { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
+        .nav-section { margin-bottom: 25px; }
+        .nav-section-title { font-size: 10px; text-transform: uppercase; color: var(--k8s-blue); padding: 10px 20px; font-weight: 700; letter-spacing: 1px; }
+        .nav-item { padding: 10px 20px; cursor: pointer; font-size: 12px; color: var(--text-muted); transition: all 0.3s ease; border-left: 3px solid transparent; }
+        .nav-item:hover { color: var(--text-light); background: rgba(50,108,229,0.05); border-left-color: var(--k8s-blue); padding-left: 17px; }
+        .nav-item.active { color: var(--k8s-blue); background: rgba(50,108,229,0.1); border-left-color: var(--k8s-blue); font-weight: 700; }
+        .main-content { margin-left: 300px; padding: 50px; }
+        .header { margin-bottom: 80px; animation: slideIn 0.8s ease; }
+        .header h1 { font-size: 52px; font-weight: 900; margin-bottom: 10px; background: linear-gradient(135deg, var(--k8s-blue) 0%, var(--highlight) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .header p { font-size: 16px; color: var(--text-muted); margin-bottom: 10px; }
+        .stat-row { display: flex; gap: 40px; margin-top: 25px; flex-wrap: wrap; }
+        .stat { font-size: 13px; color: var(--text-muted); }
+        .stat-number { color: var(--k8s-blue); font-weight: 900; font-size: 28px; }
+        .category-header { font-size: 36px; font-weight: 900; margin: 80px 0 40px 0; padding-bottom: 20px; border-bottom: 3px solid var(--k8s-blue); letter-spacing: -0.5px; }
+        .category-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; max-width: 700px; line-height: 1.8; }
+        .service-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 35px; margin-bottom: 50px; }
+        .service-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 35px; cursor: pointer; transition: all 0.4s ease; position: relative; overflow: hidden; }
+        .service-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(50,108,229,0.1), transparent); transition: left 0.6s ease; z-index: 0; }
+        .service-card:hover::before { left: 100%; }
+        .service-card:hover { border-color: var(--k8s-blue); background: rgba(50,108,229,0.02); transform: translateY(-5px); box-shadow: 0 25px 50px rgba(50,108,229,0.15); }
+        .service-card-content { position: relative; z-index: 1; }
+        .service-badge { display: inline-block; background: rgba(50,108,229,0.15); color: var(--k8s-blue); padding: 5px 14px; border-radius: 20px; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 18px; }
+        .service-name { font-size: 26px; font-weight: 900; margin-bottom: 18px; letter-spacing: -0.5px; }
+        .layman-box { background: rgba(88,166,255,0.08); border-left: 4px solid var(--highlight); padding: 18px; border-radius: 6px; margin-bottom: 22px; font-size: 13px; }
+        .layman-label { font-size: 10px; text-transform: uppercase; color: var(--highlight); letter-spacing: 1.5px; font-weight: 900; margin-bottom: 8px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+        .tab { padding: 12px 18px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; border-bottom: 3px solid transparent; transition: all 0.3s ease; margin-bottom: -1px; font-family: 'Fira Code', monospace; }
+        .tab:hover { color: var(--text-light); }
+        .tab.active { color: var(--k8s-blue); border-bottom-color: var(--k8s-blue); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        .tech-box { background: rgba(0,0,0,0.3); border: 1px solid var(--border); padding: 14px; border-radius: 6px; margin-bottom: 12px; font-size: 12px; font-family: 'Fira Code', monospace; color: var(--highlight); line-height: 1.6; }
+        .code-block { background: rgba(0,0,0,0.5); border: 1px solid var(--border); padding: 18px; border-radius: 8px; margin: 15px 0; font-size: 11px; font-family: 'Fira Code', monospace; color: var(--highlight); overflow-x: auto; line-height: 1.7; white-space: pre; }
+        .pro { color: var(--success); font-weight: 700; }
+        .con { color: var(--danger); font-weight: 700; }
+        .cost { color: var(--warning); font-weight: 700; }
+        .metric { display: inline-block; background: rgba(50,108,229,0.12); padding: 6px 12px; border-radius: 4px; font-size: 10px; margin: 4px 4px 4px 0; color: var(--k8s-blue); font-weight: 700; }
+        .comparison-table { width: 100%; font-size: 11px; border-collapse: collapse; margin: 15px 0; }
+        .comparison-table th { background: rgba(50,108,229,0.15); color: var(--k8s-blue); padding: 12px; text-align: left; border-bottom: 2px solid var(--k8s-blue); font-weight: 900; text-transform: uppercase; letter-spacing: 0.5px; }
+        .comparison-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+        .comparison-table tr:hover { background: rgba(50,108,229,0.05); }
+        .scenario-box { background: rgba(50,108,229,0.08); border: 1px solid var(--k8s-blue); padding: 18px; border-radius: 8px; margin: 15px 0; }
+        .scenario-title { font-weight: 900; color: var(--k8s-blue); font-size: 14px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        .footer { text-align: center; padding: 50px; border-top: 1px solid var(--border); margin-top: 100px; color: var(--text-muted); font-size: 12px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 768px) { 
+            .sidebar { width: 100%; height: auto; position: relative; border-right: none; border-bottom: 1px solid var(--border); } 
+            .main-content { margin-left: 0; padding: 30px; } 
+            .service-grid { grid-template-columns: 1fr; } 
+        }
+    </style>
+</head>
+<body>
+    <!-- SIDEBAR NAVIGATION -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h1>K8S SCHEDULER</h1>
+            <p>Advanced Placement Master</p>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Foundations</div>
+            <div class="nav-item" onclick="scrollTo('intro')">Overview & Scheduler</div>
+            <div class="nav-item" onclick="scrollTo('placement-lifecycle')">Placement Lifecycle</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Taints & Tolerations</div>
+            <div class="nav-item" onclick="scrollTo('taints-101')">Taints 101</div>
+            <div class="nav-item" onclick="scrollTo('tolerations-101')">Tolerations 101</div>
+            <div class="nav-item" onclick="scrollTo('taint-scenarios')">Real Scenarios</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Node Affinity</div>
+            <div class="nav-item" onclick="scrollTo('node-affinity-req')">Required Node Affinity</div>
+            <div class="nav-item" onclick="scrollTo('node-affinity-pref')">Preferred Node Affinity</div>
+            <div class="nav-item" onclick="scrollTo('node-affinity-advanced')">Advanced Patterns</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Pod Affinity & Anti-Affinity</div>
+            <div class="nav-item" onclick="scrollTo('pod-affinity')">Pod Affinity</div>
+            <div class="nav-item" onclick="scrollTo('pod-antiaffinity')">Pod Anti-Affinity</div>
+            <div class="nav-item" onclick="scrollTo('topology-spread')">Topology Spread</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Cloud Integration</div>
+            <div class="nav-item" onclick="scrollTo('aws-scheduling')">AWS Scenarios</div>
+            <div class="nav-item" onclick="scrollTo('azure-scheduling')">Azure Scenarios</div>
+            <div class="nav-item" onclick="scrollTo('cost-optimization')">Cost Optimization</div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Advanced Topics</div>
+            <div class="nav-item" onclick="scrollTo('combined-strategies')">Combined Strategies</div>
+            <div class="nav-item" onclick="scrollTo('production-patterns')">Production Patterns</div>
+            <div class="nav-item" onclick="scrollTo('troubleshooting')">Troubleshooting</div>
+            <div class="nav-item" onclick="scrollTo('complete-reference')">Complete YAML Reference</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+        <div class="header">
+            <h1>K8s Advanced Scheduling & Placement</h1>
+            <p>Master Taints, Tolerations, Node Affinity, Pod Affinity, and Cloud-Native Scheduling</p>
+            <div class="stat-row">
+                <div class="stat"><span class="stat-number">20+</span> Deep Dives</div>
+                <div class="stat"><span class="stat-number">100+</span> YAML Examples</div>
+                <div class="stat"><span class="stat-number">AWS + Azure</span> Cloud Native</div>
+                <div class="stat"><span class="stat-number">100%</span> Production Ready</div>
+            </div>
+        </div>
+
+        <!-- ============ FOUNDATIONS ============ -->
+        <div class="category-header" id="intro">📌 FOUNDATIONS</div>
+        <div class="category-desc">
+            The Kubernetes scheduler is the brain that decides which node each pod lives on. We'll explore how to control that brain using taints, tolerations, and affinity rules. Control placement = control cost, performance, and resilience.
+        </div>
+
+        <div class="service-grid">
+            <!-- OVERVIEW -->
+            <div class="service-card" id="scheduler-overview">
+                <div class="service-badge">Core Concept</div>
+                <h3 class="service-name">K8s Scheduler Overview</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🎯 What Is It?</div>
+                    The scheduler is a controller that watches for newly created pods and assigns them to nodes. It's like a hotel receptionist deciding which room to give each guest based on room features (amenities), guest preferences (allergies, view type), and room availability.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">How It Works</button>
+                    <button class="tab" onclick="switchTab(event)">Placement Factors</button>
+                    <button class="tab" onclick="switchTab(event)">Plugins</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>1. Pod Created:</strong> You submit pod manifest (kubectl apply)</div>
+                    <div class="tech-box"><strong>2. Scheduler Watches:</strong> kube-scheduler watches for unscheduled pods (status.nodeName is empty)</div>
+                    <div class="tech-box"><strong>3. Filtering:</strong> Remove nodes that DON'T match pod requirements (taints, affinity, node selectors)</div>
+                    <div class="tech-box"><strong>4. Scoring:</strong> Rank remaining nodes (balance, resource usage, zone spread)</div>
+                    <div class="tech-box"><strong>5. Binding:</strong> Assign pod to highest-scored node</div>
+                    <div class="tech-box"><strong>6. Kubelet Takes Over:</strong> Node's kubelet pulls image and starts containers</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box">✅ <strong>Requests/Limits:</strong> Resource requirements (CPU, memory)</div>
+                    <div class="tech-box">✅ <strong>Taints/Tolerations:</strong> Node access restrictions</div>
+                    <div class="tech-box">✅ <strong>Node Affinity:</strong> Which nodes to prefer/require</div>
+                    <div class="tech-box">✅ <strong>Pod Affinity:</strong> Co-locate with other pods</div>
+                    <div class="tech-box">✅ <strong>Pod Anti-Affinity:</strong> Spread pods across nodes/zones</div>
+                    <div class="tech-box">✅ <strong>Node Selectors:</strong> Simple key=value matching</div>
+                    <div class="tech-box">✅ <strong>Priority:</strong> PriorityClass (important pods get scheduled first)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box">Default plugins: PreFilter, Filter, PostFilter, Score, Reserve, Permit, PreBind, Bind, PostBind</div>
+                    <div class="tech-box">Can be extended or replaced with custom schedulers</div>
+                    <div class="tech-box">Multiple schedulers possible (scheduler-name in pod spec)</div>
+                </div>
+            </div>
+
+            <!-- PLACEMENT LIFECYCLE -->
+            <div class="service-card" id="placement-lifecycle">
+                <div class="service-badge">Control Flow</div>
+                <h3 class="service-name">Pod Placement Lifecycle</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🔄 The Journey</div>
+                    A pod goes through multiple states. Understanding the lifecycle helps debug "why isn't my pod running?" issues.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Pod States</button>
+                    <button class="tab" onclick="switchTab(event)">Debugging Commands</button>
+                    <button class="tab" onclick="switchTab(event)">Common Issues</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong style="color: var(--warning);">Pending:</strong> Scheduler hasn't assigned to node yet. Check: taints, affinity, resource availability</div>
+                    <div class="tech-box"><strong style="color: var(--k8s-blue);">ContainerCreating:</strong> Node accepted, pulling image, starting container. Check: image size, pull errors</div>
+                    <div class="tech-box"><strong style="color: var(--success);">Running:</strong> Container is alive. Liveness/Readiness probes may still fail</div>
+                    <div class="tech-box"><strong style="color: var(--danger);">CrashLoopBackOff:</strong> Container exits, kubelet restarts. Check: app logs, entry point</div>
+                    <div class="tech-box"><strong style="color: var(--danger);">Evicted:</strong> Node ran out of resources. Pod killed to free resources. Check: node capacity</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">kubectl get pods -o wide
+# Shows: READY, STATUS, RESTARTS, NODE
+
+kubectl describe pod <pod-name>
+# Shows: Events (scheduling, errors), Conditions, Container states
+
+kubectl logs <pod-name>
+# App logs (requires container running)
+
+kubectl logs <pod-name> --previous
+# Logs from crashed container
+
+kubectl explain pod.spec.affinity
+# Affinity/tolerance format reference</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box">🚫 <strong>Pending:</strong> Taints blocking, no nodes available, resource contention</div>
+                    <div class="tech-box">🚫 <strong>ImagePullBackOff:</strong> Wrong image name, registry auth failed, image doesn't exist</div>
+                    <div class="tech-box">🚫 <strong>CrashLoopBackOff:</strong> App exits immediately, wrong CMD, missing dependencies</div>
+                    <div class="tech-box">🚫 <strong>NotReady:</strong> Liveness probe failing, readiness probe failing, network issues</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TAINTS & TOLERATIONS ============ -->
+        <div class="category-header" id="taints-101">🔐 TAINTS & TOLERATIONS</div>
+        <div class="category-desc">
+            Taints are "don'ts" — node says "don't put pods on me unless they tolerate this." Tolerations are "can's" — pod says "I can tolerate that taint." Perfect for dedicated hardware, special workloads (GPUs, databases), node maintenance.
+        </div>
+
+        <div class="service-grid">
+            <!-- TAINTS 101 -->
+            <div class="service-card" id="taints-101">
+                <div class="service-badge">Node Feature</div>
+                <h3 class="service-name">Taints Explained</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🏷️ What Is It?</div>
+                    A taint is a marker on a node saying "only pods that tolerate this can live here." Think: "This room has dog hair everywhere — only dog-tolerant guests can stay."
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Syntax & Effects</button>
+                    <button class="tab" onclick="switchTab(event)">How to Add</button>
+                    <button class="tab" onclick="switchTab(event)">Pros & Cons</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>Format:</strong> key=value:effect</div>
+                    <div class="tech-box"><strong>Example:</strong> gpu=true:NoSchedule</div>
+                    <div class="tech-box"><strong>Key:</strong> Any string (gpu, database, maintenance)</div>
+                    <div class="tech-box"><strong>Value:</strong> Any string (true, dedicated, v1)</div>
+                    <div class="tech-box"><strong>Effect:</strong> What happens to non-tolerating pods</div>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+                        <div><strong style="color: var(--k8s-blue);">NoSchedule:</strong> Don't schedule new pods (existing pods ok)</div>
+                        <div><strong style="color: var(--k8s-blue);">NoExecute:</strong> Don't schedule NEW + EVICT existing pods</div>
+                        <div><strong style="color: var(--k8s-blue);">PreferNoSchedule:</strong> Try not to, but ok if must</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Add taint to node
+kubectl taint nodes node1 gpu=true:NoSchedule
+
+# Add with value
+kubectl taint nodes node2 workload=database:NoExecute
+
+# Remove taint (dash at end)
+kubectl taint nodes node1 gpu=true:NoSchedule-
+
+# View taints
+kubectl describe node node1 | grep Taint</div>
+                </div>
+                <div class="tab-content">
+                    <div><span class="pro">✅ Pros:</span> Powerful resource isolation, simple syntax</div>
+                    <div><span class="con">❌ Cons:</span> Requires explicit tolerations (not automatic), can trap pods if misconfigured</div>
+                    <div><span class="cost">💰 Cost:</span> Free, but helps prevent expensive misplacement</div>
+                </div>
+            </div>
+
+            <!-- TOLERATIONS 101 -->
+            <div class="service-card" id="tolerations-101">
+                <div class="service-badge">Pod Feature</div>
+                <h3 class="service-name">Tolerations Explained</h3>
+                <div class="layman-box">
+                    <div class="layman-label">✅ What Is It?</div>
+                    Tolerations are on pods. "I can handle this taint" means the scheduler is allowed to place you on tainted nodes. Like saying "I'm ok with dog hair."
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Syntax & Matching</button>
+                    <button class="tab" onclick="switchTab(event)">YAML Examples</button>
+                    <button class="tab" onclick="switchTab(event)">Matching Rules</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>Structure:</strong> spec.tolerations[]</div>
+                    <div class="tech-box"><strong>Key:</strong> Match taint key (or empty = all)</div>
+                    <div class="tech-box"><strong>Operator:</strong> Equal (=) or Exists</div>
+                    <div class="tech-box"><strong>Value:</strong> Match taint value (required if Equal)</div>
+                    <div class="tech-box"><strong>Effect:</strong> Match taint effect (NoSchedule, NoExecute, PreferNoSchedule, or empty = all)</div>
+                    <div class="tech-box"><strong>TolerationSeconds:</strong> Grace period before eviction (NoExecute only)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Match exact taint: gpu=true:NoSchedule
+tolerations:
+- key: gpu
+  operator: Equal
+  value: "true"
+  effect: NoSchedule
+
+# Tolerate ANY value of "gpu" key
+tolerations:
+- key: gpu
+  operator: Exists
+  effect: NoSchedule
+
+# Tolerate ANY taint
+tolerations:
+- operator: Exists
+
+# NoExecute with grace period
+tolerations:
+- key: workload
+  operator: Equal
+  value: maintenance
+  effect: NoExecute
+  tolerationSeconds: 3600  # 1 hour before eviction</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Taint</th><th>Toleration</th><th>Scheduled?</th></tr>
+                        <tr><td>gpu=true:NoSchedule</td><td>No toleration</td><td>❌ No</td></tr>
+                        <tr><td>gpu=true:NoSchedule</td><td>gpu=true, Equal</td><td>✅ Yes</td></tr>
+                        <tr><td>gpu=true:NoSchedule</td><td>gpu (Exists)</td><td>✅ Yes</td></tr>
+                        <tr><td>gpu=true:NoSchedule</td><td>workload=db</td><td>❌ No (different key)</td></tr>
+                        <tr><td>workload=db:NoExecute</td><td>workload (Exists), 300s</td><td>✅ Yes (3min grace)</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAINT SCENARIOS -->
+            <div class="service-card" id="taint-scenarios">
+                <div class="service-badge">Real World</div>
+                <h3 class="service-name">Common Taint Scenarios</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🎭 When To Use</div>
+                    Taints shine in specific situations. Let's walk through them with examples and YAML.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">GPU Nodes</button>
+                    <button class="tab" onclick="switchTab(event)">Database Nodes</button>
+                    <button class="tab" onclick="switchTab(event)">Maintenance</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="scenario-box">
+                        <div class="scenario-title">🎮 Scenario: GPU Workloads</div>
+                        <div class="tech-box">You have 3 nodes: 2x CPU, 1x GPU. Only ML apps should use GPU.</div>
+                        <div class="code-block"># Add taint to GPU node
+kubectl taint nodes gpu-node-1 gpu=nvidia:NoSchedule
+
+# Pod that needs GPU (add toleration)
+spec:
+  containers:
+  - name: ml-app
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+  tolerations:
+  - key: gpu
+    operator: Equal
+    value: nvidia
+    effect: NoSchedule
+  # PLUS nodeAffinity to actually use GPU
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: accelerator
+            operator: In
+            values:
+            - nvidia-tesla-v100</div>
+                        <div class="tech-box"><strong style="color: var(--success);">Pros:</strong> GPU won't be wasted on regular pods, cost-effective</div>
+                        <div class="tech-box"><strong style="color: var(--danger);">Cons:</strong> Must add toleration + affinity to every ML pod</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">🗄️ Scenario: Dedicated Database Nodes</div>
+                        <div class="tech-box">Database pods (stateful, high-performance) need dedicated hardware. Prevent noisy neighbors.</div>
+                        <div class="code-block"># Taint database node
+kubectl taint nodes db-node-1 workload=database:NoSchedule
+
+# Database Pod (Postgres)
+spec:
+  containers:
+  - name: postgres
+    image: postgres:15
+  tolerations:
+  - key: workload
+    operator: Equal
+    value: database
+    effect: NoSchedule
+  # Optional: ensure it stays there
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node-type
+            operator: In
+            values:
+            - database-dedicated
+  # Regular app (NO toleration, won't schedule here)
+  # Won't be placed on db-node-1</div>
+                        <div class="tech-box"><strong style="color: var(--success);">Pros:</strong> Database isolation, predictable performance</div>
+                        <div class="tech-box"><strong style="color: var(--danger);">Cons:</strong> Wasted capacity if database pod is small</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">🔧 Scenario: Node Maintenance</div>
+                        <div class="tech-box">Need to update node OS, but don't want to forcefully kill pods. Use NoExecute taint with grace period.</div>
+                        <div class="code-block"># Prepare for maintenance (graceful drain)
+kubectl taint nodes node-1 maintenance=true:NoExecute:3600
+# Pods get 1 hour to gracefully shut down
+
+# Pod with toleration (can stay during maintenance)
+spec:
+  containers:
+  - name: controller
+  tolerations:
+  - key: maintenance
+    operator: Equal
+    value: "true"
+    effect: NoExecute
+    tolerationSeconds: 7200  # 2 hours
+
+# Regular pod: gets evicted after 1 hour, reschedules to other node
+
+# After maintenance, remove taint
+kubectl taint nodes node-1 maintenance=true:NoExecute-</div>
+                        <div class="tech-box"><strong style="color: var(--success);">Pros:</strong> Graceful shutdown, no service interruption</div>
+                        <div class="tech-box"><strong style="color: var(--danger);">Cons:</strong> Requires monitoring, can block drain if pod doesn't shut down</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ NODE AFFINITY ============ -->
+        <div class="category-header" id="node-affinity-req">📍 NODE AFFINITY</div>
+        <div class="category-desc">
+            Node affinity is "I want to run on nodes that look like X." It's more powerful than node selectors. Required = must match. Preferred = try to match, but not required.
+        </div>
+
+        <div class="service-grid">
+            <!-- REQUIRED NODE AFFINITY -->
+            <div class="service-card" id="node-affinity-req">
+                <div class="service-badge">Pod Placement</div>
+                <h3 class="service-name">Required Node Affinity</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🎯 Hard Constraint</div>
+                    "I MUST run on a node matching these labels." If no node matches, pod stays Pending forever. Like saying "I only go to 4-star hotels."
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">YAML Structure</button>
+                    <button class="tab" onclick="switchTab(event)">Label Matching</button>
+                    <button class="tab" onclick="switchTab(event)">Use Cases</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># Required: pod won't schedule without matching node
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: zone
+          operator: In
+          values:
+          - us-west-1a
+          - us-west-1b
+        - key: instance-type
+          operator: In
+          values:
+          - t3.large
+          - t3.xlarge</div>
+                    <div class="tech-box"><strong>requiredDuringSchedulingIgnoredDuringExecution:</strong> Required during scheduling, ignored if node label changes later</div>
+                    <div class="tech-box"><strong>nodeSelectorTerms:</strong> Array of OR conditions (pod matches ANY term)</div>
+                    <div class="tech-box"><strong>matchExpressions:</strong> Array of AND conditions (must match ALL within a term)</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+                        <tr><td>In</td><td>Value in list</td><td>zone In [us-east-1a, us-east-1b]</td></tr>
+                        <tr><td>NotIn</td><td>Value not in list</td><td>zone NotIn [eu-west-1a]</td></tr>
+                        <tr><td>Exists</td><td>Key exists (any value)</td><td>gpu-capable Exists (true or false ok)</td></tr>
+                        <tr><td>DoesNotExist</td><td>Key doesn't exist</td><td>maintenance DoesNotExist</td></tr>
+                        <tr><td>Gt</td><td>Greater than</td><td>cpu-cores Gt [8]</td></tr>
+                        <tr><td>Lt</td><td>Less than</td><td>price-per-hour Lt [0.50]</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Use Case 1: Zone-Specific App</div>
+                        <div class="code-block"># App must run in us-west zone (not us-east)
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: topology.kubernetes.io/zone
+        operator: In
+        values:
+        - us-west-1a
+        - us-west-1b</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">Use Case 2: Specific Hardware</div>
+                        <div class="code-block"># Only on large instances with SSD
+nodeAffinity:
+  requiredDuringSchedulingIgnoredDuringExecution:
+    nodeSelectorTerms:
+    - matchExpressions:
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values:
+        - t3.large
+        - t3.xlarge
+        - i3.large  # Has local NVMe SSD
+      - key: storage
+        operator: In
+        values:
+        - ssd</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PREFERRED NODE AFFINITY -->
+            <div class="service-card" id="node-affinity-pref">
+                <div class="service-badge">Soft Constraint</div>
+                <h3 class="service-name">Preferred Node Affinity</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🎪 Soft Preference</div>
+                    "I'd prefer to run on nodes matching these labels, but if no match, I'll take any node." Like saying "I prefer 4-star hotels, but 3-star is ok."
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">YAML Structure</button>
+                    <button class="tab" onclick="switchTab(event)">Weight & Scoring</button>
+                    <button class="tab" onclick="switchTab(event)">Examples</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># Preferred: pod will schedule even if NO match
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: zone
+          operator: In
+          values:
+          - us-west-1a
+    - weight: 50
+      preference:
+        matchExpressions:
+        - key: instance-type
+          operator: In
+          values:
+          - t3.large</div>
+                    <div class="tech-box"><strong>weight:</strong> 1-100, higher = more preferred</div>
+                    <div class="tech-box"><strong>preference:</strong> Label matching (same as required above)</div>
+                    <div class="tech-box">Scheduler sums weights of matching preferences, picks highest-scoring node</div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Scoring Example</div>
+                        <div class="tech-box">3 nodes available:</div>
+                        <div class="code-block">Node A: zone=us-west-1a, type=t3.large
+  Match: zone (weight 100) + type (weight 50) = 150 points
+
+Node B: zone=us-west-1a, type=t3.small
+  Match: zone (weight 100) = 100 points
+
+Node C: zone=us-east-1a, type=t3.xlarge
+  Match: nothing = 0 points
+
+Scheduler picks: Node A (150 points)</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Example: Try to Stay in Specific Zone</div>
+                        <div class="code-block"># Web app: prefer same zone as database
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: topology.kubernetes.io/zone
+          operator: In
+          values:
+          - us-west-1a  # Same zone as DB
+    - weight: 10
+      preference:
+        matchExpressions:
+        - key: topology.kubernetes.io/region
+          operator: In
+          values:
+          - us-west-1  # Same region fallback</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">Example: Prefer Cheaper Instances</div>
+                        <div class="code-block"># Use cheaper instances when possible
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values:
+          - t3.micro
+          - t3.small
+    - weight: 50
+      preference:
+        matchExpressions:
+        - key: capacity.spot
+          operator: In
+          values:
+          - "true"  # Spot instances (cheaper)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADVANCED NODE AFFINITY -->
+            <div class="service-card" id="node-affinity-advanced">
+                <div class="service-badge">Advanced Patterns</div>
+                <h3 class="service-name">Node Affinity Patterns</h3>
+                <div class="layman-box">
+                    <div class="layman-label">⚡ Combination Strategies</div>
+                    Combine required + preferred, use negative constraints (NotIn), handle multiple zones/regions.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Required + Preferred</button>
+                    <button class="tab" onclick="switchTab(event)">Anti-Affinity Patterns</button>
+                    <button class="tab" onclick="switchTab(event)">Multi-Region</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Pattern: Mandatory Zone + Preferred Type</div>
+                        <div class="code-block"># MUST be in us-west-1, PREFER large instance
+affinity:
+  nodeAffinity:
+    # Required (hard constraint)
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.kubernetes.io/region
+          operator: In
+          values:
+          - us-west-1
+    # Preferred (soft constraint)
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: node.kubernetes.io/instance-type
+          operator: In
+          values:
+          - t3.large
+          - t3.xlarge</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Pattern: Exclude Bad Nodes</div>
+                        <div class="code-block"># Don't use t3.micro (too small), avoid eu regions
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: node.kubernetes.io/instance-type
+          operator: NotIn
+          values:
+          - t3.micro
+          - t3.small
+        - key: topology.kubernetes.io/region
+          operator: NotIn
+          values:
+          - eu-west-1
+          - eu-central-1</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Pattern: Multi-Region Failover</div>
+                        <div class="code-block"># Primary region required, but fallback to secondary if needed
+affinity:
+  nodeAffinity:
+    # Option 1: Primary region us-west
+    # Option 2: Secondary region us-east (fallback)
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.kubernetes.io/region
+          operator: In
+          values:
+          - us-west-1  # Primary
+      - matchExpressions:
+        - key: topology.kubernetes.io/region
+          operator: In
+          values:
+          - us-east-1  # Fallback (different term = OR)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ POD AFFINITY & ANTI-AFFINITY ============ -->
+        <div class="category-header" id="pod-affinity">👥 POD AFFINITY & ANTI-AFFINITY</div>
+        <div class="category-desc">
+            Pod affinity says "run me near this other pod." Pod anti-affinity says "run me AWAY from this pod." Essential for HA, data locality, and resource sharing patterns.
+        </div>
+
+        <div class="service-grid">
+            <!-- POD AFFINITY -->
+            <div class="service-card" id="pod-affinity">
+                <div class="service-badge">Co-Location</div>
+                <h3 class="service-name">Pod Affinity</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🤝 Co-Location</div>
+                    "I want to run on the same node/zone as this other pod." Use case: web app near cache, app near database for low latency.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Required Pod Affinity</button>
+                    <button class="tab" onclick="switchTab(event)">Preferred Pod Affinity</button>
+                    <button class="tab" onclick="switchTab(event)">Topology Keys</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># MUST be on same node as app=cache pod
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - cache
+      topologyKey: kubernetes.io/hostname  # Same node (hostname)
+
+# Pod will be Pending if no node has cache pod</div>
+                    <div class="tech-box"><strong>labelSelector:</strong> Which pods to co-locate with (match labels)</div>
+                    <div class="tech-box"><strong>topologyKey:</strong> Scope of "co-location" (node, zone, region)</div>
+                    <div class="tech-box"><strong>namespaces:</strong> Optional, which namespace to look for matching pods</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># TRY to be on same node as database
+affinity:
+  podAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - postgres
+        topologyKey: kubernetes.io/hostname  # Same node
+    - weight: 50
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - postgres
+        topologyKey: topology.kubernetes.io/zone  # Same zone</div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Topology Key</th><th>Scope</th><th>Use Case</th></tr>
+                        <tr><td>kubernetes.io/hostname</td><td>Single Node</td><td>Ultra-low latency (same machine)</td></tr>
+                        <tr><td>topology.kubernetes.io/zone</td><td>Availability Zone</td><td>Low latency + some redundancy</td></tr>
+                        <tr><td>topology.kubernetes.io/region</td><td>Region</td><td>Same geographic region</td></tr>
+                        <tr><td>kubernetes.io/os</td><td>OS Type</td><td>Linux-only pods, Windows-only pods</td></tr>
+                        <tr><td>custom-label</td><td>Custom</td><td>Use your own domain label</td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- POD ANTI-AFFINITY -->
+            <div class="service-card" id="pod-antiaffinity">
+                <div class="service-badge">Separation</div>
+                <h3 class="service-name">Pod Anti-Affinity</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🌍 Spread Out</div>
+                    "Keep me AWAY from this other pod." Use case: spread replicas across nodes for HA, prevent both copies of cache from same node.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Required Anti-Affinity</button>
+                    <button class="tab" onclick="switchTab(event)">Preferred Anti-Affinity</button>
+                    <button class="tab" onclick="switchTab(event)">HA Patterns</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># MUST NOT be on same node as other replicas
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - web-app
+      topologyKey: kubernetes.io/hostname
+
+# Result: If 3 nodes, 3 replicas each on different node
+# If only 2 nodes available, 3rd replica stays Pending</div>
+                    <div class="tech-box"><strong>Same syntax as pod affinity</strong>, but keeps pods apart</div>
+                    <div class="tech-box"><strong>Required = strict:</strong> Pod won't schedule if would violate rule</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># TRY to be on different nodes (but not required)
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - cache
+        topologyKey: kubernetes.io/hostname</div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Pattern: HA Deployment (Spread Across Nodes)</div>
+                        <div class="code-block">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+  template:
+    metadata:
+      labels:
+        app: web-app
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: web-app
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: app
+        image: myapp:latest</div>
+                        <div class="tech-box">Result: Each replica on different node (if enough nodes)</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">Pattern: Zone-Spread for Disaster Recovery</div>
+                        <div class="code-block"># Spread replicas across zones (survive AZ failure)
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+    - labelSelector:
+        matchLabels:
+          app: critical-service
+      topologyKey: topology.kubernetes.io/zone
+
+# 3 replicas → 3 different zones
+# Zone failure → still have 2 zones running</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TOPOLOGY SPREAD -->
+            <div class="service-card" id="topology-spread">
+                <div class="service-badge">Distribution</div>
+                <h3 class="service-name">Topology Spread Constraints</h3>
+                <div class="layman-box">
+                    <div class="layman-label">📊 Even Distribution</div>
+                    "Distribute me evenly across zones/nodes." More flexible than anti-affinity. Guarantees balanced distribution.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Syntax & Concepts</button>
+                    <button class="tab" onclick="switchTab(event)">DoNotSchedule vs ScheduleAnyway</button>
+                    <button class="tab" onclick="switchTab(event)">Examples</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># Spread evenly across zones
+topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone
+  whenUnsatisfiable: DoNotSchedule
+  labelSelector:
+    matchLabels:
+      app: web-app</div>
+                    <div class="tech-box"><strong>maxSkew:</strong> Max difference in pod count between topology groups (1 = difference max 1)</div>
+                    <div class="tech-box"><strong>topologyKey:</strong> What to spread across (zone, node, region)</div>
+                    <div class="tech-box"><strong>whenUnsatisfiable:</strong> Action if can't satisfy (DoNotSchedule, ScheduleAnyway)</div>
+                    <div class="tech-box"><strong>labelSelector:</strong> Which pods count toward spread</div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">DoNotSchedule: Strict (Default)</div>
+                        <div class="code-block"># Don't schedule if would violate spread
+whenUnsatisfiable: DoNotSchedule
+
+# Example: 3 zones, maxSkew=1
+# Zone A: 1 pod
+# Zone B: 1 pod
+# Zone C: 0 pods
+# New pod: CAN go to C (skew stays 1-0=1)
+# If all zones have 1: pod stays Pending</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">ScheduleAnyway: Best-Effort</div>
+                        <div class="code-block"># Try to spread, but schedule anyway if needed
+whenUnsatisfiable: ScheduleAnyway
+
+# Example: Only 2 zones available
+# Zone A: 5 pods
+# Zone B: 0 pods
+# New pod: Prefers B, but if B full, goes to A anyway</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Example: Balanced Across Nodes</div>
+                        <div class="code-block">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cache
+spec:
+  replicas: 9
+  template:
+    metadata:
+      labels:
+        app: cache
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: cache
+
+# Result: 3 pods per node (if 3 nodes)
+# No single node overloaded</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">Example: Multi-Level Spread</div>
+                        <div class="code-block"># Spread across zones, then nodes
+topologySpreadConstraints:
+# First: spread across zones
+- maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone
+  whenUnsatisfiable: DoNotSchedule
+  labelSelector:
+    matchLabels:
+      app: app
+# Second: also spread across nodes
+- maxSkew: 2
+  topologyKey: kubernetes.io/hostname
+  whenUnsatisfiable: ScheduleAnyway
+  labelSelector:
+    matchLabels:
+      app: app</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ AWS SCHEDULING ============ -->
+        <div class="category-header" id="aws-scheduling">☁️ AWS-SPECIFIC SCHEDULING</div>
+        <div class="category-desc">
+            AWS nodes have special labels: instance types, zones, regions, lifecycle (on-demand, spot). Use these to optimize cost and performance.
+        </div>
+
+        <div class="service-grid">
+            <!-- AWS SCENARIO 1: SPOT + ON-DEMAND -->
+            <div class="service-card">
+                <div class="service-badge">Cost Optimization</div>
+                <h3 class="service-name">Spot Instances Strategy</h3>
+                <div class="layman-box">
+                    <div class="layman-label">💰 Save 70-90%</div>
+                    Spot instances are cheap ($0.02 vs $0.10) but can be interrupted. Run non-critical workloads on spot, critical on on-demand.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">AWS Node Labels</button>
+                    <button class="tab" onclick="switchTab(event)">Spot Strategy</button>
+                    <button class="tab" onclick="switchTab(event)">Complete Example</button>
+                </div>
+                <div class="tab-content active">
+                    <table class="comparison-table">
+                        <tr><th>Label Key</th><th>Label Value</th><th>Meaning</th></tr>
+                        <tr><td>node.kubernetes.io/instance-type</td><td>t3.medium, m5.large, etc</td><td>EC2 instance type</td></tr>
+                        <tr><td>topology.kubernetes.io/zone</td><td>us-east-1a, us-east-1b</td><td>Availability zone</td></tr>
+                        <tr><td>topology.kubernetes.io/region</td><td>us-east-1</td><td>AWS region</td></tr>
+                        <tr><td>node.kubernetes.io/lifecycle</td><td>spot, on-demand</td><td>Instance lifecycle</td></tr>
+                        <tr><td>karpenter.sh/capacity-type</td><td>spot, on-demand</td><td>Karpenter node pool</td></tr>
+                        <tr><td>karpenter.sh/do-not-evict</td><td>false, true</td><td>Karpenter: evict-able?</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Strategy: Stateless on Spot, Stateful on On-Demand</div>
+                        <div class="code-block"># Cheap worker pods (can restart)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: batch-processor
+spec:
+  replicas: 10
+  template:
+    metadata:
+      labels:
+        app: batch
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - spot  # Prefer spot (cheaper)
+      containers:
+      - name: worker
+        image: batch:latest
+
+---
+# Expensive database (must be stable)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: postgres
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: node.kubernetes.io/lifecycle
+            operator: In
+            values:
+            - on-demand  # MUST be on-demand
+  containers:
+  - name: db
+    image: postgres:15</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Complete: Mix spot + on-demand for cost savings
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+spec:
+  replicas: 6
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      topologySpreadConstraints:
+      # Spread across zones
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: web
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: web
+              topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          # Try spot first (cheaper)
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - spot
+          # Fall back to on-demand
+          - weight: 50
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - on-demand
+      # Graceful shutdown when spot interrupted
+      terminationGracePeriodSeconds: 120
+      containers:
+      - name: app
+        image: web:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi</div>
+                </div>
+            </div>
+
+            <!-- AWS SCENARIO 2: MULTI-AZ HA -->
+            <div class="service-card">
+                <div class="service-badge">High Availability</div>
+                <h3 class="service-name">Multi-AZ HA on AWS</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🌍 Disaster Recovery</div>
+                    Spread pods across availability zones. If one AZ fails (data center down), app still runs.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Architecture</button>
+                    <button class="tab" onclick="switchTab(event)">Complete YAML</button>
+                    <button class="tab" onclick="switchTab(event)">Pros & Cons</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>Setup:</strong> 3+ AZs (us-east-1a, 1b, 1c)</div>
+                    <div class="tech-box"><strong>Nodes:</strong> Spread across AZs (cluster autoscaler creates)</div>
+                    <div class="tech-box"><strong>Pods:</strong> Force distribution with topology spread + anti-affinity</div>
+                    <div class="tech-box"><strong>Load Balancer:</strong> AWS ALB/NLB (spreads across AZs automatically)</div>
+                    <div class="tech-box"><strong>Database:</strong> RDS Multi-AZ (auto failover)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-api
+  namespace: default
+spec:
+  replicas: 9  # 3 per AZ
+  selector:
+    matchLabels:
+      app: api
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: api
+        environment: production
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: api
+            topologyKey: kubernetes.io/hostname
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: api
+      
+      containers:
+      - name: api
+        image: myapi:v1.2.3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 2
+
+      # Pod Disruption Budget: keep 2 running during updates
+      ---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api</div>
+                </div>
+                <div class="tab-content">
+                    <div><span class="pro">✅ Pros:</span> Survives AZ failure, balanced load, meets compliance</div>
+                    <div><span class="con">❌ Cons:</span> More expensive (multiple AZs), complex networking</div>
+                    <div><span class="cost">💰 Cost:</span> ~2-3x single AZ (multiple nodes, data transfer across AZs)</div>
+                </div>
+            </div>
+
+            <!-- AWS SCENARIO 3: KARPENTER -->
+            <div class="service-card">
+                <div class="service-badge">Auto-Scaling</div>
+                <h3 class="service-name">Karpenter on AWS</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🚀 Smarter Auto-Scaling</div>
+                    Karpenter is a smarter cluster autoscaler. Creates nodes faster, packs pods denser, handles spot instances better. Launched within seconds.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Karpenter vs AWS Autoscaling</button>
+                    <button class="tab" onclick="switchTab(event)">Provisioner Config</button>
+                    <button class="tab" onclick="switchTab(event)">Cost Optimization</button>
+                </div>
+                <div class="tab-content active">
+                    <table class="comparison-table">
+                        <tr><th>Feature</th><th>AWS Autoscaling</th><th>Karpenter</th></tr>
+                        <tr><td>Launch Speed</td><td>2-3 minutes</td><td>10-30 seconds</td></tr>
+                        <tr><td>Node Type Variety</td><td>Limited (fixed ASG)</td><td>Diverse (optimal fit)</td></tr>
+                        <tr><td>Spot Integration</td><td>Basic (separate ASG)</td><td>Excellent (automatic fallback)</td></tr>
+                        <tr><td>Bin-Packing</td><td>Poor (wastes space)</td><td>Excellent (dense packing)</td></tr>
+                        <tr><td>Cost Savings</td><td>20-30%</td><td>50-70% (with spot)</td></tr>
+                        <tr><td>Setup Effort</td><td>Easy (CloudFormation)</td><td>Medium (Helm + IAM)</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: general-purpose
+spec:
+  template:
+    metadata:
+      labels:
+        workload-type: general
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values: [amd64]
+      - key: node.kubernetes.io/instance-type
+        operator: In
+        values:
+        - t3.medium
+        - t3.large
+        - m5.large
+        - m5.xlarge
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - spot
+        - on-demand
+      - key: karpenter.sh/do-not-evict
+        operator: In
+        values:
+        - "false"
+  limits:
+    cpu: 1000
+    memory: 1000Gi
+  ttlSecondsAfterEmpty: 30  # Delete empty node after 30s
+  ttlSecondsUntilExpired: 2592000  # Refresh node every 30 days
+
+---
+apiVersion: karpenter.k8s.aws/v1beta1
+kind: EC2NodeClass
+metadata:
+  name: default
+spec:
+  amiFamily: AL2
+  role: KarpenterNodeRole
+  subnetSelector:
+    karpenter.sh/discovery: "true"
+  securityGroupSelector:
+    karpenter.sh/discovery: "true"
+  tags:
+    Environment: production
+    ManagedBy: karpenter</div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Cost Optimization with Karpenter</div>
+                        <div class="code-block"># Pod request: 1 CPU, 2GB memory
+# AWS Autoscaling: launches t3.large (2 CPU, 8GB) → wastes resources
+# Karpenter: tries t3.medium (2 CPU, 4GB) + spot (90% cheaper)
+
+# 100 pods needing 1 CPU each
+# AWS Autoscaling: 50 x t3.large nodes = $500/month
+# Karpenter: 50 x t3.medium spot = $50/month
+# Savings: 90% ($450/month)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ AZURE SCHEDULING ============ -->
+        <div class="category-header" id="azure-scheduling">☁️ AZURE-SPECIFIC SCHEDULING</div>
+        <div class="category-desc">
+            Azure uses different labels: VM sizes, zones, scale sets. AKS has built-in integrations for spot VMs, scale set autoscaling, and VM priorities.
+        </div>
+
+        <div class="service-grid">
+            <!-- AZURE SCENARIO 1: PRIORITY + SPOT -->
+            <div class="service-card">
+                <div class="service-badge">Azure Cost</div>
+                <h3 class="service-name">Azure Spot VMs Strategy</h3>
+                <div class="layman-box">
+                    <div class="layman-label">💰 70% Cheaper</div>
+                    Azure Spot VMs (like AWS Spot) are interrupted but 70% cheaper. Use with pod priority for graceful handling.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Azure Node Labels</button>
+                    <button class="tab" onclick="switchTab(event)">Pod Priority</button>
+                    <button class="tab" onclick="switchTab(event)">Complete Example</button>
+                </div>
+                <div class="tab-content active">
+                    <table class="comparison-table">
+                        <tr><th>Label Key</th><th>Label Value</th><th>Meaning</th></tr>
+                        <tr><td>node.kubernetes.io/instance-type</td><td>Standard_B2s, Standard_D2s_v3</td><td>Azure VM size</td></tr>
+                        <tr><td>topology.kubernetes.io/zone</td><td>1, 2, 3</td><td>Availability zone</td></tr>
+                        <tr><td>agentpool</td><td>nodepool1</td><td>Node pool name</td></tr>
+                        <tr><td>kubernetes.azure.com/scalesetpriority</td><td>spot, regular</td><td>VM type (spot = cheap)</td></tr>
+                        <tr><td>kubernetes.azure.com/mode</td><td>system, user</td><td>System vs user pools</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Pod Priority Class (high = scheduled first)
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: critical-services
+value: 1000
+globalDefault: false
+description: "For critical services"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: batch-jobs
+value: 100
+globalDefault: false
+description: "For batch processing"
+
+---
+# Critical pod (high priority, on-demand)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: api-server
+spec:
+  priorityClassName: critical-services
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: kubernetes.azure.com/scalesetpriority
+            operator: In
+            values:
+            - regular  # MUST be on-demand
+  containers:
+  - name: api
+    image: api:v1
+
+---
+# Batch pod (low priority, can use spot)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: batch-worker
+spec:
+  priorityClassName: batch-jobs
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: kubernetes.azure.com/scalesetpriority
+            operator: In
+            values:
+            - spot  # Prefer cheap spot
+  containers:
+  - name: worker
+    image: batch:latest</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Complete: Multi-priority deployment on Azure
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-azure
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      priorityClassName: critical-services
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: web
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: web
+            topologyKey: kubernetes.io/hostname
+        nodeAffinity:
+          # Must be on regular (on-demand) for critical service
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.azure.com/scalesetpriority
+                operator: In
+                values:
+                - regular
+      containers:
+      - name: web
+        image: myapp:latest
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi</div>
+                </div>
+            </div>
+
+            <!-- AZURE SCENARIO 2: MULTI-AZ on Azure -->
+            <div class="service-card">
+                <div class="service-badge">High Availability</div>
+                <h3 class="service-name">Multi-AZ HA on Azure</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🌍 Cross-Zone Resilience</div>
+                    Spread pods across Azure zones (1, 2, 3). Similar to AWS but with zone integers instead of zone names.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Azure Zones</button>
+                    <button class="tab" onclick="switchTab(event)">Deployment</button>
+                    <button class="tab" onclick="switchTab(event)">Network Setup</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>Zone 1:</strong> Different data center in region</div>
+                    <div class="tech-box"><strong>Zone 2:</strong> Another data center</div>
+                    <div class="tech-box"><strong>Zone 3:</strong> Third data center (not all regions)</div>
+                    <div class="tech-box"><strong>Zone-Redundant:</strong> Spreads VMs across zones automatically</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: production-api-azure
+spec:
+  replicas: 9  # 3 per zone
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: api
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: api
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: api
+        image: myapi:v1.0.0
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Cluster created in 3 zones (during AKS setup)
+az aks create \
+  --resource-group mygroup \
+  --name myaks \
+  --zones 1 2 3 \
+  --nodepool-name nodepool1 \
+  --nodepool-taints nodepool-type=system:NoSchedule
+
+# Add user pool (workload nodes)
+az aks nodepool add \
+  --resource-group mygroup \
+  --cluster-name myaks \
+  --name usernodes \
+  --zones 1 2 3 \
+  --mode User</div>
+                </div>
+            </div>
+
+            <!-- AZURE SCENARIO 3: SPOT EVICTION HANDLING -->
+            <div class="service-card">
+                <div class="service-badge">Graceful Handling</div>
+                <h3 class="service-name">Azure Spot VM Eviction</h3>
+                <div class="layman-box">
+                    <div class="layman-label">⚠️ Prepare for Interruption</div>
+                    Azure spot VMs are terminated with 30-second notice. Use preemption handler + pod disruption budgets.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Eviction Flow</button>
+                    <button class="tab" onclick="switchTab(event)">Preemption Handler</button>
+                    <button class="tab" onclick="switchTab(event)">Best Practices</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>1. Azure Spot VM:</strong> Scheduled for eviction (cost saving, unpredictable)</div>
+                    <div class="tech-box"><strong>2. 30-Second Notice:</strong> Azure sends eviction signal</div>
+                    <div class="tech-box"><strong>3. Preemption Handler (daemon):</strong> Cordon node, drain pods gracefully</div>
+                    <div class="tech-box"><strong>4. Pod Disruption Budget:</strong> Respects min-available/max-unavailable</div>
+                    <div class="tech-box"><strong>5. Cluster Autoscaler:</strong> Spins up replacement node</div>
+                    <div class="tech-box"><strong>6. Pod Rescheduled:</strong> To new node automatically</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Install Azure Preemption Handler
+helm repo add aks-helm https://aks.blob.core.windows.net/helm
+helm install azure-preemption-handler \
+  aks-helm/azure-preemption-handler \
+  --namespace karpenter
+
+# Pod with preemption handling
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spot-workload
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: spot-app
+  template:
+    metadata:
+      labels:
+        app: spot-app
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: kubernetes.azure.com/scalesetpriority
+                operator: In
+                values:
+                - spot  # Prefer spot (cheap)
+      # Graceful shutdown
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: app
+        image: spot-app:latest
+        lifecycle:
+          preStop:
+            exec:
+              command: ["/bin/sh", "-c", "sleep 30 && /app/graceful-shutdown.sh"]
+
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: spot-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: spot-app</d>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box">✅ Use pod disruption budgets (PDB) to respect evictions</div>
+                    <div class="tech-box">✅ Set terminationGracePeriodSeconds (give time to close connections)</div>
+                    <div class="tech-box">✅ Use preemption handler daemon (monitor eviction signal)</div>
+                    <div class="tech-box">✅ Log eviction events (troubleshoot)" spot VMs</div>
+                    <div class="tech-box">❌ Don't run stateful single-replica apps on spot (no tolerance)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ COST OPTIMIZATION ============ -->
+        <div class="category-header" id="cost-optimization">💰 COST OPTIMIZATION THROUGH SCHEDULING</div>
+        <div class="category-desc">
+            Smart scheduling can cut infrastructure costs by 50-70%. Mix spot instances, right-size nodes, bin-pack efficiently, and avoid wasted capacity.
+        </div>
+
+        <div class="service-grid">
+            <!-- COST STRATEGY 1: NODE COSTS -->
+            <div class="service-card">
+                <div class="service-badge">Infrastructure</div>
+                <h3 class="service-name">Minimize Node Costs</h3>
+                <div class="layman-box">
+                    <div class="layman-label">💵 Fewer, Bigger Nodes</div>
+                    Bin-pack pods tight to minimize node count. Prefer cheaper instance types. Use spot + on-demand mix.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Node Sizing Strategy</button>
+                    <button class="tab" onclick="switchTab(event)">Cost Breakdown</button>
+                    <button class="tab" onclick="switchTab(event)">Scheduling Tips</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="scenario-box">
+                        <div class="scenario-title">❌ Inefficient: Many Small Nodes</div>
+                        <div class="code-block">10 pods × 500m CPU each = 5 CPU needed
+Strategy: 5 x t3.medium (2 CPU each, underutilized)
+Cost: 5 nodes × $0.05/hour = $0.25/hour = $180/month</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">✅ Efficient: Fewer Big Nodes</div>
+                        <div class="code-block">10 pods × 500m CPU each = 5 CPU needed
+Strategy: 2 x t3.large (2 CPU each) packed tight
+Cost: 2 nodes × $0.10/hour = $0.20/hour = $144/month
+Savings: 20% (less ops overhead too)</div>
+                    </div>
+                    <div class="scenario-box">
+                        <div class="scenario-title">⭐ Optimal: Mix Spot + Reserved</div>
+                        <div class="code-block">10 pods × 500m CPU each = 5 CPU needed
+Strategy: 1 x reserved t3.large + 1 x spot t3.large
+Cost: ($0.10 × 0.5) + ($0.01 × 0.5) = $0.06/hour = $43/month
+Savings: 76% vs small nodes</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Instance Type</th><th>CPU/Hour</th><th>Monthly</th><th>Spot Cost</th><th>Reserved (1y)</th></tr>
+                        <tr><td>t3.small</td><td>2 core/$0.02</td><td>$14.40</td><td>$2.88</td><td>$6.75</td></tr>
+                        <tr><td>t3.medium</td><td>2 core/$0.05</td><td>$36</td><td>$7.20</td><td>$16.87</td></tr>
+                        <tr><td>t3.large</td><td>2 core/$0.10</td><td>$72</td><td>$14.40</td><td>$33.75</td></tr>
+                        <tr><td>m5.xlarge</td><td>4 core/$0.19</td><td>$137</td><td>$27.40</td><td>$64.13</td></tr>
+                        <tr><td>c5.2xlarge</td><td>8 core/$0.34</td><td>$244</td><td>$48.80</td><td>$114.38</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Tight pod specs enable bin-packing
+apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  containers:
+  - name: app
+    image: app:latest
+    resources:
+      requests:
+        cpu: 100m          # Specific, not vague
+        memory: 128Mi      # Realistic, not excessive
+      limits:
+        cpu: 200m         # Prevent runaway
+        memory: 256Mi
+
+# Scheduler can pack more pods on same node = fewer nodes needed</div>
+                </div>
+            </div>
+
+            <!-- COST STRATEGY 2: POD BEHAVIOR -->
+            <div class="service-card">
+                <div class="service-badge">App Design</div>
+                <h3 class="service-name">Pod-Level Cost Optimization</h3>
+                <div class="layman-box">
+                    <div class="layman-label">📦 Smart Pod Design</div>
+                    Set accurate resource requests, use cluster autoscaler, choose cheap instance families.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Resource Requests</button>
+                    <button class="tab" onclick="switchTab(event)">HPA vs Cluster Autoscaler</button>
+                    <button class="tab" onclick="switchTab(event)">Example: Complete</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Accurate Requests = Better Packing</div>
+                        <div class="code-block"># ❌ Bad: Overly high requests (wastes capacity)
+resources:
+  requests:
+    cpu: 1000m    # "I might need this"
+    memory: 2Gi   # "Just in case"
+  limits:
+    cpu: 2000m
+    memory: 4Gi
+
+# Result: Only 2 pods per 2-CPU node, node util 50%
+# Cost: Higher node count, wasted resources
+
+---
+# ✅ Good: Realistic requests based on monitoring
+resources:
+  requests:
+    cpu: 100m     # Actual average
+    memory: 128Mi # Actual average
+  limits:
+    cpu: 300m     # Occasional spike
+    memory: 256Mi # With headroom
+
+# Result: 20 pods per 2-CPU node, node util 95%
+# Cost: Fewer nodes, dense packing, better ROI</div>
+                    </div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Strategy</th><th>Triggers On</th><th>Speed</th><th>Cost</th><th>Best For</th></tr>
+                        <tr><td>HPA</td><td>Pod metrics (CPU %)</td><td>1-3 min</td><td>Same nodes</td><td>Web traffic spikes</td></tr>
+                        <tr><td>Cluster Autoscaler</td><td>Pending pods</td><td>2-3 min</td><td>Adds nodes</td><td>Resource contention</td></tr>
+                        <tr><td>Karpenter</td><td>Pod requirements</td><td>10-30 sec</td><td>Spot+reserved</td><td>Fast scaling + savings</td></tr>
+                        <tr><td>HPA + CA Together</td><td>Metrics + pending</td><td>1-3 min</td><td>Adds nodes if need</td><td>Recommended setup</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-app
+  minReplicas: 2
+  maxReplicas: 50
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+      - type: Pods
+        value: 10
+        periodSeconds: 30
+      selectPolicy: Max  # Scale fastest
+
+---
+# Cluster Autoscaler (auto-adjust node count)
+# Installed via EKS/AKS: automatically adds nodes when Pending pods exist
+# Removes unused nodes every 10 minutes
+
+---
+# Example pod that scales well with HPA + Cluster Autoscaler
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cost-optimized-app
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      # Affinity for efficient packing
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - spot  # Prefer cheap spot instances
+      topologySpreadConstraints:
+      - maxSkew: 2
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: app
+      containers:
+      - name: app
+        image: app:latest
+        resources:
+          requests:
+            cpu: 100m        # Small, precise
+            memory: 128Mi    # Small, precise
+          limits:
+            cpu: 500m       # Allow bursts
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          periodSeconds: 2</div>
+                </div>
+            </div>
+
+            <!-- COST MONITORING -->
+            <div class="service-card">
+                <div class="service-badge">Monitoring</div>
+                <h3 class="service-name">Monitor & Optimize Costs</h3>
+                <div class="layman-box">
+                    <div class="layman-label">📊 Track Spending</div>
+                    Use cloud provider tools + open-source to track costs by pod, namespace, team. Find waste and optimize.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">AWS Tooling</button>
+                    <button class="tab" onclick="switchTab(event)">Azure Tooling</button>
+                    <button class="tab" onclick="switchTab(event)">Open-Source Tools</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>AWS Cost Explorer:</strong> Track EKS costs by service, region, instance type</div>
+                    <div class="tech-box"><strong>AWS Compute Optimizer:</strong> Right-size recommendations</div>
+                    <div class="tech-box"><strong>CloudWatch Container Insights:</strong> Pod/node resource usage</div>
+                    <div class="tech-box"><strong>Trusted Advisor:</strong> Identify unused resources (EBS, EIPs)</div>
+                    <div class="code-block"># Check node utilization in CloudWatch
+kubectl get nodes -L node.kubernetes.io/instance-type
+kubectl top nodes  # CPU, memory used
+kubectl top pods -A  # Pod resource usage
+
+# AWS CLI: get cost data
+aws ce get-cost-and-usage \
+  --time-period Start=2024-01-01,End=2024-01-31 \
+  --granularity MONTHLY \
+  --metrics BlendedCost \
+  --group-by Type=DIMENSION,Key=SERVICE</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box"><strong>Azure Cost Management:</strong> Analyze AKS spending</div>
+                    <div class="tech-box"><strong>Azure Advisor:</strong> Resource optimization suggestions</div>
+                    <div class="tech-box"><strong>Azure Monitor:</strong> Container resource metrics</div>
+                    <div class="tech-box"><strong>Azure Reservations:</strong> Pre-buy capacity (1-3 year discount)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box"><strong>Kubecost:</strong> Cost allocation by pod/namespace/label (open-source + SaaS)</div>
+                    <div class="tech-box"><strong>OpenCost:</strong> CNCF standard cost tracking</div>
+                    <div class="tech-box"><strong>Prometheus:</strong> Collect resource metrics</div>
+                    <div class="tech-box"><strong>Grafana:</strong> Visualize pod costs over time</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ ADVANCED TOPICS ============ -->
+        <div class="category-header" id="combined-strategies">⚡ ADVANCED COMBINED STRATEGIES</div>
+        <div class="category-desc">
+            Combine multiple scheduling tools for production-grade deployments. Taints + affinity, pod affinity + topology spread, etc.
+        </div>
+
+        <div class="service-grid">
+            <!-- COMPLETE PRODUCTION EXAMPLE -->
+            <div class="service-card" id="combined-strategies">
+                <div class="service-badge">Production Pattern</div>
+                <h3 class="service-name">Complete Production Setup</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🏭 Real-World Deployment</div>
+                    Multi-tier app with database, cache, api, workers. Each using appropriate scheduling.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Architecture</button>
+                    <button class="tab" onclick="switchTab(event)">Complete YAML</button>
+                    <button class="tab" onclick="switchTab(event)">Cost Analysis</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="tech-box"><strong>Database (PostgreSQL):</strong> On-demand, single zone, tainted node</div>
+                    <div class="tech-box"><strong>Cache (Redis):</strong> Spot, co-located with DB, high memory</div>
+                    <div class="tech-box"><strong>API Servers:</strong> On-demand or reserved, multi-zone HA, spot-compatible</div>
+                    <div class="tech-box"><strong>Background Workers:</strong> 100% spot, interruptible, auto-scaling</div>
+                    <div class="tech-box"><strong>Cluster:</strong> 3 zones, Karpenter or cluster autoscaler, HPA on all deployments</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">---
+# Node taints (add to nodes)
+# kubectl taint nodes db-node-1 workload=database:NoSchedule
+# kubectl taint nodes worker-node-1 workload=batch:NoSchedule
+
+---
+# Priority Classes
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: critical
+value: 1000
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: general
+value: 500
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: batch
+value: 100
+
+---
+# Database (PostgreSQL) - Critical, Dedicated Node
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      priorityClassName: critical
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - db-node-1
+      tolerations:
+      - key: workload
+        operator: Equal
+        value: database
+        effect: NoSchedule
+      containers:
+      - name: postgres
+        image: postgres:15
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: mydb
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 4Gi
+          limits:
+            cpu: 2000m
+            memory: 8Gi
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: data
+        hostPath:
+          path: /data/postgres
+
+---
+# API Servers - General, HA across zones
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+spec:
+  replicas: 6
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      priorityClassName: general
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: api
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchLabels:
+                app: api
+            topologyKey: kubernetes.io/hostname
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 50
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  app: cache
+              topologyKey: topology.kubernetes.io/zone
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - spot
+          - weight: 50
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - on-demand
+      containers:
+      - name: api
+        image: api:v1.2.3
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          periodSeconds: 5
+
+---
+# Background Workers - Batch (interruptible, scaling)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: worker
+spec:
+  replicas: 10
+  selector:
+    matchLabels:
+      app: worker
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      priorityClassName: batch
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                - spot
+      tolerations:
+      - key: workload
+        operator: Equal
+        value: batch
+        effect: NoSchedule
+      containers:
+      - name: worker
+        image: worker:v1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+
+---
+# HPA for API servers
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-server
+  minReplicas: 6
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+
+---
+# HPA for workers
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: worker
+  minReplicas: 10
+  maxReplicas: 100
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80</div>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Monthly Cost Estimate (AWS)</div>
+                        <div class="code-block">Database node (1x m5.large on-demand):
+  1 × $0.096/hr × 730 hrs = $70/month
+
+Cache node (1x m5.large on-demand, co-located):
+  Shared cost (included above)
+
+API servers (avg 8 running, mix spot+reserved):
+  - 4x spot t3.medium: 4 × $0.01/hr × 730 = $29/month
+  - 4x reserved t3.medium: 4 × $0.03/hr × 730 = $87/month (1-year)
+  Total: $116/month
+
+Workers (avg 20 running, 100% spot):
+  20 × t3.small spot × $0.005/hr × 730 = $73/month
+
+Total: $70 + $116 + $73 = $259/month
+
+Savings vs all on-demand:
+  All on-demand: ~$500/month
+  This setup: $259/month
+  Savings: 48% ($241/month)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ PRODUCTION PATTERNS ============ -->
+        <div class="category-header" id="production-patterns">🏆 PRODUCTION PATTERNS & BEST PRACTICES</div>
+
+        <div class="service-grid">
+            <!-- PATTERN: GRACEFUL SHUTDOWN -->
+            <div class="service-card" id="production-patterns">
+                <div class="service-badge">Reliability</div>
+                <h3 class="service-name">Graceful Shutdown Pattern</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🛑 Elegant Exits</div>
+                    When a pod is killed (node draining, update, eviction), give it time to close connections gracefully.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Configuration</button>
+                    <button class="tab" onclick="switchTab(event)">Application Code</button>
+                    <button class="tab" onclick="switchTab(event)">Pod Disruption Budget</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block">apiVersion: v1
+kind: Pod
+metadata:
+  name: app
+spec:
+  # Give 120 seconds to shutdown before force-kill
+  terminationGracePeriodSeconds: 120
+  
+  containers:
+  - name: app
+    image: myapp:latest
+    ports:
+    - containerPort: 8080
+    
+    # Hook: runs before termination signal
+    lifecycle:
+      preStop:
+        exec:
+          # Custom shutdown script (app-specific)
+          command:
+          - /bin/sh
+          - -c
+          - |
+            # Stop accepting new requests
+            echo "Shutting down gracefully..."
+            # Give app time to finish in-flight requests
+            sleep 30
+            # Then exit
+            exit 0
+    
+    # Must implement /shutdown endpoint or handle SIGTERM
+</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Node.js example
+const http = require('http');
+
+const server = http.createServer((req, res) => {
+  res.writeHead(200);
+  res.end('OK');
+});
+
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully...');
+  
+  // Stop accepting new connections
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+  
+  // Force exit after 30 seconds (before k8s force-kills)
+  setTimeout(() => {
+    console.log('Forced shutdown');
+    process.exit(1);
+  }, 30000);
+});
+
+server.listen(8080);</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: app-pdb
+spec:
+  minAvailable: 1  # Keep at least 1 running during drain
+  selector:
+    matchLabels:
+      app: myapp
+
+---
+# When node drains: K8s respects PDB
+# kubectl drain node-1 --ignore-daemonsets
+# Evicts pods gradually, respects minAvailable</div>
+                </div>
+            </div>
+
+            <!-- PATTERN: PRIORITY & PREEMPTION -->
+            <div class="service-card">
+                <div class="service-badge">Scheduling</div>
+                <h3 class="service-name">Priority & Preemption Pattern</h3>
+                <div class="layman-box">
+                    <div class="layman-label">⚡ Critical First</div>
+                    Mark critical pods with high priority. If resources tight, scheduler kills low-priority pods to schedule high-priority ones.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Setup</button>
+                    <button class="tab" onclick="switchTab(event)">Preemption Rules</button>
+                    <button class="tab" onclick="switchTab(event)">Example</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block">apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: system-critical
+value: 2000
+globalDefault: false
+description: "System critical services"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: production
+value: 1000
+globalDefault: false
+description: "Production workloads"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: default
+value: 0
+globalDefault: true
+description: "Default priority"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: batch
+value: -100
+globalDefault: false
+description: "Batch jobs (can be preempted)"</div>
+                </div>
+                <div class="tab-content">
+                    <div class="tech-box"><strong>Preemption:</strong> If high-priority pod can't fit, scheduler kills low-priority pods</div>
+                    <div class="tech-box"><strong>Grace Period:</strong> Low-priority pods get terminationGracePeriodSeconds to shutdown</div>
+                    <div class="tech-box"><strong>No Preemption:</strong> Add priorityClass value: -1 to prevent preemption</div>
+                    <div class="tech-box"><strong>Caveat:</strong> Preemption can hurt reliability. Use carefully!</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server-critical
+spec:
+  replicas: 5
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      priorityClassName: production  # High priority
+      # Scheduling rules...
+      containers:
+      - name: api
+        image: api:latest
+
+---
+# Batch job (low priority, can be killed if API needs space)
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-processing
+spec:
+  template:
+    spec:
+      priorityClassName: batch  # Low priority, can be preempted
+      containers:
+      - name: processor
+        image: processor:latest
+      restartPolicy: Never</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ TROUBLESHOOTING ============ -->
+        <div class="category-header" id="troubleshooting">🔧 TROUBLESHOOTING & DEBUGGING</div>
+
+        <div class="service-grid">
+            <!-- DEBUGGING POD SCHEDULING -->
+            <div class="service-card" id="troubleshooting">
+                <div class="service-badge">Diagnosis</div>
+                <h3 class="service-name">Debug Pod Scheduling Issues</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🐛 Pod Won't Schedule</div>
+                    "My pod is Pending forever." Use these commands to find why.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Diagnostic Commands</button>
+                    <button class="tab" onclick="switchTab(event)">Common Issues</button>
+                    <button class="tab" onclick="switchTab(event)">Solution Checklist</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># 1. Check pod status
+kubectl get pod <pod-name> -o wide
+# Look for: READY, STATUS, NODE
+
+# 2. Detailed pod info (events!)
+kubectl describe pod <pod-name>
+# Look for "Events" section - shows scheduling decisions
+
+# 3. View pod YAML and affinity
+kubectl get pod <pod-name> -o yaml | grep -A 20 affinity
+
+# 4. Check nodes
+kubectl get nodes -o wide
+kubectl describe node <node-name>
+# Look for Taints, Conditions, Available resources
+
+# 5. Check node labels
+kubectl get nodes --show-labels
+
+# 6. View scheduler logs (if installed locally)
+kubectl logs -n kube-system -l component=kube-scheduler --tail=100
+
+# 7. Check resource availability
+kubectl describe nodes | grep -A 5 "Allocated resources"
+
+# 8. Check if affinity selectors match any nodes
+kubectl get nodes -L topology.kubernetes.io/zone,node.kubernetes.io/instance-type
+
+# 9. Test node selector directly
+kubectl run test-pod --image=nginx:latest --nodeSelector="zone=us-west-1a" --dry-run=client -o yaml
+
+# 10. Check PDB blocking scheduling
+kubectl get pdb
+kubectl describe pdb <pdb-name></div>
+                </div>
+                <div class="tab-content">
+                    <table class="comparison-table">
+                        <tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+                        <tr><td>Pending forever</td><td>Taint not tolerated, no matching nodes, insufficient resources</td><td>Check taints, affinity, node capacity</td></tr>
+                        <tr><td>Pending 5+ min (very slow)</td><td>PDB blocking, many competing pods</td><td>Check PDB, reduce pod count, add nodes</td></tr>
+                        <tr><td>Scheduled to wrong node</td><td>Affinity too weak (preferred instead of required)</td><td>Make affinity required, add more constraints</td></tr>
+                        <tr><td>Pod keeps moving</td><td>Node affinity + node removed, or preemption</td><td>Check node health, adjust priority</td></tr>
+                        <tr><td>Only scheduling to 1 node</td><td>Pod affinity too tight (requires co-location)</td><td>Loosen pod affinity, add preferred</td></tr>
+                    </table>
+                </div>
+                <div class="tab-content">
+                    <div class="scenario-box">
+                        <div class="scenario-title">Checklist: Pod Won't Schedule</div>
+                        <div class="code-block">□ Check pod status: kubectl get pods
+□ Read events: kubectl describe pod <name>
+□ Check taints: kubectl describe nodes | grep Taint
+□ Check pod tolerations: kubectl get pod <name> -o yaml | grep toleration
+□ Check node affinity: kubectl get pod <name> -o yaml | grep affinity
+□ Check node labels: kubectl get nodes --show-labels
+□ Do nodes match affinity? kubectl get nodes -L <label-key>
+□ Enough resources? kubectl describe nodes | grep "Allocated"
+□ Check PDB: kubectl get pdb
+□ Check for node conditions: kubectl get nodes -o wide</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PERFORMANCE DEBUGGING -->
+            <div class="service-card">
+                <div class="service-badge">Performance</div>
+                <h3 class="service-name">Scheduling Performance Issues</h3>
+                <div class="layman-box">
+                    <div class="layman-label">⏱️ Slow Scheduling</div>
+                    Pods take minutes to schedule. Diagnosis and fixes.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Slow Scheduling Diagnosis</button>
+                    <button class="tab" onclick="switchTab(event)">Pod Placement Issues</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block"># Is scheduler slow?
+# Check kube-scheduler logs for latency
+kubectl logs -n kube-system -l component=kube-scheduler | grep latency
+
+# Monitor scheduler performance
+kubectl get events -A --sort-by='.lastTimestamp' | grep scheduler
+
+# Check scheduler CPU/memory
+kubectl top pod -n kube-system -l component=kube-scheduler
+
+# Solutions:
+# 1. More powerful scheduler (request more resources)
+# 2. Reduce number of nodes (divide into multiple clusters)
+# 3. Simplify affinity rules (fewer constraints = faster)
+# 4. Use custom scheduler for heavy workloads
+# 5. Increase scheduler threads (kube-scheduler flag)</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Wrong pod placement (uses odd node)?
+
+# Example: Pods forced to 1 node due to affinity
+kubectl get pods -o wide | grep <pod-name>
+# Shows all on node-1
+
+# Cause: requiredDuringScheduling pod affinity too strict
+# Fix: Change to preferredDuringScheduling, or loosen constraints
+
+# Example: Pod not using cheaper spot instance when available
+kubectl get pod -o yaml | grep -A 10 affinity
+# Check: Is spot in the affinity preferences?
+# If not: Add spot to preferred affinity</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============ COMPLETE REFERENCE ============ -->
+        <div class="category-header" id="complete-reference">📚 COMPLETE YAML REFERENCE</div>
+
+        <div class="service-grid">
+            <div class="service-card" id="complete-reference">
+                <div class="service-badge">Cheat Sheet</div>
+                <h3 class="service-name">All Scheduling Features (One Reference)</h3>
+                <div class="layman-box">
+                    <div class="layman-label">🎯 Copy-Paste Ready</div>
+                    Every scheduling feature in one place. Pick what you need, paste into your deployment.
+                </div>
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab(event)">Pod Spec (All Features)</button>
+                    <button class="tab" onclick="switchTab(event)">Node Setup</button>
+                    <button class="tab" onclick="switchTab(event)">Quick Patterns</button>
+                </div>
+                <div class="tab-content active">
+                    <div class="code-block">apiVersion: v1
+kind: Pod
+metadata:
+  name: complete-example
+spec:
+  # ====== PRIORITY ======
+  priorityClassName: production  # High/Low priority
+  
+  # ====== TAINTS & TOLERATIONS ======
+  tolerations:
+  - key: gpu
+    operator: Equal
+    value: "true"
+    effect: NoSchedule
+  - key: maintenance
+    operator: Exists
+    effect: NoExecute
+    tolerationSeconds: 3600  # Grace period
+  
+  # ====== NODE AFFINITY ======
+  affinity:
+    nodeAffinity:
+      # Required: must match to schedule
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: topology.kubernetes.io/zone
+            operator: In
+            values:
+            - us-east-1a
+      
+      # Preferred: try to match, but not required
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+          - key: node.kubernetes.io/instance-type
+            operator: In
+            values:
+            - t3.large
+    
+    # ====== POD AFFINITY ======
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: cache
+        topologyKey: kubernetes.io/hostname
+    
+    # ====== POD ANTI-AFFINITY ======
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: web
+          topologyKey: kubernetes.io/hostname
+  
+  # ====== TOPOLOGY SPREAD ======
+  topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app: web
+  
+  # ====== TERMINATION ======
+  terminationGracePeriodSeconds: 120
+  
+  # ====== SCHEDULER ======
+  schedulerName: default-scheduler  # Use custom scheduler
+  
+  containers:
+  - name: app
+    image: myapp:latest
+    
+    # ====== RESOURCES ======
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    
+    # ====== PROBES ======
+    livenessProbe:
+      httpGet:
+        path: /health
+        port: 8080
+      periodSeconds: 10
+    
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      periodSeconds: 5
+    
+    # ====== LIFECYCLE ======
+    lifecycle:
+      preStop:
+        exec:
+          command:
+          - /bin/sh
+          - -c
+          - sleep 30</div>
+                </div>
+                <div class="tab-content">
+                    <div class="code-block"># Add taint to node
+kubectl taint nodes node-1 gpu=true:NoSchedule
+kubectl taint nodes node-2 workload=database:NoExecute
+
+# View taints
+kubectl describe node node-1 | grep Taint
+
+# Label node
+kubectl label nodes node-1 zone=us-west-1a
+kubectl label nodes node-1 instance-type=t3.large
+
+# View labels
+kubectl get nodes --show-labels
+
+# Remove taint (dash at end)
+kubectl taint nodes node-1 gpu=true:NoSchedule-
+
+# Remove label (dash at end)
+kubectl label nodes node-1 zone-</d>
+                </div>
+                <div class="tab-content">
+                    <div style="margin: 10px 0; padding: 12px; background: rgba(50,108,229,0.1); border-left: 3px solid var(--k8s-blue); border-radius: 4px;">
+                        <strong>Pattern 1: HA Across Zones</strong>
+                        <div class="code-block" style="margin-top: 5px;">topologySpreadConstraints:
+- maxSkew: 1
+  topologyKey: topology.kubernetes.io/zone
+  whenUnsatisfiable: DoNotSchedule
+  labelSelector:
+    matchLabels:
+      app: web</div>
+                    </div>
+                    
+                    <div style="margin: 10px 0; padding: 12px; background: rgba(50,108,229,0.1); border-left: 3px solid var(--k8s-blue); border-radius: 4px;">
+                        <strong>Pattern 2: GPU Pod</strong>
+                        <div class="code-block" style="margin-top: 5px;">tolerations:
+- key: gpu
+  operator: Equal
+  value: "true"
+  effect: NoSchedule
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: accelerator
+          operator: In
+          values:
+          - nvidia-v100</div>
+                    </div>
+                    
+                    <div style="margin: 10px 0; padding: 12px; background: rgba(50,108,229,0.1); border-left: 3px solid var(--k8s-blue); border-radius: 4px;">
+                        <strong>Pattern 3: Spot Instances (Prefer)</strong>
+                        <div class="code-block" style="margin-top: 5px;">affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      preference:
+        matchExpressions:
+        - key: node.kubernetes.io/lifecycle
+          operator: In
+          values:
+          - spot</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div style="display: flex; justify-content: center; gap: 50px; margin-bottom: 20px; flex-wrap: wrap;">
+                <div><div class="stat-number">20+</div>Advanced Topics</div>
+                <div><div class="stat-number">100+</div>YAML Examples</div>
+                <div><div class="stat-number">AWS + Azure</div>Cloud Native</div>
+                <div><div class="stat-number">100%</div>Production Ready</div>
+            </div>
+            <p style="margin-top: 20px;">K8s Advanced Scheduling & Placement Master Canvas | 2024 | Complete Technical Reference</p>
+        </div>
+    </div>
+
+    <script>
+        function scrollTo(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                updateActiveNav(id);
+            }
+        }
+
+        function switchTab(event) {
+            const tab = event.target;
+            const tabs = tab.parentElement.querySelectorAll('.tab');
+            const contents = tab.parentElement.parentElement.querySelectorAll('.tab-content');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+            
+            tab.classList.add('active');
+            const index = Array.from(tabs).indexOf(tab);
+            if (contents[index]) contents[index].classList.add('active');
+        }
+
+        function updateActiveNav(id) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => {
+                if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(id)) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        // Intersection Observer
+        const observerOptions = { threshold: 0.3 };
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    updateActiveNav(entry.target.id);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('[id]').forEach(el => {
+            if (el.id) observer.observe(el);
+        });
+    </script>
+</body>
+</html>

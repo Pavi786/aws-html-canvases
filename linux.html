@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Ultra Master for DevOps</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Terminal aesthetics */
+        body { background-color: #0f172a; color: #cbd5e1; }
+        .terminal-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .terminal-scroll::-webkit-scrollbar-track { background: #1e293b; }
+        .terminal-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .terminal-scroll::-webkit-scrollbar-thumb:hover { background: #64748b; }
+        
+        /* Command block styling */
+        .cmd-block { font-family: 'Courier New', Courier, monospace; }
+        
+        /* Smooth transitions */
+        .nav-item { transition: all 0.2s ease; }
+        .nav-item.active { background-color: #1e293b; border-left: 4px solid #10b981; color: #fff; font-weight: bold; }
+        
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+    <!-- Chosen Palette: Deep Slate (bg-slate-900) with Neon Emerald (text-emerald-400) and Cyan (text-cyan-400) accents for a "Hacker/DevOps Terminal" feel. -->
+    <!-- Application Structure Plan: 
+         - Layout: Two-column dashboard. Left sidebar for the 10 core modules + 1 Interview Simulator. Right pane for content.
+         - Flow: Users click a module. The right pane dynamically updates with the "Layman Explanation", the "Core Commands" (with copy buttons), and real-world examples.
+         - Interview Simulator: A special view that presents common outage scenarios (Disk Full, SSH slow) and provides the step-by-step command sequence to debug it, mimicking a real production outage.
+         - Why this structure: DevOps requires mental models (layman explanations) paired instantly with muscle memory (copyable commands). This split layout provides both without scrolling endlessly.
+    -->
+    <!-- Visualization & Content Choices:
+         - Visuals: Emojis and Unicode characters are used strictly in place of SVGs to maintain a raw, terminal-like aesthetic while adhering to rules.
+         - Layout: Grid and Flexbox with Tailwind for a responsive, app-like feel. No scrolling on the main window, only within content panes.
+         - Interactivity: JavaScript handles state changes between modules, filters commands, and copies to clipboard. No heavy external libraries needed for this text/concept-heavy application.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="h-screen flex flex-col overflow-hidden font-sans antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-700 flex-none h-16 flex items-center justify-between px-6 z-10 shadow-md">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🐧</span>
+            <h1 class="text-xl font-bold text-white tracking-wider">DEVOPS <span class="text-emerald-400">ULTRA MASTER</span></h1>
+        </div>
+        <div class="text-xs font-mono text-slate-400 bg-slate-800 px-3 py-1 rounded-full border border-slate-700 hidden md:block">
+            root@production-server:~#
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <nav class="w-64 md:w-72 bg-slate-900 border-r border-slate-700 flex flex-col overflow-y-auto terminal-scroll py-4 shrink-0">
+            <div class="px-4 mb-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Core Modules</div>
+            <ul id="nav-menu" class="space-y-1">
+                <!-- Injected via JS -->
+            </ul>
+
+            <div class="px-4 mt-8 mb-2 text-xs font-semibold text-emerald-500 uppercase tracking-wider">Firefighting</div>
+            <ul class="space-y-1">
+                <li>
+                    <button onclick="loadInterviewMode()" id="nav-interview" class="nav-item w-full text-left px-4 py-3 text-slate-300 hover:bg-slate-800 flex items-center gap-3">
+                        <span>🎯</span> Interview & Outage Simulator
+                    </button>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Content Area -->
+        <main class="flex-1 bg-slate-800 overflow-y-auto terminal-scroll p-4 md:p-8 relative">
+            <div id="content-area" class="max-w-4xl mx-auto fade-in">
+                <!-- Content dynamically injected here -->
+                <div class="text-center mt-32">
+                    <span class="text-6xl animate-pulse">⚡</span>
+                    <h2 class="text-3xl font-bold text-white mt-6 mb-2">Booting DevOps Core...</h2>
+                    <p class="text-slate-400">Select a module from the left to begin mastery.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Data Structure for DevOps Modules ---
+        const devopsModules = [
+            {
+                id: 'mod1', icon: '📁', title: 'Linux Fundamentals',
+                layman: `<strong>Ultra Layman Analogy: The Corporate Office Building</strong><br><br>
+                         Think of the Linux Filesystem as a massive corporate office building.<br><br>
+                         • <code>/</code> (Root): The ground floor lobby. Everything starts here.<br>
+                         • <code>/etc</code> (Manager's Office): All the rules, configurations, and settings live here. You don't put employee data here; you put company policy here.<br>
+                         • <code>/var/log</code> (Security Room): The CCTV cameras. Every error, login, and crash is recorded on tape here.<br>
+                         • <code>/home</code> (Employee Lockers): Where normal users keep their personal stuff.<br>
+                         • <code>/tmp</code> (Lobby Trash Can): Stuff put here gets emptied automatically when the building reboots.<br>
+                         • <code>/dev</code> (Hardware Room): The physical printers, hard drives, and cables are represented here as files.`,
+                commands: [
+                    { cmd: "pwd", desc: "Print Working Directory", example: "Where am I currently standing in the building?" },
+                    { cmd: "ls", desc: "List files", example: "What is inside this room?" },
+                    { cmd: "ls -l", desc: "List with details", example: "Show me the files, who owns them, and their size." },
+                    { cmd: "ls -a", desc: "List all (including hidden)", example: "Show me the secret files that start with a dot (like .env)." },
+                    { cmd: "ls -lh", desc: "List human readable", example: "Show sizes in MB/GB instead of raw bytes." },
+                    { cmd: "cd /var/log", desc: "Change Directory", example: "Walk into the security camera room." },
+                    { cmd: "cd ..", desc: "Go up one level", example: "Walk out of the current room into the hallway." },
+                    { cmd: "cd -", desc: "Go back to previous", example: "Jump back to the room I was just in before this one." },
+                    { cmd: "cd ~", desc: "Go to home", example: "Teleport straight to my personal locker." },
+                    { cmd: "cp file.txt /tmp/", desc: "Copy a file", example: "Photocopy a document and put it in the trash room." },
+                    { cmd: "cp -r /app /backup", desc: "Copy a folder recursively", example: "Copy the whole 'app' department into the 'backup' department." },
+                    { cmd: "mv app.py /opt/", desc: "Move a file", example: "Relocate this script to the /opt directory." },
+                    { cmd: "mv old.txt new.txt", desc: "Rename a file", example: "Moving a file in the same room just renames it." },
+                    { cmd: "rm error.log", desc: "Remove a file", example: "Shred this document forever." },
+                    { cmd: "rm -r /old_app", desc: "Remove a folder", example: "Demolish this entire room and everything inside it." },
+                    { cmd: "rm -rf /tmp/cache", desc: "Force remove folder", example: "Demolish the room, don't ask me for permission, just do it. (DANGEROUS)" },
+                    { cmd: "mkdir /app", desc: "Make directory", example: "Build a new room called 'app'." },
+                    { cmd: "mkdir -p /app/src/logs", desc: "Make nested directories", example: "Build a room, a closet inside it, and a safe inside the closet all at once." },
+                    { cmd: "rmdir /empty", desc: "Remove empty directory", example: "Demolish the room, but only if nobody left anything inside." },
+                    { cmd: "touch .env", desc: "Create empty file", example: "Create a blank piece of paper called .env." },
+                    { cmd: "cat config.yml", desc: "Read entire file", example: "Read the whole configuration file and dump it on my screen." },
+                    { cmd: "tac log.txt", desc: "Read file backwards", example: "Read the log file starting from the bottom (newest) to top." },
+                    { cmd: "less auth.log", desc: "Page through file", example: "Open a giant log file but let me scroll with arrow keys without crashing my terminal." },
+                    { cmd: "head -n 20 file.txt", desc: "Read top 20 lines", example: "Just show me the header/beginning of this massive CSV file." },
+                    { cmd: "tail -n 50 error.log", desc: "Read bottom 50 lines", example: "Show me the last 50 errors that just happened." },
+                    { cmd: "find / -name '*.conf'", desc: "Search entire disk", example: "Search the whole building (/) for any file ending in .conf." },
+                    { cmd: "find . -type f -mtime -7", desc: "Find recently modified", example: "Find files in this folder changed in the last 7 days." },
+                    { cmd: "grep 'failed' auth.log", desc: "Search text inside file", example: "Read the security log and highlight every line with the word 'failed'." },
+                    { cmd: "grep -i 'ERROR' app.log", desc: "Case insensitive search", example: "Find 'error', 'ERROR', or 'Error'." },
+                    { cmd: "grep -r 'DB_PASS' /etc/", desc: "Recursive text search", example: "Search EVERY file inside the /etc folder for the database password." }
+                ]
+            },
+            {
+                id: 'mod2', icon: '🏃', title: 'Processes (PID)',
+                layman: `<strong>Ultra Layman Analogy: The Factory Floor</strong><br><br>
+                         Everything running in Linux is a "Process", which is just a worker on the factory floor.<br><br>
+                         • <strong>PID (Process ID):</strong> The worker's employee badge number. You need this to give them orders.<br>
+                         • <strong>Zombie Process:</strong> A worker who was fired, but HR hasn't removed them from the payroll system. They do no work, but they clog up the system.<br>
+                         • <strong>Background Job (&):</strong> Telling a worker "Go do this in the back room, I don't want to watch you do it."<br>
+                         • <strong>OOM (Out of Memory):</strong> When the factory floor is too crowded, the Linux Boss comes in and shoots the biggest worker to save the factory.`,
+                commands: [
+                    { cmd: "ps", desc: "Process Status", example: "Show me the workers I personally spawned in this terminal." },
+                    { cmd: "ps aux", desc: "List all processes", example: "Show me every single worker in the entire factory and what they are doing." },
+                    { cmd: "ps -ef | grep python", desc: "Find specific process", example: "Search the factory floor specifically for workers running Python scripts." },
+                    { cmd: "top", desc: "Live process monitor", example: "Look down at the factory floor from a balcony and see who is sweating the most (CPU usage)." },
+                    { cmd: "htop", desc: "Interactive top (better)", example: "A colorful, modern version of top where I can click and sort workers easily." },
+                    { cmd: "pgrep nginx", desc: "Get PID by name", example: "Just give me the badge number (PID) of the nginx worker." },
+                    { cmd: "pidof mysql", desc: "Get PID of program", example: "Find the exact badge number of the database worker." },
+                    { cmd: "kill 1234", desc: "Graceful kill (SIGTERM)", example: "Tap worker #1234 on the shoulder and ask them nicely to pack up their desk and leave." },
+                    { cmd: "kill -9 1234", desc: "Force kill (SIGKILL)", example: "Worker #1234 has gone crazy. Security immediately tackles them. No graceful shutdown." },
+                    { cmd: "killall php-fpm", desc: "Kill by name", example: "Fire every single worker in the 'php-fpm' department simultaneously." },
+                    { cmd: "pkill -f bad_script.sh", desc: "Kill by pattern", example: "Fire anyone whose job description matches 'bad_script.sh'." },
+                    { cmd: "nice -n 10 ./script.sh", desc: "Start with low priority", example: "Tell this worker they are not important; let others use the CPU first." },
+                    { cmd: "renice -n -5 -p 1234", desc: "Change running priority", example: "Tell the boss to give worker #1234 VIP access to the CPU right now." },
+                    { cmd: "nohup ./long_job.sh &", desc: "No hangup background", example: "Start a massive data backup. Even if I close my laptop and disconnect, keep working!" },
+                    { cmd: "sleep 100 &", desc: "Run in background", example: "Start a task but put it in the background so I can keep typing in my terminal." },
+                    { cmd: "jobs", desc: "List background jobs", example: "Show me all the workers I sent to the back room." },
+                    { cmd: "fg %1", desc: "Bring job to foreground", example: "Bring job #1 from the back room back to my terminal screen." },
+                    { cmd: "bg %1", desc: "Resume in background", example: "If I paused a task with Ctrl+Z, tell it to resume working in the back room." },
+                    { cmd: "disown -a", desc: "Detach jobs from terminal", example: "I am logging off, tell all background workers they no longer report to me." },
+                    { cmd: "screen", desc: "Terminal multiplexer", example: "Open a magical virtual window. If my internet drops, the window stays open on the server." },
+                    { cmd: "tmux", desc: "Modern multiplexer", example: "Like screen, but better. Split my terminal into 4 panes for intense debugging." },
+                    { cmd: "watch -n 1 'free -m'", desc: "Execute periodically", example: "Run the memory check command every 1 second and show me a live changing dashboard." },
+                    { cmd: "uptime", desc: "System uptime and load", example: "How long has this server been awake, and how stressed (Load Average) is it?" },
+                    { cmd: "pstree", desc: "Process tree diagram", example: "Show me a family tree of which worker hired which sub-worker." },
+                    { cmd: "fuser -k 80/tcp", desc: "Kill process on port", example: "Find whoever is hogging port 80 and instantly kill them." },
+                    { cmd: "lsof -p 1234", desc: "List open files by PID", example: "What exact files is worker #1234 currently holding open?" },
+                    { cmd: "time ./script.sh", desc: "Measure execution time", example: "Run this script and tell me exactly how many seconds it took to finish." },
+                    { cmd: "timeout 10s ping 8.8.8.8", desc: "Run with time limit", example: "Run this ping command, but absolutely kill it if it takes longer than 10 seconds." },
+                    { cmd: "systemd-cgtop", desc: "Control group top", example: "Show me which Docker container or system service is eating the most resources." },
+                    { cmd: "strace -p 1234", desc: "Trace system calls", example: "ULTRA DEBUGGING: Attach a wiretap to worker #1234 and watch every microscopic action they take." }
+                ]
+            },
+            {
+                id: 'mod3', icon: '🧠', title: 'Memory Management',
+                layman: `<strong>Ultra Layman Analogy: The Desk and The Filing Cabinet</strong><br><br>
+                         • <strong>RAM (Memory):</strong> The physical top of your work desk. Things you are working on <em>right now</em> go here. It's incredibly fast, but small.<br>
+                         • <strong>Swap:</strong> A metal filing cabinet down the hall. When your desk gets too full, you move older papers to the cabinet to prevent spilling. It saves you from crashing, but walking to the cabinet (Swap) makes the system incredibly slow.<br>
+                         • <strong>Buff/Cache:</strong> Linux hates empty desk space. It keeps old documents on the corner of the desk just in case you need them again. It will instantly throw them away if a real program needs the space. <em>(High cache is a good thing!)</em>`,
+                commands: [
+                    { cmd: "free -m", desc: "Memory in MB", example: "Look at the desk. How much is used, free, and cached in Megabytes?" },
+                    { cmd: "free -g", desc: "Memory in GB", example: "Look at the desk in Gigabytes for massive database servers." },
+                    { cmd: "vmstat 1 5", desc: "Virtual memory stats", example: "Take 5 snapshots of the memory and CPU usage, 1 second apart, to spot sudden spikes." },
+                    { cmd: "pmap 1234", desc: "Process memory map", example: "Show me exactly which libraries in RAM worker #1234 is using." },
+                    { cmd: "smem -r -k", desc: "Report memory by process", example: "A smarter tool that shows true memory usage (PSS) instead of shared memory illusions." },
+                    { cmd: "cat /proc/meminfo", desc: "Raw memory data", example: "Read the direct, raw sensors from the Linux kernel about the RAM." },
+                    { cmd: "top -o %MEM", desc: "Top sorted by RAM", example: "Show me the process list, but put the biggest memory hogs at the very top." },
+                    { cmd: "ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem", desc: "Custom PS memory sort", example: "Print a clean list of exactly who is using the most RAM right now." },
+                    { cmd: "swapon -s", desc: "Show swap usage", example: "Look at the filing cabinet down the hall. Is it being used?" },
+                    { cmd: "swapon -a", desc: "Enable all swap", example: "Turn on the filing cabinet so the system can use it." },
+                    { cmd: "swapoff -a", desc: "Disable all swap", example: "Lock the filing cabinet. Force everything back onto the desk (RAM). DANGEROUS." },
+                    { cmd: "mkswap /dev/sdb1", desc: "Format swap partition", example: "Build a brand new filing cabinet out of a new hard drive." },
+                    { cmd: "sysctl vm.swappiness", desc: "Check swappiness", example: "How eager is Linux to use the filing cabinet? (0 = never, 100 = always)." },
+                    { cmd: "sysctl -w vm.swappiness=10", desc: "Reduce swappiness", example: "Tell Linux: Please try to keep things on the desk (RAM) unless absolutely necessary." },
+                    { cmd: "dmesg | grep -i oom", desc: "Check for OOM Killer", example: "The server crashed. Did the Linux Boss (Out Of Memory killer) shoot a process to save the OS?" },
+                    { cmd: "sync", desc: "Flush buffers to disk", example: "Tell the OS to write all pending desk paperwork permanently to the hard drive right now." },
+                    { cmd: "echo 1 > /proc/sys/vm/drop_caches", desc: "Clear PageCache", example: "Throw away the cached files on the corner of the desk. (Usually unnecessary)." },
+                    { cmd: "echo 2 > /proc/sys/vm/drop_caches", desc: "Clear inodes/dentries", example: "Throw away the cached folder structures in memory." },
+                    { cmd: "echo 3 > /proc/sys/vm/drop_caches", desc: "Clear all caches", example: "NUKE ALL CACHES. Free up max memory for testing. Do not use in production." },
+                    { cmd: "slabtop", desc: "Kernel slab cache info", example: "Look at how much memory the Linux Kernel itself is using for internal operations." },
+                    { cmd: "cat /proc/slabinfo", desc: "Raw slab data", example: "Raw data for the slabtop command." },
+                    { cmd: "cat /proc/buddyinfo", desc: "Memory fragmentation", example: "Is my RAM chopped up into tiny unusable blocks, or do I have large contiguous chunks available?" },
+                    { cmd: "sar -r 1 3", desc: "Historical memory stats", example: "(Requires sysstat) Show me memory usage from the system's historical data gathering." },
+                    { cmd: "numastat", desc: "NUMA architecture stats", example: "On massive servers with 2+ physical CPUs, check if memory is being routed efficiently between chips." },
+                    { cmd: "ipcs -m", desc: "Shared memory segments", example: "Show me memory that multiple programs (like PostgreSQL workers) are sharing." },
+                    { cmd: "ipcrm -m <shmid>", desc: "Remove shared memory", example: "A database crashed and left ghost memory behind. Forcefully wipe it out." },
+                    { cmd: "mlock", desc: "Lock memory (concept)", example: "(C code concept) Pin this memory to the desk so it NEVER gets pushed to the Swap cabinet." },
+                    { cmd: "vmtouch -t /path/to/file", desc: "Force file into RAM", example: "I have a giant database index. Force Linux to load it into RAM instantly for speed." },
+                    { cmd: "vmtouch -e /path/to/file", desc: "Evict file from RAM", example: "Kick this giant video file out of the RAM cache to make room." },
+                    { cmd: "valgrind ./my_app", desc: "Find memory leaks", example: "Developer tool: Run the C/C++ app and track if it forgets to give memory back when done." }
+                ]
+            },
+            {
+                id: 'mod4', icon: '💾', title: 'Disk & Storage',
+                layman: `<strong>Ultra Layman Analogy: The Warehouse and The Barcodes</strong><br><br>
+                         A hard drive in Linux has two absolute limits:<br>
+                         1. <strong>Blocks (Space):</strong> The physical square footage of the warehouse.<br>
+                         2. <strong>Inodes (Barcodes):</strong> A roll of barcode stickers. <em>Every single file needs exactly 1 sticker.</em><br><br>
+                         <strong>The DevOps Trap:</strong> You can have an empty warehouse (1TB free space), but if you have millions of tiny 1-kilobyte files, you run out of barcode stickers (Inodes). The system will scream "Disk Full" and crash, even though it looks empty!`,
+                commands: [
+                    { cmd: "df -h", desc: "Disk space human readable", example: "How much physical space (Gigabytes) is left in the partitions?" },
+                    { cmd: "df -i", desc: "Check Inodes", example: "THE TRAP: Are we out of barcode stickers? Check the %IUse column!" },
+                    { cmd: "du -sh /var/log", desc: "Folder size summary", example: "How heavy is the /var/log directory in total?" },
+                    { cmd: "du -h --max-depth=1 /", desc: "Find giant folders", example: "Scan the root directory and show me which top-level folder is eating the most space." },
+                    { cmd: "lsblk", desc: "List block devices", example: "Show me the raw physical hard drives attached to this VM (e.g., sda, nvme0n1)." },
+                    { cmd: "blkid", desc: "Block ID attributes", example: "Find the UUID (unique serial number) of a hard drive so I can mount it permanently." },
+                    { cmd: "fdisk -l", desc: "List partitions", example: "Show me how the hard drives are chopped up into partitions." },
+                    { cmd: "parted -l", desc: "List partitions (Large disks)", example: "Better tool for modern disks larger than 2 Terabytes (GPT)." },
+                    { cmd: "mkfs.ext4 /dev/sdb1", desc: "Format as ext4", example: "Take this raw partition and format it with the standard Linux ext4 file system." },
+                    { cmd: "mkfs.xfs /dev/sdb1", desc: "Format as XFS", example: "Format it as XFS, better for massive databases and huge files." },
+                    { cmd: "fsck /dev/sdb1", desc: "File system check", example: "The server lost power. Run a repair tool to fix corrupted sectors on the disk." },
+                    { cmd: "mount /dev/sdb1 /mnt/data", desc: "Mount a drive", example: "Attach the new hard drive to the /mnt/data folder so I can actually put files in it." },
+                    { cmd: "umount /mnt/data", desc: "Unmount a drive", example: "Safely eject the hard drive from that folder." },
+                    { cmd: "cat /etc/fstab", desc: "File system table", example: "The master list of drives that mount automatically when the server boots. If you mess this up, the server dies." },
+                    { cmd: "tune2fs -l /dev/sda1", desc: "View ext4 metadata", example: "Look deep into the file system settings (when was it created, when was it last checked)." },
+                    { cmd: "hdparm -tT /dev/sda", desc: "Test read speed", example: "Benchmark the hard drive to see if the cloud provider is giving me terrible IOPS." },
+                    { cmd: "smartctl -a /dev/sda", desc: "Check disk health", example: "Ask the physical hard drive hardware if it is about to die (SMART status)." },
+                    { cmd: "iostat -x 1", desc: "Live I/O stats", example: "Are my disks the bottleneck? Check the %util and %iowait live." },
+                    { cmd: "iotop", desc: "Top for disk usage", example: "Like 'top' for CPU, but shows exactly which process is reading/writing to the disk the hardest." },
+                    { cmd: "lsof +D /var/log", desc: "List open files in dir", example: "I can't unmount this drive because 'device is busy'. Who is holding a file open in here?" },
+                    { cmd: "find / -type f -size +500M", desc: "Find massive files", example: "Hunt down any file larger than 500MB causing the disk to fill up." },
+                    { cmd: "ncdu /", desc: "Interactive disk usage", example: "(Needs install) The absolute best interactive CLI tool to hunt down what is eating your disk space." },
+                    { cmd: "tree -sh /var/log", desc: "Visual folder tree", example: "Print a visual tree of folders and their file sizes." },
+                    { cmd: "pvcreate /dev/sdb", desc: "LVM: Physical Volume", example: "LVM Magic Step 1: Initialize raw disk for Logical Volume Manager." },
+                    { cmd: "vgcreate data_vg /dev/sdb", desc: "LVM: Volume Group", example: "LVM Magic Step 2: Create a storage pool called 'data_vg'." },
+                    { cmd: "lvcreate -L 50G -n app_lv data_vg", desc: "LVM: Logical Volume", example: "LVM Magic Step 3: Carve a flexible 50GB partition out of the pool." },
+                    { cmd: "lvs", desc: "List logical volumes", example: "Show me the flexible LVM partitions I created." },
+                    { cmd: "vgs", desc: "List volume groups", example: "Show me the LVM storage pools and their free space." },
+                    { cmd: "pvs", desc: "List physical volumes", example: "Show me the physical disks backing the LVM pools." },
+                    { cmd: "resize2fs /dev/mapper/data_vg-app_lv", desc: "Expand file system", example: "I added more space to the VM in AWS. Now tell the OS to actually expand to use it." }
+                ]
+            },
+            {
+                id: 'mod5', icon: '🔐', title: 'Users & Permissions',
+                layman: `<strong>Ultra Layman Analogy: The Nightclub Bouncer</strong><br><br>
+                         Every file and folder is a VIP room in a nightclub.<br>
+                         • <strong>Owner:</strong> The person who rented the room.<br>
+                         • <strong>Group:</strong> The VIP guest list.<br>
+                         • <strong>Others:</strong> Random people off the street.<br><br>
+                         Permissions are Read (r=4), Write (w=2), Execute (x=1).<br>
+                         <code>chmod 777</code> means you gave maximum access (4+2+1) to the Owner, the Group, and Everyone off the street. This is a massive security breach.<br>
+                         <code>sudo</code> (Super User Do) is wearing the Club Manager's badge for exactly one command to bypass the bouncer.`,
+                commands: [
+                    { cmd: "id", desc: "Print user identity", example: "Who am I logged in as, and what groups do I belong to?" },
+                    { cmd: "whoami", desc: "Print username", example: "Literally just print my username. Useful in scripts." },
+                    { cmd: "who", desc: "Show logged in users", example: "Who else is currently connected to this server?" },
+                    { cmd: "w", desc: "Show users and activity", example: "Who is logged in, where did they connect from, and what command are they running right now?" },
+                    { cmd: "groups ubuntu", desc: "Show user's groups", example: "Show me the VIP lists the 'ubuntu' user is on." },
+                    { cmd: "useradd -m devops", desc: "Create new user", example: "Hire a new employee named 'devops' and build them a home locker (-m)." },
+                    { cmd: "usermod -aG docker devops", desc: "Add user to group", example: "Append (-a) the 'devops' user to the 'docker' VIP group so they can run containers." },
+                    { cmd: "userdel -r devops", desc: "Delete user", example: "Fire the employee and instantly incinerate their home locker (-r)." },
+                    { cmd: "groupadd developers", desc: "Create new group", example: "Create a new VIP list called 'developers'." },
+                    { cmd: "groupmod -n engineers developers", desc: "Rename group", example: "Change the VIP list name from 'developers' to 'engineers'." },
+                    { cmd: "groupdel engineers", desc: "Delete group", example: "Shred the 'engineers' VIP list." },
+                    { cmd: "passwd devops", desc: "Set user password", example: "Give the 'devops' user a new password." },
+                    { cmd: "chage -l devops", desc: "Check password aging", example: "When does this user's password expire? Are they locked out?" },
+                    { cmd: "su - devops", desc: "Switch user", example: "Take off my mask and put on the 'devops' user mask, loading their full environment (-)." },
+                    { cmd: "sudo -i", desc: "Become root interactively", example: "Put on the Club Manager (Root) badge permanently until I type exit. Be careful." },
+                    { cmd: "visudo", desc: "Edit sudoers file", example: "SAFELY edit the list of who is allowed to use the 'sudo' command. Prevents syntax errors that break the server." },
+                    { cmd: "chown nginx:www-data file.html", desc: "Change owner and group", example: "Give ownership of this file to the 'nginx' user and the 'www-data' group." },
+                    { cmd: "chown -R myuser:myuser /app", desc: "Change ownership recursively", example: "Take ownership of the entire /app directory and everything inside it." },
+                    { cmd: "chmod 755 script.sh", desc: "Change permissions", example: "Owner can do anything (7). Group and Others can read and execute, but not edit (5)." },
+                    { cmd: "chmod -R 644 /var/www", desc: "Change permissions recursively", example: "Make all web files readable, but not executable." },
+                    { cmd: "chmod +x script.sh", desc: "Make executable", example: "Quickly slap the 'execute' permission onto a script so I can run it." },
+                    { cmd: "chgrp admin file.txt", desc: "Change group ownership", example: "Change only the group of the file without touching the owner." },
+                    { cmd: "umask", desc: "Check default permissions", example: "When I create a new file, what permissions does Linux automatically subtract from it?" },
+                    { cmd: "getent passwd", desc: "Query user database", example: "Fetch the list of all users, even if they are loaded from a central LDAP/Active Directory server." },
+                    { cmd: "setfacl -m u:bob:rw file.txt", desc: "Set Access Control List", example: "Give 'bob' read/write access to a file, even if he isn't the owner or in the group. (Advanced granular permissions)." },
+                    { cmd: "getfacl file.txt", desc: "View Access Control List", example: "Read the complex granular permissions applied to this file." },
+                    { cmd: "chattr +i file.conf", desc: "Make file immutable", example: "Make this file bulletproof. EVEN ROOT CANNOT DELETE OR EDIT IT until this flag is removed." },
+                    { cmd: "lsattr file.conf", desc: "List file attributes", example: "Check if a file has the immutable (+i) flag preventing me from deleting it." },
+                    { cmd: "last", desc: "Show recent logins", example: "Look at the history of who has successfully logged into this server." },
+                    { cmd: "lastlog", desc: "Show users last login", example: "Show me the exact date and time every user account was last used." }
+                ]
+            },
+            {
+                id: 'mod6', icon: '🌐', title: 'Networking Core',
+                layman: `<strong>Ultra Layman Analogy: The Post Office and Mail Slots</strong><br><br>
+                         • <strong>IP Address:</strong> The street address of your server. (e.g., 10.0.0.5)<br>
+                         • <strong>Ports:</strong> The specific mail slots in the front door. Slot 80 is for HTTP mail. Slot 22 is for SSH mail.<br>
+                         • <strong>Listening:</strong> Is there a worker (process) standing behind Mail Slot 80 waiting to receive mail? If nobody is listening, the connection is instantly "Refused".<br>
+                         • <strong>Firewall:</strong> A guard standing in front of the door checking mail slots. Even if a worker is listening, the guard might block the mail.`,
+                commands: [
+                    { cmd: "ping 8.8.8.8", desc: "Test basic connectivity", example: "Send a sonar ping to Google. Does my server have internet access?" },
+                    { cmd: "ip addr", desc: "Show IP addresses", example: "What is the street address (Private IP) assigned to my network cards?" },
+                    { cmd: "ip route", desc: "Show routing table", example: "When my server wants to talk to the internet, which router (gateway) does it send traffic to?" },
+                    { cmd: "ip link", desc: "Show network interfaces", example: "Are my physical network cables 'UP' or 'DOWN'?" },
+                    { cmd: "ifconfig", desc: "Legacy network config", example: "The old version of 'ip addr'. Still used, but officially deprecated." },
+                    { cmd: "netstat -tulnp", desc: "Show listening ports (old)", example: "Show me every open mail slot and the exact PID (worker) listening behind it." },
+                    { cmd: "ss -tulnp", desc: "Socket statistics (modern)", example: "The modern, much faster version of netstat. Memorize this one for interviews." },
+                    { cmd: "lsof -i", desc: "List open network files", example: "Show me every single network connection happening right now." },
+                    { cmd: "lsof -i :80", desc: "Find process on port", example: "Someone is hogging port 80. Who is it? Give me their PID so I can kill them." },
+                    { cmd: "nc -zv 10.0.0.5 3306", desc: "Netcat port scan", example: "Don't send data, just check: Is port 3306 (MySQL) open on that target server?" },
+                    { cmd: "nmap -sS localhost", desc: "Scan all ports", example: "Act like a hacker. Scan my own server to see exactly what ports are exposed." },
+                    { cmd: "telnet google.com 443", desc: "Test port connection", example: "The old school way to check if a port is open. If screen goes blank, it connected." },
+                    { cmd: "curl -I https://api.com", desc: "Fetch HTTP headers", example: "Don't download the website, just hit it and show me the 200 OK or 500 Error code." },
+                    { cmd: "curl -v http://localhost", desc: "Verbose HTTP request", example: "Show me the entire HTTP handshake, certificates, and headers. Great for debugging." },
+                    { cmd: "wget http://file.zip", desc: "Download file", example: "Pull this file from the internet directly to my server." },
+                    { cmd: "dig mydomain.com", desc: "DNS lookup", example: "Ask the DNS system: What IP address does this domain name point to?" },
+                    { cmd: "dig +short db.local", desc: "Short DNS lookup", example: "Just give me the IP address, hide all the extra verbose text." },
+                    { cmd: "nslookup mydomain.com", desc: "Legacy DNS lookup", example: "Another tool to check if DNS is routing correctly." },
+                    { cmd: "host mydomain.com", desc: "Simple DNS lookup", example: "The simplest way to translate a name to an IP." },
+                    { cmd: "arp -a", desc: "Show ARP table", example: "Show me the MAC addresses of other servers on my immediate local network." },
+                    { cmd: "traceroute 8.8.8.8", desc: "Trace network path", example: "Print every single router hop between my server and Google." },
+                    { cmd: "mtr 8.8.8.8", desc: "Live network trace", example: "Combined ping and traceroute. Shows a live updating dashboard of where packet loss is happening." },
+                    { cmd: "tcpdump -i eth0", desc: "Packet sniffer", example: "ULTRA DEBUGGING: Watch the raw, naked network packets flying in and out of the server." },
+                    { cmd: "tcpdump port 80", desc: "Filter packet sniffer", example: "Only show me the packets hitting the web server port." },
+                    { cmd: "iptables -L -n -v", desc: "Show firewall rules", example: "List the raw kernel-level firewall rules blocking or allowing traffic." },
+                    { cmd: "ufw status numbered", desc: "Show simple firewall", example: "(Ubuntu) Show the Uncomplicated Firewall rules clearly." },
+                    { cmd: "hostname", desc: "Print server name", example: "What is the internal name of this machine?" },
+                    { cmd: "hostnamectl set-hostname web01", desc: "Change server name", example: "Permanently rename this server to 'web01'." },
+                    { cmd: "nmcli d", desc: "Network Manager CLI", example: "Check the status of devices managed by the modern NetworkManager." },
+                    { cmd: "ethtool eth0", desc: "Check ethernet hardware", example: "Talk to the physical network card. Is it running at 1000Mbps or did it downgrade to 10Mbps?" }
+                ]
+            },
+            {
+                id: 'mod7', icon: '🧾', title: 'Log Management',
+                layman: `<strong>Ultra Layman Analogy: The Flight Recorder (Black Box)</strong><br><br>
+                         DevOps engineers don't guess; they read the logs. If a service dies, the exact reason is printed in the logs.<br>
+                         If you try to fix a server without looking at the logs, you are basically trying to fix a broken car engine while blindfolded.<br><br>
+                         Modern Linux uses <code>systemd</code>, which swallows all logs into a centralized, binary journal. You must use the <code>journalctl</code> tool to read it. Legacy apps still write plain text to <code>/var/log/</code>.`,
+                commands: [
+                    { cmd: "tail -f /var/log/syslog", desc: "Follow system logs live", example: "Watch the main system tape recorder live as events happen." },
+                    { cmd: "tail -n 100 error.log", desc: "Read last 100 lines", example: "Show me the last 100 things that happened before the crash." },
+                    { cmd: "head -n 50 access.log", desc: "Read first 50 lines", example: "Show me how the log file started." },
+                    { cmd: "less +F /var/log/messages", desc: "Follow inside less", example: "Watch logs live, but press Ctrl+C to instantly pause and scroll back up to search." },
+                    { cmd: "cat /var/log/auth.log", desc: "Dump authentication logs", example: "Dump the log of everyone who tried to SSH into this box." },
+                    { cmd: "zcat /var/log/syslog.2.gz", desc: "Read zipped logs", example: "Read an old, compressed log file without unzipping it first." },
+                    { cmd: "zless /var/log/auth.1.gz", desc: "Page through zipped logs", example: "Open an old zipped log file in the 'less' viewer." },
+                    { cmd: "grep -i 'error' app.log", desc: "Search for errors", example: "Filter the noise. Show me only lines containing 'error' (case insensitive)." },
+                    { cmd: "egrep 'error|warn|fail' log", desc: "Regex log search", example: "Show me lines that contain ANY of these critical words." },
+                    { cmd: "journalctl", desc: "Read systemd journal", example: "Open the master binary flight recorder for the entire OS." },
+                    { cmd: "journalctl -u nginx", desc: "Logs for specific service", example: "Filter the master journal to ONLY show me logs generated by the web server." },
+                    { cmd: "journalctl -f", desc: "Follow journal live", example: "Watch the master journal live, matrix-style." },
+                    { cmd: "journalctl -n 50", desc: "Last 50 journal entries", example: "Show me the tail end of the journal." },
+                    { cmd: "journalctl -p err", desc: "Filter journal by priority", example: "Show me ONLY actual errors across the whole system. Hide info and debug messages." },
+                    { cmd: "journalctl --since '1 hour ago'", desc: "Time-based journal filter", example: "The outage happened 45 minutes ago. Show me logs starting exactly 1 hour ago." },
+                    { cmd: "dmesg", desc: "Kernel ring buffer", example: "Show me the logs from the Linux Kernel itself (hardware failures, RAM issues)." },
+                    { cmd: "dmesg -T", desc: "Kernel logs with timestamps", example: "Show kernel logs but convert the weird seconds-since-boot into human readable dates." },
+                    { cmd: "dmesg -w", desc: "Follow kernel logs", example: "Watch kernel hardware logs live (e.g., watch as you plug in a USB drive)." },
+                    { cmd: "logger 'Deploy finished'", desc: "Write to syslog", example: "Manually inject a custom message into the system logs from a script." },
+                    { cmd: "logrotate -f /etc/logrotate.conf", desc: "Force log rotation", example: "The log file is 50GB and filling the disk! Force Linux to zip it and start a fresh one NOW." },
+                    { cmd: "awk '{print $1}' access.log", desc: "Extract column from log", example: "Look at the web server log, and extract ONLY the 1st column (which is the IP address)." },
+                    { cmd: "sed 's/password=123/password=***/g' log", desc: "Replace text in stream", example: "Stream the log file to the screen, but mask out passwords dynamically." },
+                    { cmd: "sort auth.log", desc: "Sort log alphabetically", example: "Sort the file lines." },
+                    { cmd: "awk '{print $1}' access.log | sort | uniq -c", desc: "Count unique IPs", example: "ULTRA MASTER TRICK: Extract IPs, sort them, and count how many times each IP hit the server. Find the DDoS attacker!" },
+                    { cmd: "wc -l error.log", desc: "Count lines", example: "Exactly how many lines (errors) are in this file?" },
+                    { cmd: "find /var/log -mtime +30 -exec rm {} \\;", desc: "Delete old logs", example: "Find any log file older than 30 days and delete it automatically." },
+                    { cmd: "auditctl -l", desc: "List audit rules", example: "(Security) Check what files the Linux Audit daemon is watching for changes." },
+                    { cmd: "ausearch -m USER_LOGIN", desc: "Search audit logs", example: "(Security) Search the secure audit logs for login events." },
+                    { cmd: "aureport --tty", desc: "Report TTY keystrokes", example: "(Security) If configured, show exactly what commands a user typed." },
+                    { cmd: "tailf /var/log/syslog", desc: "Follow log (deprecated)", example: "Similar to tail -f, but doesn't access the disk when the file is not growing (saves battery/IO)." }
+                ]
+            },
+            {
+                id: 'mod8', icon: '⚙️', title: 'Services & Systemd',
+                layman: `<strong>Ultra Layman Analogy: The Shift Managers and The CEO</strong><br><br>
+                         A "Daemon" or "Service" is a background worker (like a web server, database, or ssh).<br>
+                         <code>systemd</code> is the ultimate CEO of the Linux system. It starts first (PID 1) and manages all the other Shift Managers.<br><br>
+                         • <strong>Start/Stop:</strong> Tell the manager to clock in or clock out right now.<br>
+                         • <strong>Enable/Disable:</strong> Tell the CEO "Make sure this manager clocks in automatically every time the building reboots." <em>If you don't 'enable' a service, it stays dead after a reboot!</em>`,
+                commands: [
+                    { cmd: "systemctl status nginx", desc: "Check service health", example: "Is the web server running? Did it crash? Read the last 10 log lines to find out." },
+                    { cmd: "systemctl start nginx", desc: "Start a service", example: "Tell the web server to clock in and start working." },
+                    { cmd: "systemctl stop nginx", desc: "Stop a service", example: "Tell the web server to shut down." },
+                    { cmd: "systemctl restart nginx", desc: "Restart a service", example: "Violently kill the web server and start it again. Drops active connections." },
+                    { cmd: "systemctl reload nginx", desc: "Reload configuration", example: "Tell the web server to re-read its settings file gracefully WITHOUT dropping active connections." },
+                    { cmd: "systemctl enable nginx", desc: "Start on boot", example: "Crucial DevOps step: Ensure the web server turns on automatically if the server reboots at 3 AM." },
+                    { cmd: "systemctl disable nginx", desc: "Don't start on boot", example: "Remove from the auto-start list." },
+                    { cmd: "systemctl mask apache2", desc: "Completely block service", example: "Make it impossible to start this service, even accidentally. Stronger than disable." },
+                    { cmd: "systemctl unmask apache2", desc: "Remove block", example: "Allow the service to be started again." },
+                    { cmd: "systemctl daemon-reload", desc: "Reload CEO config", example: "I created or edited a service unit file. Tell the CEO (systemd) to re-read the paperwork." },
+                    { cmd: "systemctl show nginx", desc: "Show raw service properties", example: "Print the raw, low-level variables systemd uses to manage this service." },
+                    { cmd: "systemctl list-units --type=service", desc: "List active services", example: "Show me every service that is currently running on the server." },
+                    { cmd: "systemctl list-unit-files", desc: "List all installed services", example: "Show me every service installed, and whether it is enabled on boot or not." },
+                    { cmd: "systemctl list-dependencies nginx", desc: "Show service tree", example: "What other services must start BEFORE nginx is allowed to start?" },
+                    { cmd: "systemctl set-default multi-user.target", desc: "Set boot mode (CLI)", example: "Tell the server to boot into terminal mode (no GUI). Like Windows Safe Mode." },
+                    { cmd: "systemctl get-default", desc: "Check boot mode", example: "Will this server boot to a GUI interface or a text terminal?" },
+                    { cmd: "systemctl isolate rescue.target", desc: "Enter rescue mode", example: "Instantly drop the server into single-user rescue mode for emergency maintenance." },
+                    { cmd: "systemctl isolate emergency.target", desc: "Enter emergency mode", example: "Even deeper rescue mode. Mounts the disk as read-only." },
+                    { cmd: "systemd-analyze", desc: "Check boot time", example: "How many seconds did it take for this server to boot up?" },
+                    { cmd: "systemd-analyze blame", desc: "Find slow boot services", example: "Print a list of every service, sorted by which one took the longest to start during boot." },
+                    { cmd: "systemd-analyze critical-chain", desc: "Boot bottleneck tree", example: "Show the exact tree of dependencies that caused the boot to be slow." },
+                    { cmd: "service nginx status", desc: "Legacy service command", example: "The old pre-systemd way. Usually redirects to systemctl now, but good to know." },
+                    { cmd: "chkconfig --list", desc: "Legacy boot config", example: "(CentOS 6 / Old RedHat) The old way to check what starts on boot." },
+                    { cmd: "halt", desc: "Halt the system", example: "Stop the CPU, but don't cut the power." },
+                    { cmd: "poweroff", desc: "Shutdown power", example: "Gracefully shut down all services and cut the power to the VM." },
+                    { cmd: "reboot", desc: "Restart server", example: "Gracefully shut down and restart the machine." },
+                    { cmd: "systemctl suspend", desc: "Sleep mode", example: "Put the machine to sleep (RAM active)." },
+                    { cmd: "systemctl hibernate", desc: "Hibernate mode", example: "Save RAM to disk and power off." },
+                    { cmd: "crontab -e", desc: "Edit scheduled tasks", example: "(Not systemd, but related) Schedule scripts to run automatically every minute/hour/day." },
+                    { cmd: "crontab -l", desc: "List scheduled tasks", example: "Show me what jobs are scheduled to run automatically for my user." }
+                ]
+            },
+            {
+                id: 'mod9', icon: '📦', title: 'Package Management',
+                layman: `<strong>Ultra Layman Analogy: The App Store and Dependency Hell</strong><br><br>
+                         Unlike Windows where you download an installer from a random website, Linux uses secure, centralized Package Managers (like an App Store).<br><br>
+                         <strong>Dependency Resolution:</strong> If you tell Linux to install App A, but App A requires Tool B and Library C to work, the Package Manager automatically calculates this "Dependency Tree" and downloads B and C for you. Without this, you would be stuck in "Dependency Hell" installing pieces manually forever.`,
+                commands: [
+                    { cmd: "apt update", desc: "Update catalog (Debian/Ubuntu)", example: "Download the latest list of available software. (Does NOT install anything)." },
+                    { cmd: "apt upgrade", desc: "Upgrade software", example: "Actually download and install the new versions of the software I already have." },
+                    { cmd: "apt install nginx", desc: "Install package", example: "Download and install the web server, plus any libraries it needs." },
+                    { cmd: "apt remove nginx", desc: "Remove package", example: "Uninstall the software, but keep my custom configuration files just in case." },
+                    { cmd: "apt purge nginx", desc: "Nuke package", example: "Uninstall the software AND completely delete all configuration files. Clean slate." },
+                    { cmd: "apt autoremove", desc: "Clean orphaned libraries", example: "Delete old dependencies (like Tool B) that were installed for an app I have since removed." },
+                    { cmd: "apt search postgres", desc: "Search catalog", example: "Find the exact package name for the PostgreSQL database." },
+                    { cmd: "apt show nginx", desc: "Show package info", example: "Read the description, version, and dependencies of this package before installing." },
+                    { cmd: "apt list --installed", desc: "List installed packages", example: "Show me absolutely everything installed on this server." },
+                    { cmd: "dpkg -i package.deb", desc: "Manual install", example: "Install a raw Debian package file I downloaded manually (does NOT resolve dependencies)." },
+                    { cmd: "dpkg -r package", desc: "Manual remove", example: "Remove a manually installed package." },
+                    { cmd: "dpkg -l | grep nginx", desc: "Check if installed", example: "Quickly verify if a specific package is installed on the system." },
+                    { cmd: "dpkg -S /etc/nginx/nginx.conf", desc: "Find owning package", example: "I found this file on the disk. Which package created it?" },
+                    { cmd: "add-apt-repository ppa:name", desc: "Add custom App Store", example: "Add a 3rd party repository to get newer software not in the official catalog." },
+                    { cmd: "yum check-update", desc: "Update catalog (RHEL/CentOS)", example: "Check if updates are available on RedHat-based systems." },
+                    { cmd: "yum install httpd", desc: "Install package (RHEL)", example: "Install the web server on CentOS/RHEL." },
+                    { cmd: "yum remove httpd", desc: "Remove package (RHEL)", example: "Uninstall on RedHat systems." },
+                    { cmd: "yum search docker", desc: "Search catalog (RHEL)", example: "Look for docker packages." },
+                    { cmd: "yum info docker", desc: "Show package info (RHEL)", example: "Read package details." },
+                    { cmd: "yum provides netstat", desc: "Find missing command", example: "I type 'netstat' and get 'command not found'. Ask YUM what package contains that command." },
+                    { cmd: "rpm -ivh package.rpm", desc: "Manual install (RHEL)", example: "Install a raw RPM file manually with verbose progress bars." },
+                    { cmd: "rpm -e package", desc: "Manual remove (RHEL)", example: "Remove an RPM package." },
+                    { cmd: "rpm -qa | grep kernel", desc: "List installed (RHEL)", example: "Query All installed packages and filter for kernel versions." },
+                    { cmd: "rpm -ql package", desc: "List files in package", example: "Show me every single file this package created on my disk." },
+                    { cmd: "dnf install httpd", desc: "Modern RHEL install", example: "Use DNF, the newer, faster replacement for YUM in modern Fedora/RHEL." },
+                    { cmd: "dnf history", desc: "View install history", example: "Show me a log of every time someone ran an install/update command. Great for audits." },
+                    { cmd: "snap install docker", desc: "Install Snap package", example: "Install a sandboxed, containerized application format (common in Ubuntu)." },
+                    { cmd: "snap list", desc: "List Snap packages", example: "Show installed snaps." },
+                    { cmd: "flatpak list", desc: "List Flatpak packages", example: "Show installed flatpaks (another sandboxed format)." },
+                    { cmd: "apt-get clean", desc: "Clear downloaded cache", example: "Delete the raw .deb files the package manager downloaded to free up disk space." }
+                ]
+            },
+            {
+                id: 'mod10', icon: '🔥', title: 'Advanced Master Level',
+                layman: `<strong>Ultra Layman Analogy: The Engine Room and Mechanic Tools</strong><br><br>
+                         This is where you look under the hood of the car.<br>
+                         • <strong>Kernel:</strong> The actual core brain of Linux. It talks directly to the physical motherboard and CPU.<br>
+                         • <strong>Environment Variables ($PATH):</strong> A cheat sheet Linux uses. When you type 'ls', Linux checks the $PATH list of folders to find the 'ls' program. If your script says 'command not found', your $PATH is wrong.<br>
+                         • <strong>Strace:</strong> Attaching a wiretap to a program. If an app vaguely says "Error occurred", <code>strace</code> shows you exactly which internal file or network call was denied.`,
+                commands: [
+                    { cmd: "uname -a", desc: "Print system info", example: "Show me the exact Linux Kernel version, architecture, and hostname." },
+                    { cmd: "uname -r", desc: "Print kernel release", example: "Just give me the kernel version number." },
+                    { cmd: "sysctl -a", desc: "List kernel parameters", example: "Dump every live, tunable setting in the Linux brain." },
+                    { cmd: "sysctl -p", desc: "Reload kernel settings", example: "I edited /etc/sysctl.conf. Tell the kernel to read the new network/memory rules." },
+                    { cmd: "sysctl -w net.ipv4.ip_forward=1", desc: "Live kernel edit", example: "Temporarily turn this server into a network router by allowing IP forwarding." },
+                    { cmd: "lsmod", desc: "List kernel modules", example: "Show me what drivers (modules) are currently loaded into the brain." },
+                    { cmd: "modprobe <module>", desc: "Load kernel module", example: "Intelligently load a hardware driver and all of its dependencies." },
+                    { cmd: "rmmod <module>", desc: "Remove kernel module", example: "Eject a driver from the kernel." },
+                    { cmd: "insmod <file.ko>", desc: "Force insert module", example: "Manually inject a raw driver file directly into the kernel." },
+                    { cmd: "modinfo <module>", desc: "Module information", example: "Read the author and description of a specific kernel driver." },
+                    { cmd: "lscpu", desc: "CPU architecture", example: "How many physical cores, threads, and sockets does this machine have?" },
+                    { cmd: "lsusb", desc: "List USB devices", example: "Show what is plugged into the USB ports." },
+                    { cmd: "lspci", desc: "List PCI devices", example: "Show me the internal motherboards slots (Graphics cards, Network adapters)." },
+                    { cmd: "lshw -short", desc: "Hardware summary", example: "Give me a clean list of all physical hardware detected by the OS." },
+                    { cmd: "strace -c -p 1234", desc: "Profile system calls", example: "Wiretap the process and print a summary table of what it spends the most time doing." },
+                    { cmd: "strace -e open -p 1234", desc: "Trace file opens", example: "Only alert me when worker #1234 tries to open a file. Great for finding permission denied errors." },
+                    { cmd: "ltrace ./my_app", desc: "Trace library calls", example: "Trace exactly which C-library functions (like malloc, printf) the program is calling." },
+                    { cmd: "env", desc: "List environment variables", example: "Show me all the current invisible text variables loaded in my session." },
+                    { cmd: "printenv PATH", desc: "Print specific variable", example: "Show me exactly the list of folders Linux searches to find commands." },
+                    { cmd: "export DB_URL='localhost'", desc: "Set variable temporarily", example: "Create an invisible variable that scripts can read, lasting only until I close the terminal." },
+                    { cmd: "unset DB_URL", desc: "Delete variable", example: "Remove the variable from memory." },
+                    { cmd: "source ~/.bashrc", desc: "Reload shell config", example: "I added an alias. Re-read the config file so it takes effect instantly without logging out." },
+                    { cmd: "alias ll='ls -la'", desc: "Create command shortcut", example: "Make a shortcut so typing 'll' runs the full list command." },
+                    { cmd: "unalias ll", desc: "Remove shortcut", example: "Delete the alias." },
+                    { cmd: "history", desc: "Command history", example: "Show me the last 1000 commands typed on this terminal. Did someone type a password by mistake?" },
+                    { cmd: "!$", desc: "Last argument shortcut", example: "Magic: Type 'mkdir /long/path', then 'cd !$'. It expands to the last thing you typed." },
+                    { cmd: "!!", desc: "Repeat last command", example: "Forgot sudo? Just type 'sudo !!' and it reruns the previous command as root." },
+                    { cmd: "!123", desc: "Run history line", example: "Look at output of 'history', see command #123 was perfect, type this to instantly run it again." },
+                    { cmd: "bash -x script.sh", desc: "Debug bash script", example: "Run the script, but print out every single line and variable evaluation as it happens. Extremely useful." },
+                    { cmd: "shellcheck script.sh", desc: "Lint bash script", example: "(Requires install) Analyze my bash script and tell me if I made any dangerous syntax errors." }
+                ]
+            }
+        ];
+
+        // --- Data Structure for Outage Simulator ---
+        const outageScenarios = [
+            {
+                title: "🚨 The Website is Not Loading (Connection Refused)",
+                desc: "User says the website is down. The browser says 'Connection Refused'.",
+                steps: [
+                    { act: "1. Is the process even running?", cmd: "systemctl status nginx", reason: "Check if the web server daemon crashed." },
+                    { act: "2. Is it listening on the right port?", cmd: "ss -tulnp | grep :80", reason: "Ensure port 80/443 is actually open and bound to nginx." },
+                    { act: "3. Are the logs showing errors?", cmd: "tail -n 50 /var/log/nginx/error.log", reason: "Look for 'Permission denied' or 'Config syntax error'." },
+                    { act: "4. Is the firewall blocking it?", cmd: "sudo ufw status", reason: "Check if the local Linux firewall is dropping port 80 traffic." }
+                ]
+            },
+            {
+                title: "🚨 Server is extremely slow / High CPU",
+                desc: "SSH takes forever to connect. Everything is lagging.",
+                steps: [
+                    { act: "1. Find the culprit", cmd: "htop", reason: "Sort by CPU%. Identify the PID of the rogue process." },
+                    { act: "2. Check disk I/O wait", cmd: "iostat -x 1", reason: "Is the CPU slow, or is it waiting for a slow hard drive (%iowait)?" },
+                    { act: "3. Check Memory & Swap", cmd: "free -m", reason: "If RAM is full and it's using Swap, the server will crawl. Kill memory hogs." },
+                    { act: "4. Kill the rogue process", cmd: "kill -15 <PID>", reason: "Ask it nicely to stop. If it refuses, use 'kill -9 <PID>'." }
+                ]
+            },
+            {
+                title: "🚨 'No Space Left on Device' Error",
+                desc: "Applications are crashing, database won't start, complaining about disk space.",
+                steps: [
+                    { act: "1. Verify Block Space", cmd: "df -h", reason: "Check if any partition (like / or /var) is at 100% Use." },
+                    { act: "2. Verify Inode Space (The Trap)", cmd: "df -i", reason: "If df -h says 50% used, but df -i says 100%, you have millions of tiny files." },
+                    { act: "3. Find the giant files", cmd: "du -sh /* | sort -rh | head -10", reason: "Find which top-level folder is hoarding the space." },
+                    { act: "4. Safely empty log files", cmd: "echo '' > /var/log/huge_file.log", reason: "DO NOT 'rm' a live log file, the space won't free up! Truncate it instead using echo." }
+                ]
+            }
+        ];
+
+        // --- DOM Elements ---
+        const navMenu = document.getElementById('nav-menu');
+        const contentArea = document.getElementById('content-area');
+
+        // --- Initialization ---
+        function init() {
+            // Build Sidebar
+            devopsModules.forEach(mod => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <button onclick="loadModule('${mod.id}')" id="nav-${mod.id}" class="nav-item w-full text-left px-4 py-3 text-slate-300 hover:bg-slate-800 flex items-center gap-3">
+                        <span class="text-xl">${mod.icon}</span> <span class="text-sm font-medium leading-tight">${mod.title}</span>
+                    </button>
+                `;
+                navMenu.appendChild(li);
+            });
+            
+            // Load first module by default
+            loadModule('mod1');
+        }
+
+        // --- Core Logic ---
+        function loadModule(id) {
+            clearNavActive();
+            document.getElementById(`nav-${id}`).classList.add('active');
+
+            const mod = devopsModules.find(m => m.id === id);
+            
+            let cmdsHtml = mod.commands.map(c => `
+                <div class="bg-slate-900 border border-slate-700 rounded-lg p-4 mb-4 relative group">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-emerald-400 font-bold text-sm">${c.desc}</span>
+                        <button onclick="copyCmd(this, '${c.cmd.replace(/'/g, "\\'")}')" class="text-xs bg-slate-700 hover:bg-slate-600 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 ml-2">Copy</button>
+                    </div>
+                    <code class="cmd-block text-cyan-300 block text-sm md:text-lg mb-3 break-all bg-slate-950 p-2 rounded shadow-inner border border-slate-800 select-all">$ ${c.cmd}</code>
+                    <div class="text-slate-400 text-sm italic border-l-2 border-slate-600 pl-3">
+                        " ${c.example} "
+                    </div>
+                </div>
+            `).join('');
+
+            contentArea.innerHTML = `
+                <div class="fade-in">
+                    <div class="flex items-center gap-4 mb-6 border-b border-slate-700 pb-4">
+                        <span class="text-4xl bg-slate-900 p-3 rounded-xl border border-slate-700 shadow-lg shrink-0">${mod.icon}</span>
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">${mod.title}</h2>
+                            <span class="text-xs font-mono text-emerald-500 mt-1 block">Total Commands: ${mod.commands.length}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-slate-700/30 border border-slate-600 rounded-xl p-4 md:p-6 mb-8 text-slate-300 leading-relaxed shadow-inner text-sm md:text-base">
+                        ${mod.layman}
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><span class="text-emerald-500">>></span> Production Commands</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        ${cmdsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadInterviewMode() {
+            clearNavActive();
+            document.getElementById('nav-interview').classList.add('active');
+
+            let scenariosHtml = outageScenarios.map(s => `
+                <div class="bg-slate-900 border border-red-900/50 rounded-xl p-4 md:p-6 mb-6 shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
+                    <h3 class="text-xl font-bold text-white mb-2">${s.title}</h3>
+                    <p class="text-slate-400 text-sm mb-5">${s.desc}</p>
+                    
+                    <div class="space-y-3">
+                        ${s.steps.map(step => `
+                            <div class="bg-slate-950 border border-slate-800 rounded p-3 flex flex-col lg:flex-row lg:items-center gap-3">
+                                <div class="lg:w-1/3 text-sm font-semibold text-emerald-400">${step.act}</div>
+                                <div class="lg:w-1/3"><code class="text-cyan-300 font-mono text-sm bg-slate-900 px-2 py-1 rounded border border-slate-700 break-all cursor-pointer hover:bg-slate-800 block w-full" onclick="copyCmd(this, '${step.cmd}')" title="Click to copy">$ ${step.cmd}</code></div>
+                                <div class="lg:w-1/3 text-xs text-slate-500 italic">${step.reason}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            contentArea.innerHTML = `
+                <div class="fade-in">
+                    <div class="mb-8 border-b border-slate-700 pb-4">
+                        <h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight flex items-center gap-3">
+                            <span class="animate-pulse">🔴</span> Real-World Outage Simulator
+                        </h2>
+                        <p class="text-slate-400 mt-2 text-sm md:text-base">In an interview (or at 3 AM on-call), you must debug calmly. Don't guess. Follow the data. Click any command to copy.</p>
+                    </div>
+                    ${scenariosHtml}
+                </div>
+            `;
+        }
+
+        // --- Utilities ---
+        function clearNavActive() {
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        }
+
+        function copyCmd(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copied!";
+                btn.classList.add("bg-emerald-600", "text-white");
+                btn.classList.remove("bg-slate-700", "text-cyan-300");
+                
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.classList.remove("bg-emerald-600", "text-white");
+                    // Reset to original class based on where it was clicked from
+                    if(originalText === 'Copy') btn.classList.add("bg-slate-700");
+                    else btn.classList.add("text-cyan-300"); 
+                }, 1500);
+            });
+        }
+
+        // Start App
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

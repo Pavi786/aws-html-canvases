@@ -1,0 +1,3340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MLOps Deep Dive — From Zero to Intermediate</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080E0A;
+  --surface: #0D1610;
+  --surface2: #121F15;
+  --surface3: #172419;
+  --border: rgba(52,211,100,0.12);
+  --border2: rgba(52,211,100,0.25);
+  --green: #34D364;
+  --green-dim: #1A6B32;
+  --green-light: #7DFFA8;
+  --teal: #00E5CC;
+  --yellow: #FFD166;
+  --orange: #FF8C42;
+  --red: #FF4D6A;
+  --blue: #4DB8FF;
+  --purple: #B47AFF;
+  --text: #DFF5E6;
+  --text-muted: #6B9E7A;
+  --text-dim: #3A5C44;
+  --mono: 'JetBrains Mono', monospace;
+  --body: 'Outfit', sans-serif;
+  --serif: 'Libre Baskerville', serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Noise overlay */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: 280px;
+  min-width: 280px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  scrollbar-width: thin;
+  scrollbar-color: var(--green-dim) transparent;
+}
+
+#sidebar::-webkit-scrollbar { width: 4px; }
+#sidebar::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 2px; }
+
+.sidebar-header {
+  padding: 24px 20px 16px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 10;
+}
+
+.sidebar-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sidebar-title {
+  font-family: var(--body);
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.sidebar-progress {
+  margin-top: 10px;
+  height: 3px;
+  background: var(--surface3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.sidebar-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--teal));
+  border-radius: 2px;
+  transition: width 0.3s;
+  width: 0%;
+}
+
+.nav-section {
+  padding: 10px 20px 4px;
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 2px solid transparent;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  background: rgba(52,211,100,0.05);
+  border-left-color: var(--green-dim);
+}
+
+.nav-item.active {
+  background: rgba(52,211,100,0.08);
+  border-left-color: var(--green);
+}
+
+.nav-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  min-width: 20px;
+}
+
+.nav-item.active .nav-num { color: var(--green); }
+
+.nav-label {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.nav-item.active .nav-label { color: var(--text); }
+
+.nav-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.badge-basic { background: rgba(0,229,204,0.1); color: var(--teal); border: 1px solid rgba(0,229,204,0.2); }
+.badge-inter { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.2); }
+.badge-adv { background: rgba(255,76,106,0.1); color: var(--red); border: 1px solid rgba(255,76,106,0.2); }
+
+/* ── MAIN CONTENT ── */
+#main {
+  flex: 1;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--green-dim) transparent;
+}
+
+#main::-webkit-scrollbar { width: 6px; }
+#main::-webkit-scrollbar-thumb { background: var(--green-dim); border-radius: 3px; }
+
+/* ── PAGE ── */
+.page {
+  min-height: 100vh;
+  border-bottom: 2px solid var(--border);
+  padding: 48px 48px 64px;
+  position: relative;
+  overflow: hidden;
+}
+
+.page::after {
+  content: attr(data-page);
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* Page header */
+.page-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.eyebrow-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--green);
+  border: 1px solid var(--border2);
+  padding: 3px 12px;
+  border-radius: 2px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.page-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+
+.page-title {
+  font-family: var(--body);
+  font-size: clamp(28px, 4vw, 46px);
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.05;
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
+.page-title span { color: var(--green); }
+
+.page-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 780px;
+  margin-bottom: 36px;
+  font-weight: 300;
+}
+
+/* Content blocks */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.grid-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+
+.card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 22px;
+  transition: border-color 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+.card-icon { font-size: 24px; margin-bottom: 12px; display: block; }
+
+.card-title {
+  font-family: var(--body);
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.card p, .card li {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.75;
+}
+
+.card ul { list-style: none; }
+.card ul li { display: flex; gap: 8px; padding: 3px 0; }
+.card ul li::before { content: '›'; color: var(--green); flex-shrink: 0; }
+
+/* Accent cards */
+.card-green { border-left: 3px solid var(--green); }
+.card-teal { border-left: 3px solid var(--teal); }
+.card-yellow { border-left: 3px solid var(--yellow); }
+.card-red { border-left: 3px solid var(--red); }
+.card-blue { border-left: 3px solid var(--blue); }
+.card-purple { border-left: 3px solid var(--purple); }
+.card-orange { border-left: 3px solid var(--orange); }
+
+/* Pro/Con */
+.pro-card {
+  background: rgba(52,211,100,0.04);
+  border-color: rgba(52,211,100,0.2);
+}
+.con-card {
+  background: rgba(255,76,106,0.04);
+  border-color: rgba(255,76,106,0.2);
+}
+.pro-card .card-title { color: var(--green); }
+.con-card .card-title { color: var(--red); }
+.pro-card ul li::before { content: '✓'; color: var(--green); }
+.con-card ul li::before { content: '✗'; color: var(--red); }
+
+/* Code block */
+.code-block {
+  background: #040A06;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 18px 20px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.85;
+  overflow-x: auto;
+  margin: 10px 0;
+  position: relative;
+}
+
+.code-block .cmt { color: #3A6648; }
+.code-block .kw { color: #FF8C42; }
+.code-block .fn { color: var(--green-light); }
+.code-block .str { color: var(--yellow); }
+.code-block .num { color: var(--teal); }
+.code-block .var { color: var(--blue); }
+.code-block .cmd { color: var(--text); }
+.code-block .flag { color: var(--orange); }
+.code-block .out { color: var(--text-muted); }
+.code-block .key { color: var(--blue); }
+
+.code-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+/* Flow diagram */
+.flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 16px 0;
+  justify-content: center;
+}
+
+.flow-node {
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.flow-node-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+.flow-node-label { font-family: var(--mono); font-size: 11px; color: var(--text); }
+.flow-node-sub { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+.flow-arrow { color: var(--green); font-size: 18px; margin: 0 4px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; margin: 16px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+th {
+  background: var(--surface3);
+  color: var(--green);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(52,211,100,0.06);
+  color: var(--text-muted);
+  vertical-align: top;
+}
+tr:hover td { background: rgba(52,211,100,0.03); }
+td:first-child { color: var(--text); font-weight: 600; }
+
+/* Info box */
+.info-box {
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.info-box strong { color: var(--green-light); }
+.box-green { background: rgba(52,211,100,0.05); border: 1px solid rgba(52,211,100,0.2); border-left: 3px solid var(--green); }
+.box-yellow { background: rgba(255,209,102,0.05); border: 1px solid rgba(255,209,102,0.2); border-left: 3px solid var(--yellow); }
+.box-red { background: rgba(255,76,106,0.05); border: 1px solid rgba(255,76,106,0.2); border-left: 3px solid var(--red); }
+.box-teal { background: rgba(0,229,204,0.05); border: 1px solid rgba(0,229,204,0.2); border-left: 3px solid var(--teal); }
+.box-blue { background: rgba(77,184,255,0.05); border: 1px solid rgba(77,184,255,0.2); border-left: 3px solid var(--blue); }
+
+/* Tags */
+.tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+.tag { font-family:var(--mono); font-size:10px; padding:3px 9px; border-radius:2px; letter-spacing:0.04em; text-transform:uppercase; }
+.t-green { background:rgba(52,211,100,0.1); color:var(--green); border:1px solid rgba(52,211,100,0.2); }
+.t-teal { background:rgba(0,229,204,0.1); color:var(--teal); border:1px solid rgba(0,229,204,0.2); }
+.t-yellow { background:rgba(255,209,102,0.1); color:var(--yellow); border:1px solid rgba(255,209,102,0.2); }
+.t-red { background:rgba(255,76,106,0.1); color:var(--red); border:1px solid rgba(255,76,106,0.2); }
+.t-blue { background:rgba(77,184,255,0.1); color:var(--blue); border:1px solid rgba(77,184,255,0.2); }
+.t-purple { background:rgba(180,122,255,0.1); color:var(--purple); border:1px solid rgba(180,122,255,0.2); }
+.t-orange { background:rgba(255,140,66,0.1); color:var(--orange); border:1px solid rgba(255,140,66,0.2); }
+
+/* Level pill */
+.level {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+}
+.level-basic { background: rgba(0,229,204,0.1); color: var(--teal); border: 1px solid rgba(0,229,204,0.25); }
+.level-inter { background: rgba(255,209,102,0.1); color: var(--yellow); border: 1px solid rgba(255,209,102,0.25); }
+.level-adv { background: rgba(255,76,106,0.1); color: var(--red); border: 1px solid rgba(255,76,106,0.25); }
+
+/* Divider */
+.divider { height:1px; background: var(--border); margin: 28px 0; }
+
+/* Quote / callout */
+.callout {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-style: italic;
+  color: var(--text-muted);
+  border-left: 3px solid var(--green);
+  padding: 12px 20px;
+  margin: 20px 0;
+  background: rgba(52,211,100,0.03);
+  border-radius: 0 6px 6px 0;
+  line-height: 1.7;
+}
+
+/* Maturity levels */
+.maturity-bar {
+  display: flex;
+  gap: 2px;
+  margin: 20px 0;
+}
+.mat-step {
+  flex: 1;
+  padding: 14px 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  text-align: center;
+  position: relative;
+}
+.mat-step.active {
+  background: rgba(52,211,100,0.08);
+  border-color: var(--green);
+}
+.mat-step-num { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--green); }
+.mat-step-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+.mat-step-sub { font-size: 10px; color: var(--text-dim); margin-top: 3px; font-family: var(--mono); }
+
+/* Checklist */
+.checklist { list-style: none; }
+.checklist li {
+  display: flex;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 14px;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(52,211,100,0.05);
+  line-height: 1.6;
+}
+.checklist li::before { content: '▸'; color: var(--green); flex-shrink: 0; margin-top: 2px; }
+
+/* Hero banner on page 1 */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 50%, rgba(52,211,100,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(0,229,204,0.04) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Grid bg */
+.grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(52,211,100,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(52,211,100,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+/* Comparison table row colors */
+.row-green td:first-child { color: var(--green); }
+.row-teal td:first-child { color: var(--teal); }
+.row-yellow td:first-child { color: var(--yellow); }
+.row-red td:first-child { color: var(--red); }
+
+/* Tool card */
+.tool-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tool-name { font-weight: 700; color: #fff; font-size: 15px; }
+.tool-cat { font-family: var(--mono); font-size: 10px; color: var(--green); text-transform: uppercase; letter-spacing: 0.08em; }
+.tool-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+
+/* Resp */
+@media (max-width: 1100px) {
+  #sidebar { width: 220px; min-width: 220px; }
+  .page { padding: 32px 28px 48px; }
+}
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  #sidebar { width: 100%; height: auto; position: relative; overflow-y: visible; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+}
+
+/* Scroll indicator */
+.scroll-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  background: var(--green);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: #000;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s;
+  box-shadow: 0 4px 20px rgba(52,211,100,0.3);
+}
+.scroll-top.visible { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ─── SIDEBAR ─── -->
+<nav id="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">● DevOps → MLOps</div>
+    <div class="sidebar-title">MLOps<br>Deep Dive</div>
+    <div class="sidebar-progress"><div class="sidebar-progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <div class="nav-section">Foundation</div>
+  <a class="nav-item active" href="#p1" onclick="setActive(this)"><span class="nav-num">01</span><span class="nav-label">What is MLOps?</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p2" onclick="setActive(this)"><span class="nav-num">02</span><span class="nav-label">MLOps vs DevOps</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p3" onclick="setActive(this)"><span class="nav-num">03</span><span class="nav-label">Maturity Levels</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p4" onclick="setActive(this)"><span class="nav-num">04</span><span class="nav-label">ML Lifecycle</span><span class="nav-badge badge-basic">basic</span></a>
+
+  <div class="nav-section">Data Layer</div>
+  <a class="nav-item" href="#p5" onclick="setActive(this)"><span class="nav-num">05</span><span class="nav-label">Data Collection</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p6" onclick="setActive(this)"><span class="nav-num">06</span><span class="nav-label">Data Versioning (DVC)</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p7" onclick="setActive(this)"><span class="nav-num">07</span><span class="nav-label">Feature Engineering</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p8" onclick="setActive(this)"><span class="nav-num">08</span><span class="nav-label">Feature Stores</span><span class="nav-badge badge-inter">inter</span></a>
+
+  <div class="nav-section">Training</div>
+  <a class="nav-item" href="#p9" onclick="setActive(this)"><span class="nav-num">09</span><span class="nav-label">Model Training</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p10" onclick="setActive(this)"><span class="nav-num">10</span><span class="nav-label">Experiment Tracking</span><span class="nav-badge badge-basic">basic</span></a>
+  <a class="nav-item" href="#p11" onclick="setActive(this)"><span class="nav-num">11</span><span class="nav-label">Model Registry</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p12" onclick="setActive(this)"><span class="nav-num">12</span><span class="nav-label">Hyperparameter Tuning</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p13" onclick="setActive(this)"><span class="nav-num">13</span><span class="nav-label">Model Evaluation</span><span class="nav-badge badge-basic">basic</span></a>
+
+  <div class="nav-section">Deployment</div>
+  <a class="nav-item" href="#p14" onclick="setActive(this)"><span class="nav-num">14</span><span class="nav-label">Model Packaging</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p15" onclick="setActive(this)"><span class="nav-num">15</span><span class="nav-label">CI/CD for ML</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p16" onclick="setActive(this)"><span class="nav-num">16</span><span class="nav-label">Deploy Strategies</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p17" onclick="setActive(this)"><span class="nav-num">17</span><span class="nav-label">REST API Serving</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p18" onclick="setActive(this)"><span class="nav-num">18</span><span class="nav-label">Batch Inference</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p19" onclick="setActive(this)"><span class="nav-num">19</span><span class="nav-label">Online vs Batch</span><span class="nav-badge badge-inter">inter</span></a>
+
+  <div class="nav-section">Monitoring</div>
+  <a class="nav-item" href="#p20" onclick="setActive(this)"><span class="nav-num">20</span><span class="nav-label">Model Monitoring</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p21" onclick="setActive(this)"><span class="nav-num">21</span><span class="nav-label">Data Drift Detection</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p22" onclick="setActive(this)"><span class="nav-num">22</span><span class="nav-label">Model Retraining</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p23" onclick="setActive(this)"><span class="nav-num">23</span><span class="nav-label">A/B Testing Models</span><span class="nav-badge badge-inter">inter</span></a>
+
+  <div class="nav-section">Infrastructure</div>
+  <a class="nav-item" href="#p24" onclick="setActive(this)"><span class="nav-num">24</span><span class="nav-label">Kubernetes for MLOps</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p25" onclick="setActive(this)"><span class="nav-num">25</span><span class="nav-label">Azure ML</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p26" onclick="setActive(this)"><span class="nav-num">26</span><span class="nav-label">AWS SageMaker</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p27" onclick="setActive(this)"><span class="nav-num">27</span><span class="nav-label">GCP Vertex AI</span><span class="nav-badge badge-inter">inter</span></a>
+
+  <div class="nav-section">Tools Deep Dive</div>
+  <a class="nav-item" href="#p28" onclick="setActive(this)"><span class="nav-num">28</span><span class="nav-label">MLflow Complete Guide</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p29" onclick="setActive(this)"><span class="nav-num">29</span><span class="nav-label">Kubeflow Pipelines</span><span class="nav-badge badge-adv">adv</span></a>
+  <a class="nav-item" href="#p30" onclick="setActive(this)"><span class="nav-num">30</span><span class="nav-label">Airflow for ML</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p31" onclick="setActive(this)"><span class="nav-num">31</span><span class="nav-label">MLOps Tools Ecosystem</span><span class="nav-badge badge-inter">inter</span></a>
+  <a class="nav-item" href="#p32" onclick="setActive(this)"><span class="nav-num">32</span><span class="nav-label">Security in MLOps</span><span class="nav-badge badge-inter">inter</span></a>
+</nav>
+
+<!-- ─── MAIN ─── -->
+<div id="main">
+
+<!-- ══════════════════════════ PAGE 1 ══════════════════════════ -->
+<div class="page" id="p1" data-page="01 / 32">
+  <div class="hero-bg"></div>
+  <div class="grid-bg"></div>
+
+  <div class="page-eyebrow">
+    <span class="eyebrow-tag">Foundation</span>
+    <div class="eyebrow-line"></div>
+    <span class="page-num">Page 01</span>
+  </div>
+
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">What is <span>MLOps</span>?<br>The Big Picture</h1>
+  <p class="page-desc">MLOps = Machine Learning + Operations. Think of it like DevOps, but for AI models. Just as DevOps helps you ship software reliably, MLOps helps you build, deploy, and keep AI models running reliably in the real world — without them going stale, breaking, or costing a fortune.</p>
+
+  <div class="callout">"A model that only works in a Jupyter notebook is not a product. MLOps is the discipline of taking that notebook to production and keeping it alive."</div>
+
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="card card-green">
+      <span class="card-icon">🧠</span>
+      <div class="card-title">The Problem MLOps Solves</div>
+      <p>Data scientists build great models in notebooks. But notebooks don't run in production. Models need to be packaged, served, monitored, and retrained — just like apps. Without MLOps, models rot silently.</p>
+    </div>
+    <div class="card card-teal">
+      <span class="card-icon">⚙️</span>
+      <div class="card-title">What MLOps Covers</div>
+      <ul>
+        <li>Building repeatable training pipelines</li>
+        <li>Versioning data, code, and models</li>
+        <li>Deploying models as APIs or batch jobs</li>
+        <li>Monitoring predictions for quality issues</li>
+        <li>Retraining automatically when needed</li>
+      </ul>
+    </div>
+    <div class="card card-yellow">
+      <span class="card-icon">👷</span>
+      <div class="card-title">Why DevOps Engineers?</div>
+      <p>You already know CI/CD, containers, infra-as-code, and monitoring. MLOps is 70% those skills applied to a new domain. You just need to learn the ML-specific pieces on top: model formats, training pipelines, drift monitoring.</p>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">The Classic MLOps Pain Story</p>
+      <div class="info-box box-red">
+        <strong>Without MLOps:</strong> Data scientist trains a fraud detection model in January. It gets 95% accuracy. Engineers copy-paste it into production. In March, fraudsters change tactics. The model's accuracy silently drops to 60%. Nobody notices. The business loses millions. Three months later, someone spots it manually.<br><br>
+        This is called <strong>model drift</strong> — and it's the #1 reason MLOps exists.
+      </div>
+      <div class="info-box box-green">
+        <strong>With MLOps:</strong> The same model is deployed with a monitoring pipeline. When accuracy drops below 80%, an alert fires. An automated retraining job kicks off with new data. A new model is tested, validated, and deployed — all within hours, not months.
+      </div>
+    </div>
+    <div>
+      <p class="code-label">MLOps Core Pillars</p>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="color:var(--green);font-size:13px;">📦 Reproducibility</div>
+          <p style="font-size:12px;">Anyone can re-run the same experiment and get the same result. No "it works on my machine."</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="color:var(--teal);font-size:13px;">🔄 Automation</div>
+          <p style="font-size:12px;">Data pipelines, training, testing, deployment — all automated. Minimal manual steps.</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="color:var(--yellow);font-size:13px;">📊 Continuous Monitoring</div>
+          <p style="font-size:12px;">Track model accuracy, data quality, and prediction distribution 24/7.</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="color:var(--orange);font-size:13px;">🚀 Scalability</div>
+          <p style="font-size:12px;">Serve predictions to millions of users. Train on terabytes. Handle load spikes.</p>
+        </div>
+      </div>
+      <div class="tags" style="margin-top:16px;">
+        <span class="tag t-green">Data Engineering</span>
+        <span class="tag t-teal">Model Serving</span>
+        <span class="tag t-yellow">Monitoring</span>
+        <span class="tag t-blue">CI/CD</span>
+        <span class="tag t-purple">Governance</span>
+        <span class="tag t-orange">Cost Control</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 2 ══════════════════════════ -->
+<div class="page" id="p2" data-page="02 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Foundation</span><div class="eyebrow-line"></div><span class="page-num">Page 02</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">MLOps <span>vs</span> DevOps<br>What's Different?</h1>
+  <p class="page-desc">If you already know DevOps, you're 70% of the way to MLOps. But there are critical differences. In DevOps, code is deterministic — the same input always gives the same output. In ML, models are probabilistic — and they change behavior over time even if the code never changes.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Concept</th><th>DevOps Equivalent</th><th>MLOps Version</th><th>Key Difference</th></tr></thead>
+      <tbody>
+        <tr><td>Source Code</td><td>Git repository</td><td>Git + DVC (data) + MLflow (models)</td><td>You version data AND models, not just code</td></tr>
+        <tr><td>Build</td><td>Compile / docker build</td><td>Model training run</td><td>Training can take hours and cost $100s on GPUs</td></tr>
+        <tr><td>Test</td><td>Unit / integration tests</td><td>Model evaluation (accuracy, bias, latency)</td><td>No binary pass/fail — it's "good enough?" judgement</td></tr>
+        <tr><td>Deploy</td><td>Ship new container</td><td>Deploy new model version + canary testing</td><td>Model may degrade silently — need shadow/canary mode</td></tr>
+        <tr><td>Monitor</td><td>CPU, memory, latency alerts</td><td>+ Data drift, model accuracy, prediction bias</td><td>The app might be "up" but producing wrong answers</td></tr>
+        <tr><td>Rollback</td><td>Deploy previous Docker image</td><td>Restore previous model version from registry</td><td>Need to match old model with old data version</td></tr>
+        <tr><td>Config</td><td>env vars, feature flags</td><td>Hyperparameters, feature selection</td><td>Config changes behavior probabilistically, not deterministically</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px;">
+    <div>
+      <p class="code-label">Skills You Already Have (DevOps → MLOps mapping)</p>
+      <div class="card card-green">
+        <div class="card-title">✅ Your Existing Skills Transfer Directly</div>
+        <ul>
+          <li><strong>Docker / containers</strong> → Package models in containers</li>
+          <li><strong>Kubernetes</strong> → Scale model serving pods (KServe)</li>
+          <li><strong>CI/CD pipelines</strong> → Automate model training + deployment</li>
+          <li><strong>Terraform / Bicep</strong> → Provision ML infrastructure</li>
+          <li><strong>Monitoring / Grafana</strong> → Add ML-specific metrics on top</li>
+          <li><strong>Git branching</strong> → Experiment branching for model code</li>
+          <li><strong>Cloud providers</strong> → Same AWS/Azure/GCP, new ML services</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <p class="code-label">New Skills You Need to Learn</p>
+      <div class="card card-yellow">
+        <div class="card-title">🆕 Net-New MLOps Concepts</div>
+        <ul>
+          <li><strong>Data versioning</strong> (DVC, Delta Lake)</li>
+          <li><strong>Experiment tracking</strong> (MLflow, W&B)</li>
+          <li><strong>Model serialization</strong> (ONNX, pickle, SavedModel)</li>
+          <li><strong>Feature engineering & feature stores</strong></li>
+          <li><strong>Drift detection</strong> (data drift, concept drift)</li>
+          <li><strong>Model registries</strong> (MLflow Registry, Sagemaker)</li>
+          <li><strong>ML-specific pipeline tools</strong> (Kubeflow, Airflow)</li>
+          <li><strong>Statistical testing</strong> for model comparison</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box box-teal" style="margin-top:16px;">
+    <strong>The Key Mindset Shift:</strong> In DevOps, you ship code. In MLOps, you ship <em>behavior</em>. The behavior (predictions) depends on both code AND data. Change either one and the behavior changes. This means you must version and test both independently.
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 3 ══════════════════════════ -->
+<div class="page" id="p3" data-page="03 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Foundation</span><div class="eyebrow-line"></div><span class="page-num">Page 03</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">MLOps <span>Maturity</span> Levels<br>Where Are You?</h1>
+  <p class="page-desc">Google and Microsoft define MLOps maturity in levels. Most companies are at Level 0 or 1. Each level adds more automation. As a DevOps engineer, your goal is to help move the team from Level 0 to Level 2 over time.</p>
+
+  <div class="maturity-bar">
+    <div class="mat-step">
+      <div class="mat-step-num">0</div>
+      <div class="mat-step-label">Manual</div>
+      <div class="mat-step-sub">notebooks only</div>
+    </div>
+    <div class="mat-step active">
+      <div class="mat-step-num">1</div>
+      <div class="mat-step-label">ML Pipeline</div>
+      <div class="mat-step-sub">automated training</div>
+    </div>
+    <div class="mat-step">
+      <div class="mat-step-num">2</div>
+      <div class="mat-step-label">CI/CD + CT</div>
+      <div class="mat-step-sub">full automation</div>
+    </div>
+    <div class="mat-step">
+      <div class="mat-step-num">3</div>
+      <div class="mat-step-label">Advanced</div>
+      <div class="mat-step-sub">self-healing</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:20px;">
+    <div class="card card-red">
+      <div class="card-title">Level 0 — Manual (Most companies here)</div>
+      <p style="margin-bottom:10px;">Data scientists work in Jupyter notebooks. Training is manual. Model is exported and handed off to engineers. No versioning of data or models. Retraining means starting from scratch.</p>
+      <ul>
+        <li>Notebooks as the only artifact</li>
+        <li>Model deployment is manual copy-paste</li>
+        <li>No experiment tracking</li>
+        <li>Retraining is a manual weekend project</li>
+        <li>No monitoring beyond "is the API up?"</li>
+      </ul>
+      <div class="tags"><span class="tag t-red">High risk</span><span class="tag t-orange">Not reproducible</span></div>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Level 1 — ML Pipeline Automation</div>
+      <p style="margin-bottom:10px;">Training is a repeatable automated pipeline (not just a notebook). Data and models are versioned. Experiments are tracked. Deployment is still semi-manual but uses a model registry.</p>
+      <ul>
+        <li>Pipeline tools: Kubeflow, Airflow, Azure ML</li>
+        <li>Experiment tracking: MLflow, Weights & Biases</li>
+        <li>Model Registry with version history</li>
+        <li>Automated retraining on schedule</li>
+        <li>Basic monitoring of model metrics</li>
+      </ul>
+      <div class="tags"><span class="tag t-yellow">Target for year 1</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:14px;">
+    <div class="card card-green">
+      <div class="card-title">Level 2 — CI/CD + Continuous Training (CT)</div>
+      <p style="margin-bottom:10px;">Full automation. Code changes trigger a pipeline that trains, validates, and deploys a new model version automatically. Monitoring triggers retraining when drift is detected.</p>
+      <ul>
+        <li>CI: tests run on every code + data commit</li>
+        <li>CD: validated models auto-deploy to production</li>
+        <li>CT: data drift triggers retraining automatically</li>
+        <li>Shadow mode + canary deployments</li>
+        <li>Full audit trail for compliance</li>
+      </ul>
+      <div class="tags"><span class="tag t-green">Industry best practice</span></div>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Level 3 — Self-Healing AI Systems</div>
+      <p style="margin-bottom:10px;">Experimental. Systems detect issues, run experiments, and self-optimize. Reinforcement learning from live feedback. Extremely complex — only needed at Google/Meta scale.</p>
+      <ul>
+        <li>Automated hyperparameter optimization</li>
+        <li>Online learning from live data streams</li>
+        <li>Self-healing data pipelines</li>
+        <li>Automated feature discovery</li>
+      </ul>
+      <div class="tags"><span class="tag t-teal">Google/Meta scale</span><span class="tag t-blue">Future goal</span></div>
+    </div>
+  </div>
+
+  <div class="info-box box-green" style="margin-top:16px;">
+    <strong>📌 Your Roadmap as a DevOps Engineer:</strong> Start by helping your team move from Level 0 → Level 1. Set up MLflow for experiment tracking, DVC for data versioning, and a basic CI/CD pipeline. That alone delivers 80% of the MLOps value.
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 4 ══════════════════════════ -->
+<div class="page" id="p4" data-page="04 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Foundation</span><div class="eyebrow-line"></div><span class="page-num">Page 04</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">The <span>ML Lifecycle</span><br>End to End</h1>
+  <p class="page-desc">Before you can automate anything, you need to understand what you're automating. Every ML project goes through these stages. As a DevOps/MLOps engineer, you own the pipeline infrastructure that connects all these stages together.</p>
+
+  <div class="flow">
+    <div class="flow-node"><span class="flow-node-icon">📊</span><span class="flow-node-label">Data Collection</span><div class="flow-node-sub">sources → lake</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><span class="flow-node-icon">🔧</span><span class="flow-node-label">Feature Eng.</span><div class="flow-node-sub">transform</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node" style="border-color:rgba(52,211,100,0.5);"><span class="flow-node-icon">🧠</span><span class="flow-node-label">Model Training</span><div class="flow-node-sub">train/validate</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><span class="flow-node-icon">📋</span><span class="flow-node-label">Evaluation</span><div class="flow-node-sub">metrics check</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><span class="flow-node-icon">📦</span><span class="flow-node-label">Packaging</span><div class="flow-node-sub">containerize</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><span class="flow-node-icon">🚀</span><span class="flow-node-label">Deployment</span><div class="flow-node-sub">serve predictions</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><span class="flow-node-icon">👁️</span><span class="flow-node-label">Monitoring</span><div class="flow-node-sub">drift detection</div></div>
+    <div class="flow-arrow" style="color:var(--green);">↺</div>
+  </div>
+
+  <div class="grid-3" style="margin-top:20px;">
+    <div class="card">
+      <div class="card-title" style="color:var(--teal);">🔴 Data Stage (Your Foundation)</div>
+      <p>Garbage in, garbage out. The data stage is where 80% of ML failures originate. You need pipelines that ingest raw data, validate it, version it, and transform it into features the model can learn from.</p>
+      <div class="divider"></div>
+      <ul class="checklist">
+        <li>Raw data ingestion (batch or streaming)</li>
+        <li>Data validation (Great Expectations)</li>
+        <li>Data versioning (DVC, Delta Lake)</li>
+        <li>Feature transformation and storage</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--green);">🟡 Training Stage (Where DS Works)</div>
+      <p>Data scientists run experiments to find the best model. Your job is to make these experiments reproducible, trackable, and scalable — not locked in someone's laptop.</p>
+      <div class="divider"></div>
+      <ul class="checklist">
+        <li>Experiment tracking (MLflow, Comet)</li>
+        <li>Distributed training (Horovod, Ray)</li>
+        <li>Hyperparameter search (Optuna)</li>
+        <li>Model validation and comparison</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title" style="color:var(--yellow);">🟢 Serving Stage (Your Core Domain)</div>
+      <p>The model is live and answering real requests. This is pure DevOps territory — containers, APIs, load balancing, autoscaling. Plus ML-specific: latency budgets, model warming, prediction caching.</p>
+      <div class="divider"></div>
+      <ul class="checklist">
+        <li>REST/gRPC API endpoint</li>
+        <li>Batch prediction jobs</li>
+        <li>Model versioning + rollback</li>
+        <li>Performance monitoring</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="info-box box-yellow" style="margin-top:16px;">
+    <strong>⚠️ The Feedback Loop is Critical:</strong> The lifecycle is a circle, not a line. Monitoring data from production feeds back into the next training cycle. If you break this loop — by not logging predictions, not storing production inputs, or not triggering retraining — your model will degrade and nobody will catch it.
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 5 ══════════════════════════ -->
+<div class="page" id="p5" data-page="05 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Data Layer</span><div class="eyebrow-line"></div><span class="page-num">Page 05</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">Data <span>Collection</span><br>& Ingestion</h1>
+  <p class="page-desc">Think of data ingestion as the equivalent of your source code repository in DevOps. Everything downstream depends on it. In ML, your training data is your "source of truth" — and if it's messy, missing, or biased, your model will be too.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">Data Source Types</p>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card card-teal" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">🗄️ Structured</div>
+          <p style="font-size:12px;">SQL databases, CSV files, Excel spreadsheets. Rows and columns. Easiest to work with.</p>
+        </div>
+        <div class="card card-green" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">📄 Unstructured</div>
+          <p style="font-size:12px;">Images, text, audio, video. Stored in object storage (S3, Blob). Needs preprocessing.</p>
+        </div>
+        <div class="card card-yellow" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">🌊 Streaming</div>
+          <p style="font-size:12px;">Kafka, Kinesis. Real-time events. Complex pipelines. For fraud detection, recommendations.</p>
+        </div>
+        <div class="card card-blue" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">🌐 APIs / Web</div>
+          <p style="font-size:12px;">External data feeds, scraped websites, third-party enrichment services.</p>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="code-label">Data Ingestion Pipeline Example (Python)</p>
+      <div class="code-block">
+<span class="cmt"># Data ingestion with validation</span>
+<span class="kw">import</span> <span class="var">great_expectations</span> <span class="kw">as</span> <span class="var">ge</span>
+<span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="kw">def</span> <span class="fn">ingest_and_validate</span>(<span class="var">source_path</span>: <span class="str">str</span>):
+    <span class="cmt"># Load raw data</span>
+    <span class="var">df</span> = pd.read_parquet(<span class="var">source_path</span>)
+
+    <span class="cmt"># Validate schema and quality</span>
+    <span class="var">gdf</span> = ge.from_pandas(<span class="var">df</span>)
+    <span class="var">gdf</span>.expect_column_to_exist(<span class="str">"user_id"</span>)
+    <span class="var">gdf</span>.expect_column_values_to_not_be_null(<span class="str">"label"</span>)
+    <span class="var">gdf</span>.expect_column_values_to_be_between(
+        <span class="str">"age"</span>, min_value=<span class="num">0</span>, max_value=<span class="num">120</span>)
+
+    <span class="var">result</span> = <span class="var">gdf</span>.validate()
+    <span class="kw">if not</span> <span class="var">result</span>[<span class="str">"success"</span>]:
+        <span class="kw">raise</span> ValueError(<span class="str">"Data validation FAILED"</span>)
+
+    <span class="cmt"># Version the validated data with DVC</span>
+    <span class="var">df</span>.to_parquet(<span class="str">"data/processed/features.parquet"</span>)
+    <span class="kw">return</span> <span class="var">df</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ Pros of Good Data Pipelines</div>
+      <ul>
+        <li>Catch data quality issues before they corrupt your model</li>
+        <li>Reproducible training — always know what data was used</li>
+        <li>Faster debugging when something goes wrong</li>
+        <li>Regulatory compliance — full audit trail of training data</li>
+        <li>Enables automated retraining with fresh data</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ Common Data Ingestion Mistakes</div>
+      <ul>
+        <li>No schema validation — corrupt data silently poisons the model</li>
+        <li>Training/serving skew — different transforms at training vs production</li>
+        <li>Data leakage — future data accidentally included in training</li>
+        <li>No versioning — can't reproduce an old training run</li>
+        <li>Ignoring class imbalance — 99% normal, 1% fraud = useless model</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 6 ══════════════════════════ -->
+<div class="page" id="p6" data-page="06 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Data Layer</span><div class="eyebrow-line"></div><span class="page-num">Page 06</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">Data Versioning<br>with <span>DVC</span></h1>
+  <p class="page-desc">DVC (Data Version Control) is Git for data and models. Since data files are too large for Git, DVC tracks them using lightweight pointer files in Git while storing the actual data in S3, GCS, or Azure Blob. Think of DVC as a layer on top of Git that handles the big stuff.</p>
+
+  <div class="info-box box-green">
+    <strong>Layman explanation:</strong> Git saves the history of your code. DVC saves the history of your datasets. When you ask "what data did we use to train model v2.3?", DVC can answer that instantly — even if that data was 500GB of images.
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">DVC Setup & Basic Workflow</p>
+      <div class="code-block">
+<span class="cmt"># Initialize DVC in your repo</span>
+<span class="cmd">git init && dvc init</span>
+
+<span class="cmt"># Connect to remote storage (Azure Blob)</span>
+<span class="cmd">dvc remote add -d azureblob azure://mldata-bucket/dvc</span>
+<span class="cmd">dvc remote modify azureblob account_name mlacc</span>
+
+<span class="cmt"># Track a dataset (creates data/train.csv.dvc)</span>
+<span class="cmd">dvc add data/train.csv</span>
+<span class="cmd">git add data/train.csv.dvc .gitignore</span>
+<span class="cmd">git commit -m "Add training dataset v1"</span>
+<span class="cmd">dvc push</span>  <span class="cmt"># uploads to Azure Blob</span>
+
+<span class="cmt"># On another machine / in CI:</span>
+<span class="cmd">git clone &lt;repo&gt;</span>
+<span class="cmd">dvc pull</span>  <span class="cmt"># downloads the exact same data</span>
+
+<span class="cmt"># Switch between data versions (like git checkout)</span>
+<span class="cmd">git checkout v1.0</span>
+<span class="cmd">dvc checkout</span>  <span class="cmt"># restores the v1.0 dataset</span>
+      </div>
+    </div>
+    <div>
+      <p class="code-label">DVC Pipeline (dvc.yaml)</p>
+      <div class="code-block">
+<span class="cmt"># Define reproducible pipeline stages</span>
+<span class="key">stages</span>:
+  <span class="key">preprocess</span>:
+    <span class="key">cmd</span>: <span class="str">python src/preprocess.py</span>
+    <span class="key">deps</span>:
+      - <span class="str">data/raw/dataset.csv</span>
+      - <span class="str">src/preprocess.py</span>
+    <span class="key">outs</span>:
+      - <span class="str">data/processed/features.parquet</span>
+
+  <span class="key">train</span>:
+    <span class="key">cmd</span>: <span class="str">python src/train.py</span>
+    <span class="key">deps</span>:
+      - <span class="str">data/processed/features.parquet</span>
+      - <span class="str">src/train.py</span>
+    <span class="key">params</span>:
+      - <span class="str">params.yaml</span>:
+          - <span class="str">model.learning_rate</span>
+          - <span class="str">model.max_depth</span>
+    <span class="key">outs</span>:
+      - <span class="str">models/model.pkl</span>
+    <span class="key">metrics</span>:
+      - <span class="str">metrics/eval.json</span>: {cache: false}
+
+<span class="cmt"># Run the full pipeline</span>
+<span class="cmt"># dvc repro  — only reruns changed stages</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ Why DVC is Essential</div>
+      <ul>
+        <li>Reproduce any experiment from 6 months ago with exact data</li>
+        <li>Avoid re-running expensive stages if inputs haven't changed</li>
+        <li>Works with any cloud storage (S3, GCS, Azure, SSH)</li>
+        <li>CI/CD integration — pull data in pipeline, train, push model</li>
+        <li>Free and open source — no vendor lock-in</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ DVC Limitations</div>
+      <ul>
+        <li>Learning curve for teams used to pure Git workflows</li>
+        <li>Large file operations can be slow (10s of GBs take time to push)</li>
+        <li>Cache management gets complex on shared servers</li>
+        <li>Doesn't scale well to real-time streaming data</li>
+        <li>Team conflicts on .dvc files require care to resolve</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 7 ══════════════════════════ -->
+<div class="page" id="p7" data-page="07 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Data Layer</span><div class="eyebrow-line"></div><span class="page-num">Page 07</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Feature<br><span>Engineering</span></h1>
+  <p class="page-desc">Raw data is almost never in the right format for an ML model. Feature engineering is the process of transforming raw data into the specific numbers and structures that models can understand. It's the most time-consuming and most impactful part of any ML project.</p>
+
+  <div class="callout">"In practice, feature engineering accounts for 80% of the work and 80% of the model's performance. Models are dumb — they just do math. The magic is in the features you give them."</div>
+
+  <div class="grid-3">
+    <div class="card card-teal">
+      <div class="card-title">Numerical Features</div>
+      <p>Numbers like age, price, distance. But raw numbers need treatment:</p>
+      <div class="divider"></div>
+      <ul>
+        <li><strong>Normalization</strong>: scale 0→1 (e.g., house prices)</li>
+        <li><strong>Standardization</strong>: mean=0, std=1</li>
+        <li><strong>Log transform</strong>: squash huge outliers</li>
+        <li><strong>Binning</strong>: age → age_group buckets</li>
+        <li><strong>Polynomial features</strong>: age² for non-linear patterns</li>
+      </ul>
+    </div>
+    <div class="card card-green">
+      <div class="card-title">Categorical Features</div>
+      <p>Labels like "city", "product_type", "gender". Models can't do math on strings:</p>
+      <div class="divider"></div>
+      <ul>
+        <li><strong>One-hot encoding</strong>: city → [is_NY, is_LA, is_Chicago]</li>
+        <li><strong>Label encoding</strong>: low/med/high → 0/1/2</li>
+        <li><strong>Target encoding</strong>: replace with mean target value</li>
+        <li><strong>Embeddings</strong>: for high-cardinality (10k+ categories)</li>
+      </ul>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Temporal Features</div>
+      <p>Dates and timestamps hide rich patterns that models can't see by default:</p>
+      <div class="divider"></div>
+      <ul>
+        <li><strong>Hour of day</strong>: midnight fraud spikes</li>
+        <li><strong>Day of week</strong>: weekend vs weekday</li>
+        <li><strong>Days since event</strong>: recency features</li>
+        <li><strong>Rolling averages</strong>: last 7-day spend</li>
+        <li><strong>Lag features</strong>: last month's sales</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Feature Pipeline with scikit-learn (Production-Ready)</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">sklearn.pipeline</span> <span class="kw">import</span> Pipeline
+<span class="kw">from</span> <span class="var">sklearn.compose</span> <span class="kw">import</span> ColumnTransformer
+<span class="kw">from</span> <span class="var">sklearn.preprocessing</span> <span class="kw">import</span> StandardScaler, OneHotEncoder
+<span class="kw">from</span> <span class="var">sklearn.impute</span> <span class="kw">import</span> SimpleImputer
+
+<span class="cmt"># Define which columns get which treatment</span>
+<span class="var">numeric_features</span> = [<span class="str">'age'</span>, <span class="str">'income'</span>, <span class="str">'days_active'</span>]
+<span class="var">categorical_features</span> = [<span class="str">'city'</span>, <span class="str">'product_type'</span>]
+
+<span class="var">numeric_transformer</span> = Pipeline([
+    (<span class="str">'imputer'</span>, SimpleImputer(strategy=<span class="str">'median'</span>)),
+    (<span class="str">'scaler'</span>,  StandardScaler())
+])
+
+<span class="var">categorical_transformer</span> = Pipeline([
+    (<span class="str">'imputer'</span>, SimpleImputer(strategy=<span class="str">'constant'</span>, fill_value=<span class="str">'unknown'</span>)),
+    (<span class="str">'onehot'</span>,  OneHotEncoder(handle_unknown=<span class="str">'ignore'</span>))
+])
+
+<span class="var">preprocessor</span> = ColumnTransformer([
+    (<span class="str">'num'</span>, <span class="var">numeric_transformer</span>,  <span class="var">numeric_features</span>),
+    (<span class="str">'cat'</span>, <span class="var">categorical_transformer</span>, <span class="var">categorical_features</span>)
+])
+
+<span class="cmt"># Full pipeline: preprocess → model</span>
+<span class="var">full_pipeline</span> = Pipeline([
+    (<span class="str">'preprocessor'</span>, <span class="var">preprocessor</span>),
+    (<span class="str">'classifier'</span>, XGBClassifier())
+])
+<span class="cmt"># This entire pipeline gets serialized as ONE artifact</span>
+      </div>
+    </div>
+    <div>
+      <div class="info-box box-green">
+        <strong>🔑 Critical Rule — Training/Serving Parity:</strong> The EXACT same feature transformations must be applied at training time AND serving time. If training normalizes age with mean=35, std=12 — production must use the same numbers.<br><br>
+        This is why scikit-learn Pipelines are so powerful — the scaler is fitted once during training and then applied consistently at serving. The pipeline object <em>is</em> the transform spec.
+      </div>
+      <div class="info-box box-yellow" style="margin-top:12px;">
+        <strong>⚠️ Training-Serving Skew (Most Common MLOps Bug):</strong> Training uses the full history of a user's purchases as a feature. Production only has 7 days of history. The model was trained on something it never sees in production. This kills accuracy silently.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 8 ══════════════════════════ -->
+<div class="page" id="p8" data-page="08 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Data Layer</span><div class="eyebrow-line"></div><span class="page-num">Page 08</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title"><span>Feature Stores</span><br>Sharing Features Across Teams</h1>
+  <p class="page-desc">A Feature Store is a centralized warehouse for pre-computed features. Imagine 10 different ML teams each computing "days since last login" in 10 slightly different ways. A feature store computes it once, stores it, and lets everyone use it — consistently, at training time AND serving time.</p>
+
+  <div class="grid-2">
+    <div class="card card-green">
+      <div class="card-title">What Problem Does It Solve?</div>
+      <p style="margin-bottom:10px;">Without a feature store, every team recomputes the same features from raw data. They make slightly different assumptions. Training and production get out of sync.</p>
+      <ul>
+        <li>Team A: "user_spend_7d" = last 7 calendar days</li>
+        <li>Team B: "user_spend_7d" = last 168 rolling hours</li>
+        <li>Result: two models trained on different things, named the same</li>
+        <li>Production disaster when they're swapped</li>
+      </ul>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">How a Feature Store Works</div>
+      <p style="margin-bottom:10px;">It has an <strong>offline store</strong> (for training — historical data in a data warehouse) and an <strong>online store</strong> (for serving — fast key-value lookup like Redis).</p>
+      <ul>
+        <li>Offline store: Parquet files, BigQuery, Redshift</li>
+        <li>Online store: Redis, DynamoDB, Cassandra</li>
+        <li>Both are synced from the same transform logic</li>
+        <li>Training and serving use the same feature definitions</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="table-wrap" style="margin-top:16px;">
+    <table>
+      <thead><tr><th>Tool</th><th>Type</th><th>Online Store</th><th>Offline Store</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td>Feast</td><td>Open source</td><td>Redis / Cassandra</td><td>BigQuery / Parquet</td><td>Self-hosted, any cloud</td></tr>
+        <tr><td>Tecton</td><td>Managed SaaS</td><td>DynamoDB</td><td>S3 / Snowflake</td><td>Enterprise, real-time features</td></tr>
+        <tr><td>AWS SageMaker FS</td><td>Managed AWS</td><td>DynamoDB</td><td>S3</td><td>Teams already on AWS</td></tr>
+        <tr><td>Azure ML FS</td><td>Managed Azure</td><td>Redis Cache</td><td>ADLS Gen2</td><td>Azure-native teams</td></tr>
+        <tr><td>Vertex AI FS</td><td>Managed GCP</td><td>Bigtable</td><td>BigQuery</td><td>GCP-native teams</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ Feature Store Pros</div>
+      <ul>
+        <li>Eliminates training/serving skew — same transform, guaranteed</li>
+        <li>Feature reuse across 10+ models saves months of engineering</li>
+        <li>Point-in-time correct features prevent data leakage</li>
+        <li>Sub-millisecond online feature retrieval via Redis</li>
+        <li>Feature discoverability — catalog of all computed features</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ Feature Store Cons</div>
+      <ul>
+        <li>Complex to set up and operate — another system to maintain</li>
+        <li>Overkill for small teams with 1-2 models</li>
+        <li>Dual-storage costs (online + offline) can be significant</li>
+        <li>Data freshness SLAs add operational complexity</li>
+        <li>Organizational buy-in needed — teams must agree on feature definitions</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 9 ══════════════════════════ -->
+<div class="page" id="p9" data-page="09 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Training</span><div class="eyebrow-line"></div><span class="page-num">Page 09</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">Model <span>Training</span><br>How It Actually Works</h1>
+  <p class="page-desc">Training a model means running an algorithm over labeled data until it learns patterns well enough to make predictions on new data. As a DevOps engineer, you don't write the model code — but you provision the compute, orchestrate the runs, and manage the outputs.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">Anatomy of a Training Script</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">mlflow</span>
+<span class="kw">import</span> <span class="var">xgboost</span> <span class="kw">as</span> <span class="var">xgb</span>
+<span class="kw">from</span> <span class="var">sklearn.metrics</span> <span class="kw">import</span> accuracy_score, roc_auc_score
+
+<span class="kw">def</span> <span class="fn">train</span>(<span class="var">params</span>: dict):
+    mlflow.start_run()
+
+    <span class="cmt"># 1. Load versioned data</span>
+    <span class="var">X_train</span>, <span class="var">y_train</span> = load_features(<span class="str">"data/train.parquet"</span>)
+    <span class="var">X_val</span>,   <span class="var">y_val</span>   = load_features(<span class="str">"data/val.parquet"</span>)
+
+    <span class="cmt"># 2. Log hyperparameters</span>
+    mlflow.log_params(<span class="var">params</span>)
+
+    <span class="cmt"># 3. Train the model</span>
+    <span class="var">model</span> = xgb.XGBClassifier(**<span class="var">params</span>)
+    <span class="var">model</span>.fit(<span class="var">X_train</span>, <span class="var">y_train</span>,
+              eval_set=[(<span class="var">X_val</span>, <span class="var">y_val</span>)],
+              early_stopping_rounds=<span class="num">10</span>)
+
+    <span class="cmt"># 4. Evaluate and log metrics</span>
+    <span class="var">preds</span> = <span class="var">model</span>.predict(<span class="var">X_val</span>)
+    <span class="var">acc</span>   = accuracy_score(<span class="var">y_val</span>, <span class="var">preds</span>)
+    <span class="var">auc</span>   = roc_auc_score(<span class="var">y_val</span>, <span class="var">preds</span>)
+    mlflow.log_metric(<span class="str">"accuracy"</span>, <span class="var">acc</span>)
+    mlflow.log_metric(<span class="str">"roc_auc"</span>,  <span class="var">auc</span>)
+
+    <span class="cmt"># 5. Save model to registry</span>
+    mlflow.xgboost.log_model(<span class="var">model</span>, <span class="str">"model"</span>)
+    mlflow.end_run()
+    <span class="kw">return</span> <span class="var">auc</span>
+      </div>
+    </div>
+    <div>
+      <div class="card card-teal" style="margin-bottom:12px;">
+        <div class="card-title">⚡ Compute Options for Training</div>
+        <div class="table-wrap">
+          <table style="font-size:12px;">
+            <thead><tr><th>Option</th><th>Cost</th><th>When</th></tr></thead>
+            <tbody>
+              <tr><td>CPU (local)</td><td>Free</td><td>Small datasets, prototyping</td></tr>
+              <tr><td>GPU VM (cloud)</td><td>$1–$30/hr</td><td>Deep learning, NLP models</td></tr>
+              <tr><td>Spot/Preemptible</td><td>70–90% off</td><td>Long training, interruptible</td></tr>
+              <tr><td>Distributed</td><td>Multiple VMs</td><td>Training on 100GB+ datasets</td></tr>
+              <tr><td>Serverless (SageMaker)</td><td>Per-second</td><td>No infra management needed</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="info-box box-yellow">
+        <strong>💡 DevOps Tip — Spot Instances for Training:</strong> ML training jobs are perfect for Spot/Preemptible VMs — they're long-running batch jobs that can checkpoint progress and resume. Use AWS Spot or Azure Spot VMs to cut GPU costs by up to 90%. Just make sure your training code saves checkpoints every N minutes.
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ Training Best Practices</div>
+      <ul>
+        <li>Always split data: train / validation / test (never touch test until final eval)</li>
+        <li>Checkpoint training every N epochs — protect against spot instance interruption</li>
+        <li>Use early stopping — stop when val loss stops improving (avoids overfitting)</li>
+        <li>Log ALL experiments, even failed ones — failures teach you what not to try</li>
+        <li>Seed everything for reproducibility (random.seed, numpy.random.seed)</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ Training Anti-Patterns</div>
+      <ul>
+        <li>Training on ALL data — no validation set = no way to detect overfitting</li>
+        <li>Data leakage — test set accidentally influences training (inflated accuracy)</li>
+        <li>Not normalizing features for neural networks = slow/unstable training</li>
+        <li>Training without version control — "which dataset did we use again?"</li>
+        <li>Using accuracy alone for imbalanced datasets — always check precision/recall</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 10 ══════════════════════════ -->
+<div class="page" id="p10" data-page="10 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Training</span><div class="eyebrow-line"></div><span class="page-num">Page 10</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">Experiment Tracking<br>with <span>MLflow</span></h1>
+  <p class="page-desc">Experiment tracking is like git log for ML. Every training run is a commit — it records what parameters you used, what data you trained on, and what results you got. Without tracking, teams repeat experiments, can't compare models, and can't reproduce past results. MLflow is the industry-standard open-source tool.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">MLflow Core Concepts + Commands</p>
+      <div class="code-block">
+<span class="cmt"># Start MLflow server (local dev)</span>
+<span class="cmd">mlflow server \</span>
+  <span class="flag">--host</span> <span class="str">0.0.0.0</span> \
+  <span class="flag">--port</span> <span class="num">5000</span> \
+  <span class="flag">--backend-store-uri</span> <span class="str">postgresql://user:pass@db/mlflow</span> \
+  <span class="flag">--default-artifact-root</span> <span class="str">s3://mlflow-artifacts/</span>
+
+<span class="cmt"># In your training code:</span>
+<span class="kw">import</span> <span class="var">mlflow</span>
+mlflow.set_tracking_uri(<span class="str">"http://mlflow.internal:5000"</span>)
+mlflow.set_experiment(<span class="str">"fraud-detection-v2"</span>)
+
+<span class="kw">with</span> mlflow.start_run(run_name=<span class="str">"xgb-baseline"</span>) <span class="kw">as</span> <span class="var">run</span>:
+    mlflow.log_param(<span class="str">"learning_rate"</span>, <span class="num">0.01</span>)
+    mlflow.log_param(<span class="str">"max_depth"</span>,     <span class="num">6</span>)
+    mlflow.log_param(<span class="str">"n_estimators"</span>,  <span class="num">300</span>)
+
+    <span class="cmt"># ... training code ...</span>
+
+    mlflow.log_metric(<span class="str">"accuracy"</span>,    <span class="num">0.954</span>)
+    mlflow.log_metric(<span class="str">"roc_auc"</span>,     <span class="num">0.981</span>)
+    mlflow.log_metric(<span class="str">"f1_score"</span>,    <span class="num">0.873</span>)
+
+    <span class="cmt"># Log confusion matrix plot</span>
+    mlflow.log_figure(<span class="var">fig</span>, <span class="str">"confusion_matrix.png"</span>)
+
+    <span class="cmt"># Log the model itself</span>
+    mlflow.sklearn.log_model(<span class="var">model</span>, <span class="str">"model"</span>,
+        registered_model_name=<span class="str">"FraudDetector"</span>)
+
+    <span class="out">→ Run ID: a3f7c821</span>
+    <span class="out">→ Artifact URI: s3://mlflow-artifacts/a3f7c821</span>
+      </div>
+    </div>
+    <div>
+      <div class="grid-2" style="gap:10px;margin-bottom:12px;">
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;color:var(--green);">📂 Experiments</div>
+          <p style="font-size:12px;">A logical grouping of runs. Like a project folder. "fraud-detection", "recommendation-v2"</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;color:var(--teal);">▶️ Runs</div>
+          <p style="font-size:12px;">One training execution. Records params, metrics, artifacts, code version (git commit hash)</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;color:var(--yellow);">📊 Parameters</div>
+          <p style="font-size:12px;">Hyperparameters used. learning_rate=0.01, batch_size=64. These are your "knobs"</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;color:var(--orange);">📈 Metrics</div>
+          <p style="font-size:12px;">Numbers measuring model quality. Accuracy, AUC, F1, RMSE. Can be logged over time</p>
+        </div>
+      </div>
+      <div class="info-box box-teal">
+        <strong>🎯 The MLflow UI:</strong> Navigate to port 5000 and you get a full dashboard — compare 50 runs side by side, sort by any metric, view training curves, download any artifact. This replaces "I have the best model in a folder called 'final_FINAL_v3_USE_THIS.pkl'"
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ MLflow Pros</div>
+      <ul>
+        <li>Free, open source — no licensing costs, no vendor lock-in</li>
+        <li>Works with any ML framework (sklearn, PyTorch, TensorFlow, XGBoost)</li>
+        <li>Built-in model registry with staging/production workflow</li>
+        <li>Integrates with all major cloud platforms natively</li>
+        <li>Community is huge — tons of tutorials and support</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ MLflow Limitations</div>
+      <ul>
+        <li>UI is functional but not beautiful — enterprise teams prefer Weights & Biases</li>
+        <li>Scaling the tracking server for large teams requires careful setup</li>
+        <li>No native support for real-time collaboration during a run</li>
+        <li>Artifact storage costs managed separately from MLflow</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 11 ══════════════════════════ -->
+<div class="page" id="p11" data-page="11 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Training</span><div class="eyebrow-line"></div><span class="page-num">Page 11</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Model <span>Registry</span><br>Versioning & Staging</h1>
+  <p class="page-desc">A Model Registry is like a container image registry (Docker Hub / ECR), but for ML models. Every trained model gets versioned and tagged with a stage. Teams can promote models from "Staging" to "Production" with a single API call — with a full audit trail of who approved it.</p>
+
+  <div class="flow" style="margin:16px 0;">
+    <div class="flow-node" style="background:rgba(52,211,100,0.06);"><span class="flow-node-icon">🧪</span><span class="flow-node-label">Experiment</span><div class="flow-node-sub">dev runs</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node" style="background:rgba(255,209,102,0.06);border-color:rgba(255,209,102,0.3);"><span class="flow-node-icon">🏗️</span><span class="flow-node-label">Staging</span><div class="flow-node-sub">candidate</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node" style="background:rgba(0,229,204,0.06);border-color:rgba(0,229,204,0.3);"><span class="flow-node-icon">✅</span><span class="flow-node-label">Production</span><div class="flow-node-sub">live model</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node" style="background:rgba(255,76,106,0.06);"><span class="flow-node-icon">🗄️</span><span class="flow-node-label">Archived</span><div class="flow-node-sub">retired</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">MLflow Registry Workflow</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">mlflow</span>
+<span class="kw">from</span> <span class="var">mlflow.tracking</span> <span class="kw">import</span> MlflowClient
+
+<span class="var">client</span> = MlflowClient()
+
+<span class="cmt"># Register a model from a training run</span>
+<span class="var">result</span> = mlflow.register_model(
+    model_uri=<span class="str">f"runs:/&lt;run_id&gt;/model"</span>,
+    name=<span class="str">"FraudDetector"</span>
+)
+<span class="out">→ Created version 3 of model FraudDetector</span>
+
+<span class="cmt"># Transition to Staging after CI tests pass</span>
+<span class="var">client</span>.transition_model_version_stage(
+    name=<span class="str">"FraudDetector"</span>,
+    version=<span class="str">"3"</span>,
+    stage=<span class="str">"Staging"</span>
+)
+
+<span class="cmt"># Approve and promote to Production</span>
+<span class="var">client</span>.transition_model_version_stage(
+    name=<span class="str">"FraudDetector"</span>,
+    version=<span class="str">"3"</span>,
+    stage=<span class="str">"Production"</span>,
+    archive_existing_versions=<span class="kw">True</span>  <span class="cmt"># auto-archives v2</span>
+)
+
+<span class="cmt"># Load production model in serving code</span>
+<span class="var">model</span> = mlflow.pyfunc.load_model(
+    <span class="str">"models:/FraudDetector/Production"</span>
+)
+      </div>
+    </div>
+    <div>
+      <div class="card card-blue" style="margin-bottom:12px;">
+        <div class="card-title">What Gets Stored in the Registry?</div>
+        <ul>
+          <li><strong>Model artifact</strong> — the serialized model file (.pkl, SavedModel)</li>
+          <li><strong>MLmodel file</strong> — metadata (flavor, Python version, dependencies)</li>
+          <li><strong>Requirements.txt</strong> — exact package versions used</li>
+          <li><strong>Conda/pip environment</strong> — so you can recreate it anywhere</li>
+          <li><strong>Signature</strong> — expected input/output schema for validation</li>
+          <li><strong>Code snapshot</strong> — git commit that produced this model</li>
+          <li><strong>Tags & comments</strong> — approval notes, performance summary</li>
+        </ul>
+      </div>
+      <div class="info-box box-green">
+        <strong>🔁 Rollback in 5 seconds:</strong> If the new model causes issues in production, roll back instantly: <code>transition_model_version_stage("FraudDetector", "2", "Production")</code>. No redeployment of code needed — just point serving at the old version.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 12 ══════════════════════════ -->
+<div class="page" id="p12" data-page="12 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Training</span><div class="eyebrow-line"></div><span class="page-num">Page 12</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Hyperparameter<br><span>Tuning</span></h1>
+  <p class="page-desc">Hyperparameters are the "knobs" on a model — learning rate, tree depth, number of neurons. Training finds the best weights. Hyperparameter tuning finds the best knob settings. It's like finding the best recipe before you start cooking.</p>
+
+  <div class="grid-3">
+    <div class="card card-teal">
+      <div class="card-title">Grid Search (Brute Force)</div>
+      <p>Try every combination of every value. lr=[0.01,0.1] × depth=[3,6,9] = 6 runs. Simple but exponentially expensive. Good only for 2-3 hyperparameters.</p>
+      <div class="divider"></div>
+      <p style="color:var(--red);font-size:12px;">⚠️ 5 params × 5 values each = 3,125 training runs</p>
+    </div>
+    <div class="card card-green">
+      <div class="card-title">Random Search (Smarter)</div>
+      <p>Randomly sample from the hyperparameter space. Surprisingly 2-5x more efficient than grid search in practice. Best when you have a budget of N runs.</p>
+      <div class="divider"></div>
+      <p style="color:var(--green);font-size:12px;">✓ Standard baseline — always try this first</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Bayesian Optimization (Smartest)</div>
+      <p>Builds a model of the hyperparameter landscape. Uses past run results to predict which regions are promising. 10x fewer runs for the same quality.</p>
+      <div class="divider"></div>
+      <p style="color:var(--green);font-size:12px;">✓ Best for expensive GPU training runs</p>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Optuna — Bayesian Hyperparameter Search</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">optuna</span>
+<span class="kw">import</span> <span class="var">mlflow</span>
+
+<span class="kw">def</span> <span class="fn">objective</span>(<span class="var">trial</span>):
+    <span class="cmt"># Optuna suggests hyperparameter values</span>
+    <span class="var">params</span> = {
+        <span class="str">"learning_rate"</span>: <span class="var">trial</span>.suggest_float(<span class="str">"lr"</span>, <span class="num">1e-4</span>, <span class="num">0.3</span>, log=<span class="kw">True</span>),
+        <span class="str">"max_depth"</span>:     <span class="var">trial</span>.suggest_int(<span class="str">"depth"</span>, <span class="num">3</span>, <span class="num">10</span>),
+        <span class="str">"subsample"</span>:     <span class="var">trial</span>.suggest_float(<span class="str">"sub"</span>, <span class="num">0.5</span>, <span class="num">1.0</span>),
+        <span class="str">"n_estimators"</span>:  <span class="var">trial</span>.suggest_int(<span class="str">"n_est"</span>, <span class="num">100</span>, <span class="num">1000</span>),
+    }
+
+    <span class="kw">with</span> mlflow.start_run(nested=<span class="kw">True</span>):
+        mlflow.log_params(<span class="var">params</span>)
+        <span class="var">model</span> = train_model(**<span class="var">params</span>)
+        <span class="var">auc</span>   = evaluate(<span class="var">model</span>)
+        mlflow.log_metric(<span class="str">"auc"</span>, <span class="var">auc</span>)
+
+    <span class="kw">return</span> <span class="var">auc</span>  <span class="cmt"># Optuna maximizes this</span>
+
+<span class="cmt"># Run 50 trials, using TPE (Bayesian) sampler</span>
+<span class="var">study</span> = optuna.create_study(direction=<span class="str">"maximize"</span>)
+<span class="var">study</span>.optimize(<span class="var">objective</span>, n_trials=<span class="num">50</span>, n_jobs=<span class="num">4</span>)
+
+<span class="out">Best params: {'lr': 0.023, 'depth': 7, 'sub': 0.85, 'n_est': 650}</span>
+<span class="out">Best AUC: 0.9847</span>
+      </div>
+    </div>
+    <div>
+      <div class="info-box box-teal" style="margin-bottom:12px;">
+        <strong>⚡ Parallel Tuning on Kubernetes:</strong> Run each trial in a separate Kubernetes pod. Optuna has built-in support for distributed studies using a shared PostgreSQL database. 50 trials that take 10 min each = 500 minutes serial = 25 minutes on 20 pods.
+      </div>
+      <div class="card card-purple">
+        <div class="card-title">💡 Key Hyperparameters by Model Type</div>
+        <div class="table-wrap">
+          <table style="font-size:11px;">
+            <thead><tr><th>Model</th><th>Key Params</th></tr></thead>
+            <tbody>
+              <tr><td>XGBoost/LightGBM</td><td>learning_rate, max_depth, n_estimators, subsample</td></tr>
+              <tr><td>Neural Network</td><td>learning_rate, batch_size, hidden_units, dropout</td></tr>
+              <tr><td>Random Forest</td><td>n_estimators, max_depth, max_features</td></tr>
+              <tr><td>SVM</td><td>C (regularization), kernel, gamma</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 13 ══════════════════════════ -->
+<div class="page" id="p13" data-page="13 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Training</span><div class="eyebrow-line"></div><span class="page-num">Page 13</span></div>
+  <div class="level level-basic">● BEGINNER LEVEL</div>
+  <h1 class="page-title">Model <span>Evaluation</span><br>Metrics That Matter</h1>
+  <p class="page-desc">A model that's 99% accurate sounds amazing. But if 99% of your data is "normal" and 1% is fraud, a model that always says "not fraud" gets 99% accuracy and catches zero fraud cases. This is why understanding the right metrics is critical.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>What It Measures</th><th>When to Use</th><th>Watch Out For</th></tr></thead>
+      <tbody>
+        <tr class="row-green"><td>Accuracy</td><td>% of correct predictions</td><td>Balanced datasets</td><td>Useless on imbalanced data (fraud, rare disease)</td></tr>
+        <tr class="row-teal"><td>Precision</td><td>Of predicted positives, how many are correct?</td><td>When false positives are costly (spam filter)</td><td>High precision → low recall tradeoff</td></tr>
+        <tr class="row-yellow"><td>Recall</td><td>Of actual positives, how many did we catch?</td><td>When missing a positive is costly (cancer detection)</td><td>Can be gamed by predicting everything as positive</td></tr>
+        <tr><td>F1 Score</td><td>Harmonic mean of precision and recall</td><td>Imbalanced classes — fraud, medical</td><td>Doesn't account for true negatives</td></tr>
+        <tr><td>ROC-AUC</td><td>Model's ability to discriminate classes</td><td>Binary classification ranking problems</td><td>Misleading on highly imbalanced datasets</td></tr>
+        <tr><td>RMSE / MAE</td><td>Average prediction error for numbers</td><td>Regression (price prediction, forecasting)</td><td>RMSE sensitive to outliers (MAE more robust)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card card-green">
+      <div class="card-title">📊 Evaluation Gates in CI/CD</div>
+      <p style="margin-bottom:10px;">Your CI pipeline should automatically compare the new model vs the current production model. The new model only promotes if it wins on agreed metrics AND doesn't regress on fairness or latency.</p>
+      <div class="code-block" style="font-size:11px;">
+<span class="cmt"># Automated evaluation gate in CI:</span>
+<span class="kw">if</span> <span class="var">new_model_auc</span> &gt; <span class="var">prod_model_auc</span> * <span class="num">1.002</span>:
+    promote_to_staging(<span class="var">new_model</span>)
+<span class="kw">elif</span> <span class="var">new_model_latency</span> &gt; <span class="num">100</span>:  <span class="cmt"># ms</span>
+    reject(<span class="str">"Latency regression"</span>)
+<span class="kw">else</span>:
+    reject(<span class="str">"No improvement over production"</span>)
+      </div>
+    </div>
+    <div>
+      <div class="info-box box-red" style="margin-bottom:12px;">
+        <strong>🚨 Business Metrics vs ML Metrics:</strong> A model with 0.98 AUC might still be bad for business if it disproportionately flags minority users (fairness issue) or if it's so slow it times out under load (latency issue). Always validate ML metrics AND business KPIs AND infrastructure metrics.
+      </div>
+      <div class="info-box box-teal">
+        <strong>🧪 Shadow Mode Testing:</strong> Before fully deploying, run the new model in "shadow mode" — it receives all live traffic but its predictions don't affect users. You compare its outputs against the current model in real-time, with real data, zero risk.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 14 ══════════════════════════ -->
+<div class="page" id="p14" data-page="14 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Deployment</span><div class="eyebrow-line"></div><span class="page-num">Page 14</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Model <span>Packaging</span><br>From Notebook to Container</h1>
+  <p class="page-desc">A model file (.pkl, .h5) is just a weight file. It needs a runtime, dependencies, an HTTP server, and a container to run in production. This is core DevOps territory — you're essentially Dockerizing an ML application.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">Model Serialization Formats</p>
+      <div class="table-wrap">
+        <table style="font-size:12px;">
+          <thead><tr><th>Format</th><th>Framework</th><th>Use Case</th></tr></thead>
+          <tbody>
+            <tr><td>Pickle (.pkl)</td><td>scikit-learn</td><td>Simple, Python-only. Don't use across Python versions</td></tr>
+            <tr><td>ONNX</td><td>Any → ONNX runtime</td><td>Cross-platform, fast inference, language-agnostic</td></tr>
+            <tr><td>SavedModel / .h5</td><td>TensorFlow/Keras</td><td>TF Serving, TFLite mobile deployment</td></tr>
+            <tr><td>TorchScript</td><td>PyTorch</td><td>C++ production, no Python dependency</td></tr>
+            <tr><td>MLflow pyfunc</td><td>Any</td><td>Universal MLflow wrapper for any model</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="code-label" style="margin-top:16px;">Dockerfile for ML Model Serving</p>
+      <div class="code-block">
+<span class="kw">FROM</span> <span class="str">python:3.11-slim</span>
+
+<span class="kw">WORKDIR</span> /app
+
+<span class="cmt"># Install dependencies first (layer caching)</span>
+<span class="kw">COPY</span> requirements.txt .
+<span class="kw">RUN</span> pip install --no-cache-dir -r requirements.txt
+
+<span class="cmt"># Copy model artifact + serving code</span>
+<span class="kw">COPY</span> model/ ./model/
+<span class="kw">COPY</span> src/serve.py .
+
+<span class="cmt"># Non-root user for security</span>
+<span class="kw">RUN</span> useradd -m appuser <span class="kw">&&</span> chown -R appuser /app
+<span class="kw">USER</span> appuser
+
+<span class="kw">EXPOSE</span> 8080
+<span class="kw">CMD</span> [<span class="str">"uvicorn"</span>, <span class="str">"serve:app"</span>, <span class="str">"--host"</span>, <span class="str">"0.0.0.0"</span>, <span class="str">"--port"</span>, <span class="str">"8080"</span>]
+      </div>
+    </div>
+    <div>
+      <p class="code-label">FastAPI Serving Layer</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">fastapi</span> <span class="kw">import</span> FastAPI
+<span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> BaseModel
+<span class="kw">import</span> <span class="var">mlflow.pyfunc</span>
+<span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="var">app</span> = FastAPI(title=<span class="str">"Fraud Detector API"</span>)
+
+<span class="cmt"># Load model once at startup (not per request!)</span>
+<span class="var">model</span> = mlflow.pyfunc.load_model(<span class="str">"models:/FraudDetector/Production"</span>)
+
+<span class="kw">class</span> <span class="fn">Transaction</span>(BaseModel):
+    amount: <span class="kw">float</span>
+    merchant: <span class="kw">str</span>
+    user_id: <span class="kw">str</span>
+    hour_of_day: <span class="kw">int</span>
+
+<span class="kw">class</span> <span class="fn">Prediction</span>(BaseModel):
+    fraud_probability: <span class="kw">float</span>
+    is_fraud: <span class="kw">bool</span>
+    model_version: <span class="kw">str</span>
+
+<span class="var">@app</span>.post(<span class="str">"/predict"</span>, response_model=Prediction)
+<span class="kw">async def</span> <span class="fn">predict</span>(<span class="var">txn</span>: Transaction):
+    <span class="var">df</span> = pd.DataFrame([<span class="var">txn</span>.dict()])
+    <span class="var">prob</span> = <span class="kw">float</span>(<span class="var">model</span>.predict(<span class="var">df</span>)[<span class="num">0</span>])
+    <span class="kw">return</span> Prediction(
+        fraud_probability=<span class="var">prob</span>,
+        is_fraud=<span class="var">prob</span> &gt; <span class="num">0.5</span>,
+        model_version=<span class="str">"FraudDetector/v3"</span>
+    )
+
+<span class="var">@app</span>.get(<span class="str">"/health"</span>)
+<span class="kw">async def</span> <span class="fn">health</span>(): <span class="kw">return</span> {<span class="str">"status"</span>: <span class="str">"ok"</span>}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 15 ══════════════════════════ -->
+<div class="page" id="p15" data-page="15 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Deployment</span><div class="eyebrow-line"></div><span class="page-num">Page 15</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">CI/CD for<br><span>Machine Learning</span></h1>
+  <p class="page-desc">CI/CD in MLOps is more complex than app CI/CD because you have three separate things that can change: model code, data, and hyperparameters. Each needs its own test strategy. A full ML CI/CD pipeline validates all three and only promotes models that pass every gate.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">GitHub Actions — ML CI/CD Pipeline</p>
+      <div class="code-block">
+<span class="key">name</span>: <span class="str">ML Training & Deploy Pipeline</span>
+<span class="key">on</span>:
+  <span class="key">push</span>: { <span class="key">branches</span>: [<span class="str">main</span>] }
+  <span class="key">schedule</span>: [{ <span class="key">cron</span>: <span class="str">"0 2 * * 1"</span> }]  <span class="cmt"># weekly retrain</span>
+
+<span class="key">jobs</span>:
+  <span class="key">validate-data</span>:
+    <span class="key">runs-on</span>: <span class="str">ubuntu-latest</span>
+    <span class="key">steps</span>:
+      - <span class="key">uses</span>: <span class="str">actions/checkout@v4</span>
+      - <span class="key">name</span>: <span class="str">Pull data with DVC</span>
+        <span class="key">run</span>: dvc pull data/
+      - <span class="key">name</span>: <span class="str">Validate data schema</span>
+        <span class="key">run</span>: python src/validate_data.py
+      - <span class="key">name</span>: <span class="str">Check for data drift</span>
+        <span class="key">run</span>: python src/drift_check.py
+
+  <span class="key">train-and-evaluate</span>:
+    <span class="key">needs</span>: validate-data
+    <span class="key">runs-on</span>: <span class="str">gpu-runner</span>
+    <span class="key">steps</span>:
+      - <span class="key">name</span>: <span class="str">Train model</span>
+        <span class="key">run</span>: python src/train.py
+        <span class="key">env</span>:
+          <span class="key">MLFLOW_TRACKING_URI</span>: <span class="str">${{ secrets.MLFLOW_URI }}</span>
+      - <span class="key">name</span>: <span class="str">Compare vs production baseline</span>
+        <span class="key">run</span>: python src/compare_models.py
+      - <span class="key">name</span>: <span class="str">Fail if no improvement</span>
+        <span class="key">run</span>: |
+          <span class="kw">if</span> [[ $(cat metrics/delta.txt) &lt; <span class="str">"0.002"</span> ]]; <span class="kw">then</span>
+            echo <span class="str">"Model did not improve. Stopping."</span>; exit 1
+          <span class="kw">fi</span>
+
+  <span class="key">deploy-to-staging</span>:
+    <span class="key">needs</span>: train-and-evaluate
+    <span class="key">environment</span>: <span class="str">staging</span>
+    <span class="key">steps</span>:
+      - <span class="key">name</span>: <span class="str">Build model container</span>
+        <span class="key">run</span>: docker build -t model-api:$GITHUB_SHA .
+      - <span class="key">name</span>: <span class="str">Deploy to staging k8s</span>
+        <span class="key">run</span>: kubectl set image deploy/model-api model=model-api:$GITHUB_SHA
+      </div>
+    </div>
+    <div>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card card-green" style="padding:16px;">
+          <div class="card-title" style="font-size:13px;">🔬 Data Tests</div>
+          <ul style="font-size:12px;">
+            <li>Schema validation</li>
+            <li>Null/missing value checks</li>
+            <li>Distribution checks</li>
+            <li>Duplicate row checks</li>
+            <li>Referential integrity</li>
+          </ul>
+        </div>
+        <div class="card card-teal" style="padding:16px;">
+          <div class="card-title" style="font-size:13px;">🧪 Model Tests</div>
+          <ul style="font-size:12px;">
+            <li>Accuracy above threshold</li>
+            <li>No bias on protected groups</li>
+            <li>Inference latency &lt; 100ms</li>
+            <li>Memory footprint check</li>
+            <li>Prediction stability test</li>
+          </ul>
+        </div>
+        <div class="card card-yellow" style="padding:16px;">
+          <div class="card-title" style="font-size:13px;">🔧 Code Tests</div>
+          <ul style="font-size:12px;">
+            <li>Unit tests for transforms</li>
+            <li>Integration test pipeline</li>
+            <li>Type checking (mypy)</li>
+            <li>Linting (flake8/ruff)</li>
+          </ul>
+        </div>
+        <div class="card card-orange" style="padding:16px;">
+          <div class="card-title" style="font-size:13px;">🚀 Deploy Tests</div>
+          <ul style="font-size:12px;">
+            <li>Container starts cleanly</li>
+            <li>Health check passes</li>
+            <li>Smoke test predictions</li>
+            <li>Load test passes SLA</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-box box-blue" style="margin-top:12px;">
+        <strong>⚠️ CT = Continuous Training:</strong> Beyond CI/CD, MLOps adds a third loop — Continuous Training. Unlike a web app that only changes when code changes, ML models need to retrain when data changes (new patterns, more data). CT means retraining is automated and triggered by data events.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 16 ══════════════════════════ -->
+<div class="page" id="p16" data-page="16 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Deployment</span><div class="eyebrow-line"></div><span class="page-num">Page 16</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Deployment<br><span>Strategies</span></h1>
+  <p class="page-desc">Just like deploying apps, deploying new ML models carries risk. A model that performed great offline can underperform in production for subtle reasons (different data distribution, edge cases). These strategies let you manage that risk.</p>
+
+  <div class="grid-2">
+    <div class="card card-teal">
+      <div class="card-title">🐦 Canary Deployment</div>
+      <p style="margin-bottom:10px;">Route a small percentage of traffic (e.g., 5%) to the new model. Monitor its performance vs the control group. If all is well, gradually increase to 100%.</p>
+      <ul>
+        <li>5% → 10% → 25% → 50% → 100%</li>
+        <li>Easy rollback: just route 0% to new model</li>
+        <li>Real user data validates the model</li>
+        <li>Requires traffic splitting (Istio, AWS ALB)</li>
+      </ul>
+      <div class="tags"><span class="tag t-green">Recommended</span><span class="tag t-teal">Low risk</span></div>
+    </div>
+    <div class="card card-green">
+      <div class="card-title">🔵🟢 Blue-Green Deployment</div>
+      <p style="margin-bottom:10px;">Run the old model (Blue) and new model (Green) in parallel. Instantly switch all traffic from Blue to Green at once. Rollback = switch back to Blue.</p>
+      <ul>
+        <li>Zero-downtime switch</li>
+        <li>Full parallel environments (double cost)</li>
+        <li>Instant rollback capability</li>
+        <li>Same as App Service slot swaps</li>
+      </ul>
+      <div class="tags"><span class="tag t-green">Zero downtime</span><span class="tag t-yellow">2x cost</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:14px;">
+    <div class="card card-blue">
+      <div class="card-title">👻 Shadow Mode</div>
+      <p style="margin-bottom:10px;">The new model receives all real traffic in parallel but its predictions are NOT shown to users. You compare new vs old model outputs in real-time, with zero risk to users.</p>
+      <ul>
+        <li>Best pre-deployment validation</li>
+        <li>Detects edge cases real data has but test data didn't</li>
+        <li>No user impact whatsoever</li>
+        <li>Requires logging infrastructure for comparison</li>
+      </ul>
+      <div class="tags"><span class="tag t-blue">Zero risk</span><span class="tag t-teal">Best practice</span></div>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">🎲 A/B Testing</div>
+      <p style="margin-bottom:10px;">Similar to canary, but explicitly for comparing two model variants as a statistical experiment. 50% of users go to model A, 50% to model B. Measure business outcomes, not just ML metrics.</p>
+      <ul>
+        <li>Measures real business impact (clicks, revenue)</li>
+        <li>Requires statistical significance (run for days/weeks)</li>
+        <li>Must hold all other variables constant</li>
+        <li>Tools: Optimizely, LaunchDarkly, custom Istio</li>
+      </ul>
+      <div class="tags"><span class="tag t-yellow">Business KPIs</span><span class="tag t-purple">Statistical rigor</span></div>
+    </div>
+  </div>
+
+  <div class="info-box box-green" style="margin-top:16px;">
+    <strong>🏆 Recommended Production Pattern:</strong> Shadow Mode (1-3 days) → Canary 5% (24 hours) → Canary 25% (24 hours) → Canary 100%. This gives you confidence at every step with minimal user impact.
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 17 ══════════════════════════ -->
+<div class="page" id="p17" data-page="17 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Deployment</span><div class="eyebrow-line"></div><span class="page-num">Page 17</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">REST API <span>Serving</span><br>Real-Time Predictions</h1>
+  <p class="page-desc">Online serving means the model responds to requests in real-time — a user clicks "recommend", the API is called, the model predicts, and the result is shown within 100ms. This is the most demanding MLOps pattern because you need both ML correctness AND production engineering quality.</p>
+
+  <div class="grid-3">
+    <div class="card card-teal">
+      <div class="card-title">🚀 BentoML (Best for beginners)</div>
+      <p>Framework specifically designed to serve ML models. Handles batching, async, and Docker generation automatically. Great for teams new to serving.</p>
+      <div class="tags"><span class="tag t-teal">Auto-docker</span><span class="tag t-green">Async</span></div>
+    </div>
+    <div class="card card-green">
+      <div class="card-title">⚡ FastAPI + uvicorn</div>
+      <p>Build your own serving layer. Maximum control. Great if you know Python web dev. Combines perfectly with MLflow model loading.</p>
+      <div class="tags"><span class="tag t-green">Full control</span><span class="tag t-teal">Industry standard</span></div>
+    </div>
+    <div class="card card-blue">
+      <div class="card-title">🎯 TorchServe / TF Serving</div>
+      <p>Framework-native servers. Highly optimized for their framework. GPU batching built-in. Use for deep learning models at scale.</p>
+      <div class="tags"><span class="tag t-blue">GPU optimized</span><span class="tag t-teal">Auto batching</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Production Performance Considerations</p>
+      <div class="code-block">
+<span class="cmt"># model_server.py — Production-grade serving</span>
+<span class="kw">from</span> <span class="var">fastapi</span> <span class="kw">import</span> FastAPI, HTTPException
+<span class="kw">from</span> <span class="var">contextlib</span> <span class="kw">import</span> asynccontextmanager
+<span class="kw">import</span> <span class="var">asyncio</span>
+<span class="kw">import</span> <span class="var">numpy</span> <span class="kw">as</span> <span class="var">np</span>
+
+<span class="cmt"># Startup: load model once into memory</span>
+<span class="var">model_store</span> = {}
+
+<span class="var">@asynccontextmanager</span>
+<span class="kw">async def</span> <span class="fn">lifespan</span>(<span class="var">app</span>):
+    <span class="var">model_store</span>[<span class="str">"model"</span>] = load_production_model()
+    <span class="var">model_store</span>[<span class="str">"warmup"</span>] = warmup_model(<span class="var">model_store</span>[<span class="str">"model"</span>])
+    <span class="kw">yield</span>
+    <span class="var">model_store</span>.clear()
+
+<span class="var">app</span> = FastAPI(lifespan=<span class="var">lifespan</span>)
+
+<span class="cmt"># Micro-batching for throughput</span>
+<span class="var">batch_queue</span> = asyncio.Queue()
+<span class="var">BATCH_SIZE</span>  = <span class="num">32</span>
+<span class="var">MAX_WAIT_MS</span> = <span class="num">10</span>
+
+<span class="kw">async def</span> <span class="fn">batch_processor</span>():
+    <span class="kw">while</span> <span class="kw">True</span>:
+        <span class="var">batch</span> = []
+        <span class="kw">try</span>:
+            <span class="kw">while</span> <span class="kw">len</span>(<span class="var">batch</span>) &lt; <span class="var">BATCH_SIZE</span>:
+                <span class="var">item</span> = <span class="kw">await</span> asyncio.wait_for(
+                    <span class="var">batch_queue</span>.get(), timeout=<span class="var">MAX_WAIT_MS</span>/<span class="num">1000</span>)
+                <span class="var">batch</span>.append(<span class="var">item</span>)
+        <span class="kw">except</span> asyncio.TimeoutError:
+            <span class="kw">pass</span>
+        <span class="kw">if</span> <span class="var">batch</span>:
+            <span class="var">results</span> = <span class="var">model_store</span>[<span class="str">"model"</span>].predict_batch(<span class="var">batch</span>)
+            <span class="cmt"># Resolve all futures in the batch</span>
+      </div>
+    </div>
+    <div>
+      <div class="card card-red" style="margin-bottom:12px;">
+        <div class="card-title">🔥 Cold Start Problem</div>
+        <p style="font-size:13px;margin-bottom:8px;">First request after deployment takes 2-10 seconds while the model loads into memory. Subsequent requests are fast. Solutions:</p>
+        <ul>
+          <li>Pre-warm containers before routing traffic</li>
+          <li>Use readiness probes (k8s won't route until ready)</li>
+          <li>Keep minimum 1 replica alive (no scale-to-zero)</li>
+          <li>Store model in memory-mapped files for fast loading</li>
+        </ul>
+      </div>
+      <div class="info-box box-yellow">
+        <strong>⏱️ Latency Budget:</strong><br>
+        - Feature retrieval from Redis: 1-3ms<br>
+        - Model inference: 5-50ms<br>
+        - Serialization overhead: 1-2ms<br>
+        - Network overhead: 5-20ms<br>
+        Total target: <strong>&lt; 100ms p99</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 18 ══════════════════════════ -->
+<div class="page" id="p18" data-page="18 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Deployment</span><div class="eyebrow-line"></div><span class="page-num">Page 18</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title"><span>Batch Inference</span><br>Predictions at Scale</h1>
+  <p class="page-desc">Batch inference means running the model on millions of records overnight and storing the results. No real-time API needed. A daily job scores all users for churn risk, stores the scores in a database, and the application reads them from there. Far simpler than real-time serving.</p>
+
+  <div class="grid-2">
+    <div class="card card-green">
+      <div class="card-title">When to Use Batch Inference</div>
+      <ul>
+        <li>Recommendations computed nightly (Netflix, Spotify)</li>
+        <li>Credit scores computed weekly</li>
+        <li>Document classification on uploaded files</li>
+        <li>Customer churn risk scores</li>
+        <li>Email personalization (scheduled campaigns)</li>
+        <li>Large-scale image labeling or OCR</li>
+      </ul>
+      <div class="tags"><span class="tag t-green">No latency pressure</span><span class="tag t-teal">Simpler ops</span></div>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">When NOT to Use Batch</div>
+      <ul>
+        <li>Fraud detection (needs result in 50ms, not tomorrow)</li>
+        <li>Chatbots / LLM inference</li>
+        <li>Search ranking (user is waiting now)</li>
+        <li>Dynamic pricing based on real-time demand</li>
+        <li>Autonomous systems (need instant reaction)</li>
+      </ul>
+      <div class="tags"><span class="tag t-red">Latency matters</span><span class="tag t-yellow">Use online serving</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Batch Inference Pipeline with Apache Spark</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">pyspark.sql</span> <span class="kw">import</span> SparkSession
+<span class="kw">import</span> <span class="var">mlflow.pyfunc</span>
+<span class="kw">from</span> <span class="var">pyspark.sql.functions</span> <span class="kw">import</span> pandas_udf
+
+<span class="var">spark</span> = SparkSession.builder \
+    .appName(<span class="str">"DailyScoring"</span>) \
+    .config(<span class="str">"spark.executor.memory"</span>, <span class="str">"8g"</span>) \
+    .getOrCreate()
+
+<span class="cmt"># Load model once per Spark executor</span>
+<span class="kw">@pandas_udf</span>(<span class="str">"double"</span>)
+<span class="kw">def</span> <span class="fn">predict_churn</span>(<span class="var">df</span>):
+    <span class="var">model</span> = mlflow.pyfunc.load_model(
+        <span class="str">"models:/ChurnPredictor/Production"</span>)
+    <span class="kw">return</span> <span class="var">model</span>.predict(<span class="var">df</span>)[<span class="str">"churn_prob"</span>]
+
+<span class="cmt"># Score 10 million customers</span>
+<span class="var">customers</span> = spark.read.parquet(<span class="str">"s3://data/customers/"</span>)
+<span class="var">scored</span> = <span class="var">customers</span>.withColumn(
+    <span class="str">"churn_probability"</span>,
+    predict_churn(<span class="var">customers</span>[[<span class="str">"feature1"</span>, <span class="str">"feature2"</span>]])
+)
+
+<span class="cmt"># Write results to serving DB</span>
+<span class="var">scored</span>.write.mode(<span class="str">"overwrite"</span>) \
+    .jdbc(url=<span class="str">"jdbc:postgresql://..."</span>,
+          table=<span class="str">"churn_scores"</span>)
+      </div>
+    </div>
+    <div>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card pro-card" style="padding:16px;">
+          <div class="card-title" style="font-size:13px;">✅ Batch Pros</div>
+          <ul style="font-size:12px;">
+            <li>No latency requirements</li>
+            <li>Use cheap spot instances</li>
+            <li>Easy to parallelize</li>
+            <li>Simple debugging</li>
+            <li>No serving infrastructure</li>
+          </ul>
+        </div>
+        <div class="card con-card" style="padding:16px;">
+          <div class="card-title" style="font-size:13px;">❌ Batch Cons</div>
+          <ul style="font-size:12px;">
+            <li>Predictions are stale (hours old)</li>
+            <li>Can't react to real-time events</li>
+            <li>Large storage for pre-scored data</li>
+            <li>Wasted compute for inactive users</li>
+          </ul>
+        </div>
+      </div>
+      <div class="info-box box-teal" style="margin-top:12px;">
+        <strong>🛠️ Tools for Batch Inference:</strong><br>
+        <strong>Small scale</strong>: Cron job + Python pandas (up to 1M rows)<br>
+        <strong>Medium scale</strong>: Apache Spark on Databricks / EMR (up to 1B rows)<br>
+        <strong>Large scale</strong>: BigQuery ML / Snowflake ML (managed, auto-scaling)<br>
+        <strong>Managed</strong>: SageMaker Batch Transform, Azure ML Batch Endpoint
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 19 ══════════════════════════ -->
+<div class="page" id="p19" data-page="19 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Deployment</span><div class="eyebrow-line"></div><span class="page-num">Page 19</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Online <span>vs</span> Batch<br>Decision Guide</h1>
+  <p class="page-desc">One of the most important architectural decisions in MLOps is choosing between online (real-time) and batch serving. Get this wrong and you either over-engineer a simple problem, or under-engineer a latency-critical one.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dimension</th><th>Online Serving</th><th>Batch Serving</th><th>Near-Real-Time</th></tr></thead>
+      <tbody>
+        <tr><td>Latency</td><td>&lt;100ms per request</td><td>Hours to days stale</td><td>Seconds to minutes</td></tr>
+        <tr><td>Throughput</td><td>Low (100s req/sec)</td><td>Very high (TBs/hour)</td><td>Medium</td></tr>
+        <tr><td>Infrastructure</td><td>Always-on API server</td><td>Ephemeral jobs</td><td>Streaming (Kafka)</td></tr>
+        <tr><td>Cost</td><td>High (24/7 servers)</td><td>Low (spot instances)</td><td>Medium</td></tr>
+        <tr><td>Complexity</td><td>High (scaling, caching)</td><td>Low</td><td>Very High</td></tr>
+        <tr><td>Example</td><td>Fraud detection, chatbot</td><td>Churn scoring, reports</td><td>Dynamic pricing</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout" style="margin:20px 0;">"When in doubt, start with batch. It's 10x simpler. Upgrade to online only when users actually need real-time predictions."</div>
+
+  <div class="grid-3" style="margin-top:16px;">
+    <div class="card card-green">
+      <div class="card-title">Choose Online When...</div>
+      <ul>
+        <li>User is actively waiting for the prediction</li>
+        <li>Prediction depends on the current request context</li>
+        <li>Result must react to real-time events</li>
+        <li>Personalization requires latest user state</li>
+        <li>Fraud/security signals must be immediate</li>
+      </ul>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">Choose Batch When...</div>
+      <ul>
+        <li>Prediction is shown later (email, push notification)</li>
+        <li>Results don't change more often than your batch runs</li>
+        <li>Same prediction is reused many times</li>
+        <li>Dataset is too large for online computation</li>
+        <li>Cost is a constraint — batch is 90% cheaper</li>
+      </ul>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Hybrid Pattern</div>
+      <p style="margin-bottom:8px;">Many production systems use both: batch pre-computes default recommendations for all users. Real-time model overrides with context-aware predictions only when the user is active.</p>
+      <ul>
+        <li>Pre-compute offline → cache in Redis</li>
+        <li>Serve from cache (fast) most of the time</li>
+        <li>Update cache in near-real-time for active users</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 20 ══════════════════════════ -->
+<div class="page" id="p20" data-page="20 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Monitoring</span><div class="eyebrow-line"></div><span class="page-num">Page 20</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Model <span>Monitoring</span><br>What to Watch</h1>
+  <p class="page-desc">Once a model is in production, your DevOps monitoring covers CPU, memory, and latency. But that's only half the story. ML models can be "running fine" from a systems perspective while producing completely wrong predictions. You need a second layer of monitoring for model health.</p>
+
+  <div class="grid-2">
+    <div class="card card-teal">
+      <div class="card-title">Layer 1: Infrastructure Monitoring (You Know This)</div>
+      <ul>
+        <li><strong>Latency</strong>: p50, p95, p99 response time</li>
+        <li><strong>Throughput</strong>: requests per second</li>
+        <li><strong>Error rate</strong>: HTTP 5xx, timeout rate</li>
+        <li><strong>CPU/Memory/GPU utilization</strong></li>
+        <li><strong>Prediction volume</strong>: sudden drop = upstream issue</li>
+      </ul>
+      <div class="tags"><span class="tag t-teal">Standard DevOps</span><span class="tag t-green">Prometheus/Grafana</span></div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-title">Layer 2: ML-Specific Monitoring (New Territory)</div>
+      <ul>
+        <li><strong>Prediction distribution</strong>: are outputs still normally distributed?</li>
+        <li><strong>Input feature distribution</strong>: is incoming data still similar to training data?</li>
+        <li><strong>Model accuracy</strong>: but you need ground truth labels (often delayed)</li>
+        <li><strong>Business KPIs</strong>: click-through rate, conversion, customer satisfaction</li>
+        <li><strong>Fairness metrics</strong>: is the model biased against certain groups?</li>
+      </ul>
+      <div class="tags"><span class="tag t-orange">New skill needed</span><span class="tag t-yellow">Evidently/Arize</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Monitoring with Prometheus + Custom ML Metrics</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">prometheus_client</span> <span class="kw">import</span> Histogram, Counter, Gauge
+<span class="kw">import</span> <span class="var">numpy</span> <span class="kw">as</span> <span class="var">np</span>
+
+<span class="cmt"># Standard HTTP metrics</span>
+<span class="var">REQUEST_LATENCY</span> = Histogram(<span class="str">"model_request_latency_seconds"</span>,
+    <span class="str">"Inference latency"</span>, buckets=[.<span class="num">01</span>,.<span class="num">05</span>,.<span class="num">1</span>,.<span class="num">5</span>,<span class="num">1</span>])
+
+<span class="cmt"># ML-specific metrics</span>
+<span class="var">PREDICTION_SCORE</span> = Histogram(<span class="str">"model_prediction_score"</span>,
+    <span class="str">"Distribution of prediction probabilities"</span>,
+    buckets=[<span class="num">0</span>,.<span class="num">1</span>,.<span class="num">2</span>,.<span class="num">3</span>,.<span class="num">5</span>,.<span class="num">7</span>,.<span class="num">9</span>,<span class="num">1</span>.<span class="num">0</span>])
+
+<span class="var">FEATURE_MEAN</span> = Gauge(<span class="str">"feature_mean"</span>,
+    <span class="str">"Rolling mean of input feature"</span>,
+    labelnames=[<span class="str">"feature_name"</span>])
+
+<span class="kw">def</span> <span class="fn">predict_and_monitor</span>(<span class="var">features</span>):
+    <span class="kw">with</span> <span class="var">REQUEST_LATENCY</span>.time():
+        <span class="var">score</span> = <span class="var">model</span>.predict_proba(<span class="var">features</span>)[<span class="num">0</span>][<span class="num">1</span>]
+
+    <span class="var">PREDICTION_SCORE</span>.observe(<span class="var">score</span>)
+
+    <span class="cmt"># Track feature distributions</span>
+    <span class="kw">for</span> <span class="var">col</span> <span class="kw">in</span> <span class="var">features</span>.columns:
+        <span class="var">FEATURE_MEAN</span>.labels(<span class="var">col</span>).set(<span class="var">features</span>[<span class="var">col</span>].mean())
+
+    <span class="kw">return</span> <span class="var">score</span>
+      </div>
+    </div>
+    <div>
+      <div class="card card-purple" style="margin-bottom:12px;">
+        <div class="card-title">🔔 When to Alert</div>
+        <div class="table-wrap">
+          <table style="font-size:11px;">
+            <thead><tr><th>Metric</th><th>Alert Threshold</th></tr></thead>
+            <tbody>
+              <tr><td>Prediction mean shift</td><td>&gt; 2 standard deviations</td></tr>
+              <tr><td>Null/error input rate</td><td>&gt; 0.1% of requests</td></tr>
+              <tr><td>P99 latency</td><td>&gt; 500ms for 5 min</td></tr>
+              <tr><td>Feature KS-test p-value</td><td>&lt; 0.05 (drift detected)</td></tr>
+              <tr><td>Accuracy (if labeled)</td><td>&gt; 5% drop vs baseline</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="info-box box-teal">
+        <strong>🛠️ ML Monitoring Tools:</strong> <strong>Evidently AI</strong> (open source, excellent reports), <strong>Arize AI</strong> (managed, great UI), <strong>WhyLabs</strong> (open source + managed), <strong>Fiddler</strong> (enterprise, explainability), <strong>Azure ML Monitoring</strong> (if on Azure)
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 21 ══════════════════════════ -->
+<div class="page" id="p21" data-page="21 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Monitoring</span><div class="eyebrow-line"></div><span class="page-num">Page 21</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Data Drift<br><span>Detection</span></h1>
+  <p class="page-desc">Data drift is when the real-world data your model sees in production starts looking different from the training data. Imagine training a fraud model on 2022 transactions — by 2024, payment methods, amounts, and merchant categories have all changed. The model silently degrades.</p>
+
+  <div class="grid-3">
+    <div class="card card-red">
+      <div class="card-title">Data Drift</div>
+      <p>The statistical distribution of input features changes. Example: average transaction amount used to be $50, now it's $200 — but your model was trained when $50 was normal.</p>
+      <div class="tags"><span class="tag t-red">Feature distribution shift</span></div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-title">Concept Drift</div>
+      <p>The relationship between features and the target label changes. Example: in 2020, using a VPN was suspicious. Now it's normal. Same features, different meaning for fraud.</p>
+      <div class="tags"><span class="tag t-orange">Label relationship shifts</span></div>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Label Drift</div>
+      <p>The distribution of the target label changes. Example: fraud rate was 0.1% in training, but in production it's now 2%. The model's threshold is calibrated for the wrong base rate.</p>
+      <div class="tags"><span class="tag t-yellow">Target distribution shifts</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Evidently AI — Drift Report</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">evidently</span> <span class="kw">import</span> ColumnMapping
+<span class="kw">from</span> <span class="var">evidently.report</span> <span class="kw">import</span> Report
+<span class="kw">from</span> <span class="var">evidently.metric_preset</span> <span class="kw">import</span> DataDriftPreset
+
+<span class="cmt"># Load training reference data and current production data</span>
+<span class="var">reference</span> = pd.read_parquet(<span class="str">"data/train_reference.parquet"</span>)
+<span class="var">current</span>   = pd.read_parquet(<span class="str">"data/prod_last_7d.parquet"</span>)
+
+<span class="cmt"># Build drift report</span>
+<span class="var">report</span> = Report(metrics=[DataDriftPreset()])
+<span class="var">report</span>.run(reference_data=<span class="var">reference</span>, current_data=<span class="var">current</span>)
+
+<span class="cmt"># Export HTML report</span>
+<span class="var">report</span>.save_html(<span class="str">"drift_report.html"</span>)
+
+<span class="cmt"># Get results programmatically for alerting</span>
+<span class="var">result</span> = <span class="var">report</span>.as_dict()
+<span class="var">drift_detected</span> = <span class="var">result</span>[<span class="str">"metrics"</span>][<span class="num">0</span>][<span class="str">"result"</span>][<span class="str">"dataset_drift"</span>]
+
+<span class="kw">if</span> <span class="var">drift_detected</span>:
+    send_alert(<span class="str">"⚠️ Data drift detected — retraining triggered"</span>)
+    trigger_retraining_pipeline()
+
+<span class="cmt"># Statistical tests used under the hood:
+# - Numerical features: KS test, Wasserstein distance
+# - Categorical: Chi-square test, Jensen-Shannon divergence</span>
+      </div>
+    </div>
+    <div>
+      <div class="info-box box-green" style="margin-bottom:12px;">
+        <strong>📊 Statistical Tests for Drift:</strong><br>
+        <strong>KS Test (Kolmogorov-Smirnov)</strong>: Compares two distributions by their cumulative density functions. p-value &lt; 0.05 means drift is likely.<br><br>
+        <strong>Population Stability Index (PSI)</strong>: Industry standard in banking. PSI &lt; 0.1 = stable, PSI 0.1-0.2 = slight drift, PSI &gt; 0.2 = significant drift, trigger retraining.
+      </div>
+      <div class="info-box box-yellow">
+        <strong>🎯 Practical Approach:</strong> Don't wait for model accuracy to drop (you need ground truth labels which arrive with a delay). Instead, monitor input feature distributions daily. Drift in inputs predicts accuracy drop before it happens, giving you time to retrain proactively.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 22 ══════════════════════════ -->
+<div class="page" id="p22" data-page="22 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Monitoring</span><div class="eyebrow-line"></div><span class="page-num">Page 22</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Model <span>Retraining</span><br>When and How</h1>
+  <p class="page-desc">Retraining keeps your model current by incorporating new data. The question is: when do you retrain? There are three strategies — scheduled (simple), triggered by drift (smart), or triggered by business metrics (business-aligned). All three have a place.</p>
+
+  <div class="grid-3">
+    <div class="card card-teal">
+      <div class="card-title">📅 Schedule-Based</div>
+      <p>Retrain every Sunday at 2 AM. Simple. Predictable costs. Doesn't require monitoring infrastructure.</p>
+      <div class="divider"></div>
+      <p style="color:var(--green);font-size:12px;">✓ Start here. Simple to implement.</p>
+      <p style="color:var(--red);font-size:12px;">✗ Wasteful when data is stable. May be too slow when it's not.</p>
+    </div>
+    <div class="card card-green">
+      <div class="card-title">📊 Drift-Triggered</div>
+      <p>Retrain only when drift monitoring detects significant distribution shift. More efficient. Requires drift monitoring setup first.</p>
+      <div class="divider"></div>
+      <p style="color:var(--green);font-size:12px;">✓ Best for data with unpredictable change patterns.</p>
+      <p style="color:var(--red);font-size:12px;">✗ Requires monitoring pipeline. False positives waste compute.</p>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">📉 Performance-Triggered</div>
+      <p>Retrain when model accuracy (or a proxy like click-through rate) drops below a threshold. Most business-aligned.</p>
+      <div class="divider"></div>
+      <p style="color:var(--green);font-size:12px;">✓ Directly tied to business impact.</p>
+      <p style="color:var(--red);font-size:12px;">✗ Requires labeled ground truth — delayed by hours/days.</p>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">Automated Retraining Pipeline</p>
+      <div class="code-block">
+<span class="cmt"># Triggered by Airflow DAG or GitHub Actions</span>
+
+<span class="kw">def</span> <span class="fn">retrain_pipeline</span>():
+    <span class="cmt"># 1. Fetch latest data (last 90 days)</span>
+    <span class="var">new_data</span> = fetch_training_data(
+        start_date=<span class="str">"now-90d"</span>, end_date=<span class="str">"now"</span>)
+
+    <span class="cmt"># 2. Validate new data quality</span>
+    <span class="var">validation_result</span> = validate_data(<span class="var">new_data</span>)
+    <span class="kw">if not</span> <span class="var">validation_result</span>.success:
+        alert_and_abort(<span class="str">"Retraining data failed validation"</span>)
+
+    <span class="cmt"># 3. Train new model (same pipeline, new data)</span>
+    <span class="kw">with</span> mlflow.start_run(run_name=<span class="str">"auto-retrain"</span>):
+        <span class="var">new_model</span>, <span class="var">metrics</span> = train_model(<span class="var">new_data</span>)
+
+    <span class="cmt"># 4. Compare vs current production model</span>
+    <span class="var">prod_metrics</span> = get_production_model_metrics()
+    <span class="kw">if</span> <span class="var">metrics</span>[<span class="str">"auc"</span>] &lt; <span class="var">prod_metrics</span>[<span class="str">"auc"</span>] * <span class="num">0.995</span>:
+        alert(<span class="str">"New model underperforms. Not deploying."</span>)
+        <span class="kw">return</span>
+
+    <span class="cmt"># 5. Auto-promote to staging if improved</span>
+    promote_model_to_staging(<span class="var">new_model</span>)
+    notify_team(<span class="str">"New model candidate ready for review"</span>)
+
+    <span class="cmt"># 6. Optional: auto-promote to production</span>
+    <span class="cmt"># (only if team has agreed on this)</span>
+    <span class="kw">if</span> <span class="var">metrics</span>[<span class="str">"auc"</span>] &gt; <span class="var">prod_metrics</span>[<span class="str">"auc"</span>] + <span class="num">0.01</span>:
+        auto_promote_to_production(<span class="var">new_model</span>)
+      </div>
+    </div>
+    <div>
+      <div class="info-box box-teal" style="margin-bottom:12px;">
+        <strong>💡 Retraining Data Strategy:</strong><br>
+        <strong>Rolling window</strong>: Always train on last 90 days. Recent patterns dominate. Simple.<br><br>
+        <strong>Expanding window</strong>: Add new data to all historical. Model sees everything. Can dilute recent patterns.<br><br>
+        <strong>Weighted</strong>: Include all history but give recent data 2x weight. Best of both worlds. Complex.
+      </div>
+      <div class="card card-red">
+        <div class="card-title">⚠️ Catastrophic Forgetting</div>
+        <p style="font-size:13px;">If you train only on recent data, the model may "forget" rare but important patterns (e.g., seasonal fraud spikes from 18 months ago). Always include enough historical data to cover seasonal cycles.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 23 ══════════════════════════ -->
+<div class="page" id="p23" data-page="23 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Monitoring</span><div class="eyebrow-line"></div><span class="page-num">Page 23</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title"><span>A/B Testing</span><br>Models in Production</h1>
+  <p class="page-desc">A/B testing for models is like A/B testing for web pages — you run two versions simultaneously and let data determine which is better. Unlike offline evaluation, A/B tests measure REAL business impact: does the new model actually make more sales? Catch more fraud? Retain more users?</p>
+
+  <div class="grid-2">
+    <div>
+      <div class="flow" style="flex-direction:column;align-items:flex-start;gap:12px;padding:20px;">
+        <div style="font-family:var(--mono);font-size:11px;color:var(--green);">USER REQUEST ARRIVES</div>
+        <div style="display:flex;align-items:center;gap:10px;width:100%;">
+          <div class="flow-node" style="flex:1;text-align:left;padding:10px;">
+            <span class="flow-node-label">Traffic Splitter</span>
+            <div class="flow-node-sub">50/50 random assignment</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;width:100%;">
+          <div class="flow-node" style="flex:1;background:rgba(0,229,204,0.06);border-color:rgba(0,229,204,0.3);">
+            <span class="flow-node-icon">🔵</span>
+            <span class="flow-node-label">Model A (Control)</span>
+            <div class="flow-node-sub">current production</div>
+          </div>
+          <div class="flow-node" style="flex:1;background:rgba(52,211,100,0.06);border-color:rgba(52,211,100,0.3);">
+            <span class="flow-node-icon">🟢</span>
+            <span class="flow-node-label">Model B (Challenger)</span>
+            <div class="flow-node-sub">new candidate</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;width:100%;">
+          <div class="flow-node" style="flex:1;">
+            <span class="flow-node-label">Business Metrics A</span>
+            <div class="flow-node-sub">CTR, conversion, revenue</div>
+          </div>
+          <div class="flow-node" style="flex:1;">
+            <span class="flow-node-label">Business Metrics B</span>
+            <div class="flow-node-sub">CTR, conversion, revenue</div>
+          </div>
+        </div>
+        <div class="flow-node" style="width:100%;background:rgba(255,209,102,0.06);border-color:rgba(255,209,102,0.3);">
+          <span class="flow-node-label">Statistical Significance Test</span>
+          <div class="flow-node-sub">p-value &lt; 0.05 → declare winner</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <p class="code-label">A/B Test Implementation with Feature Flags</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">hashlib</span>
+<span class="kw">from</span> <span class="var">scipy</span> <span class="kw">import</span> stats
+
+<span class="kw">def</span> <span class="fn">get_model_variant</span>(<span class="var">user_id</span>: str) -&gt; str:
+    <span class="cmt"># Deterministic assignment — same user → same model</span>
+    <span class="var">h</span> = <span class="kw">int</span>(hashlib.md5(<span class="var">user_id</span>.encode()).hexdigest(), <span class="num">16</span>)
+    <span class="kw">return</span> <span class="str">"B"</span> <span class="kw">if</span> (<span class="var">h</span> % <span class="num">100</span>) &lt; <span class="num">50</span> <span class="kw">else</span> <span class="str">"A"</span>
+
+<span class="kw">def</span> <span class="fn">predict_with_ab</span>(<span class="var">user_id</span>: str, <span class="var">features</span>):
+    <span class="var">variant</span> = get_model_variant(<span class="var">user_id</span>)
+    <span class="var">model</span>   = <span class="var">model_a</span> <span class="kw">if</span> <span class="var">variant</span> == <span class="str">"A"</span> <span class="kw">else</span> <span class="var">model_b</span>
+    <span class="var">result</span>  = <span class="var">model</span>.predict(<span class="var">features</span>)
+
+    <span class="cmt"># Log to experiment tracking</span>
+    log_event(<span class="var">user_id</span>, <span class="var">variant</span>, <span class="var">result</span>)
+    <span class="kw">return</span> <span class="var">result</span>
+
+<span class="cmt"># After 7 days: statistical significance test</span>
+<span class="var">t_stat</span>, <span class="var">p_value</span> = stats.ttest_ind(
+    <span class="var">group_a_conversions</span>, <span class="var">group_b_conversions</span>)
+
+<span class="kw">if</span> <span class="var">p_value</span> &lt; <span class="num">0.05</span> <span class="kw">and</span> <span class="var">group_b_mean</span> &gt; <span class="var">group_a_mean</span>:
+    <span class="out">print("Model B is statistically better → deploy")</span>
+<span class="kw">else</span>:
+    <span class="out">print("No significant difference → keep Model A")</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:12px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ A/B Testing Pros</div>
+      <ul>
+        <li>Real business impact measurement — not just ML metrics</li>
+        <li>Catches issues offline evaluation can't see (user behavior change)</li>
+        <li>Statistical rigor — not gut feeling</li>
+        <li>Safe — only 50% of users see new model at risk</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ A/B Testing Challenges</div>
+      <ul>
+        <li>Needs large sample size — weeks for low-traffic products</li>
+        <li>Interaction effects — same user might see both models over time</li>
+        <li>Two models running = double the infrastructure cost</li>
+        <li>Ethical concerns if one model is clearly harmful to some users</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 24 ══════════════════════════ -->
+<div class="page" id="p24" data-page="24 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Infrastructure</span><div class="eyebrow-line"></div><span class="page-num">Page 24</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Kubernetes<br>for <span>MLOps</span></h1>
+  <p class="page-desc">Kubernetes is the backbone of modern MLOps infrastructure. It handles scaling model servers, running training jobs, orchestrating pipelines, and managing GPU resources. You already know k8s — now you're just applying it to ML workloads with ML-specific tooling on top.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">KServe — Model Serving on Kubernetes</p>
+      <div class="code-block">
+<span class="cmt"># InferenceService — declarative model deployment</span>
+<span class="key">apiVersion</span>: serving.kserve.io/v1beta1
+<span class="key">kind</span>: InferenceService
+<span class="key">metadata</span>:
+  <span class="key">name</span>: fraud-detector
+  <span class="key">namespace</span>: ml-production
+<span class="key">spec</span>:
+  <span class="key">predictor</span>:
+    <span class="key">minReplicas</span>: <span class="num">2</span>
+    <span class="key">maxReplicas</span>: <span class="num">20</span>
+    <span class="key">scaleTarget</span>: <span class="num">70</span>  <span class="cmt"># % CPU utilization</span>
+    <span class="key">mlflow</span>:
+      <span class="key">storageUri</span>: <span class="str">"s3://mlflow/models/FraudDetector/v3"</span>
+      <span class="key">protocolVersion</span>: v2
+      <span class="key">resources</span>:
+        <span class="key">requests</span>: { cpu: <span class="str">"500m"</span>, memory: <span class="str">"2Gi"</span> }
+        <span class="key">limits</span>:   { cpu: <span class="str">"2"</span>,    memory: <span class="str">"4Gi"</span> }
+
+<span class="cmt"># Canary deployment: 5% traffic to v4</span>
+  <span class="key">canaryTrafficPercent</span>: <span class="num">5</span>
+  <span class="key">predictor</span>:
+    <span class="key">mlflow</span>:
+      <span class="key">storageUri</span>: <span class="str">"s3://mlflow/models/FraudDetector/v4"</span>
+      </div>
+      <p class="code-label" style="margin-top:12px;">GPU Training Job</p>
+      <div class="code-block">
+<span class="key">apiVersion</span>: batch/v1
+<span class="key">kind</span>: Job
+<span class="key">metadata</span>:
+  <span class="key">name</span>: model-training-weekly
+<span class="key">spec</span>:
+  <span class="key">template</span>:
+    <span class="key">spec</span>:
+      <span class="key">restartPolicy</span>: OnFailure
+      <span class="key">containers</span>:
+        - <span class="key">name</span>: trainer
+          <span class="key">image</span>: <span class="str">ml-trainer:v1.2</span>
+          <span class="key">resources</span>:
+            <span class="key">limits</span>:
+              <span class="key">nvidia.com/gpu</span>: <span class="num">1</span>
+              <span class="key">memory</span>: <span class="str">"16Gi"</span>
+          <span class="key">env</span>:
+            - <span class="key">name</span>: MLFLOW_TRACKING_URI
+              <span class="key">valueFrom</span>:
+                <span class="key">secretKeyRef</span>: { <span class="key">name</span>: mlflow, <span class="key">key</span>: uri }
+      <span class="key">nodeSelector</span>:
+        <span class="key">cloud.google.com/gke-accelerator</span>: nvidia-tesla-t4
+      <span class="key">tolerations</span>:
+        - <span class="key">key</span>: nvidia.com/gpu
+          <span class="key">operator</span>: Exists
+      </div>
+    </div>
+    <div>
+      <div class="card card-teal" style="margin-bottom:12px;">
+        <div class="card-title">Key k8s Concepts for MLOps</div>
+        <ul>
+          <li><strong>Jobs & CronJobs</strong>: Run training jobs on a schedule</li>
+          <li><strong>KEDA</strong>: Scale model servers based on queue depth (Kafka, SQS)</li>
+          <li><strong>KServe</strong>: Standard for serving ML models on k8s</li>
+          <li><strong>Node selectors + taints</strong>: Route GPU workloads to GPU nodes</li>
+          <li><strong>ResourceQuota</strong>: Limit GPU usage per team/namespace</li>
+          <li><strong>PodDisruptionBudget</strong>: Ensure min replicas during node maintenance</li>
+          <li><strong>HPA</strong>: Autoscale inference pods on CPU or custom metrics</li>
+        </ul>
+      </div>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card pro-card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">✅ k8s for ML Pros</div>
+          <ul style="font-size:12px;">
+            <li>Single platform for training + serving</li>
+            <li>GPU resource sharing across teams</li>
+            <li>KServe handles autoscaling, traffic splitting natively</li>
+            <li>Portable — runs on any cloud</li>
+          </ul>
+        </div>
+        <div class="card con-card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">❌ k8s for ML Cons</div>
+          <ul style="font-size:12px;">
+            <li>Complex GPU driver/plugin setup</li>
+            <li>Overkill for small teams with 1-2 models</li>
+            <li>Stateful training jobs are hard to manage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 25 ══════════════════════════ -->
+<div class="page" id="p25" data-page="25 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Infrastructure</span><div class="eyebrow-line"></div><span class="page-num">Page 25</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Azure <span>Machine Learning</span><br>Full Platform Guide</h1>
+  <p class="page-desc">Azure ML is Microsoft's managed MLOps platform. It wraps all the MLOps primitives (experiment tracking, model registry, pipelines, deployment) in a managed service so you don't have to run MLflow, Kubeflow, or Airflow yourself. Strong choice if you're already on Azure.</p>
+
+  <div class="grid-2">
+    <div class="card card-teal">
+      <div class="card-title">Azure ML Core Components</div>
+      <ul>
+        <li><strong>Workspace</strong>: Top-level container for all assets (like a k8s namespace)</li>
+        <li><strong>Datastores</strong>: Connections to Azure Blob, ADLS, SQL</li>
+        <li><strong>Datasets (Data Assets)</strong>: Versioned data registered in the workspace</li>
+        <li><strong>Environments</strong>: Docker images with Python deps — reproducible runtime</li>
+        <li><strong>Compute Clusters</strong>: Auto-scaling training clusters (CPU/GPU)</li>
+        <li><strong>Compute Instances</strong>: Single VM for dev/exploration</li>
+        <li><strong>Jobs</strong>: Training runs (replaces MLflow runs)</li>
+        <li><strong>Model Registry</strong>: Versioned model storage with lineage</li>
+        <li><strong>Endpoints</strong>: Online (REST) and Batch endpoints</li>
+        <li><strong>Pipelines</strong>: Multi-step ML workflows with YAML</li>
+      </ul>
+    </div>
+    <div>
+      <p class="code-label">Azure ML Training Job (CLI v2 YAML)</p>
+      <div class="code-block">
+<span class="cmt"># job.yaml — Submit to Azure ML</span>
+<span class="key">$schema</span>: <span class="str">https://azuremlschemas.azureedge.net/latest/commandJob.schema.json</span>
+<span class="key">type</span>: command
+
+<span class="key">code</span>: <span class="str">./src</span>
+<span class="key">command</span>: <span class="str">python train.py --lr ${{inputs.learning_rate}} --data ${{inputs.training_data}}</span>
+
+<span class="key">inputs</span>:
+  <span class="key">learning_rate</span>: <span class="num">0.01</span>
+  <span class="key">training_data</span>:
+    <span class="key">type</span>: uri_folder
+    <span class="key">path</span>: <span class="str">azureml://datastores/prod/paths/training/</span>
+
+<span class="key">environment</span>: <span class="str">azureml:mlops-env:3</span>
+
+<span class="key">compute</span>: <span class="str">azureml:gpu-cluster</span>
+
+<span class="key">resources</span>:
+  <span class="key">instance_type</span>: <span class="str">Standard_NC6s_v3</span>  <span class="cmt"># Tesla V100</span>
+  <span class="key">instance_count</span>: <span class="num">1</span>
+
+<span class="key">experiment_name</span>: <span class="str">fraud-detection</span>
+<span class="key">display_name</span>:   <span class="str">xgb-v3-production-candidate</span>
+
+<span class="cmt"># Submit:</span>
+<span class="cmd">az ml job create --file job.yaml --workspace-name ml-prod --resource-group rg-ml</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ Azure ML Pros</div>
+      <ul>
+        <li>Fully managed — no MLflow/Kubeflow infra to maintain</li>
+        <li>Native Azure integration (AAD, Key Vault, Blob, AKS)</li>
+        <li>Responsible AI dashboard built-in (fairness, explainability)</li>
+        <li>Auto-ML for rapid baseline model generation</li>
+        <li>Managed Feature Store (preview) — integrated workflow</li>
+        <li>Enterprise RBAC — control who can train, deploy, approve models</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ Azure ML Cons</div>
+      <ul>
+        <li>Vendor lock-in — pipelines are Azure-specific YAML format</li>
+        <li>Expensive — managed platform adds ~30% cost over raw infrastructure</li>
+        <li>Learning curve — the v2 CLI/SDK has many concepts to master</li>
+        <li>Overkill for simple single-model use cases</li>
+        <li>Some features still in preview and subject to breaking changes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 26 ══════════════════════════ -->
+<div class="page" id="p26" data-page="26 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Infrastructure</span><div class="eyebrow-line"></div><span class="page-num">Page 26</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">AWS <span>SageMaker</span><br>MLOps on AWS</h1>
+  <p class="page-desc">SageMaker is Amazon's end-to-end ML platform. It's the most mature managed MLOps platform in the market, deeply integrated with S3, IAM, and all AWS services. If your team is AWS-native, SageMaker is the natural choice for managed MLOps.</p>
+
+  <div class="grid-3">
+    <div class="card card-orange">
+      <div class="card-title">SageMaker Studio</div>
+      <p>IDE for ML — Jupyter notebooks with managed compute. Like VS Code but for ML in the cloud. Every notebook runs on managed infrastructure, not your laptop.</p>
+      <div class="tags"><span class="tag t-orange">Dev environment</span></div>
+    </div>
+    <div class="card card-teal">
+      <div class="card-title">SageMaker Training</div>
+      <p>Submit training jobs to managed compute clusters. Auto-scaling, spot instance support, distributed training with Horovod. Pay per second of training.</p>
+      <div class="tags"><span class="tag t-teal">Managed training</span></div>
+    </div>
+    <div class="card card-green">
+      <div class="card-title">SageMaker Endpoints</div>
+      <p>Deploy models as real-time REST endpoints or batch transform jobs. Auto-scaling, multi-model endpoints, A/B traffic splitting built-in.</p>
+      <div class="tags"><span class="tag t-green">Managed serving</span></div>
+    </div>
+    <div class="card card-blue">
+      <div class="card-title">SageMaker Pipelines</div>
+      <p>Native ML pipeline tool. Define DAGs of training, processing, evaluation steps. Integrates with Model Registry for governance.</p>
+      <div class="tags"><span class="tag t-blue">Workflow orchestration</span></div>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">Model Registry</div>
+      <p>Approve/reject model versions. Track lineage. Manual approval gates before production deployment. Full audit trail.</p>
+      <div class="tags"><span class="tag t-yellow">Governance</span></div>
+    </div>
+    <div class="card card-purple">
+      <div class="card-title">Model Monitor</div>
+      <p>Scheduled monitoring jobs detect data drift, model quality, bias, and feature attribution changes. Alerts via CloudWatch.</p>
+      <div class="tags"><span class="tag t-purple">Drift detection</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div>
+      <p class="code-label">SageMaker Training Job (Python SDK)</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">sagemaker</span>
+<span class="kw">from</span> <span class="var">sagemaker.sklearn</span> <span class="kw">import</span> SKLearn
+
+<span class="var">estimator</span> = SKLearn(
+    entry_point=<span class="str">"train.py"</span>,
+    role=<span class="str">"arn:aws:iam::123:role/SageMakerRole"</span>,
+    instance_type=<span class="str">"ml.c5.xlarge"</span>,
+    instance_count=<span class="num">1</span>,
+    framework_version=<span class="str">"1.2-1"</span>,
+    hyperparameters={
+        <span class="str">"learning-rate"</span>: <span class="num">0.01</span>,
+        <span class="str">"max-depth"</span>: <span class="num">6</span>
+    },
+    use_spot_instances=<span class="kw">True</span>,  <span class="cmt"># 70% savings!</span>
+    max_wait=<span class="num">3600</span>,
+    checkpoint_s3_uri=<span class="str">"s3://ml-checkpoints/"</span>
+)
+
+<span class="var">estimator</span>.fit({
+    <span class="str">"train"</span>: <span class="str">"s3://ml-data/train/"</span>,
+    <span class="str">"test"</span>:  <span class="str">"s3://ml-data/test/"</span>
+})
+
+<span class="cmt"># Deploy to real-time endpoint</span>
+<span class="var">predictor</span> = <span class="var">estimator</span>.deploy(
+    initial_instance_count=<span class="num">2</span>,
+    instance_type=<span class="str">"ml.c5.large"</span>,
+    endpoint_name=<span class="str">"fraud-detector-prod"</span>
+)
+      </div>
+    </div>
+    <div>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card pro-card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">✅ SageMaker Pros</div>
+          <ul style="font-size:12px;">
+            <li>Most mature managed MLOps platform</li>
+            <li>Spot instance support saves 70%</li>
+            <li>Scales to enterprise requirements</li>
+            <li>Deep AWS integration (IAM, S3, CloudWatch)</li>
+            <li>Auto-scaling endpoints built-in</li>
+          </ul>
+        </div>
+        <div class="card con-card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">❌ SageMaker Cons</div>
+          <ul style="font-size:12px;">
+            <li>Very expensive at scale</li>
+            <li>Steep learning curve</li>
+            <li>Strong AWS lock-in</li>
+            <li>Local debugging is painful</li>
+            <li>Versioning can feel fragmented</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 27 ══════════════════════════ -->
+<div class="page" id="p27" data-page="27 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Infrastructure</span><div class="eyebrow-line"></div><span class="page-num">Page 27</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">GCP <span>Vertex AI</span><br>MLOps on Google Cloud</h1>
+  <p class="page-desc">Vertex AI is Google's unified MLOps platform. It consolidates Google's previously fragmented ML tools (AutoML, AI Platform, Cloud Training) into a single coherent service. Known for its clean API, tight BigQuery integration, and excellent AutoML capabilities.</p>
+
+  <div class="grid-2">
+    <div class="card card-blue">
+      <div class="card-title">Vertex AI Core Services</div>
+      <ul>
+        <li><strong>Workbench</strong>: Managed Jupyter notebooks on GCE</li>
+        <li><strong>Custom Training</strong>: Submit jobs to managed compute</li>
+        <li><strong>AutoML</strong>: No-code model training for structured/image/text</li>
+        <li><strong>Feature Store</strong>: Online (Bigtable) + offline (BigQuery) features</li>
+        <li><strong>Model Registry</strong>: Centralized model catalog with version lineage</li>
+        <li><strong>Prediction</strong>: Online endpoints + batch prediction</li>
+        <li><strong>Pipelines</strong>: Kubeflow Pipelines or TFX-based DAGs</li>
+        <li><strong>Experiments</strong>: Built-in experiment tracking (like MLflow)</li>
+        <li><strong>Model Monitoring</strong>: Skew/drift detection against training baseline</li>
+        <li><strong>Explainability</strong>: SHAP-based feature importance on any model</li>
+      </ul>
+    </div>
+    <div>
+      <p class="code-label">Vertex AI Training + Deployment</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">google.cloud</span> <span class="kw">import</span> aiplatform
+
+aiplatform.init(project=<span class="str">"my-project"</span>, location=<span class="str">"us-central1"</span>)
+
+<span class="cmt"># Submit custom training job</span>
+<span class="var">job</span> = aiplatform.CustomContainerTrainingJob(
+    display_name=<span class="str">"fraud-detector-v3"</span>,
+    container_uri=<span class="str">"gcr.io/my-project/trainer:latest"</span>,
+    model_serving_container_image_uri=<span class="str">"gcr.io/my-project/serve:latest"</span>
+)
+
+<span class="var">model</span> = <span class="var">job</span>.run(
+    dataset=<span class="var">my_dataset</span>,
+    model_display_name=<span class="str">"FraudDetector"</span>,
+    machine_type=<span class="str">"n1-standard-8"</span>,
+    accelerator_type=<span class="str">"NVIDIA_TESLA_T4"</span>,
+    replica_count=<span class="num">1</span>,
+    args=[<span class="str">"--learning-rate=0.01"</span>, <span class="str">"--epochs=100"</span>]
+)
+
+<span class="cmt"># Deploy to online endpoint with traffic split</span>
+<span class="var">endpoint</span> = aiplatform.Endpoint.create(display_name=<span class="str">"fraud-endpoint-prod"</span>)
+<span class="var">endpoint</span>.deploy(
+    <span class="var">model</span>,
+    deployed_model_display_name=<span class="str">"fraud-v3"</span>,
+    machine_type=<span class="str">"n1-standard-2"</span>,
+    min_replica_count=<span class="num">2</span>,
+    max_replica_count=<span class="num">10</span>,
+    traffic_percentage=<span class="num">20</span>  <span class="cmt"># canary: 20% traffic</span>
+)
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card pro-card">
+      <div class="card-title">✅ Vertex AI Pros</div>
+      <ul>
+        <li>Best BigQuery integration — train on SQL tables directly</li>
+        <li>Cleanest API of the three major clouds (Azure/AWS/GCP)</li>
+        <li>TPU access for large-scale training (fastest hardware)</li>
+        <li>AutoML is genuinely excellent for tabular/image/NLP</li>
+        <li>Explainability (SHAP) built into every prediction endpoint</li>
+      </ul>
+    </div>
+    <div class="card con-card">
+      <div class="card-title">❌ Vertex AI Cons</div>
+      <ul>
+        <li>Relatively newer — some features still maturing</li>
+        <li>Regional availability can be limited vs AWS</li>
+        <li>Expensive for high-throughput inference workloads</li>
+        <li>Requires GCP commitment — vendor lock-in</li>
+        <li>Community and documentation smaller than SageMaker</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 28 ══════════════════════════ -->
+<div class="page" id="p28" data-page="28 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Tools Deep Dive</span><div class="eyebrow-line"></div><span class="page-num">Page 28</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title"><span>MLflow</span><br>Complete Production Guide</h1>
+  <p class="page-desc">MLflow has four main components: Tracking (log experiments), Projects (package code), Models (standardize model format), and Model Registry (lifecycle management). Together they cover the full ML development lifecycle. You can self-host or use managed MLflow on Databricks.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">Production MLflow Deployment (Docker Compose)</p>
+      <div class="code-block">
+<span class="cmt"># docker-compose.yml — MLflow + PostgreSQL + S3</span>
+<span class="key">version</span>: <span class="str">"3.8"</span>
+<span class="key">services</span>:
+  <span class="key">mlflow</span>:
+    <span class="key">image</span>: ghcr.io/mlflow/mlflow:latest
+    <span class="key">ports</span>: [<span class="str">"5000:5000"</span>]
+    <span class="key">environment</span>:
+      - <span class="key">MLFLOW_S3_ENDPOINT_URL</span>=<span class="str">http://minio:9000</span>
+      - <span class="key">AWS_ACCESS_KEY_ID</span>=<span class="str">${MINIO_KEY}</span>
+      - <span class="key">AWS_SECRET_ACCESS_KEY</span>=<span class="str">${MINIO_SECRET}</span>
+    <span class="key">command</span>: <span class="str">mlflow server
+        --host 0.0.0.0
+        --backend-store-uri postgresql://mlflow:pass@postgres/mlflow
+        --default-artifact-root s3://mlflow-artifacts/
+        --workers 4</span>
+
+  <span class="key">postgres</span>:
+    <span class="key">image</span>: postgres:15
+    <span class="key">environment</span>:
+      POSTGRES_DB: mlflow
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: <span class="str">${DB_PASS}</span>
+    <span class="key">volumes</span>: [<span class="str">"postgres_data:/var/lib/postgresql/data"</span>]
+
+  <span class="key">minio</span>:
+    <span class="key">image</span>: minio/minio
+    <span class="key">command</span>: server /data --console-address :9001
+    <span class="key">ports</span>: [<span class="str">"9000:9000"</span>, <span class="str">"9001:9001"</span>]
+    <span class="key">volumes</span>: [<span class="str">"minio_data:/data"</span>]
+      </div>
+    </div>
+    <div>
+      <p class="code-label">MLflow Model Signature + Input Validation</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">mlflow.models.signature</span> <span class="kw">import</span> infer_signature
+<span class="kw">import</span> <span class="var">mlflow</span>
+
+<span class="kw">with</span> mlflow.start_run():
+    <span class="var">model</span>.fit(<span class="var">X_train</span>, <span class="var">y_train</span>)
+
+    <span class="cmt"># Infer schema from training data</span>
+    <span class="var">signature</span> = infer_signature(<span class="var">X_train</span>, <span class="var">model</span>.predict(<span class="var">X_train</span>))
+    <span class="cmt"># Signature: Inputs: [amount: double, merchant: string, ...]
+    #            Outputs: [fraud_prob: double]</span>
+
+    <span class="cmt"># Add example input for documentation</span>
+    <span class="var">input_example</span> = <span class="var">X_train</span>.iloc[:<span class="num">5</span>]
+
+    mlflow.sklearn.log_model(
+        <span class="var">model</span>,
+        <span class="str">"model"</span>,
+        signature=<span class="var">signature</span>,
+        input_example=<span class="var">input_example</span>,
+        registered_model_name=<span class="str">"FraudDetector"</span>
+    )
+
+<span class="cmt"># At serving time, MLflow validates input schema automatically</span>
+<span class="cmt"># Wrong type? Wrong columns? → Immediate validation error</span>
+<span class="cmt"># This catches training/serving skew at the API boundary</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box box-green" style="margin-top:16px;">
+    <strong>🏗️ Scaling MLflow for Teams:</strong> Use PostgreSQL as the backend store (not file-based SQLite). Use S3/MinIO/Azure Blob for artifacts (not local disk). Add authentication via reverse proxy (nginx + basic auth or Keycloak OIDC). Scale MLflow horizontally with <code>--workers 4</code>. For very large teams, consider Managed MLflow on Databricks — it scales automatically and adds RBAC.
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 29 ══════════════════════════ -->
+<div class="page" id="p29" data-page="29 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Tools Deep Dive</span><div class="eyebrow-line"></div><span class="page-num">Page 29</span></div>
+  <div class="level level-adv">▲ ADVANCED LEVEL</div>
+  <h1 class="page-title">Kubeflow<br><span>Pipelines</span></h1>
+  <p class="page-desc">Kubeflow Pipelines (KFP) is the most powerful open-source ML pipeline orchestrator. It runs on Kubernetes and lets you define ML pipelines as Python functions that are automatically containerized and executed as k8s pods. Every step is isolated, logged, and resumable.</p>
+
+  <div class="info-box box-teal">
+    <strong>Layman explanation:</strong> Think of Kubeflow Pipelines like GitHub Actions — but instead of CI steps, the steps are: "load data", "preprocess", "train model", "evaluate model", "deploy model". Each step runs in its own Docker container on Kubernetes. If step 3 fails, you can retry from step 3 without re-running steps 1 and 2.
+  </div>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">Kubeflow Pipeline — Python DSL</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">kfp</span>
+<span class="kw">from</span> <span class="var">kfp</span> <span class="kw">import</span> dsl
+<span class="kw">from</span> <span class="var">kfp.components</span> <span class="kw">import</span> create_component_from_func
+
+<span class="cmt"># Each component runs in its own container</span>
+<span class="var">@dsl</span>.component(base_image=<span class="str">"python:3.11-slim"</span>,
+               packages_to_install=[<span class="str">"pandas"</span>, <span class="str">"scikit-learn"</span>])
+<span class="kw">def</span> <span class="fn">preprocess_data</span>(
+    input_path: str, output_path: <span class="var">dsl</span>.Output[<span class="var">dsl</span>.Dataset]):
+    <span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+    <span class="var">df</span> = pd.read_parquet(<span class="var">input_path</span>)
+    <span class="var">df</span>.to_parquet(<span class="var">output_path</span>.path)
+
+<span class="var">@dsl</span>.component(base_image=<span class="str">"python:3.11-slim"</span>,
+               packages_to_install=[<span class="str">"xgboost"</span>, <span class="str">"mlflow"</span>])
+<span class="kw">def</span> <span class="fn">train_model</span>(
+    data: <span class="var">dsl</span>.Input[<span class="var">dsl</span>.Dataset],
+    model: <span class="var">dsl</span>.Output[<span class="var">dsl</span>.Model],
+    learning_rate: <span class="kw">float</span> = <span class="num">0.01</span>):
+    <span class="kw">import</span> <span class="var">xgboost</span> <span class="kw">as</span> <span class="var">xgb</span>
+    <span class="cmt"># ... training logic ...</span>
+    <span class="var">trained_model</span>.save_model(<span class="var">model</span>.path)
+
+<span class="cmt"># Compose pipeline</span>
+<span class="var">@dsl</span>.pipeline(name=<span class="str">"fraud-training-pipeline"</span>)
+<span class="kw">def</span> <span class="fn">fraud_pipeline</span>(lr: <span class="kw">float</span> = <span class="num">0.01</span>):
+    <span class="var">prep_task</span>  = preprocess_data(input_path=<span class="str">"s3://data/raw"</span>)
+    <span class="var">train_task</span> = train_model(
+        data=<span class="var">prep_task</span>.outputs[<span class="str">"output_path"</span>],
+        learning_rate=<span class="var">lr</span>
+    )
+
+<span class="cmt"># Compile and submit</span>
+<span class="var">client</span> = kfp.Client(host=<span class="str">"http://kfp.internal"</span>)
+<span class="var">client</span>.create_run_from_pipeline_func(<span class="var">fraud_pipeline</span>)
+      </div>
+    </div>
+    <div>
+      <div class="card card-teal" style="margin-bottom:12px;">
+        <div class="card-title">KFP Features</div>
+        <ul>
+          <li><strong>Component caching</strong>: Skip steps whose inputs haven't changed</li>
+          <li><strong>Conditional steps</strong>: Only deploy if accuracy > threshold</li>
+          <li><strong>Parallel steps</strong>: Run hyperparameter trials simultaneously</li>
+          <li><strong>Artifact lineage</strong>: Track which data produced which model</li>
+          <li><strong>Pipeline versioning</strong>: Every pipeline run has a reproducible graph</li>
+          <li><strong>Recurring runs</strong>: Schedule pipeline on cron</li>
+          <li><strong>Resource limits</strong>: Specify CPU/GPU/memory per step</li>
+        </ul>
+      </div>
+      <div class="grid-2" style="gap:10px;">
+        <div class="card pro-card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">✅ KFP Pros</div>
+          <ul style="font-size:12px;">
+            <li>Full k8s power for each step</li>
+            <li>Python-native DSL</li>
+            <li>Excellent caching</li>
+            <li>Cloud-agnostic</li>
+          </ul>
+        </div>
+        <div class="card con-card" style="padding:14px;">
+          <div class="card-title" style="font-size:13px;">❌ KFP Cons</div>
+          <ul style="font-size:12px;">
+            <li>Complex setup on k8s</li>
+            <li>Debugging is harder</li>
+            <li>Resource-intensive cluster</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 30 ══════════════════════════ -->
+<div class="page" id="p30" data-page="30 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Tools Deep Dive</span><div class="eyebrow-line"></div><span class="page-num">Page 30</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Apache Airflow<br>for <span>ML Pipelines</span></h1>
+  <p class="page-desc">Airflow is the most widely used workflow orchestrator in data engineering. If your team already runs Airflow for data pipelines, you can extend it to orchestrate ML workflows — from data ingestion all the way to model deployment — in a unified platform.</p>
+
+  <div class="grid-2">
+    <div>
+      <p class="code-label">ML Training DAG with Airflow</p>
+      <div class="code-block">
+<span class="kw">from</span> <span class="var">airflow</span> <span class="kw">import</span> DAG
+<span class="kw">from</span> <span class="var">airflow.operators.python</span> <span class="kw">import</span> PythonOperator
+<span class="kw">from</span> <span class="var">airflow.providers.cncf.kubernetes.operators.pod</span> <span class="kw">import</span> KubernetesPodOperator
+<span class="kw">from</span> <span class="var">datetime</span> <span class="kw">import</span> datetime, timedelta
+
+<span class="var">dag</span> = DAG(
+    dag_id=<span class="str">"weekly_fraud_retrain"</span>,
+    schedule_interval=<span class="str">"@weekly"</span>,
+    start_date=datetime(<span class="num">2025</span>, <span class="num">1</span>, <span class="num">1</span>),
+    default_args={
+        <span class="str">"retries"</span>: <span class="num">2</span>,
+        <span class="str">"retry_delay"</span>: timedelta(minutes=<span class="num">5</span>),
+        <span class="str">"email_on_failure"</span>: <span class="kw">True</span>
+    },
+    catchup=<span class="kw">False</span>
+)
+
+<span class="cmt"># Step 1: Validate data freshness</span>
+<span class="var">validate</span> = PythonOperator(
+    task_id=<span class="str">"validate_data"</span>,
+    python_callable=<span class="var">check_data_quality</span>,
+    dag=<span class="var">dag</span>
+)
+
+<span class="cmt"># Step 2: Train on Kubernetes (GPU pod)</span>
+<span class="var">train</span> = KubernetesPodOperator(
+    task_id=<span class="str">"train_model"</span>,
+    image=<span class="str">"ml-trainer:latest"</span>,
+    cmds=[<span class="str">"python"</span>, <span class="str">"train.py"</span>],
+    container_resources={<span class="str">"limit_gpu"</span>: <span class="num">1</span>},
+    env_vars={<span class="str">"MLFLOW_URI"</span>: <span class="str">"{{ var.value.mlflow_uri }}"</span>},
+    dag=<span class="var">dag</span>
+)
+
+<span class="cmt"># Step 3: Evaluate — branch on result</span>
+<span class="var">evaluate</span> = PythonOperator(
+    task_id=<span class="str">"evaluate_model"</span>,
+    python_callable=<span class="var">compare_with_production</span>,
+    dag=<span class="var">dag</span>
+)
+
+<span class="cmt"># Step 4: Deploy if better</span>
+<span class="var">deploy</span> = PythonOperator(
+    task_id=<span class="str">"deploy_model"</span>,
+    python_callable=<span class="var">promote_to_production</span>,
+    dag=<span class="var">dag</span>
+)
+
+<span class="var">validate</span> &gt;&gt; <span class="var">train</span> &gt;&gt; <span class="var">evaluate</span> &gt;&gt; <span class="var">deploy</span>
+      </div>
+    </div>
+    <div>
+      <div class="card card-yellow" style="margin-bottom:12px;">
+        <div class="card-title">Airflow vs Kubeflow Pipelines</div>
+        <div class="table-wrap">
+          <table style="font-size:12px;">
+            <thead><tr><th>Aspect</th><th>Airflow</th><th>Kubeflow</th></tr></thead>
+            <tbody>
+              <tr><td>Primary Use</td><td>Data + ML pipelines</td><td>ML pipelines only</td></tr>
+              <tr><td>Learning Curve</td><td>Medium</td><td>High</td></tr>
+              <tr><td>Existing adoption</td><td>Very high (data teams)</td><td>Medium (ML teams)</td></tr>
+              <tr><td>UI</td><td>Good, DAG-focused</td><td>Good, pipeline-focused</td></tr>
+              <tr><td>k8s required</td><td>No (any infra)</td><td>Yes (k8s required)</td></tr>
+              <tr><td>Artifact tracking</td><td>Limited</td><td>Excellent</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="info-box box-green">
+        <strong>🏆 Best Practice:</strong> If your data team already uses Airflow, use it for ML pipelines too — don't introduce Kubeflow just for ML. Airflow with the KubernetesPodOperator gives you containerized, GPU-capable ML steps without adding another platform to manage.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 31 ══════════════════════════ -->
+<div class="page" id="p31" data-page="31 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Tools Deep Dive</span><div class="eyebrow-line"></div><span class="page-num">Page 31</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">MLOps <span>Tools</span><br>Complete Ecosystem</h1>
+  <p class="page-desc">The MLOps tooling landscape is vast. Here's your map organized by layer, with open-source vs managed options for each category.</p>
+
+  <div class="grid-auto">
+    <div class="tool-card">
+      <div class="tool-cat">Data Versioning</div>
+      <div class="tool-name">DVC</div>
+      <div class="tool-desc">Open source. Git for data. Simple, portable, integrates with any cloud storage.</div>
+      <div class="tags"><span class="tag t-green">Open source</span><span class="tag t-teal">Start here</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Data Validation</div>
+      <div class="tool-name">Great Expectations</div>
+      <div class="tool-desc">Define data quality rules as "expectations". Generates HTML reports. Integrates with Airflow.</div>
+      <div class="tags"><span class="tag t-green">Open source</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Experiment Tracking</div>
+      <div class="tool-name">MLflow</div>
+      <div class="tool-desc">Industry standard. Log params, metrics, artifacts. Model registry built-in. Self-host or Databricks managed.</div>
+      <div class="tags"><span class="tag t-green">Open source</span><span class="tag t-teal">Industry standard</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Experiment Tracking</div>
+      <div class="tool-name">Weights & Biases</div>
+      <div class="tool-desc">Beautiful UI, excellent collaboration. Best for deep learning teams. Free tier available.</div>
+      <div class="tags"><span class="tag t-yellow">SaaS</span><span class="tag t-blue">Deep learning</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Feature Store</div>
+      <div class="tool-name">Feast</div>
+      <div class="tool-desc">Open source feature store. Online (Redis) + offline (BigQuery/Parquet). Self-hosted, cloud-agnostic.</div>
+      <div class="tags"><span class="tag t-green">Open source</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Pipeline Orchestration</div>
+      <div class="tool-name">Apache Airflow</div>
+      <div class="tool-desc">Most popular workflow orchestrator. Great for data+ML pipelines. Large community.</div>
+      <div class="tags"><span class="tag t-green">Open source</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Pipeline Orchestration</div>
+      <div class="tool-name">Kubeflow Pipelines</div>
+      <div class="tool-desc">k8s-native ML pipelines. Excellent artifact tracking. Best for teams on Kubernetes.</div>
+      <div class="tags"><span class="tag t-green">Open source</span><span class="tag t-teal">k8s native</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Model Serving</div>
+      <div class="tool-name">BentoML</div>
+      <div class="tool-desc">Package and serve ML models as APIs. Auto-generates Docker images. Very developer-friendly.</div>
+      <div class="tags"><span class="tag t-green">Open source</span><span class="tag t-teal">Beginner friendly</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Model Serving</div>
+      <div class="tool-name">KServe</div>
+      <div class="tool-desc">Kubernetes-native model serving. Auto-scaling, canary, GPU batching. Production-grade.</div>
+      <div class="tags"><span class="tag t-green">Open source</span><span class="tag t-blue">k8s</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Model Monitoring</div>
+      <div class="tool-name">Evidently AI</div>
+      <div class="tool-desc">Open source drift detection. Beautiful reports. Easy to integrate in CI/CD or Airflow.</div>
+      <div class="tags"><span class="tag t-green">Open source</span><span class="tag t-teal">Highly recommended</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Hyperparameter Tuning</div>
+      <div class="tool-name">Optuna</div>
+      <div class="tool-desc">Bayesian optimization. Parallel trials. Works with any framework. MLflow integration.</div>
+      <div class="tags"><span class="tag t-green">Open source</span></div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-cat">Distributed Training</div>
+      <div class="tool-name">Ray Train</div>
+      <div class="tool-desc">Scale training across multiple machines. Works with PyTorch, TF, XGBoost. Integrated with Tune (HP search).</div>
+      <div class="tags"><span class="tag t-green">Open source</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ PAGE 32 ══════════════════════════ -->
+<div class="page" id="p32" data-page="32 / 32">
+  <div class="page-eyebrow"><span class="eyebrow-tag">Tools Deep Dive</span><div class="eyebrow-line"></div><span class="page-num">Page 32</span></div>
+  <div class="level level-inter">◆ INTERMEDIATE LEVEL</div>
+  <h1 class="page-title">Security<br>in <span>MLOps</span></h1>
+  <p class="page-desc">ML systems have unique security challenges beyond standard application security. Model weights can be stolen, training data can be poisoned, and adversarial inputs can trick models. As a DevOps engineer, you need to secure the entire pipeline — from data ingest to prediction endpoint.</p>
+
+  <div class="grid-3">
+    <div class="card card-red">
+      <div class="card-title">🎯 Model Theft</div>
+      <p>Attackers make thousands of API calls to reverse-engineer your model's decision logic and replicate it. Protect against it with rate limiting, output obfuscation, and anomalous query detection.</p>
+      <div class="tags"><span class="tag t-red">High risk</span></div>
+    </div>
+    <div class="card card-orange">
+      <div class="card-title">☠️ Data Poisoning</div>
+      <p>Attacker injects malicious training examples to deliberately bias the model. E.g., injecting fraud samples labeled as "legitimate" to degrade your fraud detector.</p>
+      <div class="tags"><span class="tag t-orange">Training attack</span></div>
+    </div>
+    <div class="card card-yellow">
+      <div class="card-title">🎭 Adversarial Inputs</div>
+      <p>Inputs carefully crafted to fool the model. E.g., a stop sign with stickers that an autonomous vehicle classifies as a speed limit sign. Hard to fully prevent.</p>
+      <div class="tags"><span class="tag t-yellow">Inference attack</span></div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:16px;">
+    <div class="card card-teal">
+      <div class="card-title">🛡️ MLOps Security Checklist</div>
+      <ul class="checklist">
+        <li>Use <strong>Managed Identities</strong> for all service-to-service auth — no hardcoded credentials</li>
+        <li>Store model artifacts in private buckets with IAM access control</li>
+        <li>Sign model artifacts (checksum/hash) and verify on load — detect tampering</li>
+        <li>Rate-limit prediction endpoints — prevent model extraction attacks</li>
+        <li>Validate and sanitize all input features at the API layer</li>
+        <li>Use <strong>Private Endpoints</strong> for all PaaS services (MLflow server, model registry)</li>
+        <li>Scan training data for anomalies before ingesting — detect poisoning</li>
+        <li>Enforce <strong>RBAC</strong> on who can promote models to production (approval gates)</li>
+        <li>Audit all training runs and model deployments for compliance</li>
+        <li>Encrypt model weights at rest and in transit (AES-256, TLS 1.3)</li>
+        <li>Run <strong>Defender for Containers</strong> on all model-serving pods</li>
+        <li>Implement <strong>output monitoring</strong> — flag anomalous prediction patterns</li>
+      </ul>
+    </div>
+    <div>
+      <p class="code-label">Model Artifact Integrity Verification</p>
+      <div class="code-block">
+<span class="kw">import</span> <span class="var">hashlib</span>
+<span class="kw">import</span> <span class="var">json</span>
+
+<span class="kw">def</span> <span class="fn">compute_model_hash</span>(<span class="var">model_path</span>: str) -&gt; str:
+    <span class="kw">with</span> <span class="kw">open</span>(<span class="var">model_path</span>, <span class="str">"rb"</span>) <span class="kw">as</span> <span class="var">f</span>:
+        <span class="kw">return</span> hashlib.sha256(<span class="var">f</span>.read()).hexdigest()
+
+<span class="kw">def</span> <span class="fn">register_model_with_hash</span>(<span class="var">model_path</span>, <span class="var">registry</span>):
+    <span class="var">hash_val</span> = compute_model_hash(<span class="var">model_path</span>)
+    <span class="var">registry</span>.set_tag(<span class="var">model_version</span>, <span class="str">"sha256"</span>, <span class="var">hash_val</span>)
+    <span class="kw">return</span> <span class="var">hash_val</span>
+
+<span class="kw">def</span> <span class="fn">load_verified_model</span>(<span class="var">model_path</span>, <span class="var">expected_hash</span>):
+    <span class="var">actual_hash</span> = compute_model_hash(<span class="var">model_path</span>)
+    <span class="kw">if</span> <span class="var">actual_hash</span> != <span class="var">expected_hash</span>:
+        <span class="kw">raise</span> SecurityError(<span class="str">"Model artifact tampered with!"</span>)
+    <span class="kw">return</span> load_model(<span class="var">model_path</span>)
+
+<span class="cmt"># In your Kubernetes admission webhook:</span>
+<span class="cmt"># Verify model hash before pod starts</span>
+<span class="cmt"># Reject if hash doesn't match registry record</span>
+      </div>
+      <div class="info-box box-yellow" style="margin-top:12px;">
+        <strong>⚠️ PII in Training Data:</strong> Ensure training data is anonymized. ML models can "memorize" training examples — a language model trained on personal emails can be prompted to output them verbatim. Use differential privacy techniques for sensitive datasets (e.g., medical data).
+      </div>
+    </div>
+  </div>
+
+  <div class="info-box box-green" style="margin-top:16px;">
+    <strong>🎓 Your MLOps Learning Path Summary:</strong> Month 1: Set up MLflow + DVC + basic CI pipeline. Month 2: Deploy a model with FastAPI + Docker + Kubernetes. Month 3: Add monitoring with Evidently + Prometheus. Month 4: Automate retraining with Airflow or GitHub Actions. Month 5: Deep dive one cloud platform (Azure ML / SageMaker / Vertex AI). Month 6: Tackle Kubeflow Pipelines + KServe for production-grade serving. You're now intermediate MLOps. 🚀
+  </div>
+</div>
+
+</div> <!-- end #main -->
+
+<!-- Scroll to top button -->
+<button class="scroll-top" id="scroll-top" onclick="document.getElementById('main').scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+function setActive(link) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  link.classList.add('active');
+}
+
+// Progress bar + active nav on scroll
+const mainEl = document.getElementById('main');
+const pages = document.querySelectorAll('.page');
+const navItems = document.querySelectorAll('.nav-item');
+const progressFill = document.getElementById('progress-fill');
+const scrollTopBtn = document.getElementById('scroll-top');
+
+mainEl.addEventListener('scroll', () => {
+  const scrollPos = mainEl.scrollTop;
+  const totalHeight = mainEl.scrollHeight - mainEl.clientHeight;
+  const progress = totalHeight > 0 ? (scrollPos / totalHeight) * 100 : 0;
+  progressFill.style.width = progress + '%';
+  scrollTopBtn.classList.toggle('visible', scrollPos > 300);
+
+  // Determine active page
+  let activeIdx = 0;
+  pages.forEach((page, i) => {
+    const rect = page.getBoundingClientRect();
+    if (rect.top <= mainEl.getBoundingClientRect().top + 100) {
+      activeIdx = i;
+    }
+  });
+
+  navItems.forEach((item, i) => {
+    item.classList.toggle('active', i === activeIdx);
+    if (i === activeIdx) {
+      item.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  });
+});
+
+// Smooth scroll for nav links
+navItems.forEach(item => {
+  item.addEventListener('click', e => {
+    e.preventDefault();
+    const href = item.getAttribute('href');
+    const target = document.querySelector(href);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>

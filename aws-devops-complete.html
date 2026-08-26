@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AWS DevOps — Complete Universe</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060810;
+  --bg2: #0b0e18;
+  --surface: #0e1420;
+  --surface2: #131a28;
+  --surface3: #1a2235;
+  --border: #1e2d45;
+  --border2: #243450;
+  --o: #FF6B35;
+  --b: #3B82F6;
+  --g: #22D3A5;
+  --p: #A78BFA;
+  --r: #F43F5E;
+  --y: #FBBF24;
+  --c: #06B6D4;
+  --pk: #EC4899;
+  --text: #E2EAF4;
+  --muted: #5A7290;
+  --dim: #2E3F55;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden}
+
+/* BG GRID */
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+/* ===== SIDEBAR NAV ===== */
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:220px;background:var(--bg2);border-right:1px solid var(--border);z-index:200;overflow-y:auto;padding:20px 0}
+#sidebar::-webkit-scrollbar{width:4px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border2)}
+.sb-logo{padding:16px 20px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.sb-logo span{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--o);letter-spacing:2px}
+.sb-logo p{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px}
+.sb-section{padding:6px 20px 4px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-top:8px}
+.sb-link{display:flex;align-items:center;gap:10px;padding:8px 20px;font-size:12px;color:var(--muted);text-decoration:none;transition:all .2s;border-left:2px solid transparent}
+.sb-link:hover,.sb-link.active{color:var(--text);background:rgba(255,107,53,0.06);border-color:var(--o)}
+.sb-link .icon{width:18px;height:18px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.sb-count{margin-left:auto;font-size:9px;background:var(--surface3);padding:2px 6px;border-radius:10px;color:var(--dim)}
+
+/* ===== MAIN ===== */
+#main{margin-left:220px;position:relative;z-index:1}
+
+/* ===== HERO ===== */
+.hero{padding:70px 60px 60px;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+.hero::before{content:'DEVOPS';position:absolute;right:-30px;top:-20px;font-family:'Bebas Neue',sans-serif;font-size:260px;color:rgba(59,130,246,0.03);line-height:1;pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.3);color:var(--o);padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1px;margin-bottom:24px}
+.hero-badge::before{content:'●';animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,7vw,88px);line-height:0.95;letter-spacing:2px;color:var(--text);margin-bottom:20px}
+.hero h1 em{color:var(--o);font-style:normal}
+.hero-desc{font-size:15px;color:var(--muted);max-width:680px;line-height:1.8;margin-bottom:32px}
+.hero-grid{display:flex;gap:12px;flex-wrap:wrap}
+.hero-chip{background:var(--surface);border:1px solid var(--border);padding:8px 16px;border-radius:4px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* ===== STICKY TOP NAV (mobile) ===== */
+.top-bar{display:none;background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 20px;justify-content:space-between;align-items:center}
+
+/* ===== SECTIONS ===== */
+.section{padding:70px 60px;border-bottom:1px solid var(--border);opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease}
+.section.visible{opacity:1;transform:none}
+.service-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:40px}
+.service-badge{padding:10px 16px;border-radius:6px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;flex-shrink:0;min-width:70px;text-align:center}
+.service-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(30px,4vw,52px);letter-spacing:1px;line-height:1}
+.service-tagline{font-size:13px;color:var(--muted);margin-top:6px;line-height:1.6}
+.layman{background:linear-gradient(135deg,rgba(34,211,165,0.06),rgba(34,211,165,0.02));border:1px solid rgba(34,211,165,0.2);border-radius:6px;padding:20px 24px;margin-bottom:30px}
+.layman-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--g);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.layman p{font-size:13.5px;color:#A8C0D4;line-height:1.9}
+.layman strong{color:var(--text)}
+
+/* ===== CARDS ===== */
+.grid{display:grid;gap:1px;background:var(--border)}
+.grid-2{grid-template-columns:1fr 1fr}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+.card{background:var(--surface);padding:24px;transition:background .2s}
+.card:hover{background:var(--surface2)}
+.card-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+.card h3{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px}
+.card p,.card ul{font-size:12.5px;color:var(--muted);line-height:1.85}
+.card ul{list-style:none;padding:0}
+.card ul li{padding:4px 0;border-bottom:1px solid var(--border)}
+.card ul li:last-child{border:none}
+.card ul li::before{content:'→ ';color:var(--o)}
+
+/* ===== STATS ===== */
+.stats{display:grid;gap:1px;background:var(--border);margin:28px 0}
+.stat{background:var(--surface);padding:24px 20px;text-align:center}
+.stat-n{font-family:'Bebas Neue',sans-serif;font-size:36px;line-height:1;margin-bottom:4px}
+.stat-l{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)}
+
+/* ===== CODE ===== */
+.code{background:#070c14;border:1px solid var(--border);border-left:3px solid var(--o);padding:22px 26px;margin:22px 0;overflow-x:auto;border-radius:0 4px 4px 0}
+.code-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--o);margin-bottom:14px;display:block;font-family:'JetBrains Mono',monospace}
+.code pre{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.9;color:#9DB4C8;white-space:pre}
+.kw{color:#60A5FA} .str{color:var(--g)} .cm{color:#3A5170} .num{color:var(--y)} .fn{color:var(--p)}
+
+/* ===== DO DONT ===== */
+.dodonts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:28px 0}
+@media(max-width:700px){.dodonts{grid-template-columns:1fr}}
+.do,.dont{background:var(--surface);padding:28px}
+.do-h,.dont-h{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.do-h{color:var(--g)} .dont-h{color:var(--r)}
+.do ul,.dont ul{list-style:none;padding:0}
+.do ul li,.dont ul li{font-size:12.5px;color:var(--muted);padding:9px 0;border-bottom:1px solid var(--border);line-height:1.65}
+.do ul li:last-child,.dont ul li:last-child{border:none}
+.do ul li::before{content:'✓  ';color:var(--g)}
+.dont ul li::before{content:'✗  ';color:var(--r)}
+
+/* ===== TIPS ===== */
+.tip{background:linear-gradient(135deg,rgba(255,107,53,0.08),rgba(255,107,53,0.02));border:1px solid rgba(255,107,53,0.25);border-radius:4px;padding:20px 24px;margin:20px 0;font-size:13px;color:#A8C0D4;line-height:1.85}
+.tip strong{color:var(--o);font-size:10px;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px}
+.warn{background:linear-gradient(135deg,rgba(244,63,94,0.07),rgba(244,63,94,0.02));border:1px solid rgba(244,63,94,0.25);border-radius:4px;padding:20px 24px;margin:20px 0;font-size:13px;color:#C9A0AA;line-height:1.85}
+.warn strong{color:var(--r);font-size:10px;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px}
+.info{background:linear-gradient(135deg,rgba(59,130,246,0.07),rgba(59,130,246,0.02));border:1px solid rgba(59,130,246,0.25);border-radius:4px;padding:20px 24px;margin:20px 0;font-size:13px;color:#A0B8D4;line-height:1.85}
+.info strong{color:var(--b);font-size:10px;letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:8px}
+
+/* ===== TABLE ===== */
+.tbl{width:100%;border-collapse:collapse;border:1px solid var(--border);margin:22px 0;font-size:12px}
+.tbl th{background:var(--surface2);color:var(--o);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:13px 18px;text-align:left;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace}
+.tbl td{padding:12px 18px;border-bottom:1px solid var(--border);color:var(--muted);vertical-align:top;line-height:1.6}
+.tbl tr:last-child td{border:none}
+.tbl tr:hover td{background:var(--surface2)}
+.tbl td strong{color:var(--text)}
+
+/* ===== BADGE ===== */
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;letter-spacing:.5px;font-weight:600}
+.bg{background:rgba(34,211,165,0.12);color:var(--g)}
+.bo{background:rgba(255,107,53,0.12);color:var(--o)}
+.bb{background:rgba(59,130,246,0.12);color:var(--b)}
+.br{background:rgba(244,63,94,0.12);color:var(--r)}
+.by{background:rgba(251,191,36,0.12);color:var(--y)}
+.bp{background:rgba(167,139,250,0.12);color:var(--p)}
+
+/* ===== FLOW ===== */
+.flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:24px 0;background:var(--surface);border:1px solid var(--border);padding:24px;border-radius:4px}
+.flow-box{border:1px solid;padding:8px 16px;border-radius:4px;font-size:11px;font-family:'JetBrains Mono',monospace;white-space:nowrap;font-weight:600}
+.flow-arrow{color:var(--muted);padding:0 10px;font-size:18px;flex-shrink:0}
+.flow-wrap{display:flex;align-items:center;gap:0;flex-wrap:wrap;width:100%}
+
+/* ===== TABS ===== */
+.tabs{border-bottom:1px solid var(--border);display:flex;gap:0;flex-wrap:wrap;margin-bottom:28px}
+.tab{background:none;border:none;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:13px 18px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--o);border-color:var(--o)}
+.tc{display:none}.tc.on{display:block}
+
+/* ===== ARCH ===== */
+.arch{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:32px;margin:24px 0;overflow-x:auto}
+.arch-lbl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px;font-family:'JetBrains Mono',monospace}
+.arch-layer{margin:10px 0}
+.arch-layer-title{font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;font-family:'JetBrains Mono',monospace}
+.arch-boxes{display:flex;gap:8px;flex-wrap:wrap}
+.ab{border:1px solid;padding:6px 14px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:600;white-space:nowrap}
+.sep{height:1px;background:var(--border);margin:14px 0}
+
+/* ===== STEP GUIDE ===== */
+.steps{margin:24px 0}
+.step{display:flex;gap:20px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.step:last-child{border:none;margin:0;padding:0}
+.step-num{width:36px;height:36px;border-radius:50%;border:2px solid var(--o);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--o);flex-shrink:0;margin-top:2px}
+.step-body h4{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+.step-body p{font-size:12.5px;color:var(--muted);line-height:1.8}
+
+/* ===== COMPARE ===== */
+.compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin:24px 0}
+@media(max-width:700px){.compare{grid-template-columns:1fr}}
+.compare-col{background:var(--surface);padding:24px}
+.compare-col.highlight{background:linear-gradient(135deg,rgba(255,107,53,0.06),var(--surface))}
+.compare-col h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.compare-col ul{list-style:none;padding:0}
+.compare-col ul li{font-size:12px;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border)}
+.compare-col ul li:last-child{border:none}
+
+/* ===== PAGE MARKER ===== */
+.page-marker{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 60px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;font-family:'JetBrains Mono',monospace}
+.page-marker span{color:var(--o)}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+
+/* ===== FOOTER ===== */
+footer{padding:50px 60px;border-top:1px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px}
+footer p{font-size:11px;color:var(--dim)}
+
+/* ===== PILL ROW ===== */
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.pill{border:1px solid var(--border);padding:4px 12px;border-radius:20px;font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* ===== CALLOUT ===== */
+.callout{border-left:3px solid;padding:14px 20px;margin:20px 0;font-size:12.5px;color:var(--muted);line-height:1.8;background:var(--surface)}
+.callout.orange{border-color:var(--o)}
+.callout.blue{border-color:var(--b)}
+.callout.green{border-color:var(--g)}
+.callout.purple{border-color:var(--p)}
+.callout strong{color:var(--text)}
+
+/* ===== NUMBERED LIST ===== */
+.numlist{list-style:none;padding:0;margin:16px 0;counter-reset:num}
+.numlist li{counter-increment:num;display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--muted);line-height:1.7}
+.numlist li:last-child{border:none}
+.numlist li::before{content:counter(num,'decimal-leading-zero');color:var(--o);font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;flex-shrink:0;width:28px}
+.numlist li strong{color:var(--text);display:block}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sb-logo">
+    <span>AWS DEVOPS</span>
+    <p>COMPLETE UNIVERSE</p>
+  </div>
+
+  <div class="sb-section">Compute</div>
+  <a href="#ec2" class="sb-link"><span class="icon" style="background:rgba(255,107,53,0.15);color:var(--o)">EC</span>EC2 <span class="sb-count">P1</span></a>
+  <a href="#lambda" class="sb-link"><span class="icon" style="background:rgba(167,139,250,0.15);color:var(--p)">λ</span>Lambda <span class="sb-count">P2</span></a>
+  <a href="#ecs" class="sb-link"><span class="icon" style="background:rgba(59,130,246,0.15);color:var(--b)">ECS</span>ECS & Fargate <span class="sb-count">P3</span></a>
+  <a href="#eks" class="sb-link"><span class="icon" style="background:rgba(6,182,212,0.15);color:var(--c)">K8s</span>EKS <span class="sb-count">P4</span></a>
+
+  <div class="sb-section">Networking</div>
+  <a href="#vpc" class="sb-link"><span class="icon" style="background:rgba(34,211,165,0.15);color:var(--g)">VPC</span>VPC <span class="sb-count">P5</span></a>
+  <a href="#cloudfront" class="sb-link"><span class="icon" style="background:rgba(255,107,53,0.15);color:var(--o)">CF</span>CloudFront <span class="sb-count">P6</span></a>
+  <a href="#apigw" class="sb-link"><span class="icon" style="background:rgba(251,191,36,0.15);color:var(--y)">API</span>API Gateway <span class="sb-count">P7</span></a>
+  <a href="#route53" class="sb-link"><span class="icon" style="background:rgba(244,63,94,0.15);color:var(--r)">R53</span>Route 53 <span class="sb-count">P8</span></a>
+
+  <div class="sb-section">Storage & DB</div>
+  <a href="#s3" class="sb-link"><span class="icon" style="background:rgba(34,211,165,0.15);color:var(--g)">S3</span>S3 <span class="sb-count">P9</span></a>
+  <a href="#rds" class="sb-link"><span class="icon" style="background:rgba(167,139,250,0.15);color:var(--p)">RDS</span>RDS & Aurora <span class="sb-count">P10</span></a>
+  <a href="#dynamodb" class="sb-link"><span class="icon" style="background:rgba(6,182,212,0.15);color:var(--c)">DDB</span>DynamoDB <span class="sb-count">P11</span></a>
+  <a href="#elasticache" class="sb-link"><span class="icon" style="background:rgba(255,107,53,0.15);color:var(--o)">EC</span>ElastiCache <span class="sb-count">P12</span></a>
+
+  <div class="sb-section">Messaging</div>
+  <a href="#sqs" class="sb-link"><span class="icon" style="background:rgba(251,191,36,0.15);color:var(--y)">SQS</span>SQS <span class="sb-count">P13</span></a>
+  <a href="#sns" class="sb-link"><span class="icon" style="background:rgba(244,63,94,0.15);color:var(--r)">SNS</span>SNS <span class="sb-count">P14</span></a>
+  <a href="#eventbridge" class="sb-link"><span class="icon" style="background:rgba(59,130,246,0.15);color:var(--b)">EB</span>EventBridge <span class="sb-count">P15</span></a>
+  <a href="#kinesis" class="sb-link"><span class="icon" style="background:rgba(34,211,165,0.15);color:var(--g)">KNS</span>Kinesis <span class="sb-count">P16</span></a>
+
+  <div class="sb-section">CI/CD & IaC</div>
+  <a href="#codepipeline" class="sb-link"><span class="icon" style="background:rgba(167,139,250,0.15);color:var(--p)">CP</span>CodePipeline <span class="sb-count">P17</span></a>
+  <a href="#codebuild" class="sb-link"><span class="icon" style="background:rgba(6,182,212,0.15);color:var(--c)">CB</span>CodeBuild <span class="sb-count">P17</span></a>
+  <a href="#codedeploy" class="sb-link"><span class="icon" style="background:rgba(255,107,53,0.15);color:var(--o)">CD</span>CodeDeploy <span class="sb-count">P17</span></a>
+  <a href="#ecr" class="sb-link"><span class="icon" style="background:rgba(251,191,36,0.15);color:var(--y)">ECR</span>ECR <span class="sb-count">P18</span></a>
+  <a href="#terraform" class="sb-link"><span class="icon" style="background:rgba(167,139,250,0.15);color:var(--p)">TF</span>Terraform/CDK <span class="sb-count">P18</span></a>
+
+  <div class="sb-section">Observability</div>
+  <a href="#cloudwatch" class="sb-link"><span class="icon" style="background:rgba(244,63,94,0.15);color:var(--r)">CW</span>CloudWatch <span class="sb-count">P19</span></a>
+  <a href="#xray" class="sb-link"><span class="icon" style="background:rgba(59,130,246,0.15);color:var(--b)">XR</span>X-Ray <span class="sb-count">P19</span></a>
+
+  <div class="sb-section">Security</div>
+  <a href="#iam" class="sb-link"><span class="icon" style="background:rgba(34,211,165,0.15);color:var(--g)">IAM</span>IAM <span class="sb-count">P20</span></a>
+  <a href="#secrets" class="sb-link"><span class="icon" style="background:rgba(255,107,53,0.15);color:var(--o)">SM</span>Secrets Mgr <span class="sb-count">P20</span></a>
+  <a href="#guardduty" class="sb-link"><span class="icon" style="background:rgba(244,63,94,0.15);color:var(--r)">GD</span>GuardDuty <span class="sb-count">P21</span></a>
+  <a href="#waf" class="sb-link"><span class="icon" style="background:rgba(167,139,250,0.15);color:var(--p)">WAF</span>WAF & Shield <span class="sb-count">P21</span></a>
+
+  <div class="sb-section">Orchestration</div>
+  <a href="#stepfunctions" class="sb-link"><span class="icon" style="background:rgba(6,182,212,0.15);color:var(--c)">SF</span>Step Functions <span class="sb-count">P22</span></a>
+  <a href="#cost" class="sb-link"><span class="icon" style="background:rgba(251,191,36,0.15);color:var(--y)">$$$</span>Cost Optim. <span class="sb-count">P23</span></a>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">● LIVE REFERENCE · 25+ AWS SERVICES</div>
+  <h1>AWS DEVOPS<br><em>COMPLETE UNIVERSE</em></h1>
+  <p class="hero-desc">Every major AWS DevOps service explained — first in plain English so anyone can understand it, then in deep technical detail with real configs, architecture patterns, dos & don'ts. No fluff. Just signal.</p>
+  <div class="hero-grid">
+    <div class="hero-chip">🖥 Compute — EC2, Lambda, ECS, EKS</div>
+    <div class="hero-chip">🌐 Network — VPC, CloudFront, API GW, Route53</div>
+    <div class="hero-chip">🗄 Data — S3, RDS, DynamoDB, ElastiCache</div>
+    <div class="hero-chip">📨 Messaging — SQS, SNS, EventBridge, Kinesis</div>
+    <div class="hero-chip">⚙ CI/CD — CodePipeline, CodeBuild, CodeDeploy</div>
+    <div class="hero-chip">🔒 Security — IAM, Secrets, GuardDuty, WAF</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Page <span>01</span> of 23 — Compute: EC2</div>
+
+<!-- EC2 -->
+<section class="section" id="ec2">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(255,107,53,0.12);color:var(--o)">EC2</div>
+    <div>
+      <div class="service-title">Elastic Compute Cloud</div>
+      <div class="service-tagline">Virtual computers in the cloud — rent instead of buy, pay by the hour</div>
+    </div>
+  </div>
+
+  <div class="layman">
+    <div class="layman-label">🧑‍🏫 Layman Explanation</div>
+    <p>Imagine you need a powerful computer to run your website. Instead of buying one for $5,000 and setting it up yourself, <strong>EC2 lets you rent a virtual computer from AWS</strong> and start using it in 60 seconds. You can make it bigger when traffic spikes (Black Friday), and shrink it at night when nobody is online. You pay only for what you use — like renting a car vs. buying one. The "elastic" part means it can stretch and shrink automatically.</p>
+  </div>
+
+  <div class="stats" style="grid-template-columns:repeat(4,1fr)">
+    <div class="stat"><div class="stat-n" style="color:var(--o)">750+</div><div class="stat-l">Instance Types</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--b)">34</div><div class="stat-l">AWS Regions</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--g)">72%</div><div class="stat-l">Savings w/ Reserved</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--y)">90%</div><div class="stat-l">Savings w/ Spot</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="tab(event,'ec2-family')">Instance Families</button>
+    <button class="tab" onclick="tab(event,'ec2-pricing')">Pricing Models</button>
+    <button class="tab" onclick="tab(event,'ec2-asg')">Auto Scaling</button>
+    <button class="tab" onclick="tab(event,'ec2-nitro')">Nitro System</button>
+    <button class="tab" onclick="tab(event,'ec2-placement')">Placement Groups</button>
+  </div>
+
+  <div id="ec2-family" class="tc on">
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-tag">General Purpose</div>
+        <h3>M & T Series</h3>
+        <p>Best all-rounder. Like a Honda Civic — reliable for most jobs. T-series are burstable (run fast for short bursts, then slow down). M7g (Graviton3) is the sweet spot for cost and performance.</p>
+        <div class="pills"><span class="pill">m7g</span><span class="pill">m7i</span><span class="pill">t3</span><span class="pill">t4g</span></div>
+        <ul><li>T-series use CPU credits — never for sustained CPU-heavy workloads</li><li>m7g: ARM-based, 20% cheaper than x86 equivalent</li><li>Best for: web servers, app servers, dev environments</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Compute Optimized</div>
+        <h3>C Series</h3>
+        <p>High-performance CPU, less RAM. Like a sports car — fast engine, smaller boot. Best when your app does a lot of math or processing rather than storing data in memory.</p>
+        <div class="pills"><span class="pill">c7g</span><span class="pill">c7i</span><span class="pill">c6a</span></div>
+        <ul><li>2:1 CPU-to-RAM ratio</li><li>Best for: batch jobs, game servers, HPC, video encoding</li><li>c7gn: 200 Gbps network — for ML inference at scale</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Memory Optimized</div>
+        <h3>R & X Series</h3>
+        <p>Massive amounts of RAM. Like a warehouse with enormous shelves — you can keep everything loaded in memory. Perfect for databases that work entirely in RAM.</p>
+        <div class="pills"><span class="pill">r7g</span><span class="pill">r7iz</span><span class="pill">x2idn</span></div>
+        <ul><li>Up to 24 TB RAM on bare metal</li><li>Best for: SAP HANA, Redis at scale, Elasticsearch, in-memory DBs</li><li>Enable Huge Pages for Oracle/SAP workloads</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Storage Optimized</div>
+        <h3>I & D Series</h3>
+        <p>Blazing fast local NVMe storage or massive local hard drives. Think of a server with its own internal SSD that's 30× faster than a regular disk. Great for databases that need raw I/O speed.</p>
+        <div class="pills"><span class="pill">i4i</span><span class="pill">i3en</span><span class="pill">d3</span></div>
+        <ul><li>i4i: up to 30 GB/s NVMe throughput</li><li>d3: 336 TB dense HDD for Hadoop/HDFS</li><li>⚠ Instance store is EPHEMERAL — data lost on stop/terminate</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">GPU / Accelerated</div>
+        <h3>P, G, Trn, Inf</h3>
+        <p>Specialized chips for AI/ML, graphics, and video. Like hiring a painter instead of asking a general worker — specific tool, dramatically faster at the right job.</p>
+        <div class="pills"><span class="pill">p5</span><span class="pill">g5</span><span class="pill">trn1</span><span class="pill">inf2</span></div>
+        <ul><li>p5: H100 GPUs — LLM training</li><li>trn1: AWS Trainium — cheapest LLM training by token</li><li>inf2: AWS Inferentia2 — cheapest inference by token</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">High Performance Compute</div>
+        <h3>HPC Series</h3>
+        <p>Scientific simulation and MPI workloads. Extremely fast networking between instances so they can work together as one giant supercomputer. Used by research labs, aerospace, weather modeling.</p>
+        <div class="pills"><span class="pill">hpc7g</span><span class="pill">hpc6a</span></div>
+        <ul><li>EFA (Elastic Fabric Adapter) networking — 400 Gbps</li><li>Cluster Placement Group mandatory</li><li>MPI jobs: hundreds of nodes acting as one machine</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="ec2-pricing" class="tc">
+    <div class="tbl-wrapper">
+    <table class="tbl">
+      <thead><tr><th>Model</th><th>How It Works (Layman)</th><th>Savings vs On-Demand</th><th>Best For</th><th>Risk</th></tr></thead>
+      <tbody>
+        <tr><td><strong>On-Demand</strong></td><td>Pay by the hour, no commitment. Like a hotel — walk in, walk out.</td><td>—</td><td>Unpredictable spikes, short-term</td><td><span class="br">Highest cost</span></td></tr>
+        <tr><td><strong>Reserved (1-3yr)</strong></td><td>Book in advance like a hotel reservation — cheaper but you pay whether you use it or not.</td><td><span class="bg">Up to 72%</span></td><td>Steady, always-on workloads</td><td>Wasted if unused</td></tr>
+        <tr><td><strong>Savings Plans</strong></td><td>Commit to spend $X/hr across any compute. Most flexible "reservation".</td><td><span class="bg">Up to 66%</span></td><td>Most teams — replaces RIs</td><td>Low — very flexible</td></tr>
+        <tr><td><strong>Spot Instances</strong></td><td>Bid for unused capacity — like a flash sale. AWS can take it back with 2 min notice.</td><td><span class="bg">Up to 90%</span></td><td>Batch jobs, ML training, fault-tolerant work</td><td><span class="br">Can be interrupted</span></td></tr>
+        <tr><td><strong>Dedicated Hosts</strong></td><td>Entire physical server reserved for you. Required for BYOL (Bring Your Own License) software.</td><td>~10% vs On-Demand</td><td>Windows Server BYOL, Oracle, compliance</td><td>Most expensive</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="tip"><strong>⚡ Spot Strategy Pro Tip</strong>Use Spot Fleet with 6+ instance types across 3 AZs. When AWS reclaims one instance type, the fleet automatically replaces it with another. Never use a single Spot instance type — that's just On-Demand with interruption risk. Set <code>max_price = on_demand_price</code> so you always get capacity.</div>
+    <div class="code">
+      <span class="code-lbl">Spot Fleet — Terraform (Diversified Strategy)</span>
+      <pre><span class="kw">resource</span> <span class="str">"aws_spot_fleet_request"</span> <span class="str">"ml_training"</span> {
+  iam_fleet_role      = aws_iam_role.fleet.arn
+  allocation_strategy = <span class="str">"capacityOptimized"</span>  <span class="cm"># picks pools with most capacity</span>
+  target_capacity     = <span class="num">20</span>
+  valid_until         = <span class="str">"2025-12-31T00:00:00Z"</span>
+
+  <span class="kw">launch_specification</span> {
+    instance_type = <span class="str">"c5.2xlarge"</span>
+    ami           = data.aws_ami.latest.id
+    spot_price    = <span class="str">"0.15"</span>  <span class="cm"># max price per hour</span>
+  }
+  <span class="kw">launch_specification</span> {
+    instance_type = <span class="str">"c5a.2xlarge"</span>  <span class="cm"># AMD variant — diversify</span>
+    ami           = data.aws_ami.latest.id
+    spot_price    = <span class="str">"0.14"</span>
+  }
+  <span class="kw">launch_specification</span> {
+    instance_type = <span class="str">"m5.2xlarge"</span>   <span class="cm"># different family — more pools</span>
+    ami           = data.aws_ami.latest.id
+    spot_price    = <span class="str">"0.17"</span>
+  }
+}</pre>
+    </div>
+  </div>
+
+  <div id="ec2-asg" class="tc">
+    <div class="info"><strong>🧑‍🏫 What is Auto Scaling? (Layman)</strong>Imagine a restaurant. On a quiet Tuesday, 2 chefs are enough. On Friday night, you need 10. Auto Scaling is like a manager who automatically calls in more chefs when it gets busy and sends them home when it's quiet — you never pay for idle chefs, and customers never wait too long.</div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-tag">Scaling Policies — Choose the Right One</div>
+        <h3>Target Tracking (Use This First)</h3>
+        <p>Tell ASG: "keep average CPU at 60%." It figures out how many instances to add or remove. Like a thermostat — you set the temperature, it controls the heat.</p>
+        <ul><li>Best for: most web and API workloads</li><li>Add metric: ALBRequestCountPerTarget is more accurate than CPU for APIs</li><li>Set scale-in cooldown: 300s (5 min) to avoid yo-yo scaling</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Scaling Policies</div>
+        <h3>Predictive Scaling (Use with Target Tracking)</h3>
+        <p>Uses machine learning to analyze past 2 weeks of traffic patterns and pre-scales BEFORE the spike hits. Like knowing every Friday at 12pm you get 5000 orders — so you staff up at 11:45am.</p>
+        <ul><li>Pre-warms instances 5-10 minutes before predicted spike</li><li>Works best with weekly patterns (business hours, weekly cycles)</li><li>Enable in "ForecastAndScale" mode for full automation</li></ul>
+      </div>
+    </div>
+    <div class="code">
+      <span class="code-lbl">Mixed Instance ASG — Spot + On-Demand with Warm Pool</span>
+      <pre><span class="kw">resource</span> <span class="str">"aws_autoscaling_group"</span> <span class="str">"app"</span> {
+  min_size = <span class="num">2</span>   max_size = <span class="num">50</span>   desired_capacity = <span class="num">4</span>
+
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_base_capacity                  = <span class="num">2</span>   <span class="cm"># always keep 2 On-Demand</span>
+      on_demand_percentage_above_base_capacity = <span class="num">20</span>  <span class="cm"># 20% On-Demand, 80% Spot above</span>
+      spot_allocation_strategy                 = <span class="str">"capacity-optimized"</span>
+    }
+    launch_template {
+      launch_template_specification { launch_template_id = aws_launch_template.app.id }
+      override { instance_type = <span class="str">"m7i.xlarge"</span> }
+      override { instance_type = <span class="str">"m6i.xlarge"</span> }
+      override { instance_type = <span class="str">"c7i.xlarge"</span> }
+      override { instance_type = <span class="str">"m5.xlarge"</span>  }
+    }
+  }
+
+  warm_pool {                        <span class="cm"># Pre-initialized instances — kills cold start lag</span>
+    pool_state                  = <span class="str">"Stopped"</span>
+    min_size                    = <span class="num">2</span>
+    max_group_prepared_capacity = <span class="num">10</span>
+  }
+}</pre>
+    </div>
+  </div>
+
+  <div id="ec2-nitro" class="tc">
+    <div class="layman">
+      <div class="layman-label">🧑‍🏫 What is Nitro?</div>
+      <p>Traditional servers share hardware between the machine and your software — wasting resources. <strong>Nitro moves all the "hardware management" to dedicated chips</strong>, so 100% of CPU and RAM goes to YOUR workload. It's like having a dedicated support staff so the engineer can focus only on engineering. It also means much better security — your neighbor can't see your data.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-tag">Nitro Hypervisor</div>
+        <h3>Micro-VM with Near Bare-Metal</h3>
+        <ul><li>Consumes &lt;1% of CPU overhead (vs 10%+ for Xen)</li><li>Hardware-enforced isolation between VMs</li><li>Required for latest instance generations (m6i+, c6i+)</li><li>Enables ENA (Enhanced Networking) by default</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Nitro Cards</div>
+        <h3>Dedicated Offload Hardware</h3>
+        <ul><li>NVMe: dedicated card manages all EBS I/O</li><li>Networking: dedicated card manages all VPC network</li><li>Security: dedicated Nitro Security Chip — encrypted memory</li><li>Result: no noisy neighbor, predictable performance</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Nitro Enclaves</div>
+        <h3>Isolated Secure Compute</h3>
+        <ul><li>Isolated VM with NO persistent storage, NO interactive access, NO external networking</li><li>Only communicates via local vsock with parent EC2</li><li>Use case: processing PII, cryptographic operations, ML model IP protection</li><li>Cryptographic attestation proves what code is running</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="ec2-placement" class="tc">
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-tag">Cluster Placement Group</div>
+        <h3>All in Same Rack</h3>
+        <p>Instances are physically close — same rack in same AZ. Network latency between them is &lt;1ms. Use when your app nodes talk to each other constantly (HPC, Kafka, distributed databases). Risk: if rack fails, all instances fail.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Spread Placement Group</div>
+        <h3>Each on Different Hardware</h3>
+        <p>Each instance is on its own physical rack. Maximum HA — one rack failure only takes out one instance. Use for critical small clusters (3-7 nodes max). Limit: 7 instances per AZ per group.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Partition Placement Group</div>
+        <h3>Groups on Different Racks</h3>
+        <p>Divide your fleet into partitions (e.g., 3 partitions × N instances). All instances in partition 1 are on rack-set-A, partition 2 on rack-set-B. Used for Hadoop, Cassandra — rack-aware replication.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ EC2 Do's</div><ul>
+      <li>Enforce IMDSv2 via SCP — prevents SSRF attacks from stealing instance credentials</li>
+      <li>Use SSM Session Manager instead of SSH bastion hosts — no open port 22, full audit trail</li>
+      <li>Migrate gp2 → gp3 EBS volumes: same/better IOPS, 20% cheaper, independent IOPS provisioning</li>
+      <li>Tag every resource with: Environment, Team, Application, CostCenter — enforce with Config Rules</li>
+      <li>Use Launch Templates (not Launch Configurations) — supports versioning, mixed instances</li>
+      <li>Enable Detailed CloudWatch Monitoring (1-min intervals) for all production instances</li>
+      <li>Prefer Graviton (ARM) instances where possible — 20% better price/performance</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ EC2 Don'ts</div><ul>
+      <li>Never store secrets in EC2 User Data — visible in plaintext via metadata API and console</li>
+      <li>Never assign public IPs directly to production instances — use ALB + private subnets</li>
+      <li>Don't give EC2 instances overly permissive IAM roles — use least-privilege instance profiles</li>
+      <li>Never use T-series instances for sustained high-CPU production workloads — credit exhaustion causes throttling with zero warning</li>
+      <li>Don't run stateful applications on Spot without interruption handler and checkpoint/resume logic</li>
+      <li>Never skip EC2 Health Events in EventBridge — disk, network, and VM failures are announced in advance</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Page <span>02</span> of 23 — Compute: Lambda</div>
+
+<section class="section" id="lambda">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(167,139,250,0.12);color:var(--p)">λ</div>
+    <div>
+      <div class="service-title">AWS Lambda</div>
+      <div class="service-tagline">Run code without managing servers — event-driven, millisecond billing</div>
+    </div>
+  </div>
+  <div class="layman">
+    <div class="layman-label">🧑‍🏫 Layman Explanation</div>
+    <p>Normally, to run code you need a server running 24/7 waiting for requests. Lambda is like having a <strong>magic vending machine</strong> — you put in your code, and whenever someone presses a button (uploads a file, sends a message, calls your API), the code runs instantly. You pay only for those seconds it actually ran. If nobody uses it for a week, you pay nothing. AWS handles all the servers, scaling, and maintenance.</p>
+  </div>
+  <div class="stats" style="grid-template-columns:repeat(5,1fr)">
+    <div class="stat"><div class="stat-n" style="color:var(--p)">15min</div><div class="stat-l">Max Timeout</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--b)">10GB</div><div class="stat-l">Max Memory</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--g)">1M</div><div class="stat-l">Free Req/Month</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--o)">SnapStart</div><div class="stat-l">Java Cold Fix</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--y)">0ms</div><div class="stat-l">Provisioned Latency</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" onclick="tab(event,'lmb-cold')">Cold Starts Explained</button>
+    <button class="tab" onclick="tab(event,'lmb-mem')">Memory & CPU</button>
+    <button class="tab" onclick="tab(event,'lmb-concur')">Concurrency</button>
+    <button class="tab" onclick="tab(event,'lmb-patterns')">Patterns</button>
+    <button class="tab" onclick="tab(event,'lmb-code')">Best Practice Code</button>
+  </div>
+
+  <div id="lmb-cold" class="tc on">
+    <div class="layman">
+      <div class="layman-label">🧑‍🏫 Cold Start Explained Simply</div>
+      <p>Imagine waking a sleeping employee vs. one who's already at their desk. <strong>Cold start</strong> is the time it takes to "wake up" a new Lambda environment — download your code, load it into memory, run setup code. This takes 100ms–1 second+. Subsequent calls use the "warm" environment and are instant. For user-facing APIs, cold starts feel laggy. The solutions: Provisioned Concurrency (always awake), SnapStart (Java snapshots), or smaller deployment packages.</p>
+    </div>
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-tag">Solution 1</div>
+        <h3>Provisioned Concurrency</h3>
+        <p>Pre-initialize N Lambda environments — they're always warm, never cold-start. You pay for idle time but get guaranteed sub-millisecond startup. Use Application Auto Scaling to scale PC up during business hours and down at night.</p>
+        <ul><li>Cost: ~$0.000015/GB-sec for provisioned environments</li><li>Best for: user-facing APIs with latency SLAs</li><li>Combine with ASG: schedule based on traffic patterns</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Solution 2 — Java Only</div>
+        <h3>SnapStart</h3>
+        <p>AWS takes a snapshot of your Java Lambda after initialization, then restores from that snapshot. Like hibernating a laptop vs rebooting — 10× faster. Free, just enable it.</p>
+        <ul><li>Supported: Java 11, Java 17, Java 21</li><li>Reduces Java cold starts from 2-10s → under 1s</li><li>Requires: functions must be safe to restore from snapshot</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Solution 3</div>
+        <h3>Reduce Package Size</h3>
+        <p>Smaller deployment packages = faster download during init. A 50MB Python package cold-starts much faster than a 500MB one. Lazy-load heavy imports inside handler logic rather than top of file.</p>
+        <ul><li>Use Lambda Layers for shared libs — cached separately</li><li>Use container images for large deps (&gt;250MB zipped)</li><li>Python: avoid importing heavy libs globally (boto3 loads fast, pandas does not)</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="lmb-mem" class="tc">
+    <div class="info"><strong>💡 Lambda Memory = CPU (most people don't know this)</strong> Lambda doesn't let you set CPU directly. But CPU allocation is proportional to memory. 128MB = 1/13 of a vCPU. 1,769MB = exactly 1 full vCPU. 3,538MB = 2 vCPUs. For CPU-bound functions, doubling memory often halves execution time, making it the same or lower cost despite more memory.</div>
+    <div class="code">
+      <span class="code-lbl">Lambda Power Tuning — Find the Sweet Spot (open-source Step Functions)</span>
+      <pre><span class="cm"># Deploy AWS Lambda Power Tuning (open-source by Alex Casalboni)</span>
+<span class="cm"># It runs your function at 10 different memory sizes and finds optimal</span>
+
+aws stepfunctions start-execution \
+  --state-machine-arn arn:aws:states:us-east-1:ACCT:stateMachine:powerTuningStateMachine \
+  --input <span class="str">'{
+    "lambdaARN": "arn:aws:lambda:us-east-1:ACCT:function:myFunction",
+    "powerValues": [128, 256, 512, 1024, 1769, 3008],
+    "num": 50,
+    "payload": {"test": true},
+    "parallelInvocation": true,
+    "strategy": "cost"
+  }'</span>
+
+<span class="cm"># Result: shows cost AND duration at each memory level</span>
+<span class="cm"># Often reveals 1024MB is 40% cheaper than 128MB due to faster execution</span></pre>
+    </div>
+  </div>
+
+  <div id="lmb-concur" class="tc">
+    <div class="layman">
+      <div class="layman-label">🧑‍🏫 Concurrency Explained Simply</div>
+      <p>Concurrency = how many Lambda copies run simultaneously. If 100 people call your API at the same time, 100 Lambda instances run in parallel. Your AWS account has a shared pool of 1,000 concurrent Lambdas by default. Without <strong>Reserved Concurrency</strong>, one runaway function can eat ALL 1,000 slots, starving your other functions. Reserved Concurrency is like reserving parking spaces — guaranteed, but limited.</p>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-tag">Reserved Concurrency</div>
+        <h3>Guaranteed + Capped Allocation</h3>
+        <ul><li>Sets both a floor (guaranteed allocation) AND ceiling (max cap)</li><li>Setting RC = 0 disables the function (useful for emergency stop)</li><li>Always leave 100 unreserved at account level for burst capacity</li><li>Formula: required concurrency = (req/sec) × (avg duration in sec)</li></ul>
+      </div>
+      <div class="card">
+        <div class="card-tag">Provisioned Concurrency</div>
+        <h3>Pre-warmed Environments</h3>
+        <ul><li>Always-ready environments — zero cold start latency</li><li>Must be combined with Reserved Concurrency</li><li>Only provision what you need — it costs money when idle</li><li>Use Application Auto Scaling to schedule up/down</li></ul>
+      </div>
+    </div>
+    <div class="code">
+      <span class="code-lbl">Concurrency Calculation + Config</span>
+      <pre><span class="cm"># Concurrency = (RPS) × (avg_duration_seconds)</span>
+<span class="cm"># Example: 500 req/sec, avg 200ms duration = 500 × 0.2 = 100 concurrent</span>
+
+<span class="cm"># Set Reserved Concurrency via CLI</span>
+aws lambda put-function-concurrency \
+  --function-name my-api \
+  --reserved-concurrent-executions <span class="num">200</span>
+
+<span class="cm"># Auto-scale Provisioned Concurrency (up during business hours)</span>
+<span class="kw">resource</span> <span class="str">"aws_appautoscaling_scheduled_action"</span> <span class="str">"scale_up"</span> {
+  name               = <span class="str">"business-hours-warmup"</span>
+  resource_id        = <span class="str">"function:my-api:LIVE"</span>
+  scalable_dimension = <span class="str">"lambda:function:ProvisionedConcurrency"</span>
+  schedule           = <span class="str">"cron(45 7 ? * MON-FRI *)"</span>   <span class="cm"># 7:45am weekdays</span>
+  scalable_target_action {
+    min_capacity = <span class="num">20</span>
+    max_capacity = <span class="num">20</span>
+  }
+}</pre>
+    </div>
+  </div>
+
+  <div id="lmb-patterns" class="tc">
+    <div class="grid grid-3">
+      <div class="card">
+        <div class="card-tag">Pattern 1 — Most Common</div>
+        <h3>API Gateway → Lambda</h3>
+        <p>HTTP request hits API Gateway, triggers Lambda, returns response. The classic serverless API. Use Lambda Function URLs for simpler cases (no API GW needed). Add Lambda Authorizer for JWT auth at edge.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Pattern 2</div>
+        <h3>S3 Event → Lambda</h3>
+        <p>File uploaded to S3 triggers Lambda. Use for: image resizing, CSV processing, virus scanning, thumbnail generation. Always use EventBridge instead of S3 native notifications for reliability and filtering.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Pattern 3</div>
+        <h3>SQS → Lambda (Queue Worker)</h3>
+        <p>Lambda polls SQS queue and processes messages in batches. Most reliable async pattern. Lambda automatically scales instances based on queue depth. Enable "Report Batch Item Failures" to only retry failed messages.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Pattern 4</div>
+        <h3>DynamoDB Streams → Lambda</h3>
+        <p>Every change to a DynamoDB table triggers Lambda with the old and new data. Use for: real-time analytics, cache invalidation, cross-region replication, audit logging. Maximum 2 triggers per shard.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Pattern 5</div>
+        <h3>EventBridge Scheduler → Lambda</h3>
+        <p>Like a cron job but serverless. Schedule Lambda to run every 5 minutes, at midnight, or on complex schedules. Much more reliable than self-calling Lambda. Supports timezone-aware scheduling.</p>
+      </div>
+      <div class="card">
+        <div class="card-tag">Pattern 6</div>
+        <h3>Lambda@Edge (CloudFront)</h3>
+        <p>Run Lambda code at 450+ CloudFront edge locations — milliseconds from users worldwide. Use for: A/B testing, authentication at edge, request/response rewriting, geo-blocking. Max 128MB, 30s timeout.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="lmb-code" class="tc">
+    <div class="code">
+      <span class="code-lbl">Lambda Best Practice — Python with Powertools (Production-Ready)</span>
+      <pre><span class="cm">"""
+Production Lambda: structured logging, tracing, metrics, error handling.
+Use aws-lambda-powertools — it handles all the boilerplate.
+pip install aws-lambda-powertools
+"""</span>
+<span class="kw">import</span> os, json, boto3
+<span class="kw">from</span> aws_lambda_powertools <span class="kw">import</span> Logger, Tracer, Metrics
+<span class="kw">from</span> aws_lambda_powertools.metrics <span class="kw">import</span> MetricUnit
+<span class="kw">from</span> aws_lambda_powertools.utilities.typing <span class="kw">import</span> LambdaContext
+<span class="kw">from</span> aws_lambda_powertools.utilities.batch <span class="kw">import</span> (
+    BatchProcessor, EventType, process_partial_response
+)
+
+<span class="cm"># ── Module-level: runs once per container (not per invocation) ──</span>
+logger  = <span class="fn">Logger</span>()                                     <span class="cm"># JSON structured logs</span>
+tracer  = <span class="fn">Tracer</span>()                                     <span class="cm"># X-Ray auto-patch</span>
+metrics = <span class="fn">Metrics</span>(namespace=<span class="str">"MyApp"</span>, service=<span class="str">"OrderService"</span>)
+
+dynamodb = boto3.resource(<span class="str">'dynamodb'</span>)                  <span class="cm"># reuse connection!</span>
+table    = dynamodb.Table(os.environ[<span class="str">'ORDERS_TABLE'</span>])  <span class="cm"># resolved once</span>
+processor = <span class="fn">BatchProcessor</span>(event_type=EventType.SQS)   <span class="cm"># SQS batch</span>
+
+<span class="cm"># ── Secrets cache — avoid calling SM per invocation ──</span>
+_cache = {}
+<span class="kw">def</span> <span class="fn">get_secret</span>(key):
+    <span class="kw">if</span> key <span class="kw">not in</span> _cache:
+        sm = boto3.client(<span class="str">'secretsmanager'</span>)
+        _cache[key] = json.loads(sm.get_secret_value(SecretId=key)[<span class="str">'SecretString'</span>])
+    <span class="kw">return</span> _cache[key]
+
+<span class="kw">def</span> <span class="fn">process_message</span>(record):
+    body = json.loads(record.body)
+    logger.info(<span class="str">"Processing order"</span>, order_id=body[<span class="str">'id'</span>])
+    table.put_item(Item=body)
+    metrics.add_metric(name=<span class="str">"OrdersProcessed"</span>, unit=MetricUnit.Count, value=<span class="num">1</span>)
+
+@tracer.capture_lambda_handler
+@logger.inject_lambda_context(log_event=<span class="kw">False</span>, clear_state=<span class="kw">True</span>)
+@metrics.log_metrics(capture_cold_start_metric=<span class="kw">True</span>)   <span class="cm"># track cold starts!</span>
+<span class="kw">def</span> <span class="fn">handler</span>(event: dict, context: LambdaContext):
+    <span class="cm"># Always check remaining time for long-batch processing</span>
+    <span class="kw">if</span> context.get_remaining_time_in_millis() < <span class="num">2000</span>:
+        logger.warning(<span class="str">"Low time budget"</span>, remaining_ms=context.get_remaining_time_in_millis())
+
+    <span class="cm"># Process SQS batch — only retry failed messages (not whole batch)</span>
+    <span class="kw">return</span> <span class="fn">process_partial_response</span>(
+        event=event, record_handler=process_message,
+        processor=processor, context=context
+    )</pre>
+    </div>
+  </div>
+
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ Lambda Do's</div><ul>
+      <li>Initialize SDK clients, DB connections, and secrets OUTSIDE the handler (module level) — they persist across warm invocations</li>
+      <li>Set timeout to 2× your measured P99 execution time — not the max 15 minutes</li>
+      <li>Use ARM (Graviton2) runtime — 20% cheaper, same performance</li>
+      <li>Always configure DLQ or SQS for async invocations — otherwise failed events silently disappear</li>
+      <li>Use AWS Lambda Powertools — structured logging, tracing, and batch processing in one library</li>
+      <li>Enable Report Batch Item Failures for SQS triggers — partial batch failure handling</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ Lambda Don'ts</div><ul>
+      <li>Never use Lambda for tasks over 15 minutes — use ECS Fargate or AWS Batch instead</li>
+      <li>Don't put Lambda inside a VPC unless absolutely needed — adds 100-400ms cold start overhead (use PrivateLink instead)</li>
+      <li>Never let Lambda call itself recursively without a stop condition — will run 1000 copies at once and burn through your budget in minutes</li>
+      <li>Don't hardcode AWS region or account ID — use environment variables or context</li>
+      <li>Never set Reserved Concurrency to exactly your account limit — leaves no room for other functions or burst handling</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Page <span>03</span> of 23 — Compute: ECS & Fargate</div>
+
+<section class="section" id="ecs">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(59,130,246,0.12);color:var(--b)">ECS</div>
+    <div>
+      <div class="service-title">Elastic Container Service</div>
+      <div class="service-tagline">Run Docker containers at scale — with or without managing servers (Fargate)</div>
+    </div>
+  </div>
+  <div class="layman">
+    <div class="layman-label">🧑‍🏫 Layman Explanation</div>
+    <p>A Docker container is like a packed lunchbox — your app and everything it needs, all in one box. <strong>ECS is the kitchen manager</strong> that decides which fridge (server) each lunchbox goes into, ensures enough lunchboxes are ready during lunch rush, and replaces spoiled ones. <strong>Fargate</strong> is the option where AWS handles the fridges too — you just say "I need 10 lunchboxes" and they appear. You never touch a server.</p>
+  </div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card">
+      <div class="card-tag">ECS on EC2 — You Manage Servers</div>
+      <h3>EC2 Launch Type</h3>
+      <p>You run EC2 instances as the "cluster." ECS schedules containers on those instances. More control over instance types, storage, placement. Better for GPU workloads, extreme performance, or cost optimization with Spot.</p>
+      <ul><li>Manage: EC2 instance patching, AMI updates, capacity</li><li>Advantage: use Spot EC2 → 70-90% cheaper than Fargate</li><li>Use Capacity Providers to mix Spot + On-Demand automatically</li><li>Better for workloads with specific instance requirements (NVMe, GPU)</li></ul>
+    </div>
+    <div class="card">
+      <div class="card-tag">ECS Fargate — Serverless Containers</div>
+      <h3>Fargate Launch Type</h3>
+      <p>No EC2 instances to manage. You define CPU and memory per task, AWS runs it on invisible infrastructure. Pay per-second for vCPU and GB used. Simpler ops, slightly higher cost than EC2 Spot.</p>
+      <ul><li>No patching, no capacity planning, no AMI management</li><li>Fargate Spot: 70% cheaper — same interruption caveats as EC2 Spot</li><li>Each task gets its own network interface (ENI) — better isolation</li><li>Best for: microservices, APIs, batch jobs, small teams without DevOps</li></ul>
+    </div>
+  </div>
+  <div class="code">
+    <span class="code-lbl">ECS Task Definition + Service with Fargate — Terraform</span>
+    <pre><span class="kw">resource</span> <span class="str">"aws_ecs_task_definition"</span> <span class="str">"api"</span> {
+  family                   = <span class="str">"api"</span>
+  network_mode             = <span class="str">"awsvpc"</span>        <span class="cm"># required for Fargate</span>
+  requires_compatibilities = [<span class="str">"FARGATE"</span>]
+  cpu                      = <span class="num">1024</span>            <span class="cm"># 1 vCPU</span>
+  memory                   = <span class="num">2048</span>            <span class="cm"># 2 GB</span>
+  execution_role_arn       = aws_iam_role.ecs_exec.arn
+  task_role_arn            = aws_iam_role.ecs_task.arn
+
+  container_definitions = jsonencode([{
+    name      = <span class="str">"api"</span>
+    image     = <span class="str">"${aws_ecr_repository.api.repository_url}:${var.image_tag}"</span>
+    portMappings = [{ containerPort = <span class="num">8080</span>, protocol = <span class="str">"tcp"</span> }]
+    environment = [{ name = <span class="str">"ENV"</span>, value = <span class="str">"production"</span> }]
+    secrets = [{                          <span class="cm"># pull from Secrets Manager at runtime</span>
+      name      = <span class="str">"DB_PASSWORD"</span>
+      valueFrom = <span class="str">"arn:aws:secretsmanager:region:acct:secret:db-password"</span>
+    }]
+    logConfiguration = {
+      logDriver = <span class="str">"awslogs"</span>
+      options = {
+        <span class="str">"awslogs-group"</span>  = <span class="str">"/ecs/api"</span>
+        <span class="str">"awslogs-region"</span> = <span class="str">"us-east-1"</span>
+        <span class="str">"awslogs-stream-prefix"</span> = <span class="str">"api"</span>
+      }
+    }
+    healthCheck = {
+      command     = [<span class="str">"CMD-SHELL"</span>, <span class="str">"curl -f http://localhost:8080/health || exit 1"</span>]
+      interval    = <span class="num">30</span>   retries = <span class="num">3</span>   timeout = <span class="num">5</span>
+    }
+  }])
+}
+
+<span class="kw">resource</span> <span class="str">"aws_ecs_service"</span> <span class="str">"api"</span> {
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.api.arn
+  desired_count   = <span class="num">3</span>
+  launch_type     = <span class="str">"FARGATE"</span>
+
+  deployment_circuit_breaker {    <span class="cm"># Auto-rollback on failed deploy</span>
+    enable   = <span class="kw">true</span>
+    rollback = <span class="kw">true</span>
+  }
+  deployment_controller { type = <span class="str">"ECS"</span> }   <span class="cm"># or "CODE_DEPLOY" for B/G</span>
+}</pre>
+  </div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ ECS Do's</div><ul>
+      <li>Enable ECS Exec (SSM-based) for interactive container debugging in production — no SSH, full audit</li>
+      <li>Use Deployment Circuit Breaker — auto-rollback when new task version fails health checks</li>
+      <li>Set both CPU and Memory reservations AND limits in task definitions — prevents noisy neighbor</li>
+      <li>Use Capacity Providers with managed scaling — ECS auto-adjusts EC2 fleet size for you</li>
+      <li>Pull secrets from Secrets Manager at task startup, not in Docker image build</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ ECS Don'ts</div><ul>
+      <li>Never bake secrets or environment-specific config into Docker images — use task definition environment/secrets</li>
+      <li>Don't set desired_count = 1 for any production service — zero-downtime deployments require minimum 2</li>
+      <li>Never ignore ECS Task health checks — failed tasks without health check = silent failures</li>
+      <li>Don't use bridge networking mode for Fargate — awsvpc is required and provides better isolation</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Page <span>04</span> of 23 — Compute: EKS (Kubernetes)</div>
+
+<section class="section" id="eks">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(6,182,212,0.12);color:var(--c)">EKS</div>
+    <div>
+      <div class="service-title">Elastic Kubernetes Service</div>
+      <div class="service-tagline">Managed Kubernetes — the industry standard for container orchestration at scale</div>
+    </div>
+  </div>
+  <div class="layman">
+    <div class="layman-label">🧑‍🏫 Layman Explanation</div>
+    <p>Kubernetes is like an <strong>air traffic control system for containers</strong>. Hundreds of planes (containers) taking off and landing, each going to different terminals (servers). Kubernetes tracks all of them, routes them correctly, restarts any that crash, and ensures no runway (server) is overloaded. <strong>EKS</strong> means AWS manages the control tower (Kubernetes control plane) — you manage the runways (worker nodes) or use Fargate for those too.</p>
+  </div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card">
+      <div class="card-tag">EKS Control Plane</div>
+      <h3>Managed by AWS — $0.10/hr</h3>
+      <ul><li>AWS runs kube-apiserver, etcd, schedulers across 3 AZs</li><li>Automatically patched, upgraded, and backed up</li><li>Version upgrades: in-place, rolling — test in staging first</li><li>Control plane logs to CloudWatch: api, audit, authenticator, scheduler</li></ul>
+    </div>
+    <div class="card">
+      <div class="card-tag">Worker Nodes — 3 Options</div>
+      <h3>Managed Node Groups</h3>
+      <ul><li>AWS manages EC2 lifecycle (launch, drain, terminate)</li><li>Rolling updates handle drain/cordon automatically</li><li>Spot support built-in via Karpenter or Managed Node Groups</li><li>Best default choice for most teams</li></ul>
+    </div>
+    <div class="card">
+      <div class="card-tag">Node Autoscaling</div>
+      <h3>Karpenter (Recommended)</h3>
+      <ul><li>Replaces Cluster Autoscaler — 10× faster node provisioning</li><li>Directly calls EC2 APIs — no ASG overhead</li><li>Selects cheapest available instance type that fits workload</li><li>Consolidation: bin-packs pods and removes underutilized nodes</li></ul>
+    </div>
+  </div>
+  <div class="code">
+    <span class="code-lbl">Karpenter NodePool — Spot + On-Demand with Auto-Selection</span>
+    <pre>apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: general
+spec:
+  template:
+    spec:
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: [<span class="str">"spot"</span>, <span class="str">"on-demand"</span>]    <span class="cm"># prefer Spot, fallback to OD</span>
+        - key: kubernetes.io/arch
+          operator: In
+          values: [<span class="str">"arm64"</span>]               <span class="cm"># Graviton — cheapest</span>
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values: [<span class="str">"m7g"</span>, <span class="str">"c7g"</span>, <span class="str">"r7g"</span>, <span class="str">"m6g"</span>]   <span class="cm"># diversify pools</span>
+        - key: karpenter.k8s.aws/instance-size
+          operator: NotIn
+          values: [<span class="str">"nano"</span>, <span class="str">"micro"</span>, <span class="str">"small"</span>] <span class="cm"># avoid tiny instances</span>
+      nodeClassRef:
+        name: al2023
+
+  limits:
+    cpu: <span class="num">1000</span>             <span class="cm"># max 1000 vCPUs across all nodes</span>
+
+  disruption:
+    consolidationPolicy: WhenUnderutilized   <span class="cm"># remove idle nodes</span>
+    consolidateAfter: 30s</pre>
+  </div>
+  <div class="tip"><strong>⚡ EKS Add-ons You Should Always Install</strong> VPC CNI (networking), CoreDNS (service discovery), kube-proxy (routing), AWS Load Balancer Controller (creates ALB/NLB from Ingress), EBS CSI Driver (persistent volumes), ADOT Collector (telemetry), Karpenter (node autoscaling). These are the minimum set for a production-ready EKS cluster.</div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ EKS Do's</div><ul>
+      <li>Use Karpenter instead of Cluster Autoscaler — 10× faster scaling, better bin-packing</li>
+      <li>Enable IRSA (IAM Roles for Service Accounts) — pods get their own AWS permissions, no node-level IAM roles</li>
+      <li>Set resource requests AND limits on every container — Kubernetes can't schedule without requests</li>
+      <li>Use Bottlerocket OS for worker nodes — security-hardened, minimal attack surface, faster updates</li>
+      <li>Enable EKS control plane logging (audit logs especially) — critical for security forensics</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ EKS Don'ts</div><ul>
+      <li>Don't run EKS if your team has &lt;5 engineers and no Kubernetes experience — use ECS Fargate instead</li>
+      <li>Never skip Pod Disruption Budgets (PDB) — without them, rolling updates can bring your service to zero</li>
+      <li>Don't grant pods cluster-admin role — use namespace-scoped RBAC with least-privilege</li>
+      <li>Never use default namespace for production workloads — organize by team/environment with namespaces and NetworkPolicy</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Page <span>05</span> — Network: VPC | Page <span>06</span> — CloudFront | Page <span>07</span> — API Gateway | Page <span>08</span> — Route 53</div>
+
+<!-- VPC -->
+<section class="section" id="vpc">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(34,211,165,0.12);color:var(--g)">VPC</div>
+    <div><div class="service-title">Virtual Private Cloud</div><div class="service-tagline">Your own private network inside AWS — walls, doors, and roads for your resources</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>AWS is like a massive city. A VPC is your <strong>private gated community inside that city</strong>. You choose the layout, which gates exist (internet gateway), which buildings face the street (public subnets) and which are behind locked doors (private subnets). Security Groups are the guards at each building. NACLs are the guards at each street corner. Nobody outside can enter unless you explicitly open a gate.</p></div>
+  <div class="arch">
+    <div class="arch-lbl">Three-Tier VPC Architecture (Production Best Practice)</div>
+    <div class="arch-layer"><div class="arch-layer-title" style="color:var(--o)">Internet Layer</div>
+      <div class="arch-boxes"><span class="ab" style="border-color:var(--o);color:var(--o)">Internet Gateway</span><span style="color:var(--muted);padding:6px">→</span><span class="ab" style="border-color:var(--y);color:var(--y)">NAT Gateway × 3 AZs</span></div></div>
+    <div class="sep"></div>
+    <div class="arch-layer"><div class="arch-layer-title" style="color:var(--b)">Public Subnets (10.0.0/24, 10.0.1/24, 10.0.2/24)</div>
+      <div class="arch-boxes"><span class="ab" style="border-color:var(--b);color:var(--b)">ALB / NLB</span><span class="ab" style="border-color:var(--b);color:var(--b)">Bastion / VPN (if needed)</span></div></div>
+    <div class="sep"></div>
+    <div class="arch-layer"><div class="arch-layer-title" style="color:var(--g)">Private App Subnets (10.0.10/24, 10.0.11/24, 10.0.12/24)</div>
+      <div class="arch-boxes"><span class="ab" style="border-color:var(--g);color:var(--g)">EC2 / ECS / Lambda</span><span class="ab" style="border-color:var(--g);color:var(--g)">EKS Worker Nodes</span></div></div>
+    <div class="sep"></div>
+    <div class="arch-layer"><div class="arch-layer-title" style="color:var(--p)">Private Data Subnets (10.0.20/24, 10.0.21/24, 10.0.22/24)</div>
+      <div class="arch-boxes"><span class="ab" style="border-color:var(--p);color:var(--p)">RDS Multi-AZ</span><span class="ab" style="border-color:var(--p);color:var(--p)">ElastiCache</span><span class="ab" style="border-color:var(--p);color:var(--p)">OpenSearch</span><span class="ab" style="border-color:var(--p);color:var(--p)">MSK (Kafka)</span></div></div>
+    <div class="sep"></div>
+    <div class="arch-layer"><div class="arch-layer-title" style="color:var(--c)">VPC Endpoints (Free for S3/DDB, Interface for others)</div>
+      <div class="arch-boxes"><span class="ab" style="border-color:var(--c);color:var(--c)">S3 Gateway Endpoint</span><span class="ab" style="border-color:var(--c);color:var(--c)">DynamoDB Gateway Endpoint</span><span class="ab" style="border-color:var(--c);color:var(--c)">SSM Interface Endpoint</span><span class="ab" style="border-color:var(--c);color:var(--c)">Secrets Manager Endpoint</span></div></div>
+  </div>
+  <div class="tip"><strong>💰 NAT Gateway Cost Trap (Most Common AWS Bill Shock)</strong>NAT Gateway charges $0.045/GB for every byte of data that passes through it. If your EC2 instances talk to S3 via NAT Gateway instead of S3 Gateway Endpoint, you pay $0.045/GB extra. A VPC Gateway Endpoint for S3 and DynamoDB is completely FREE and eliminates this cost. Install these on day one. Companies have paid $50,000+/month in unexpected NAT Gateway data fees.</div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ VPC Do's</div><ul>
+      <li>Create one NAT Gateway per AZ — one NAT GW shared across AZs means cross-AZ data transfer fees AND single point of failure</li>
+      <li>Install S3 and DynamoDB Gateway Endpoints on day one — they're free and eliminate NAT GW traffic</li>
+      <li>Plan CIDR ranges across all VPCs upfront — overlapping CIDRs block VPC peering and Transit Gateway routing forever</li>
+      <li>Enable VPC Flow Logs to S3 and analyze with Athena — essential for security investigation and NAT cost analysis</li>
+      <li>Use Security Group chaining (reference SG IDs, not IP ranges) — automatically handles elastic IP changes</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ VPC Don'ts</div><ul>
+      <li>Never use the default VPC for production — no proper subnet isolation, IGW attached to everything by default</li>
+      <li>Don't put databases in public subnets, ever — even with security group restrictions</li>
+      <li>Never allow 0.0.0.0/0 on port 22 or 3389 in security groups — use SSM Session Manager instead</li>
+      <li>Don't create /28 or /29 subnets — Lambda functions and ECS tasks consume ENIs fast; you'll run out of IPs</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- CloudFront -->
+<section class="section" id="cloudfront">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(255,107,53,0.12);color:var(--o)">CF</div>
+    <div><div class="service-title">CloudFront</div><div class="service-tagline">Global CDN — deliver content from 450+ edge locations close to every user</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Your server is in Virginia. A user in Tokyo downloads a 5MB image — it takes 300ms because data travels halfway around the world. <strong>CloudFront puts copies of that image in 450+ "mini-servers" worldwide</strong>. Now Tokyo users download from a server 10km away — in 8ms. It's like having a local convenience store instead of flying to a supermarket in another country. Cloudfront also handles DDoS attacks, SSL termination, and cuts your server's workload dramatically.</p></div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Cache Behaviors</div><h3>What to Cache vs What Not To</h3><ul><li>Cache: static files (JS/CSS/images), API responses with Cache-Control headers</li><li>Don't cache: auth endpoints, checkout, user-specific pages without Vary header</li><li>TTL: set Minimum, Default, and Maximum separately</li><li>Use Cache Policies instead of legacy settings — more granular control</li></ul></div>
+    <div class="card"><div class="card-tag">Origins</div><h3>Where CloudFront Pulls From</h3><ul><li>S3 (with OAC — Origin Access Control, replaces OAI)</li><li>ALB / EC2 / ECS — dynamic API caching</li><li>Lambda Function URLs — serverless APIs at edge</li><li>Custom HTTP origins (any HTTP server)</li><li>Use Origin Failover: primary + secondary for DR</li></ul></div>
+    <div class="card"><div class="card-tag">Edge Functions</div><h3>Run Code at Every Edge PoP</h3><ul><li>CloudFront Functions: &lt;1ms, JavaScript only, request/response manipulation</li><li>Lambda@Edge: up to 30s, Node.js/Python, full AWS SDK access</li><li>Use for: A/B testing, auth token validation, URL rewrites, geo-routing</li><li>CloudFront Functions are 6× cheaper and faster for simple operations</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">CloudFront Distribution with S3 + OAC — Terraform</span>
+  <pre><span class="kw">resource</span> <span class="str">"aws_cloudfront_origin_access_control"</span> <span class="str">"s3"</span> {
+  name                              = <span class="str">"s3-oac"</span>
+  origin_access_control_origin_type = <span class="str">"s3"</span>
+  signing_behavior                  = <span class="str">"always"</span>
+  signing_protocol                  = <span class="str">"sigv4"</span>
+}
+
+<span class="kw">resource</span> <span class="str">"aws_cloudfront_distribution"</span> <span class="str">"cdn"</span> {
+  origin {
+    domain_name              = aws_s3_bucket.assets.bucket_regional_domain_name
+    origin_id                = <span class="str">"s3-assets"</span>
+    origin_access_control_id = aws_cloudfront_origin_access_control.s3.id
+  }
+
+  default_cache_behavior {
+    allowed_methods        = [<span class="str">"GET"</span>, <span class="str">"HEAD"</span>]
+    cached_methods         = [<span class="str">"GET"</span>, <span class="str">"HEAD"</span>]
+    target_origin_id       = <span class="str">"s3-assets"</span>
+    viewer_protocol_policy = <span class="str">"redirect-to-https"</span>
+    compress               = <span class="kw">true</span>   <span class="cm"># Brotli + gzip auto-compression</span>
+    cache_policy_id        = data.aws_cloudfront_cache_policy.optimized.id
+  }
+
+  price_class     = <span class="str">"PriceClass_100"</span>   <span class="cm"># NA + EU only — saves cost</span>
+  enabled         = <span class="kw">true</span>
+  is_ipv6_enabled = <span class="kw">true</span>
+  http_version    = <span class="str">"http2and3"</span>       <span class="cm"># enable HTTP/3 (QUIC)</span>
+
+  web_acl_id = aws_wafv2_web_acl.main.arn  <span class="cm"># attach WAF</span>
+
+  viewer_certificate {
+    acm_certificate_arn      = aws_acm_certificate.cdn.arn
+    ssl_support_method       = <span class="str">"sni-only"</span>
+    minimum_protocol_version = <span class="str">"TLSv1.2_2021"</span>
+  }
+}</pre></div>
+</section>
+
+<!-- API Gateway -->
+<section class="section" id="apigw">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(251,191,36,0.12);color:var(--y)">API</div>
+    <div><div class="service-title">API Gateway</div><div class="service-tagline">The front door to your backend — HTTP APIs, REST APIs, and WebSocket APIs</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>API Gateway is like the <strong>reception desk at a large office building</strong>. Every visitor (HTTP request) arrives at reception. The receptionist checks their ID (authentication), figures out which department they're going to (routing), checks if they have an appointment (rate limiting), and directs them to the right office (Lambda, ECS, any backend). It handles millions of visitors without you hiring more receptionists.</p></div>
+  <div class="tbl-wrapper"><table class="tbl">
+    <thead><tr><th>Type</th><th>Best For</th><th>Latency</th><th>Features</th><th>Cost</th></tr></thead>
+    <tbody>
+      <tr><td><strong>HTTP API</strong></td><td>Simple REST APIs, Lambda proxies</td><td><span class="bg">Lower</span></td><td>JWT auth, CORS, Lambda, HTTP backends</td><td><span class="bg">Cheapest — $1/M</span></td></tr>
+      <tr><td><strong>REST API</strong></td><td>Complex APIs with fine-grained control</td><td>Medium</td><td>Request/response transformation, WAF, usage plans, API keys, caching</td><td>$3.50/M</td></tr>
+      <tr><td><strong>WebSocket API</strong></td><td>Real-time apps (chat, live data)</td><td>Persistent connection</td><td>Route selection based on message, DynamoDB integration</td><td>$1/M + $0.25/M msg</td></tr>
+    </tbody>
+  </table></div>
+  <div class="tip"><strong>⚡ HTTP API vs REST API — Use HTTP API 90% of the time</strong>HTTP APIs are 71% cheaper and have lower latency. The only reasons to choose REST API: you need API Gateway caching, request/response transformation (mapping templates), or custom authorizer per resource. For Lambda proxy integrations and JWT auth — always use HTTP API.</div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ API Gateway Do's</div><ul>
+      <li>Use HTTP API (v2) for Lambda and HTTP backends — significantly cheaper and faster than REST API (v1)</li>
+      <li>Enable throttling: set per-account and per-route rate limits — prevents Lambda runaway invocations</li>
+      <li>Use Lambda Authorizers for custom auth logic — cache the result (TTL up to 3600s) to reduce Lambda calls</li>
+      <li>Enable access logging to CloudWatch with custom log format including requestId, status, latency, IP</li>
+      <li>Use custom domain names with ACM certificates — never expose execute-api.amazonaws.com URLs directly</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ API Gateway Don'ts</div><ul>
+      <li>Don't use REST API when HTTP API works — you're paying 3× more for features you likely don't need</li>
+      <li>Never expose API Gateway without throttling — a single misbehaving client can trigger thousands of Lambda invocations</li>
+      <li>Don't use API GW for very large responses (&gt;10MB) — use S3 pre-signed URLs instead</li>
+      <li>Never hardcode stage names (prod, dev) in your code — use custom domain name aliases</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- Route 53 -->
+<section class="section" id="route53">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(244,63,94,0.12);color:var(--r)">R53</div>
+    <div><div class="service-title">Route 53</div><div class="service-tagline">AWS DNS — route users to the right servers with health checks and traffic policies</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>DNS is the internet's phone book. When you type "google.com", your computer asks: "what's Google's IP address?" <strong>Route 53 is your phone book</strong>. But it's a smart phone book — if Google's New York office is down, it automatically gives callers the London office number. It can also route 10% of calls to a new experimental office for testing. It monitors every office constantly and removes broken numbers automatically.</p></div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Routing Policies</div><h3>Simple</h3><p>One record, one IP. For basic single-server setups. No health checks. Like putting one phone number in a phonebook. Use only for dev/test.</p></div>
+    <div class="card"><div class="card-tag">Routing Policies</div><h3>Failover (Active-Passive)</h3><p>Primary record used until health check fails, then Route 53 automatically switches to secondary record. Your DR site. Failover happens in 30-60 seconds. Use for: RDS read replica promotion, cross-region failover.</p></div>
+    <div class="card"><div class="card-tag">Routing Policies</div><h3>Latency-Based</h3><p>Route users to the AWS region that gives them lowest latency. User in Tokyo goes to ap-northeast-1. User in London goes to eu-west-1. No configuration needed — AWS measures latency automatically.</p></div>
+    <div class="card"><div class="card-tag">Routing Policies</div><h3>Weighted</h3><p>Send X% to record A, Y% to record B. Use for: canary deployments (send 5% to new version), A/B testing, gradual traffic shifting. Weight 0 = send no traffic (useful for removing a backend).</p></div>
+    <div class="card"><div class="card-tag">Routing Policies</div><h3>Geolocation</h3><p>Route users based on their country or continent. EU users go to EU infrastructure (GDPR compliance). US users stay in US. Fallback record for all other locations is mandatory.</p></div>
+    <div class="card"><div class="card-tag">Routing Policies</div><h3>Geoproximity (Traffic Flow)</h3><p>Like Geolocation but with "bias" — expand or shrink the geographic area that routes to each region. Shift traffic from US-East to US-West during an incident without changing locations.</p></div>
+  </div>
+  <div class="code"><span class="code-lbl">Route 53 Health Check + Failover — Terraform</span>
+  <pre><span class="kw">resource</span> <span class="str">"aws_route53_health_check"</span> <span class="str">"primary"</span> {
+  fqdn              = <span class="str">"api.us-east-1.myapp.com"</span>
+  port              = <span class="num">443</span>
+  type              = <span class="str">"HTTPS"</span>
+  resource_path     = <span class="str">"/health"</span>
+  failure_threshold = <span class="num">3</span>   <span class="cm"># fails after 3 consecutive failures</span>
+  request_interval  = <span class="num">30</span>  <span class="cm"># check every 30 seconds</span>
+  regions           = [<span class="str">"us-east-1"</span>, <span class="str">"eu-west-1"</span>, <span class="str">"ap-northeast-1"</span>]
+}
+
+<span class="kw">resource</span> <span class="str">"aws_route53_record"</span> <span class="str">"primary"</span> {
+  zone_id         = aws_route53_zone.main.zone_id
+  name            = <span class="str">"api.myapp.com"</span>
+  type            = <span class="str">"A"</span>
+  set_identifier  = <span class="str">"primary"</span>
+  health_check_id = aws_route53_health_check.primary.id
+  failover_routing_policy { type = <span class="str">"PRIMARY"</span> }
+  alias { name = aws_lb.primary.dns_name; zone_id = aws_lb.primary.zone_id; evaluate_target_health = <span class="kw">true</span> }
+}
+<span class="kw">resource</span> <span class="str">"aws_route53_record"</span> <span class="str">"secondary"</span> {
+  zone_id        = aws_route53_zone.main.zone_id
+  name           = <span class="str">"api.myapp.com"</span>
+  type           = <span class="str">"A"</span>
+  set_identifier = <span class="str">"secondary"</span>
+  failover_routing_policy { type = <span class="str">"SECONDARY"</span> }
+  alias { name = aws_lb.dr.dns_name; zone_id = aws_lb.dr.zone_id; evaluate_target_health = <span class="kw">true</span> }
+}</pre></div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Pages <span>09–12</span> — Storage & Database: S3, RDS, DynamoDB, ElastiCache</div>
+
+<!-- DynamoDB -->
+<section class="section" id="dynamodb">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(6,182,212,0.12);color:var(--c)">DDB</div>
+    <div><div class="service-title">DynamoDB</div><div class="service-tagline">Serverless NoSQL database — single-millisecond performance at any scale</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>A regular database (like a spreadsheet) needs you to define all your columns upfront. DynamoDB is like a <strong>flexible notebook where each row can have different fields</strong>. It's incredibly fast — reads and writes in under 1 millisecond even with billions of rows. AWS handles all the infrastructure, replication, backups, and scaling. The trade-off: you MUST know your access patterns upfront — the table design depends entirely on how you'll query data.</p></div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Data Modeling — The Golden Rule</div><h3>Single Table Design</h3><p>In SQL, you create many tables. In DynamoDB, put <em>all</em> your data in ONE table with clever keys. Think of it as filing everything in one giant drawer with smart labels. This enables efficient queries without expensive joins.</p>
+    <div class="callout orange"><strong>Example:</strong> Entity: PK=USER#user123, SK=PROFILE | Entity: PK=USER#user123, SK=ORDER#2024-01-15. Same table, different sort keys. One query gets all of a user's data.</div></div>
+    <div class="card"><div class="card-tag">Capacity Modes</div><h3>On-Demand vs Provisioned</h3><ul><li><strong>On-Demand:</strong> AWS auto-scales, pay per request. No capacity planning. 2.5× more expensive but zero ops. Best for unpredictable or low traffic.</li><li><strong>Provisioned:</strong> You set Read/Write Capacity Units. Use Auto Scaling. Add Reserved Capacity for 80% savings on baseline. Best for predictable, sustained traffic.</li><li>Switch between modes once per 24 hours</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">DynamoDB Single Table — Python with Composite Keys</span>
+  <pre><span class="kw">import</span> boto3
+<span class="kw">from</span> boto3.dynamodb.conditions <span class="kw">import</span> Key
+
+table = boto3.resource(<span class="str">'dynamodb'</span>).Table(<span class="str">'AppTable'</span>)
+
+<span class="cm"># Write user + their orders in same table</span>
+table.put_item(Item={
+    <span class="str">'PK'</span>: <span class="str">'USER#user123'</span>,
+    <span class="str">'SK'</span>: <span class="str">'PROFILE'</span>,
+    <span class="str">'name'</span>: <span class="str">'Alice'</span>, <span class="str">'email'</span>: <span class="str">'alice@example.com'</span>
+})
+table.put_item(Item={
+    <span class="str">'PK'</span>: <span class="str">'USER#user123'</span>,
+    <span class="str">'SK'</span>: <span class="str">'ORDER#2024-01-15#order999'</span>,
+    <span class="str">'total'</span>: <span class="num">149.99</span>, <span class="str">'status'</span>: <span class="str">'shipped'</span>
+})
+
+<span class="cm"># Get ALL items for a user (profile + orders) in ONE query</span>
+result = table.query(
+    KeyConditionExpression=Key(<span class="str">'PK'</span>).eq(<span class="str">'USER#user123'</span>)
+)
+
+<span class="cm"># Get only orders in date range — still one query</span>
+orders = table.query(
+    KeyConditionExpression=Key(<span class="str">'PK'</span>).eq(<span class="str">'USER#user123'</span>) &
+                           Key(<span class="str">'SK'</span>).between(<span class="str">'ORDER#2024-01-01'</span>, <span class="str">'ORDER#2024-12-31'</span>)
+)
+
+<span class="cm"># Transactions — atomic multi-item operations</span>
+boto3.client(<span class="str">'dynamodb'</span>).transact_write(TransactItems=[
+    {<span class="str">'Put'</span>: {<span class="str">'TableName'</span>: <span class="str">'AppTable'</span>, <span class="str">'Item'</span>: {<span class="str">'PK'</span>: {<span class="str">'S'</span>: <span class="str">'ORDER#999'</span>}, <span class="str">'SK'</span>: {<span class="str">'S'</span>: <span class="str">'STATUS'</span>}, <span class="str">'status'</span>: {<span class="str">'S'</span>: <span class="str">'processing'</span>}}}},
+    {<span class="str">'Update'</span>: {<span class="str">'TableName'</span>: <span class="str">'AppTable'</span>, <span class="str">'Key'</span>: {<span class="str">'PK'</span>: {<span class="str">'S'</span>: <span class="str">'INVENTORY#SKU-123'</span>}, <span class="str">'SK'</span>: {<span class="str">'S'</span>: <span class="str">'STOCK'</span>}},
+        <span class="str">'UpdateExpression'</span>: <span class="str">'SET quantity = quantity - :q'</span>, <span class="str">'ExpressionAttributeValues'</span>: {<span class="str">':q'</span>: {<span class="str">'N'</span>: <span class="str">'1'</span>}}}}
+])</pre></div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ DynamoDB Do's</div><ul>
+      <li>Design your data model around access patterns FIRST — draw out every query you need before designing table keys</li>
+      <li>Use Single Table Design — consolidate related entities to minimize round trips</li>
+      <li>Enable DynamoDB Streams + Lambda for event-driven processing (cache invalidation, audit, analytics)</li>
+      <li>Enable Point-In-Time Recovery (PITR) — free 35-day rolling backup, zero ops</li>
+      <li>Use Condition Expressions for optimistic locking — prevent lost updates in concurrent environments</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ DynamoDB Don'ts</div><ul>
+      <li>Never use Scan on large tables — scans read every item and costs you for it. ALWAYS query by PK+SK</li>
+      <li>Don't use DynamoDB for complex relational data with many ad-hoc query patterns — use RDS PostgreSQL</li>
+      <li>Never store large binary blobs (images, documents) in DynamoDB — max 400KB per item. Use S3 + store URL in DDB</li>
+      <li>Don't use Sequential IDs as partition keys — creates a hot partition. Use UUID or prefix to distribute writes</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ElastiCache -->
+<section class="section" id="elasticache">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(255,107,53,0.12);color:var(--o)">EC</div>
+    <div><div class="service-title">ElastiCache</div><div class="service-tagline">In-memory caching — Redis and Memcached, microsecond latency at scale</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Your database is like a library — finding a book takes time (searching shelves). ElastiCache is like putting the <strong>most popular books on a desk next to you</strong> — you can grab them instantly. The first request goes to the database (slow), subsequent requests for the same data go to ElastiCache (microseconds). For session data, leaderboards, rate limiting, and caching API responses, ElastiCache can reduce database load by 90%.</p></div>
+  <div class="compare">
+    <div class="compare-col"><h4>Redis (Use This)</h4><ul><li>Data structures: strings, lists, sets, sorted sets, hashes, streams</li><li>Persistence: RDB snapshots + AOF logs</li><li>Pub/Sub messaging</li><li>Lua scripting</li><li>Multi-AZ with automatic failover</li><li>Best for: sessions, leaderboards, rate limiting, pub/sub, job queues</li></ul></div>
+    <div class="compare-col highlight"><h4>Redis Cluster Mode</h4><ul><li>Data sharded across 1-500 shards</li><li>Each shard: 1 primary + up to 5 replicas</li><li>Horizontal scaling — distribute data AND reads</li><li>Use when single Redis node &gt; 400GB RAM or &gt;200k ops/sec</li><li>Multi-key operations require same hash slot</li></ul></div>
+    <div class="compare-col"><h4>Memcached (Rare)</h4><ul><li>Simple key-value only</li><li>Multi-threaded — better raw throughput for simple caching</li><li>No persistence — restart = empty cache</li><li>No replication — node failure = cache miss</li><li>Use only for simple HTML fragment caching</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">Redis Caching Patterns — Python (Cache-Aside + Write-Through)</span>
+  <pre><span class="kw">import</span> redis, json, hashlib
+r = redis.Redis(host=<span class="str">'my-cluster.cache.amazonaws.com'</span>, port=<span class="num">6379</span>, ssl=<span class="kw">True</span>)
+
+<span class="cm"># ── Pattern 1: Cache-Aside (Lazy Loading) ──</span>
+<span class="cm"># Check cache first, load from DB on miss, store in cache</span>
+<span class="kw">def</span> <span class="fn">get_user</span>(user_id):
+    key = <span class="fn">f</span><span class="str">"user:{user_id}"</span>
+    cached = r.get(key)
+    <span class="kw">if</span> cached:
+        <span class="kw">return</span> json.loads(cached)   <span class="cm"># cache HIT — microseconds</span>
+    user = db.query(<span class="str">"SELECT * FROM users WHERE id = %s"</span>, user_id)  <span class="cm"># MISS</span>
+    r.setex(key, <span class="num">3600</span>, json.dumps(user))   <span class="cm"># cache for 1 hour</span>
+    <span class="kw">return</span> user
+
+<span class="cm"># ── Pattern 2: Rate Limiting with Redis ──</span>
+<span class="cm"># Sliding window rate limiter — allow 100 requests per minute per user</span>
+<span class="kw">def</span> <span class="fn">is_rate_limited</span>(user_id):
+    key = <span class="fn">f</span><span class="str">"ratelimit:{user_id}"</span>
+    pipe = r.pipeline()
+    now = <span class="fn">int</span>(<span class="fn">time</span>.<span class="fn">time</span>() * <span class="num">1000</span>)           <span class="cm"># millisecond timestamp</span>
+    window = now - <span class="num">60000</span>                     <span class="cm"># 60 seconds ago</span>
+    pipe.zremrangebyscore(key, <span class="num">0</span>, window)    <span class="cm"># remove old entries</span>
+    pipe.zadd(key, {<span class="fn">str</span>(now): now})          <span class="cm"># add current request</span>
+    pipe.zcard(key)                           <span class="cm"># count requests in window</span>
+    pipe.expire(key, <span class="num">60</span>)                     <span class="cm"># cleanup old keys</span>
+    results = pipe.execute()
+    <span class="kw">return</span> results[<span class="num">2</span>] > <span class="num">100</span>                  <span class="cm"># True = rate limited</span>
+
+<span class="cm"># ── Pattern 3: Distributed Lock ──</span>
+<span class="cm"># Prevent two instances processing same job simultaneously</span>
+acquired = r.set(<span class="fn">f</span><span class="str">"lock:job:{job_id}"</span>, <span class="str">"1"</span>, ex=<span class="num">30</span>, nx=<span class="kw">True</span>)  <span class="cm"># nx = only set if not exists</span>
+<span class="kw">if not</span> acquired: <span class="kw">return</span>   <span class="cm"># another instance has the lock</span></pre></div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Pages <span>13–16</span> — Messaging: SQS, SNS, EventBridge, Kinesis</div>
+
+<section class="section" id="sqs">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(251,191,36,0.12);color:var(--y)">SQS</div>
+    <div><div class="service-title">Simple Queue Service</div><div class="service-tagline">Decouple services with durable message queuing — never lose a message</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Imagine a ticket counter at a concert. Fans (messages) arrive faster than staff can process them. Without a queue, fans pile up chaotically — some give up. With SQS, fans <strong>take a numbered ticket and wait their turn</strong>. The counter (worker) processes one at a time. If a worker goes on break (crashes), the ticket stays valid — nobody loses their place. You can add more counter staff (consumers) during rush hour.</p></div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Standard Queue</div><h3>At-Least-Once Delivery</h3><p>Nearly unlimited throughput. Messages delivered at least once — occasionally duplicates. Best for most workloads. Order is best-effort, not guaranteed. Your processing must be idempotent (safe to process same message twice).</p></div>
+    <div class="card"><div class="card-tag">FIFO Queue</div><h3>Exactly-Once, In Order</h3><p>Messages delivered exactly once, in strict order. Limited to 3,000 messages/sec (with batching). Use for: financial transactions, order processing, anywhere duplicates cause real problems. 20% more expensive.</p></div>
+  </div>
+  <div class="code"><span class="code-lbl">SQS Best Practices — Consumer with DLQ + Idempotency</span>
+  <pre><span class="cm"># SQS visibility timeout = 6× Lambda function timeout</span>
+<span class="cm"># If Lambda takes up to 30s, set visibilityTimeout = 180s</span>
+<span class="cm"># Otherwise: Lambda times out, message becomes visible again, re-processed</span>
+
+<span class="cm"># Lambda Event Source Mapping (automatic polling)</span>
+<span class="kw">resource</span> <span class="str">"aws_lambda_event_source_mapping"</span> <span class="str">"sqs"</span> {
+  event_source_arn                   = aws_sqs_queue.orders.arn
+  function_name                      = aws_lambda_function.processor.arn
+  batch_size                         = <span class="num">10</span>    <span class="cm"># process up to 10 msgs at once</span>
+  maximum_batching_window_in_seconds = <span class="num">5</span>     <span class="cm"># wait 5s to fill batch</span>
+  function_response_types            = [<span class="str">"ReportBatchItemFailures"</span>]  <span class="cm"># ← CRITICAL</span>
+}
+
+<span class="cm"># Terraform: Queue + DLQ + redrive policy</span>
+<span class="kw">resource</span> <span class="str">"aws_sqs_queue"</span> <span class="str">"orders"</span> {
+  name                       = <span class="str">"orders"</span>
+  visibility_timeout_seconds = <span class="num">180</span>      <span class="cm"># 6× function timeout</span>
+  message_retention_seconds  = <span class="num">86400</span>   <span class="cm"># 1 day retention</span>
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.orders_dlq.arn
+    maxReceiveCount     = <span class="num">3</span>           <span class="cm"># after 3 failures, move to DLQ</span>
+  })
+}
+<span class="kw">resource</span> <span class="str">"aws_sqs_queue"</span> <span class="str">"orders_dlq"</span> {
+  name                      = <span class="str">"orders-dlq"</span>
+  message_retention_seconds = <span class="num">1209600</span>  <span class="cm"># 14 days to investigate</span>
+}
+<span class="cm"># Set alarm on DLQ depth &gt; 0 — DLQ messages = bugs you need to fix</span></pre></div>
+</section>
+
+<section class="section" id="sns">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(244,63,94,0.12);color:var(--r)">SNS</div>
+    <div><div class="service-title">Simple Notification Service</div><div class="service-tagline">Pub/Sub fan-out — one message, many subscribers simultaneously</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>SNS is like a <strong>megaphone announcement</strong>. When you shout "Order Placed!" through SNS, everyone who subscribed to that announcement hears it simultaneously. Your email service sends a confirmation, your inventory service reduces stock, your analytics service records the event, and your fraud detection checks it — all at the same time, not one-after-another. SQS is sequential; SNS is simultaneous.</p></div>
+  <div class="flow">
+    <div class="flow-wrap">
+      <span class="flow-box" style="border-color:var(--o);color:var(--o)">Publisher (App)</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-box" style="border-color:var(--y);color:var(--y)">SNS Topic</span>
+      <span class="flow-arrow">→ Fan-out to all subscribers →</span>
+      <span class="flow-box" style="border-color:var(--b);color:var(--b)">SQS Queue A</span>
+      <span class="flow-arrow">+</span>
+      <span class="flow-box" style="border-color:var(--g);color:var(--g)">Lambda B</span>
+      <span class="flow-arrow">+</span>
+      <span class="flow-box" style="border-color:var(--p);color:var(--p)">Email/SMS</span>
+      <span class="flow-arrow">+</span>
+      <span class="flow-box" style="border-color:var(--c);color:var(--c)">HTTP endpoint</span>
+    </div>
+  </div>
+  <div class="tip"><strong>⚡ SNS → SQS (not SNS → Lambda directly)</strong>Always put an SQS queue between SNS and Lambda for async workloads. Direct SNS→Lambda has no retry buffering — if Lambda is throttled, the message is lost. SNS→SQS→Lambda gives you: DLQ for failures, retry logic, batch processing, and visibility timeout control.</div>
+</section>
+
+<section class="section" id="eventbridge">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(59,130,246,0.12);color:var(--b)">EB</div>
+    <div><div class="service-title">EventBridge</div><div class="service-tagline">Serverless event bus — route events from AWS services, SaaS, and your apps to any target</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>EventBridge is like a very smart <strong>traffic cop for events</strong>. Every action in your AWS account (EC2 started, S3 file uploaded, RDS snapshot completed) generates an event. EventBridge watches ALL of them and says: "When an EC2 instance terminates, send a Slack notification AND update the CMDB AND trigger a Lambda to check remaining capacity." You write rules, it routes automatically. No polling, no custom code gluing services together.</p></div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Event Buses</div><h3>Default, Custom, Partner</h3><ul><li><strong>Default bus:</strong> all AWS service events automatically sent here</li><li><strong>Custom buses:</strong> your app events (OrderPlaced, UserSignedUp)</li><li><strong>Partner buses:</strong> Datadog, PagerDuty, GitHub, Stripe, Zendesk events</li><li>Archive + Replay: store events and re-run them during debugging or recovery</li></ul></div>
+    <div class="card"><div class="card-tag">Event Filtering</div><h3>Content-Based Routing</h3><ul><li>Filter by: event source, detail-type, or ANY field in event body</li><li>Example: only process S3 events where prefix = "uploads/" AND size &gt; 1MB</li><li>No code needed — pure JSON filter rules in console/Terraform</li><li>Filter at EventBridge = no Lambda invocation cost for filtered events</li></ul></div>
+    <div class="card"><div class="card-tag">EventBridge Scheduler</div><h3>Serverless Cron</h3><ul><li>Schedule one-time or recurring events to ANY AWS target</li><li>Timezone-aware scheduling (business hours per region)</li><li>Flexible rate expressions or cron expressions</li><li>Better than CloudWatch Events for scheduled jobs — dedicated service</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">EventBridge Rule — React to EC2 Termination + Alert Slack</span>
+  <pre><span class="kw">resource</span> <span class="str">"aws_cloudwatch_event_rule"</span> <span class="str">"ec2_termination"</span> {
+  name        = <span class="str">"ec2-termination-alert"</span>
+  description = <span class="str">"Alert when production EC2 instance terminates unexpectedly"</span>
+  event_pattern = jsonencode({
+    source      = [<span class="str">"aws.ec2"</span>]
+    detail-type = [<span class="str">"EC2 Instance State-change Notification"</span>]
+    detail = {
+      state = [<span class="str">"terminated"</span>]
+      <span class="cm"># Only production instances (tagged Environment=prod)</span>
+    }
+  })
+}
+
+<span class="cm"># Target: Lambda function that posts to Slack</span>
+<span class="kw">resource</span> <span class="str">"aws_cloudwatch_event_target"</span> <span class="str">"slack"</span> {
+  rule = aws_cloudwatch_event_rule.ec2_termination.name
+  arn  = aws_lambda_function.slack_notifier.arn
+  input_transformer {
+    input_paths    = { instanceId = <span class="str">"$.detail.instance-id"</span>, state = <span class="str">"$.detail.state"</span> }
+    input_template = <span class="str">'"EC2 &lt;instanceId&gt; changed to state: &lt;state&gt;"'</span>
+  }
+}</pre></div>
+</section>
+
+<section class="section" id="kinesis">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(34,211,165,0.12);color:var(--g)">KNS</div>
+    <div><div class="service-title">Kinesis</div><div class="service-tagline">Real-time data streaming — ingest, process, and analyze millions of events per second</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>SQS is like a mailbox — messages wait until picked up. Kinesis is like a <strong>river of data flowing constantly</strong>. Multiple readers can look at the same river from different boats at the same time. You can replay any part of the river from the last 7 days. Used for: website clickstream data, stock prices, IoT sensor readings, application logs — anything where millions of events per second need real-time processing.</p></div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Kinesis Data Streams</div><h3>Real-Time, Low Latency (&lt;200ms)</h3><ul><li>1MB/s per shard ingestion, 2MB/s egestion</li><li>Multiple consumers can read same shard simultaneously</li><li>Enhanced Fan-Out: 2MB/s per consumer per shard — parallel reads</li><li>Retention: 24hrs (default) to 7 days to 365 days</li><li>Use for: real-time dashboards, anomaly detection, complex event processing</li></ul></div>
+    <div class="card"><div class="card-tag">Kinesis Firehose</div><h3>Load to S3/Redshift/OpenSearch</h3><ul><li>Zero administration — fully managed delivery pipeline</li><li>Buffer: 60s or 1MB — not real-time, near-real-time</li><li>Built-in data transformation via Lambda</li><li>Built-in format conversion (JSON → Parquet for Athena queries)</li><li>Use for: log archival, data lake ingestion, analytics pipelines</li></ul></div>
+  </div>
+  <div class="tbl-wrapper"><table class="tbl">
+    <thead><tr><th>When to Use</th><th>Kinesis Streams</th><th>Kinesis Firehose</th><th>SQS</th></tr></thead>
+    <tbody>
+      <tr><td>Latency</td><td><span class="bg">&lt;200ms real-time</span></td><td>60s–900s buffered</td><td>Milliseconds but batched</td></tr>
+      <tr><td>Consumers</td><td>Multiple simultaneously</td><td>One destination</td><td>One consumer per message</td></tr>
+      <tr><td>Replay</td><td><span class="bg">Yes — up to 365 days</span></td><td>Only from S3</td><td>No — consumed = gone</td></tr>
+      <tr><td>Ordering</td><td><span class="bg">Within shard</span></td><td>Not guaranteed</td><td>FIFO queues only</td></tr>
+      <tr><td>Best for</td><td>Real-time analytics, ML inference</td><td>Data lake ingestion</td><td>Task queues, job processing</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Pages <span>17–18</span> — CI/CD: CodePipeline, CodeBuild, CodeDeploy, ECR, Terraform/CDK</div>
+
+<section class="section" id="codepipeline">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(167,139,250,0.12);color:var(--p)">CI/CD</div>
+    <div><div class="service-title">CodePipeline + CodeBuild + CodeDeploy</div><div class="service-tagline">AWS-native CI/CD — automate build, test, and deploy from source to production</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Imagine a factory assembly line. A developer writes code (raw materials). <strong>CodeBuild</strong> is the factory floor — it compiles, runs tests, and packages the code. <strong>CodePipeline</strong> is the conveyor belt that moves it from station to station automatically. <strong>CodeDeploy</strong> is the delivery truck that gets the finished product to servers. Without CI/CD, every deploy is a manual, error-prone factory shutdown. With it, code ships in 10 minutes, automatically, safely, repeatedly.</p></div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Source Stage (CodeCommit / GitHub / S3)</h4><p>Developer pushes code to main branch. Pipeline triggers automatically via webhook. No manual steps required. Branch protection rules ensure code is reviewed before merge.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Build Stage (CodeBuild)</h4><p>CodeBuild spins up a fresh container, runs your buildspec.yml: install dependencies, run unit tests, run static analysis (SAST), build Docker image, push to ECR with commit SHA tag. Build fails = pipeline stops. No deployment of broken code.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Test Stage (CodeBuild — Integration Tests)</h4><p>Deploy to staging environment, run integration tests, API tests, load tests (k6). If any test fails, auto-rollback staging deployment and alert team. Production never sees bad code.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Approval Stage (Manual Gate — Optional)</h4><p>A human reviews the staging environment and approves or rejects. SNS sends email with staging URL and changelog. Perfect for regulatory environments or high-risk deployments.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Deploy Stage (CodeDeploy Blue/Green or Rolling)</h4><p>Blue/Green: new version deployed to a second (green) target group. Traffic shifted gradually. Instant rollback if CloudWatch alarms trigger. Old (blue) environment kept for 1 hour as rollback target.</p></div></div>
+  </div>
+  <div class="code"><span class="code-lbl">buildspec.yml — CodeBuild with Docker Build + Security Scan</span>
+  <pre>version: <span class="num">0.2</span>
+phases:
+  install:
+    runtime-versions:
+      python: <span class="num">3.12</span>
+    commands:
+      - pip install -r requirements.txt
+      - pip install bandit safety   <span class="cm"># security scanners</span>
+
+  pre_build:
+    commands:
+      - echo "Running security scans..."
+      - bandit -r src/ -ll         <span class="cm"># SAST — find code security issues</span>
+      - safety check               <span class="cm"># dependency vulnerability scan</span>
+      - python -m pytest tests/ --cov=src --cov-report=xml -v
+      - echo "Logging into ECR..."
+      - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+
+  build:
+    commands:
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c1-8)
+      - docker build -t $ECR_REPO:$IMAGE_TAG --build-arg BUILD_DATE=$(date -u +%Y%m%d) .
+      - docker run --rm aquasec/trivy image $ECR_REPO:$IMAGE_TAG    <span class="cm"># container scan</span>
+
+  post_build:
+    commands:
+      - docker push $ECR_REPO:$IMAGE_TAG
+      - docker tag $ECR_REPO:$IMAGE_TAG $ECR_REPO:latest
+      - docker push $ECR_REPO:latest
+      - printf '[{"name":"app","imageUri":"%s:%s"}]' $ECR_REPO $IMAGE_TAG > imagedefs.json
+
+artifacts:
+  files: [imagedefs.json, appspec.yml, taskdef.json]
+
+reports:
+  pytest_coverage:
+    files: [coverage.xml]
+    file-format: COBERTURAXML</pre></div>
+</section>
+
+<section class="section" id="ecr">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(251,191,36,0.12);color:var(--y)">ECR</div>
+    <div><div class="service-title">Elastic Container Registry</div><div class="service-tagline">Private Docker registry — store, scan, and manage container images securely</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Docker images are like blueprints for your containers. You need somewhere secure to store them — like a <strong>private warehouse</strong> only your team and your servers can access. ECR is that warehouse. It stores every version of your image, scans them for security vulnerabilities, and makes them fast to pull from any ECS, EKS, or Lambda deployment in the same region (free data transfer within AWS).</p></div>
+  <div class="code"><span class="code-lbl">ECR Repository with Scanning + Lifecycle Policy</span>
+  <pre><span class="kw">resource</span> <span class="str">"aws_ecr_repository"</span> <span class="str">"api"</span> {
+  name                 = <span class="str">"my-app/api"</span>
+  image_tag_mutability = <span class="str">"IMMUTABLE"</span>   <span class="cm"># prevent overwriting existing tags (security!)</span>
+  force_delete         = <span class="kw">false</span>
+
+  image_scanning_configuration {
+    scan_on_push = <span class="kw">true</span>    <span class="cm"># scan every pushed image with Inspector</span>
+  }
+
+  encryption_configuration {
+    encryption_type = <span class="str">"KMS"</span>  <span class="cm"># encrypt images at rest with KMS</span>
+    kms_key         = aws_kms_key.ecr.arn
+  }
+}
+
+<span class="cm"># Lifecycle policy — keep only last 30 tagged images and 5 untagged</span>
+<span class="kw">resource</span> <span class="str">"aws_ecr_lifecycle_policy"</span> <span class="str">"api"</span> {
+  repository = aws_ecr_repository.api.name
+  policy = jsonencode({
+    rules = [
+      { rulePriority = <span class="num">1</span>, description = <span class="str">"Keep last 30 release images"</span>,
+        selection = { tagStatus = <span class="str">"tagged"</span>, tagPrefixList = [<span class="str">"v"</span>], countType = <span class="str">"imageCountMoreThan"</span>, countNumber = <span class="num">30</span> },
+        action = { type = <span class="str">"expire"</span> } },
+      { rulePriority = <span class="num">2</span>, description = <span class="str">"Remove untagged images after 7 days"</span>,
+        selection = { tagStatus = <span class="str">"untagged"</span>, countType = <span class="str">"sinceImagePushed"</span>, countUnit = <span class="str">"days"</span>, countNumber = <span class="num">7</span> },
+        action = { type = <span class="str">"expire"</span> } }
+    ]
+  })
+}</pre></div>
+</section>
+
+<section class="section" id="terraform">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(167,139,250,0.12);color:var(--p)">IaC</div>
+    <div><div class="service-title">Terraform & AWS CDK</div><div class="service-tagline">Infrastructure as Code — version, test, and automate all your AWS resources</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Without IaC, you click through the AWS Console to create resources — and nobody knows exactly what was clicked. <strong>IaC is like a recipe for your entire infrastructure</strong>. Write it once in code, run it, and AWS is configured exactly right. New environment? Run the same recipe. Need to review changes? Read the git diff. Something broke? Roll back to yesterday's recipe. It's the difference between "I think I set it up right" and "I can prove it's set up right."</p></div>
+  <div class="compare">
+    <div class="compare-col"><h4>Terraform (HCL)</h4><ul><li>Multi-cloud: AWS, GCP, Azure, 3000+ providers</li><li>Declarative: describe WHAT you want, TF figures HOW</li><li>State file: tracks real vs desired — store in S3 + DynamoDB lock</li><li>Modules: reusable resource packages</li><li>Best for: multi-cloud, large teams, existing TF expertise</li><li>Ecosystem: Terragrunt, Atlantis, tfsec, Checkov</li></ul></div>
+    <div class="compare-col highlight"><h4>AWS CDK (TypeScript/Python) ← Winner for AWS-only</h4><ul><li>Write infrastructure in real code (TypeScript recommended)</li><li>Level 2 constructs: opinionated, fewer lines of code</li><li>Full IDE support: type checking, autocomplete</li><li>Compiles to CloudFormation</li><li>Testing: write unit tests for your infrastructure</li><li>Constructs Hub: community-built patterns</li></ul></div>
+    <div class="compare-col"><h4>CloudFormation (YAML)</h4><ul><li>Native AWS — zero extra tooling to install</li><li>Drift detection: knows if console changes happened</li><li>StackSets: deploy same stack to multiple accounts/regions</li><li>AWS Service Catalog: publish stacks for self-service</li><li>Verbose: hundreds of lines for simple resources</li><li>Best for: AWS-only, Control Tower integration</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">Terraform Best Practice — Remote State + Modules Structure</span>
+  <pre><span class="cm"># Directory structure — separate state per environment</span>
+infrastructure/
+├── modules/
+│   ├── vpc/           <span class="cm"># reusable VPC module</span>
+│   ├── ecs-service/   <span class="cm"># reusable ECS service module</span>
+│   └── rds/           <span class="cm"># reusable RDS module</span>
+├── environments/
+│   ├── dev/
+│   │   ├── main.tf    <span class="cm"># uses modules, small sizes</span>
+│   │   └── backend.tf <span class="cm"># → s3://tf-state/dev/terraform.tfstate</span>
+│   ├── staging/
+│   └── prod/          <span class="cm"># → s3://tf-state/prod/terraform.tfstate</span>
+
+<span class="cm"># backend.tf — remote state in S3 + DynamoDB locking</span>
+<span class="kw">terraform</span> {
+  backend <span class="str">"s3"</span> {
+    bucket         = <span class="str">"my-tf-state-bucket"</span>
+    key            = <span class="str">"prod/terraform.tfstate"</span>
+    region         = <span class="str">"us-east-1"</span>
+    encrypt        = <span class="kw">true</span>           <span class="cm"># encrypt state at rest (has secrets!)</span>
+    dynamodb_table = <span class="str">"tf-state-lock"</span> <span class="cm"># prevent concurrent applies</span>
+  }
+  required_providers {
+    aws = { source = <span class="str">"hashicorp/aws"</span>, version = <span class="str">"~> 5.0"</span> }  <span class="cm"># pin version!</span>
+  }
+}
+
+<span class="cm"># CI/CD — GitHub Actions PR workflow</span>
+<span class="cm"># on: pull_request → terraform plan (comment on PR)</span>
+<span class="cm"># on: push to main → terraform apply (with OIDC, no long-lived keys)</span></pre></div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Pages <span>19–21</span> — Observability + Security</div>
+
+<section class="section" id="cloudwatch">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(244,63,94,0.12);color:var(--r)">CW</div>
+    <div><div class="service-title">CloudWatch</div><div class="service-tagline">AWS-native observability — metrics, logs, dashboards, alarms, and anomaly detection</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>CloudWatch is your <strong>hospital monitoring system for AWS</strong>. Every heartbeat (metric), every doctor's note (log), and every vital sign alarm is tracked here. When CPU spikes, CloudWatch sees it first. When error rate climbs, CloudWatch pages your on-call engineer. When a Lambda function fails, its output goes to CloudWatch Logs. Without CloudWatch, you're flying blind — you only find out something broke when users complain.</p></div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Metrics</div><h3>What to Monitor</h3><ul><li>EC2: CPU, NetworkIn/Out, StatusCheckFailed — install CW Agent for memory (not default)</li><li>Lambda: Duration, Errors, Throttles, ConcurrentExecutions, ColdStarts</li><li>RDS: CPUUtilization, DatabaseConnections, ReadLatency, ReplicaLag</li><li>ALB: RequestCount, TargetResponseTime, HTTPCode_ELB_5XX, HealthyHostCount</li><li>ECS: CPUReservation, MemoryUtilization, RunningTaskCount</li></ul></div>
+    <div class="card"><div class="card-tag">Alarms</div><h3>Alert on What Matters</h3><ul><li>Alert on SYMPTOMS not causes: high error rate, slow response — not just high CPU</li><li>Composite Alarms: AND multiple alarms to reduce false positives</li><li>Anomaly Detection: ML-based bands — alert when metric leaves normal range</li><li>Set: 3 evaluation periods before alarm — avoids transient spikes</li><li>Every alarm needs a runbook URL in description field</li></ul></div>
+    <div class="card"><div class="card-tag">Log Insights</div><h3>Query Your Logs Like SQL</h3><ul><li>Query terabytes of logs in seconds with SQL-like syntax</li><li>Pre-built queries for Lambda, API GW, VPC Flow Logs</li><li>Create dashboards from query results</li><li>Contributor Insights: find top error-producing IPs, slowest functions</li><li>Log Anomaly Detection: find unusual patterns automatically</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">CloudWatch Composite Alarm + EMF Custom Metrics</span>
+  <pre><span class="cm"># Composite Alarm: only page on-call if BOTH high error rate AND high latency</span>
+<span class="kw">resource</span> <span class="str">"aws_cloudwatch_composite_alarm"</span> <span class="str">"api_degraded"</span> {
+  alarm_name = <span class="str">"api-degraded"</span>
+  alarm_rule = <span class="str">"ALARM(error-rate-high) AND ALARM(latency-p99-high)"</span>
+  alarm_actions = [aws_sns_topic.pagerduty.arn]
+}
+
+<span class="cm"># EMF — Custom Metrics from Lambda without PutMetricData API call</span>
+<span class="cm"># Just print structured JSON and CloudWatch parses it automatically</span>
+<span class="kw">import</span> json, time
+<span class="kw">def</span> <span class="fn">emit_metric</span>(name, value, unit, dimensions):
+    <span class="fn">print</span>(json.dumps({
+        <span class="str">"_aws"</span>: {
+            <span class="str">"Timestamp"</span>: <span class="fn">int</span>(time.time() * <span class="num">1000</span>),
+            <span class="str">"CloudWatchMetrics"</span>: [{
+                <span class="str">"Namespace"</span>: <span class="str">"MyApp"</span>,
+                <span class="str">"Dimensions"</span>: [[k <span class="kw">for</span> k <span class="kw">in</span> dimensions]],
+                <span class="str">"Metrics"</span>: [{<span class="str">"Name"</span>: name, <span class="str">"Unit"</span>: unit}]
+            }]
+        },
+        **dimensions, name: value
+    }))
+
+<span class="cm"># Usage in Lambda:</span>
+<span class="fn">emit_metric</span>(<span class="str">"OrderValue"</span>, <span class="num">149.99</span>, <span class="str">"None"</span>, {<span class="str">"Service"</span>: <span class="str">"OrderAPI"</span>, <span class="str">"Env"</span>: <span class="str">"prod"</span>})</pre></div>
+</section>
+
+<section class="section" id="xray">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(59,130,246,0.12);color:var(--b)">X-Ray</div>
+    <div><div class="service-title">AWS X-Ray</div><div class="service-tagline">Distributed tracing — follow a request through every service it touches</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>User makes a request to your API. It goes through: API Gateway → Lambda → DynamoDB → an external payment API. Somewhere, 800ms is wasted. But where? X-Ray is like a <strong>GPS tracker attached to each request</strong>. You see: "API GW took 5ms, Lambda init took 200ms, DynamoDB took 3ms, payment API took 592ms." Now you know exactly where to optimize. Without X-Ray, you'd be guessing.</p></div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card"><div class="card-tag">X-Ray Concepts</div><h3>Traces, Segments, Subsegments</h3><ul><li><strong>Trace:</strong> the complete journey of one request (unique trace ID)</li><li><strong>Segment:</strong> one service's view (Lambda, API Gateway, ECS task)</li><li><strong>Subsegment:</strong> operation within a service (DynamoDB call, HTTP request)</li><li>Trace ID propagated via HTTP header: X-Amzn-Trace-Id</li><li>Service Map: visual graph of all services and their connections</li></ul></div>
+    <div class="card"><div class="card-tag">Sampling Rules</div><h3>Don't Trace Everything</h3><ul><li>Default: 5% of requests sampled (to control cost)</li><li>Custom rules: 100% for error requests, 10% for health checks</li><li>Reservoir: fixed number of traces per second (ensure minimum coverage)</li><li>Always trace error responses regardless of sampling rate</li><li>Use ADOT (OpenTelemetry) for vendor-neutral tracing exportable to Datadog/Grafana</li></ul></div>
+  </div>
+</section>
+
+<!-- IAM -->
+<section class="section" id="iam">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(34,211,165,0.12);color:var(--g)">IAM</div>
+    <div><div class="service-title">Identity & Access Management</div><div class="service-tagline">Who can do what to which resources — the foundation of AWS security</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>IAM is your company's <strong>badge and key card system</strong>. Every person (user), application (role), and service gets a badge. Each badge only opens specific doors (permissions). A janitor's badge opens cleaning closets, not the server room. A developer's badge opens staging but not production. If a badge is stolen, it has expiry dates and can be immediately revoked. No badge = no access, anywhere.</p></div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card"><div class="card-tag">IAM Principals</div><h3>Who Can Act in AWS</h3><ul><li><strong>IAM Users:</strong> human users (avoid for prod — use IAM Identity Center SSO)</li><li><strong>IAM Roles:</strong> assumed by services (EC2, Lambda, ECS) or humans temporarily</li><li><strong>IAM Groups:</strong> collection of users with shared permissions</li><li><strong>Service principals:</strong> AWS services acting on your behalf (CodeBuild, Lambda)</li><li><strong>Federated identities:</strong> Google/AD users via SAML/OIDC</li></ul></div>
+    <div class="card"><div class="card-tag">Policy Types</div><h3>How Permissions Are Granted</h3><ul><li><strong>Identity-based:</strong> attached to user/role (what they can do)</li><li><strong>Resource-based:</strong> attached to resource (who can access it) — S3, SQS, KMS</li><li><strong>SCPs (Service Control Policies):</strong> org-level guardrails — restrict what even admins can do</li><li><strong>Permission Boundaries:</strong> maximum permissions a role can have — prevent privilege escalation</li></ul></div>
+    <div class="card"><div class="card-tag">IAM Best Practices</div><h3>Zero Trust Approach</h3><ul><li>Enable IAM Identity Center (SSO) — no long-lived IAM user credentials</li><li>Use OIDC for GitHub Actions — no access keys in CI/CD</li><li>IAM Access Analyzer — find unintended external access</li><li>Enable MFA for all humans — especially root account</li><li>Enable CloudTrail — every API call is logged, tamper-proof</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">Least-Privilege Lambda Role + OIDC for GitHub Actions</span>
+  <pre><span class="cm"># Lambda execution role — ONLY what it needs</span>
+<span class="kw">resource</span> <span class="str">"aws_iam_role_policy"</span> <span class="str">"lambda_minimal"</span> {
+  role = aws_iam_role.lambda.id
+  policy = jsonencode({
+    Version = <span class="str">"2012-10-17"</span>
+    Statement = [
+      {   <span class="cm"># Only read from THIS specific DynamoDB table</span>
+        Effect   = <span class="str">"Allow"</span>
+        Action   = [<span class="str">"dynamodb:GetItem"</span>, <span class="str">"dynamodb:Query"</span>, <span class="str">"dynamodb:PutItem"</span>]
+        Resource = <span class="str">"arn:aws:dynamodb:us-east-1:ACCT:table/orders"</span>
+      },
+      {   <span class="cm"># Only get THIS specific secret</span>
+        Effect   = <span class="str">"Allow"</span>
+        Action   = [<span class="str">"secretsmanager:GetSecretValue"</span>]
+        Resource = <span class="str">"arn:aws:secretsmanager:us-east-1:ACCT:secret:db-credentials*"</span>
+      }
+    ]
+  })
+}
+
+<span class="cm"># GitHub Actions OIDC — NO long-lived access keys needed</span>
+<span class="kw">resource</span> <span class="str">"aws_iam_openid_connect_provider"</span> <span class="str">"github"</span> {
+  url             = <span class="str">"https://token.actions.githubusercontent.com"</span>
+  client_id_list  = [<span class="str">"sts.amazonaws.com"</span>]
+  thumbprint_list = [<span class="str">"6938fd4d98bab03faadb97b34396831e3780aea1"</span>]
+}
+
+<span class="cm"># Trust policy: only my-org/my-repo on main branch can assume this role</span>
+<span class="kw">resource</span> <span class="str">"aws_iam_role"</span> <span class="str">"github_deploy"</span> {
+  assume_role_policy = jsonencode({
+    Version = <span class="str">"2012-10-17"</span>
+    Statement = [{
+      Effect    = <span class="str">"Allow"</span>
+      Principal = { Federated = aws_iam_openid_connect_provider.github.arn }
+      Action    = <span class="str">"sts:AssumeRoleWithWebIdentity"</span>
+      Condition = { StringLike = {
+        <span class="str">"token.actions.githubusercontent.com:sub"</span> = <span class="str">"repo:my-org/my-repo:ref:refs/heads/main"</span>
+      }}
+    }]
+  })
+}</pre></div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ IAM Do's</div><ul>
+      <li>Use IAM Identity Center (AWS SSO) for all human access — temporary credentials, MFA enforced, no long-lived keys</li>
+      <li>Use OIDC for GitHub Actions, GitLab CI, and Jenkins — eliminate all static access keys from CI/CD</li>
+      <li>Apply Permission Boundaries to all developer-created roles — prevent privilege escalation attacks</li>
+      <li>Run IAM Access Analyzer weekly — it finds roles accessible from outside your account</li>
+      <li>Enable CloudTrail in ALL regions — even unused ones, to catch unauthorized API calls</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ IAM Don'ts</div><ul>
+      <li>Never use root account for anything except initial setup and billing — use IAM Identity Center for everything else</li>
+      <li>Never create IAM users with long-lived access keys for CI/CD — use OIDC roles instead</li>
+      <li>Never use AdministratorAccess policy on any role used by applications — always scope to specific resources</li>
+      <li>Don't store AWS credentials in .env files, Docker images, or code repositories — use Secrets Manager or instance profiles</li>
+    </ul></div>
+  </div>
+</section>
+
+<section class="section" id="secrets">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(255,107,53,0.12);color:var(--o)">SM</div>
+    <div><div class="service-title">Secrets Manager & SSM Parameter Store</div><div class="service-tagline">Store credentials, API keys, and config — never hardcode secrets in code</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>You need a database password in your code. If you write it directly in the code, <strong>anyone who sees your code sees the password</strong> — a massive security risk. Secrets Manager is like a <strong>safety deposit box</strong>. Your code says "give me the password from box #42," shows its badge (IAM role), and Secrets Manager hands it over. Automatically rotates the password every 30 days. If your code gets stolen, the secret is safe in the box.</p></div>
+  <div class="tbl-wrapper"><table class="tbl">
+    <thead><tr><th>Feature</th><th>Secrets Manager</th><th>SSM Parameter Store (Standard)</th><th>SSM Parameter Store (Advanced)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Use for</strong></td><td>Database passwords, API keys, OAuth tokens</td><td>Application config, feature flags, non-sensitive settings</td><td>Secrets that don't need auto-rotation</td></tr>
+      <tr><td><strong>Cost</strong></td><td>$0.40/secret/month + API calls</td><td><span class="bg">Free (Standard tier)</span></td><td>$0.05/parameter/month</td></tr>
+      <tr><td><strong>Auto-rotation</strong></td><td><span class="bg">Yes — built-in for RDS, Redshift, DocumentDB</span></td><td>No</td><td>No</td></tr>
+      <tr><td><strong>Cross-account</strong></td><td>Yes — resource policies</td><td>No</td><td>No</td></tr>
+      <tr><td><strong>Max size</strong></td><td>65KB</td><td>4KB</td><td>8KB</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="section" id="guardduty">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(244,63,94,0.12);color:var(--r)">GD</div>
+    <div><div class="service-title">GuardDuty + Security Hub + Config</div><div class="service-tagline">Threat detection, findings aggregation, and compliance automation</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p><strong>GuardDuty</strong> is your <strong>AI security guard watching every camera in your building 24/7</strong>. It reads CloudTrail (who did what), VPC Flow Logs (network traffic), and DNS logs, and uses machine learning to spot unusual behavior: someone logging in from Russia when they always log in from Texas; a Lambda function suddenly making calls to a known malware server; an EC2 instance mining cryptocurrency at 3am. <strong>Security Hub</strong> collects all findings into one dashboard. <strong>Config</strong> ensures all resources follow your rules.</p></div>
+  <div class="grid grid-3" style="margin:24px 0">
+    <div class="card"><div class="card-tag">GuardDuty Threat Categories</div><h3>What It Detects</h3><ul><li>Credential compromise: unusual API calls from new geography</li><li>Crypto mining: EC2 communicating with mining pools</li><li>Data exfiltration: S3 bucket being accessed from TOR exit nodes</li><li>Malware: EC2 instance communicating with command-and-control servers</li><li>Privilege escalation: IAM role assuming itself repeatedly</li></ul></div>
+    <div class="card"><div class="card-tag">Auto-Remediation</div><h3>EventBridge → Lambda → Fix</h3><ul><li>GuardDuty finding → EventBridge rule → Lambda remediation</li><li>Example: crypto mining EC2 → automatically isolate in security group</li><li>Example: compromised IAM key → automatically disable the key</li><li>Example: public S3 bucket → automatically block public access</li><li>Always send alert + create JIRA ticket alongside auto-remediation</li></ul></div>
+    <div class="card"><div class="card-tag">AWS Config</div><h3>Compliance as Code</h3><ul><li>Continuously audits resource configurations</li><li>Rules: "All S3 buckets must have encryption enabled"</li><li>Auto-remediation: fix non-compliant resources automatically via SSM</li><li>Config Dashboard: compliance score across all accounts/regions</li><li>Conformance Packs: pre-built CIS, NIST, PCI DSS rule sets</li></ul></div>
+  </div>
+</section>
+
+<section class="section" id="waf">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(167,139,250,0.12);color:var(--p)">WAF</div>
+    <div><div class="service-title">WAF, Shield, & Network Firewall</div><div class="service-tagline">Protect applications from web attacks, DDoS, and malicious traffic</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p><strong>WAF (Web Application Firewall)</strong> is a <strong>bouncer at your API's front door</strong>. It inspects every incoming HTTP request: "Is this a SQL injection? Is this a bot? Is this person trying to hack the login page?" If yes — blocked. AWS Shield is the bouncer's backup team for when 10 million fake requests flood in at once (DDoS attack). Shield Standard is free; Shield Advanced is the SWAT team.</p></div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card"><div class="card-tag">AWS WAF Rules</div><h3>Managed + Custom</h3><ul><li><strong>AWS Managed Rules:</strong> OWASP Top 10, Known Bad Inputs, SQL injection, XSS — enable these first</li><li><strong>Custom Rules:</strong> block specific IPs, rate limit per IP (e.g., 100 req/5min), geo-blocking</li><li><strong>Bot Control:</strong> challenge bots with CAPTCHA, block known scrapers</li><li><strong>Fraud Control:</strong> Account Takeover Prevention, account creation fraud</li><li>Attach WAF to: CloudFront, ALB, API Gateway, AppSync</li></ul></div>
+    <div class="card"><div class="card-tag">Shield Advanced</div><h3>$3,000/month — Is It Worth It?</h3><ul><li>24/7 DDoS Response Team (DRT) — human experts help during active attack</li><li>DDoS cost protection: AWS credits you for scaling costs during attack</li><li>Advanced visibility: real-time DDoS metrics and attack forensics</li><li>Enhanced WAF: proactive engagement, attack notifications</li><li>Worth it if: your AWS bill during a DDoS attack could exceed $3k, or SLA requires it</li></ul></div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════ -->
+<div class="page-marker">Page <span>22</span> — Step Functions | Page <span>23</span> — Cost Optimization</div>
+
+<section class="section" id="stepfunctions">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(6,182,212,0.12);color:var(--c)">SF</div>
+    <div><div class="service-title">Step Functions</div><div class="service-tagline">Visual workflow orchestration — coordinate Lambda, ECS, and AWS services without managing state</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>Imagine processing a loan application: verify identity → check credit score → calculate risk → get manager approval → send decision email. Each step depends on the previous. If one fails, you need to retry or go to a different path. <strong>Step Functions is like a LEGO flow chart that actually executes</strong>. You draw the steps visually, and AWS handles: running them in order, retrying failures automatically, waiting for human approval, and recording every step for audit.</p></div>
+  <div class="grid grid-2" style="margin:24px 0">
+    <div class="card"><div class="card-tag">Standard Workflows</div><h3>Long-Running, Durable</h3><ul><li>Up to 1 YEAR execution duration</li><li>Exactly-once execution for each step</li><li>State persisted in Step Functions (not your code)</li><li>Full audit history of every state transition</li><li>Wait for human approval: pause execution for days waiting for callback</li><li>$0.025 per 1,000 state transitions</li></ul></div>
+    <div class="card"><div class="card-tag">Express Workflows</div><h3>High-Volume, Short-Duration</h3><ul><li>Up to 5 MINUTES execution</li><li>100,000+ executions/second throughput</li><li>At-least-once (async) or exactly-once (sync) mode</li><li>Much cheaper: $1 per 1M state transitions</li><li>Best for: IoT event processing, real-time data processing, API backends</li></ul></div>
+  </div>
+  <div class="code"><span class="code-lbl">Step Functions — Order Processing Workflow (ASL)</span>
+  <pre>{
+  <span class="str">"Comment"</span>: <span class="str">"E-commerce order processing pipeline"</span>,
+  <span class="str">"StartAt"</span>: <span class="str">"ValidateOrder"</span>,
+  <span class="str">"States"</span>: {
+    <span class="str">"ValidateOrder"</span>: {
+      <span class="str">"Type"</span>: <span class="str">"Task"</span>,
+      <span class="str">"Resource"</span>: <span class="str">"arn:aws:lambda:us-east-1:ACCT:function:validate-order"</span>,
+      <span class="str">"Retry"</span>: [{
+        <span class="str">"ErrorEquals"</span>: [<span class="str">"Lambda.ServiceException"</span>],
+        <span class="str">"IntervalSeconds"</span>: <span class="num">2</span>, <span class="str">"MaxAttempts"</span>: <span class="num">3</span>, <span class="str">"BackoffRate"</span>: <span class="num">2</span>
+      }],
+      <span class="str">"Catch"</span>: [{ <span class="str">"ErrorEquals"</span>: [<span class="str">"InvalidOrderError"</span>], <span class="str">"Next"</span>: <span class="str">"NotifyFailure"</span> }],
+      <span class="str">"Next"</span>: <span class="str">"ProcessPayment"</span>
+    },
+    <span class="str">"ProcessPayment"</span>: {
+      <span class="str">"Type"</span>: <span class="str">"Task"</span>,
+      <span class="str">"Resource"</span>: <span class="str">"arn:aws:lambda:us-east-1:ACCT:function:process-payment"</span>,
+      <span class="str">"Next"</span>: <span class="str">"FulfillParallel"</span>
+    },
+    <span class="str">"FulfillParallel"</span>: {
+      <span class="str">"Type"</span>: <span class="str">"Parallel"</span>,
+      <span class="str">"Comment"</span>: <span class="str">"Do all these simultaneously"</span>,
+      <span class="str">"Branches"</span>: [
+        { <span class="str">"StartAt"</span>: <span class="str">"UpdateInventory"</span>, <span class="str">"States"</span>: { <span class="str">"UpdateInventory"</span>: { <span class="str">"Type"</span>: <span class="str">"Task"</span>, <span class="str">"Resource"</span>: <span class="str">"arn:aws:lambda:...update-inventory"</span>, <span class="str">"End"</span>: <span class="kw">true</span>}}},
+        { <span class="str">"StartAt"</span>: <span class="str">"SendConfirmEmail"</span>, <span class="str">"States"</span>: { <span class="str">"SendConfirmEmail"</span>: { <span class="str">"Type"</span>: <span class="str">"Task"</span>, <span class="str">"Resource"</span>: <span class="str">"arn:aws:lambda:...send-email"</span>, <span class="str">"End"</span>: <span class="kw">true</span>}}}
+      ],
+      <span class="str">"Next"</span>: <span class="str">"OrderComplete"</span>
+    },
+    <span class="str">"OrderComplete"</span>: { <span class="str">"Type"</span>: <span class="str">"Succeed"</span> },
+    <span class="str">"NotifyFailure"</span>: { <span class="str">"Type"</span>: <span class="str">"Fail"</span>, <span class="str">"Error"</span>: <span class="str">"OrderFailed"</span> }
+  }
+}</pre></div>
+  <div class="tip"><strong>⚡ When to Use Step Functions vs Direct Lambda</strong>Use Step Functions when: (1) you need to chain 3+ services, (2) you need retry logic with backoff, (3) you need human approval steps, (4) you need parallel execution with results aggregated, (5) the workflow runs longer than 15 minutes. If it's a simple 2-step chain, just call services directly from your code — Step Functions adds cost and complexity for simple workflows.</div>
+</section>
+
+<!-- COST -->
+<section class="section" id="cost">
+  <div class="service-header">
+    <div class="service-badge" style="background:rgba(251,191,36,0.12);color:var(--y)">$$$</div>
+    <div><div class="service-title">Cost Optimization</div><div class="service-tagline">FinOps — spend smart, eliminate waste, and maximize value from every AWS dollar</div></div>
+  </div>
+  <div class="layman"><div class="layman-label">🧑‍🏫 Layman Explanation</div><p>AWS makes it incredibly easy to spend money without realizing it. A forgotten test environment, data transfer fees you didn't know existed, over-sized instances "just to be safe" — these add up to thousands per month. <strong>FinOps is the practice of treating cloud spend like engineering</strong> — measure it, model it, optimize it, and make every engineer responsible for their cost footprint. The best teams can run the same workload for 60-80% less by applying these principles.</p></div>
+  <div class="numlist">
+    <li><div><strong>Reserved/Savings Plans — Biggest Lever (60-72% savings)</strong>Analyze 30 days of usage in Cost Explorer → get Savings Plans recommendations → purchase. Target 70-80% coverage of steady-state compute. Compute Savings Plans are most flexible (cover EC2 + Lambda + Fargate). Review quarterly.</div></li>
+    <li><div><strong>NAT Gateway Data Transfer — Most Surprising Bill (often $1,000s/month)</strong>NAT Gateway charges $0.045/GB. Every S3 and DynamoDB API call that routes through NAT GW costs money. Add S3 and DynamoDB Gateway Endpoints (free) on day one. Use VPC Flow Logs to find other heavy NAT users.</div></li>
+    <li><div><strong>Right-Size Instances — Compute Optimizer (free, ML-based)</strong>AWS Compute Optimizer analyzes 14 days of CloudWatch metrics and recommends the optimal instance type. Most environments have 30-40% of instances overprovisioned. CloudWatch Agent required for memory metrics — install on all EC2.</div></li>
+    <li><div><strong>Spot Instances for Non-Critical Workloads (70-90% savings)</strong>Dev/test, batch jobs, ML training, CI/CD build agents — all excellent Spot candidates. Run CI/CD on Spot: save 80% on build compute. Use AWS Batch for ML training with Spot — automatic checkpointing on interruption.</div></li>
+    <li><div><strong>S3 Intelligent-Tiering + Lifecycle (free management fee for IT)</strong>Enable IT on all S3 objects &gt;128KB. It automatically moves objects between tiers based on access. Lifecycle rules: STANDARD → STANDARD_IA at 30 days → GLACIER at 90 days → DEEP_ARCHIVE at 365 days. The biggest savings: abort incomplete multipart uploads (lifecycle rule: 7 days).</div></li>
+    <li><div><strong>Schedule Dev/Test Environments Off-Hours (save 65%)</strong>Dev envs don't need to run 24/7. Use Instance Scheduler or EventBridge to stop EC2 and RDS instances at 7pm, start at 8am weekdays. RDS instances cost $0 when stopped (for up to 7 days). Savings: (16hr/24hr) × weekend = 65% reduction.</div></li>
+    <li><div><strong>EBS Volume Audit (gp2 → gp3 migration + delete orphans)</strong>gp3 is 20% cheaper than gp2 and you can provision IOPS/throughput independently. Delete unattached EBS volumes (often left after EC2 termination). Use AWS Config rule "ec2-volume-in-use-check" to find orphans. Also audit EBS snapshots — old ones accumulate silently.</div></li>
+    <li><div><strong>Cost Anomaly Detection + Tagging + Budgets (prevent surprises)</strong>Enable Cost Anomaly Detection (free) — ML alerts you when any service spends more than normal. Enforce tags with SCPs. Budget alerts at 50%, 80%, 100% of monthly target. Weekly FinOps review with Engineering leads — cost ownership at the team level.</div></li>
+  </div>
+  <div class="code"><span class="code-lbl">Cost Optimization — Quick Wins Checklist (CLI)</span>
+  <pre><span class="cm"># 1. Find all gp2 volumes (should be migrated to gp3)</span>
+aws ec2 describe-volumes --filters Name=volume-type,Values=gp2 \
+  --query 'Volumes[*].[VolumeId,Size,State]' --output table
+
+<span class="cm"># 2. Find unattached EBS volumes (delete or archive)</span>
+aws ec2 describe-volumes --filters Name=status,Values=available \
+  --query 'Volumes[*].[VolumeId,Size,VolumeType,CreateTime]' --output table
+
+<span class="cm"># 3. Find unassociated Elastic IPs (each costs $0.005/hr)</span>
+aws ec2 describe-addresses --query 'Addresses[?AssociationId==null]' --output table
+
+<span class="cm"># 4. Find ECS services with 0 running tasks (idle but cluster costs money)</span>
+aws ecs list-services --cluster production | xargs -I {} \
+  aws ecs describe-services --cluster production --services {}
+
+<span class="cm"># 5. Find Lambda functions not called in 30 days (candidates for decommission)</span>
+aws cloudwatch get-metric-statistics \
+  --namespace AWS/Lambda --metric-name Invocations \
+  --statistics Sum --period 2592000 \
+  --start-time 2024-10-01T00:00:00Z --end-time 2024-10-31T00:00:00Z \
+  --dimensions Name=FunctionName,Value=my-old-function
+
+<span class="cm"># 6. Enable S3 Intelligent-Tiering on all buckets</span>
+<span class="kw">for</span> bucket in $(aws s3api list-buckets --query 'Buckets[*].Name' --output text); <span class="kw">do</span>
+  aws s3api put-bucket-intelligent-tiering-configuration \
+    --bucket $bucket --id EntireBucket \
+    --intelligent-tiering-configuration <span class="str">'{"Id":"EntireBucket","Status":"Enabled","Tierings":[{"Days":90,"AccessTier":"ARCHIVE_ACCESS"},{"Days":180,"AccessTier":"DEEP_ARCHIVE_ACCESS"}]}'</span>
+<span class="kw">done</span></pre></div>
+  <div class="warn"><strong>⚠ Top 5 Bill Shock Causes in AWS</strong>
+  1. <strong>NAT Gateway data transfer</strong> — $0.045/GB, add VPC Gateway Endpoints.
+  2. <strong>Data transfer between AZs</strong> — $0.01/GB each way, architect for AZ locality.
+  3. <strong>CloudWatch Logs storage</strong> — set retention policies on every log group (default = forever).
+  4. <strong>Forgotten RDS instances</strong> — use Aurora Serverless v1 for dev/test (auto-pause to zero).
+  5. <strong>ECR storage</strong> — add lifecycle policies, or old image layers accumulate indefinitely.</div>
+  <div class="dodonts">
+    <div class="do"><div class="do-h">✓ FinOps Do's</div><ul>
+      <li>Purchase Compute Savings Plans after first 30 days — cost explorer shows exact recommendation with payback period</li>
+      <li>Install CloudWatch Agent on all EC2 instances — memory utilization is required for accurate rightsizing</li>
+      <li>Enable Cost Anomaly Detection on day one — it's free and will alert you before a surprise $10k bill</li>
+      <li>Set CloudWatch Logs retention period on every log group — default is infinite, which costs real money</li>
+      <li>Use Graviton (ARM) instances wherever possible — 20% better price/performance, no application changes needed for most workloads</li>
+      <li>Run dev/test environments on schedules — use EventBridge to stop at 7pm, restart at 8am</li>
+    </ul></div>
+    <div class="dont"><div class="dont-h">✗ FinOps Don'ts</div><ul>
+      <li>Never over-provision "just to be safe" — over-provisioning is waste. Right-size with data, not intuition</li>
+      <li>Don't ignore the AWS Trusted Advisor cost optimization checks — free tier gives you important recommendations</li>
+      <li>Never run development databases on production-grade instance sizes — use db.t4g.micro/small for dev</li>
+      <li>Don't deploy resources without mandatory cost tags — you can't optimize what you can't attribute to a team</li>
+      <li>Never use CloudFront + data transfer without checking if you're in the free tier — egress costs can double your bill</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <p style="color:var(--o);font-size:14px;font-weight:700;margin-bottom:6px">AWS DevOps Complete Universe</p>
+    <p>25+ services · 23 pages · Pro-level + layman explanations · Do's & Don'ts · Real code</p>
+  </div>
+  <div style="text-align:right">
+    <p>Compute · Network · Storage · Messaging</p>
+    <p>CI/CD · Observability · Security · Cost</p>
+  </div>
+</footer>
+
+</div><!-- /main -->
+
+<script>
+// Tab switching
+function tab(e, id) {
+  const btn = e.currentTarget;
+  const container = btn.closest('.section') || btn.closest('div');
+  const nav = btn.closest('.tabs');
+  nav.querySelectorAll('.tab').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  // find all .tc in same section
+  const section = btn.closest('.section');
+  if (section) {
+    section.querySelectorAll('.tc').forEach(t => t.classList.remove('on'));
+  }
+  const target = document.getElementById(id);
+  if (target) target.classList.add('on');
+}
+
+// Sidebar active state on scroll
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.sb-link');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.sb-link[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' });
+
+sections.forEach(s => observer.observe(s));
+
+// Animate sections on scroll
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      sectionObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.04 });
+
+document.querySelectorAll('.section').forEach(s => sectionObserver.observe(s));
+
+// Sidebar auto-scroll to active link
+function scrollSidebarToActive() {
+  const active = document.querySelector('.sb-link.active');
+  if (active) {
+    const sidebar = document.getElementById('sidebar');
+    const linkTop = active.offsetTop;
+    sidebar.scrollTo({ top: linkTop - 150, behavior: 'smooth' });
+  }
+}
+setInterval(scrollSidebarToActive, 1000);
+</script>
+</body>
+</html>

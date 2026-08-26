@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps PRO — How to Prove Yourself Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Syne+Mono&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0e8;
+  --paper: #fdfaf4;
+  --ink: #1a1410;
+  --ink2: #3d3228;
+  --ink3: #7a6c5d;
+  --amber: #d4720a;
+  --amber2: #f59e1a;
+  --red: #c0392b;
+  --blue: #1a4a8a;
+  --green: #1a6b3c;
+  --rule: #c8b89a;
+  --rule2: #e2d5c0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Syne', sans-serif;
+  min-height: 100vh;
+  padding: 0;
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 27px, var(--rule2) 27px, var(--rule2) 28px);
+}
+
+/* NOISE TEXTURE */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1380px; margin: 0 auto; padding: 32px 28px 60px; }
+
+/* MASTHEAD */
+.masthead {
+  border-top: 5px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  padding: 18px 0 14px;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.masthead-left { display: flex; flex-direction: column; }
+.paper-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(38px, 7vw, 80px);
+  line-height: 0.9;
+  letter-spacing: -3px;
+  color: var(--ink);
+}
+.paper-name em { color: var(--amber); font-style: normal; }
+.paper-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--ink3);
+  margin-top: 5px;
+  text-transform: uppercase;
+}
+.masthead-right {
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  line-height: 1.8;
+}
+
+.edition-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--rule);
+  padding: 5px 0;
+  margin-bottom: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.edition-bar strong { color: var(--amber); }
+
+/* HEADLINE BANNER */
+.headline-banner {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.headline-banner::after {
+  content: 'SPECIAL EDITION';
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 4px;
+  opacity: 0.3;
+}
+.hl-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--amber2);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.hl-headline {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(22px, 4vw, 40px);
+  line-height: 1.1;
+  letter-spacing: -1px;
+}
+.hl-deck {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-top: 8px;
+  max-width: 700px;
+}
+
+/* MAIN GRID */
+.main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+@media(max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+
+.full-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media(max-width: 900px) { .full-grid { grid-template-columns: 1fr 1fr; } }
+@media(max-width: 580px) { .full-grid { grid-template-columns: 1fr; } }
+
+.two-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media(max-width: 680px) { .two-grid { grid-template-columns: 1fr; } }
+
+/* ARTICLE CARD */
+.card {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 0;
+  position: relative;
+}
+
+.card-header {
+  border-bottom: 2px solid var(--ink);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.card-rubric {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.rubric-amber { color: var(--amber); }
+.rubric-red { color: var(--red); }
+.rubric-blue { color: var(--blue); }
+.rubric-green { color: var(--green); }
+.rubric-ink { color: var(--ink); }
+
+.card-num {
+  font-family: 'Syne Mono', monospace;
+  font-size: 11px;
+  color: var(--rule);
+  font-weight: 400;
+}
+
+.card-body { padding: 14px 16px; }
+
+.card-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
+}
+.card-title .num {
+  display: inline-block;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11px;
+  padding: 1px 6px;
+  margin-right: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+.card-deck {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink3);
+  line-height: 1.7;
+  border-left: 3px solid var(--amber2);
+  padding-left: 10px;
+  margin-bottom: 14px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--rule2);
+  margin: 12px 0;
+}
+
+/* STEP ITEMS */
+.step-list { list-style: none; }
+.step-item {
+  display: flex;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule2);
+  align-items: flex-start;
+}
+.step-item:last-child { border-bottom: none; }
+.step-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.step-content {}
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 1px;
+  padding: 1px 5px;
+  text-transform: uppercase;
+  border-radius: 1px;
+}
+.tag-do { background: #1a6b3c22; color: var(--green); border: 1px solid #1a6b3c44; }
+.tag-show { background: #d4720a22; color: var(--amber); border: 1px solid #d4720a44; }
+.tag-say { background: #1a4a8a22; color: var(--blue); border: 1px solid #1a4a8a44; }
+.tag-hot { background: #c0392b22; color: var(--red); border: 1px solid #c0392b44; }
+.step-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink3);
+  line-height: 1.6;
+  margin-top: 3px;
+}
+
+/* CODE BLOCK */
+.code-block {
+  background: var(--ink);
+  color: #e8d9b5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 10px 12px;
+  margin: 10px 0;
+  line-height: 1.8;
+  border-left: 3px solid var(--amber);
+}
+.code-block .comment { color: #7a6c5d; }
+.code-block .key { color: var(--amber2); }
+.code-block .val { color: #9ece6a; }
+.code-block .str { color: #7dcfff; }
+
+/* QUOTE */
+.pullquote {
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  padding: 14px 0;
+  margin: 14px 0;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.3;
+  letter-spacing: -0.5px;
+  color: var(--ink);
+}
+.pullquote span { color: var(--amber); }
+
+/* SIDEBAR CARD */
+.sidebar-card { margin-bottom: 20px; }
+.sidebar-card:last-child { margin-bottom: 0; }
+
+/* CHECKLIST */
+.checklist { list-style: none; }
+.check-item {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--rule2);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink2);
+  line-height: 1.5;
+  align-items: flex-start;
+}
+.check-item:last-child { border-bottom: none; }
+.check-box {
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid var(--rule);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* INTERVIEW TABLE */
+.int-table { width: 100%; border-collapse: collapse; }
+.int-table th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink3);
+  border-bottom: 2px solid var(--ink);
+  padding: 6px 8px;
+  text-align: left;
+}
+.int-table td {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 8px;
+  border-bottom: 1px dashed var(--rule2);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.int-table tr:last-child td { border-bottom: none; }
+.int-table td:first-child { color: var(--amber); font-weight: 500; width: 38%; }
+.int-table td:last-child { color: var(--ink2); }
+
+/* TIMELINE */
+.timeline { position: relative; padding-left: 16px; }
+.timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 1px; background: var(--rule); }
+.tl-item { position: relative; margin-bottom: 14px; }
+.tl-item:last-child { margin-bottom: 0; }
+.tl-dot {
+  position: absolute;
+  left: -13px;
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--amber);
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px var(--amber);
+}
+.tl-month {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--amber);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.tl-action {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+.tl-desc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink3);
+  line-height: 1.5;
+}
+
+/* METER */
+.meter-row { margin-bottom: 10px; }
+.meter-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink2);
+  margin-bottom: 4px;
+}
+.meter-bar { height: 5px; background: var(--rule2); position: relative; }
+.meter-fill { height: 100%; background: var(--amber); animation: grow 1.5s ease forwards; }
+@keyframes grow { from{width:0} }
+
+/* FOOTER */
+.footer {
+  border-top: 3px solid var(--ink);
+  border-bottom: 1px solid var(--rule);
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink3);
+  letter-spacing: 2px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* STAMP */
+.stamp {
+  display: inline-block;
+  border: 2px solid var(--red);
+  color: var(--red);
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 11px;
+  padding: 3px 10px;
+  letter-spacing: 3px;
+  transform: rotate(-2deg);
+  opacity: 0.8;
+}
+
+/* SECTION RULE */
+.section-rule {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 28px 0 18px;
+}
+.section-rule-line { flex: 1; height: 2px; background: var(--ink); }
+.section-rule-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* HIGHLIGHT BOX */
+.highlight-box {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 16px;
+  margin: 12px 0;
+}
+.highlight-box .hb-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--amber2);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.highlight-box .hb-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.8);
+}
+
+/* PILL */
+.pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 3px 8px;
+  border: 1px solid var(--rule);
+  color: var(--ink2);
+  letter-spacing: 1px;
+  background: var(--bg);
+}
+.pill.active { border-color: var(--amber); color: var(--amber); background: #d4720a11; }
+
+.animate-in { animation: fadeUp 0.5s ease both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="masthead-left">
+      <div class="paper-name">DEVOPS<em>PRO</em></div>
+      <div class="paper-sub">The Complete Guide to Proving Your Worth as a DevOps Engineer</div>
+    </div>
+    <div class="masthead-right">
+      VOL. 1 &nbsp;·&nbsp; ISSUE 1<br>
+      FOR: 1-YEAR EXPERIENCE HOLDERS<br>
+      GOAL: SENIOR / STAFF ENGINEER
+    </div>
+  </div>
+
+  <div class="edition-bar">
+    <span>SECTIONS: GITHUB &nbsp;·&nbsp; HOMELAB &nbsp;·&nbsp; PORTFOLIO &nbsp;·&nbsp; INTERVIEW &nbsp;·&nbsp; LINKEDIN &nbsp;·&nbsp; RESUME &nbsp;·&nbsp; COMMUNITY &nbsp;·&nbsp; TALK LIKE A PRO</span>
+    <span><strong>STATUS: ACTION REQUIRED</strong></span>
+  </div>
+
+  <!-- HEADLINE BANNER -->
+  <div class="headline-banner">
+    <div class="hl-label">Breaking: Most DevOps Engineers Never Prove Their Skills</div>
+    <div class="hl-headline">How to Go From "I Know Docker & K8s"<br>to "Here's Proof I'm Senior-Level"</div>
+    <div class="hl-deck">Knowing tools is only 30% of the job. The other 70% is knowing how to SHOW IT, TALK ABOUT IT, and BUILD REAL THINGS with it. Here's your full playbook, buddy.</div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-label">01 — GitHub: Your Public Resume</div>
+    <div class="section-rule-line"></div>
+  </div>
+
+  <div class="main-grid">
+    <div class="card animate-in">
+      <div class="card-header">
+        <span class="card-rubric rubric-amber">🐙 GitHub Strategy — Most Important Proof</span>
+        <span class="card-num">#01</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">Your GitHub IS your interview. Recruiters open it before they read your resume. An empty GitHub with 1yr experience = red flag. A rich GitHub = instant credibility.</div>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-icon">📁</div>
+            <div class="step-content">
+              <div class="step-title">Pin 6 repos — make them DevOps-specific <span class="tag tag-do">DO THIS</span></div>
+              <div class="step-desc">Pin: 1 K8s homelab repo, 1 Terraform infra repo, 1 CI/CD pipeline repo, 1 Ansible playbooks repo, 1 monitoring stack repo, 1 personal tool. Each repo should have a README that explains WHY you built it, not just HOW.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">📝</div>
+            <div class="step-content">
+              <div class="step-title">Every repo needs a professional README <span class="tag tag-show">SHOW</span></div>
+              <div class="step-desc">Include: Architecture diagram (draw.io / Excalidraw), "Problem this solves," tech stack badges, "How to run locally," and "What I learned." Recruiters read READMEs, not code.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🌿</div>
+            <div class="step-content">
+              <div class="step-title">Green contribution graph — commit daily <span class="tag tag-do">DO THIS</span></div>
+              <div class="step-desc">Even small: fix a typo in docs, add a comment, update a value. Consistency = discipline. A dead GitHub from 2023 while claiming 1yr exp looks very bad.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🏗️</div>
+            <div class="step-content">
+              <div class="step-title">Build 1 real end-to-end project repo <span class="tag tag-hot">CRITICAL</span></div>
+              <div class="step-desc">Example: "Complete microservices deployment on K8s with ArgoCD, Prometheus monitoring, Vault secrets, Terraform for infra, GitHub Actions CI." This ONE repo proves everything about you.</div>
+            </div>
+          </li>
+        </ul>
+
+        <div class="code-block">
+          <span class="comment"># Example: What your star repo should contain</span><br>
+          📁 k8s-production-platform/<br>
+          &nbsp;├── <span class="key">terraform/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Cloud infra (VPC, EKS, RDS)</span><br>
+          &nbsp;├── <span class="key">helm-charts/</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># App deployment templates</span><br>
+          &nbsp;├── <span class="key">.github/workflows/</span> <span class="comment"># CI/CD pipelines</span><br>
+          &nbsp;├── <span class="key">monitoring/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Prometheus + Grafana configs</span><br>
+          &nbsp;├── <span class="key">argocd/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># GitOps manifests</span><br>
+          &nbsp;├── <span class="key">ansible/</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Server config automation</span><br>
+          &nbsp;└── <span class="str">README.md</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Architecture diagram here!</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <!-- SIDEBAR: Homelab -->
+      <div class="card sidebar-card">
+        <div class="card-header">
+          <span class="card-rubric rubric-blue">🏠 Homelab — Prove You Run Real Infra</span>
+          <span class="card-num">#02</span>
+        </div>
+        <div class="card-body">
+          <div class="card-deck">A homelab = real proof. You can say "I run K8s at home on 3 nodes." That hits different in interviews.</div>
+
+          <ul class="step-list">
+            <li class="step-item">
+              <div class="step-icon">💻</div>
+              <div class="step-content">
+                <div class="step-title">Start cheap — 3 VMs on your PC <span class="tag tag-do">DO</span></div>
+                <div class="step-desc">Use VirtualBox or VMware. Create 3 Ubuntu VMs. Install K3s (lightweight K8s). No need to buy hardware to start.</div>
+              </div>
+            </li>
+            <li class="step-item">
+              <div class="step-icon">☁️</div>
+              <div class="step-content">
+                <div class="step-title">Free tier on AWS / GCP / Azure <span class="tag tag-show">SHOW</span></div>
+                <div class="step-desc">AWS free tier = 1 year of t2.micro. Spin up EKS, deploy ArgoCD, connect Prometheus. Document everything in GitHub.</div>
+              </div>
+            </li>
+            <li class="step-item">
+              <div class="step-icon">🎯</div>
+              <div class="step-content">
+                <div class="step-title">Document your homelab setup <span class="tag tag-show">SHOW</span></div>
+                <div class="step-desc">Blog post or GitHub wiki: "How I built a production-like K8s cluster at home." This is GOLD for interviews.</div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- SIDEBAR: Timeline -->
+      <div class="card sidebar-card">
+        <div class="card-header">
+          <span class="card-rubric rubric-amber">📅 90-Day Proof Plan</span>
+          <span class="card-num">#PLAN</span>
+        </div>
+        <div class="card-body">
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-month">Month 1</div>
+              <div class="tl-action">Fix Your GitHub + LinkedIn</div>
+              <div class="tl-desc">Pin 6 repos, write READMEs, optimize LinkedIn headline, start daily commits</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-month">Month 2</div>
+              <div class="tl-action">Build 1 Star Project</div>
+              <div class="tl-desc">Full K8s + ArgoCD + Monitoring + Terraform project. Publish and share on LinkedIn</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-month">Month 3</div>
+              <div class="tl-action">Write + Get Certified</div>
+              <div class="tl-desc">1 blog post about your project. Start CKA study. Apply to senior roles with proof in hand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: LINKEDIN & RESUME -->
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-label">02 — LinkedIn & Resume: How to Talk About Yourself</div>
+    <div class="section-rule-line"></div>
+  </div>
+
+  <div class="full-grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-blue">💼 LinkedIn Profile — Optimize Like a Pro</span>
+        <span class="card-num">#03</span>
+      </div>
+      <div class="card-body">
+        <div class="pullquote">Your headline is your <span>first impression</span>. Make it specific.</div>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-icon">✍️</div>
+            <div class="step-content">
+              <div class="step-title">Headline Formula <span class="tag tag-say">SAY THIS</span></div>
+              <div class="step-desc">"DevOps Engineer | K8s, ArgoCD, Terraform | Building cloud-native platforms | 1yr exp → Senior track"<br>NOT just "DevOps Engineer at Company XYZ"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">📖</div>
+            <div class="step-content">
+              <div class="step-title">About Section — Tell a Story <span class="tag tag-show">SHOW</span></div>
+              <div class="step-desc">"I automate infrastructure so dev teams ship 10x faster. I work with K8s, ArgoCD, Prometheus, Terraform, Jenkins..." — specific tools + outcome = credible</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🔗</div>
+            <div class="step-content">
+              <div class="step-title">Link GitHub on LinkedIn profile <span class="tag tag-do">DO</span></div>
+              <div class="step-desc">Add your GitHub under "Featured" section. Post about your projects. "Just deployed full GitOps pipeline with ArgoCD — here's what I learned" → engagement</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🏷️</div>
+            <div class="step-content">
+              <div class="step-title">Skills section — add all 50 skills allowed <span class="tag tag-do">DO</span></div>
+              <div class="step-desc">Kubernetes, Docker, Terraform, Ansible, Jenkins, ArgoCD, Prometheus, Grafana, Jaeger, ELK, Zabbix, Git, Helm, CI/CD, Linux, Bash, Python, AWS, GitOps... fill them all</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-red">📄 Resume: Numbers Win Every Time</span>
+        <span class="card-num">#04</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">Every bullet point should answer: "So what?" Add numbers. Without numbers, your resume looks like everyone else's.</div>
+
+        <div class="highlight-box">
+          <div class="hb-title">❌ Weak (What Most Write)</div>
+          <div class="hb-text">• Managed Docker containers<br>• Worked with Kubernetes<br>• Set up monitoring with Prometheus</div>
+        </div>
+
+        <div class="highlight-box" style="background: var(--green); margin-top: 8px;">
+          <div class="hb-title">✅ Strong (What Pros Write)</div>
+          <div class="hb-text">• Reduced deployment time by 70% by migrating from manual deploys to ArgoCD GitOps pipeline across 5 microservices<br>• Built Prometheus + Grafana monitoring stack that reduced MTTR from 45min → 8min by surfacing 12 custom business metrics<br>• Automated server provisioning with Ansible, eliminating 8hrs/week of manual config work for a 10-node cluster</div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="step-title" style="font-size:11px;color:var(--ink3);">NUMBER FORMULA: <span style="color:var(--amber)">Action + Tool + Number + Business Result</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-green">🎤 How to Talk in Interviews Like a Pro</span>
+        <span class="card-num">#05</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">Interviewers test: do you think like an engineer or like an operator? Operators use tools. Engineers solve problems with tools.</div>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-icon">🧠</div>
+            <div class="step-content">
+              <div class="step-title">STAR Method for every question <span class="tag tag-say">USE THIS</span></div>
+              <div class="step-desc"><strong>S</strong>ituation: "We had 45min deployments manually..."<br><strong>T</strong>ask: "My job was to automate it..."<br><strong>A</strong>ction: "I built Jenkins + ArgoCD pipeline..."<br><strong>R</strong>esult: "Now it's 5min, zero manual steps"</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">💬</div>
+            <div class="step-content">
+              <div class="step-title">Never say "I just set it up" <span class="tag tag-say">INSTEAD SAY</span></div>
+              <div class="step-desc">"I designed, implemented, and maintained..." or "I built the architecture for..." Ownership language = senior engineer signal</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">❓</div>
+            <div class="step-content">
+              <div class="step-title">Ask great questions at the end <span class="tag tag-show">PRO MOVE</span></div>
+              <div class="step-desc">"What does your on-call rotation look like?" "What's the biggest reliability challenge?" "How mature is GitOps adoption?" — shows you think like an engineer</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 3: INTERVIEW QUESTIONS -->
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-label">03 — Interview Questions & Pro Answers</div>
+    <div class="section-rule-line"></div>
+  </div>
+
+  <div class="two-grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-amber">🔥 Top DevOps Interview Questions — Answer Like This</span>
+        <span class="card-num">#06</span>
+      </div>
+      <div class="card-body">
+        <table class="int-table">
+          <thead>
+            <tr><th>QUESTION THEY ASK</th><th>WHAT A PRO ANSWERS (not what a junior says)</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>"What is Docker?"</td>
+              <td>Don't define it. Say: "I use Docker to package apps with their dependencies. In practice I write multi-stage Dockerfiles to keep images under 50MB and scan them with Trivy in CI."</td>
+            </tr>
+            <tr>
+              <td>"How does K8s work?"</td>
+              <td>Walk through: kubectl → API Server → etcd → Scheduler → Kubelet → Container Runtime. Then mention: "I've debugged pod scheduling issues with kubectl describe and events."</td>
+            </tr>
+            <tr>
+              <td>"What is GitOps?"</td>
+              <td>"Git is the single source of truth. ArgoCD watches the repo and syncs cluster state to match it. If someone manually changes the cluster, ArgoCD reverts it. I've used this with App-of-Apps pattern."</td>
+            </tr>
+            <tr>
+              <td>"How do you handle secrets?"</td>
+              <td>"We use Vault with dynamic secrets — apps get short-lived credentials that expire. I also use Sealed Secrets in K8s so encrypted secrets live in Git safely."</td>
+            </tr>
+            <tr>
+              <td>"What happens when prod is down at 3am?"</td>
+              <td>Walk through: "Check Grafana alerts → kubectl logs/describe → check recent deployments in ArgoCD → roll back if needed → postmortem next day." Shows process, not panic.</td>
+            </tr>
+            <tr>
+              <td>"Difference between SLO and SLA?"</td>
+              <td>"SLO = internal target (99.9%). SLA = external contract with penalty. Error budget = gap between SLO and 100%. We track this in Grafana to decide if we can deploy."</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-red">💥 Scenario Questions — Think Out Loud</span>
+        <span class="card-num">#07</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">Scenario questions test HOW you think, not what you know. Think out loud. Ask clarifying questions. Show process.</div>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-icon">🔥</div>
+            <div class="step-content">
+              <div class="step-title">"Prod is slow, what do you do?"</div>
+              <div class="step-desc">Say: "First check Grafana — CPU, memory, latency. Then check recent deploys in ArgoCD. kubectl top pods for resource usage. Check logs in Kibana. If a bad deploy, rollback. If infra, scale out. After fix, postmortem."</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🚀</div>
+            <div class="step-content">
+              <div class="step-title">"Design CI/CD for a new microservice"</div>
+              <div class="step-desc">Say: "GitHub Actions: build → test → Docker build → Trivy scan → push to ECR. ArgoCD picks up new image tag via image updater. Deploy to staging first, run smoke tests, then prod with canary via Argo Rollouts."</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🔐</div>
+            <div class="step-content">
+              <div class="step-title">"How do you secure a K8s cluster?"</div>
+              <div class="step-desc">Say: "RBAC with least privilege, Network Policies between namespaces, Pod Security Standards (no root), Secrets via Vault/Sealed Secrets, Falco for runtime, Trivy in CI, no public endpoints without auth."</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">📈</div>
+            <div class="step-content">
+              <div class="step-title">"Traffic is 10x on Black Friday, how do you handle it?"</div>
+              <div class="step-desc">Say: "HPA scales pods on CPU/RPS. Karpenter adds nodes automatically. Load tested with K6 beforehand. Pre-scaled the day before using scheduled scaling. Monitored real-time on Grafana dashboards during the event."</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 4: COMMUNITY + BLOG -->
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-label">04 — Community, Blogging & Open Source</div>
+    <div class="section-rule-line"></div>
+  </div>
+
+  <div class="full-grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-green">✍️ Write About What You Do — Blog Strategy</span>
+        <span class="card-num">#08</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">Writing = the highest ROI career activity. 1 blog post = job offers, followers, speaking invites, credibility. You don't need to be expert. Just 1 step ahead of someone.</div>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-icon">📝</div>
+            <div class="step-content">
+              <div class="step-title">Write on Dev.to or Medium or Hashnode <span class="tag tag-do">START HERE</span></div>
+              <div class="step-desc">Free, indexed by Google. Start with: "How I set up ArgoCD on K3s at home." Specific is better than generic. Real experience > opinion articles.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">💡</div>
+            <div class="step-content">
+              <div class="step-title">Best blog post ideas you can write TODAY</div>
+              <div class="step-desc">
+                "I migrated from Jenkins to GitHub Actions — what I learned"<br>
+                "How I monitor my homelab K8s with Prometheus + Grafana"<br>
+                "ArgoCD App of Apps pattern explained simply"<br>
+                "Terraform modules I always reuse — my starter kit"
+              </div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🔗</div>
+            <div class="step-content">
+              <div class="step-title">Share every post on LinkedIn <span class="tag tag-show">AMPLIFY</span></div>
+              <div class="step-desc">Post with 3-4 key learnings as text + link. Tag tools (Kubernetes, ArgoCD). Within 6 months recruiters start messaging YOU instead of you applying to them.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-blue">🌍 Open Source — Get Noticed by Industry</span>
+        <span class="card-num">#09</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">You don't need to build the next Kubernetes. Small contributions in tools you use daily = real credibility signal.</div>
+
+        <ul class="step-list">
+          <li class="step-item">
+            <div class="step-icon">🐛</div>
+            <div class="step-content">
+              <div class="step-title">Fix a documentation issue in tools you use <span class="tag tag-do">EASY START</span></div>
+              <div class="step-desc">ArgoCD, Prometheus, Helm — all have "good first issue" labels. Fix a doc typo or add an example. Your name appears in commit history of a major project forever.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">⭐</div>
+            <div class="step-content">
+              <div class="step-title">Build a useful tool and open source it <span class="tag tag-show">SHOW</span></div>
+              <div class="step-desc">Example: "kubectl plugin that shows pod costs," "Grafana dashboard for K8s," "Ansible role for setting up monitoring." Tools people actually USE get GitHub stars, and stars = proof.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🗣️</div>
+            <div class="step-content">
+              <div class="step-title">Join DevOps communities <span class="tag tag-do">DO</span></div>
+              <div class="step-desc">Kubernetes Slack, CNCF Slack, DevOps subreddits. Answer questions. Not to show off — to learn by teaching. You remember 90% of what you teach, 10% of what you read.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-amber">🏅 Certifications That Actually Matter</span>
+        <span class="card-num">#10</span>
+      </div>
+      <div class="card-body">
+        <div class="card-deck">Not all certs are equal. These are the ones that hiring managers actually care about for DevOps roles.</div>
+
+        <div class="meter-row">
+          <div class="meter-label"><span>CKA (Certified Kubernetes Admin)</span><span>🥇 Highest ROI</span></div>
+          <div class="meter-bar"><div class="meter-fill" style="--w:95%;width:95%"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label"><span>AWS DevOps Professional</span><span>🥇 Must Have</span></div>
+          <div class="meter-bar"><div class="meter-fill" style="width:90%"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label"><span>CKAD (Kubernetes Application Dev)</span><span>🥈 Very Good</span></div>
+          <div class="meter-bar"><div class="meter-fill" style="width:78%"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label"><span>HashiCorp Terraform Associate</span><span>🥈 Strong Signal</span></div>
+          <div class="meter-bar"><div class="meter-fill" style="width:72%"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label"><span>CKS (Security Specialist)</span><span>🥇 High Salary</span></div>
+          <div class="meter-bar"><div class="meter-fill" style="width:85%"></div></div>
+        </div>
+        <div class="meter-row">
+          <div class="meter-label"><span>AWS Solutions Architect Pro</span><span>🥈 Senior Signal</span></div>
+          <div class="meter-bar"><div class="meter-fill" style="width:75%"></div></div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="step-desc" style="color:var(--amber);">Get CKA first. It's hands-on (no MCQ), respected globally, and proves real K8s skill — not memorization.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SECTION 5: TALK LIKE A PRO -->
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-label">05 — Talk Like a Pro: Words That Signal Seniority</div>
+    <div class="section-rule-line"></div>
+  </div>
+
+  <div class="two-grid">
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-amber">🗣️ Junior vs Senior Language — The Exact Words to Use</span>
+        <span class="card-num">#11</span>
+      </div>
+      <div class="card-body">
+        <table class="int-table">
+          <thead>
+            <tr><th>JUNIOR SAYS ❌</th><th>SENIOR SAYS ✅</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>"I used Docker to run containers"</td>
+              <td>"I containerized the app using multi-stage builds, reducing image size from 800MB to 120MB, and enforced distroless base images for security"</td>
+            </tr>
+            <tr>
+              <td>"I know Kubernetes"</td>
+              <td>"I've managed a production K8s cluster — handled node pressure evictions, tuned resource requests/limits, and debugged CrashLoopBackOff issues"</td>
+            </tr>
+            <tr>
+              <td>"I set up monitoring"</td>
+              <td>"I designed an observability stack with Prometheus for metrics, Loki for logs, Tempo for traces, and defined 12 custom alerts with PagerDuty routing"</td>
+            </tr>
+            <tr>
+              <td>"I know CI/CD"</td>
+              <td>"I built a GitOps pipeline — GitHub Actions for CI, ArgoCD for CD with automatic rollback on health check failure, and Argo Rollouts for canary deployments"</td>
+            </tr>
+            <tr>
+              <td>"I used Terraform"</td>
+              <td>"I wrote modular Terraform for multi-account AWS — VPC, EKS, RDS modules with remote state in S3 and DynamoDB locking, managed by Terragrunt across 4 environments"</td>
+            </tr>
+            <tr>
+              <td>"I fixed the issue"</td>
+              <td>"I root-caused a memory leak in pod X by analyzing heap dumps — updated the HPA thresholds and added a resource limit that prevented OOMKilled events"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-rubric rubric-green">🧩 Mindset Shifts — Think Like Senior DevOps</span>
+        <span class="card-num">#12</span>
+      </div>
+      <div class="card-body">
+
+        <div class="highlight-box">
+          <div class="hb-title">The Core Mindset Difference</div>
+          <div class="hb-text">Junior: "I make the tool work."<br>Senior: "I use the tool to solve a business problem with measurable outcome."</div>
+        </div>
+
+        <ul class="step-list" style="margin-top:10px;">
+          <li class="step-item">
+            <div class="step-icon">🎯</div>
+            <div class="step-content">
+              <div class="step-title">Always connect tech to business impact</div>
+              <div class="step-desc">"We moved to ArgoCD so devs ship 5x faster without waiting for ops. That means more features to customers." Business context = senior thinking.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">⚖️</div>
+            <div class="step-content">
+              <div class="step-title">Give trade-offs, not just answers</div>
+              <div class="step-desc">"Kafka is great for this but adds operational complexity — for this team size, SQS might be better because they don't need ordering." Trade-offs = architect thinking.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">📊</div>
+            <div class="step-content">
+              <div class="step-title">Use data, not feelings</div>
+              <div class="step-desc">"We reduced deploy time from 45min to 5min, that's 89% faster" hits harder than "deployments are much faster now." Numbers are facts. Facts are credible.</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🔮</div>
+            <div class="step-content">
+              <div class="step-title">Think ahead — "What breaks at 10x?"</div>
+              <div class="step-desc">Senior engineers design for scale they don't have yet. "This works fine now, but if traffic grows 10x, this DB will be the bottleneck — we should add read replicas."</div>
+            </div>
+          </li>
+          <li class="step-item">
+            <div class="step-icon">🤝</div>
+            <div class="step-content">
+              <div class="step-title">Own failures — with a fix, not excuses</div>
+              <div class="step-desc">"The deployment caused downtime — I wrote a postmortem and added automated smoke tests to prevent recurrence." Ownership + learning = senior signal.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- QUICK WIN CHECKLIST -->
+  <div class="section-rule">
+    <div class="section-rule-line"></div>
+    <div class="section-rule-label">06 — Your Action Checklist: Start This Week</div>
+    <div class="section-rule-line"></div>
+  </div>
+
+  <div class="card" style="max-width:100%;">
+    <div class="card-header">
+      <span class="card-rubric rubric-red">⚡ DO THESE THIS WEEK — No Excuses</span>
+      <span class="card-num">#CHECKLIST</span>
+    </div>
+    <div class="card-body" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0 32px;">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;margin-bottom:8px;color:var(--amber);">GITHUB</div>
+        <ul class="checklist">
+          <li class="check-item"><div class="check-box"></div>Pin 6 DevOps repos on your profile</li>
+          <li class="check-item"><div class="check-box"></div>Add architecture diagram to your top repo README</li>
+          <li class="check-item"><div class="check-box"></div>Create 1 end-to-end project (K8s + ArgoCD + Monitoring)</li>
+          <li class="check-item"><div class="check-box"></div>Make at least 1 commit every day for 30 days</li>
+          <li class="check-item"><div class="check-box"></div>Write a proper README for all pinned repos</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;margin-bottom:8px;color:var(--blue);">LINKEDIN + RESUME</div>
+        <ul class="checklist">
+          <li class="check-item"><div class="check-box"></div>Rewrite headline with tools + outcome + level</li>
+          <li class="check-item"><div class="check-box"></div>Add all 50 skills in LinkedIn skills section</li>
+          <li class="check-item"><div class="check-box"></div>Rewrite every resume bullet with Action + Tool + Number</li>
+          <li class="check-item"><div class="check-box"></div>Link GitHub prominently in Featured section</li>
+          <li class="check-item"><div class="check-box"></div>Post 1 LinkedIn article about something you built</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;margin-bottom:8px;color:var(--green);">SKILLS + CERTS</div>
+        <ul class="checklist">
+          <li class="check-item"><div class="check-box"></div>Register for CKA exam (set a date, force commitment)</li>
+          <li class="check-item"><div class="check-box"></div>Start killer.sh CKA practice (2 free sessions included)</li>
+          <li class="check-item"><div class="check-box"></div>Create free AWS account and spin up EKS cluster</li>
+          <li class="check-item"><div class="check-box"></div>Write 1 blog post on Dev.to / Hashnode</li>
+          <li class="check-item"><div class="check-box"></div>Join CNCF Slack and answer 1 question per week</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;margin-bottom:8px;color:var(--red);">INTERVIEW PREP</div>
+        <ul class="checklist">
+          <li class="check-item"><div class="check-box"></div>Practice STAR method answers for 10 scenarios</li>
+          <li class="check-item"><div class="check-box"></div>Record yourself explaining your top project in 2 minutes</li>
+          <li class="check-item"><div class="check-box"></div>Do a mock interview with a friend or on Pramp</li>
+          <li class="check-item"><div class="check-box"></div>Prepare 5 smart questions to ask interviewers</li>
+          <li class="check-item"><div class="check-box"></div>Know your numbers: deploy time, uptime %, team size</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>DEVOPS PRO CANVAS &nbsp;·&nbsp; COMPLETE PROOF PLAYBOOK</span>
+    <span class="stamp">START TODAY</span>
+    <span>TOOLS ALONE ≠ SENIOR &nbsp;·&nbsp; PROOF + TALK + BUILD = MASTER</span>
+  </div>
+
+</div>
+</body>
+</html>

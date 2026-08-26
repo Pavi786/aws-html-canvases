@@ -1,0 +1,1127 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--color-background-tertiary);color:var(--color-text-primary);font-family:var(--font-sans);font-size:14px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+.topbar{display:flex;align-items:center;gap:5px;padding:10px 14px;background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-secondary);flex-wrap:wrap;position:sticky;top:0;z-index:50}
+.logo{font-family:var(--font-mono);font-size:12px;font-weight:500;color:var(--color-text-info);margin-right:8px;letter-spacing:1px;white-space:nowrap}
+.nb{background:transparent;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);font-family:var(--font-sans);font-size:12px;font-weight:500;padding:4px 10px;border-radius:var(--border-radius-md);cursor:pointer;white-space:nowrap;transition:all .15s}
+.nb:hover,.nb.on{background:var(--color-background-info);border-color:var(--color-border-info);color:var(--color-text-info)}
+.tab{display:none;padding:14px}
+.tab.on{display:block}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px;margin-bottom:12px}
+.ct{font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--color-text-info);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.ct::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--color-text-info);flex-shrink:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+pre{background:var(--color-background-tertiary);border:0.5px solid var(--color-border-tertiary);border-left:2px solid var(--color-text-info);border-radius:var(--border-radius-md);padding:10px 12px;font-family:var(--font-mono);font-size:11px;line-height:1.7;color:var(--color-text-secondary);margin:8px 0;overflow-x:auto;white-space:pre}
+pre .k{color:var(--color-text-info)}
+pre .s{color:var(--color-text-warning)}
+pre .c{color:var(--color-text-tertiary)}
+pre .g{color:var(--color-text-success)}
+pre .r{color:var(--color-text-danger)}
+.tag{display:inline-block;padding:2px 7px;border-radius:3px;font-size:11px;font-weight:500;margin:2px 2px 2px 0}
+.ti{background:var(--color-background-info);color:var(--color-text-info);border:0.5px solid var(--color-border-info)}
+.ts{background:var(--color-background-success);color:var(--color-text-success);border:0.5px solid var(--color-border-success)}
+.tw{background:var(--color-background-warning);color:var(--color-text-warning);border:0.5px solid var(--color-border-warning)}
+.td{background:var(--color-background-danger);color:var(--color-text-danger);border:0.5px solid var(--color-border-danger)}
+.sh{font-size:10px;font-weight:500;letter-spacing:2px;color:var(--color-text-tertiary);text-transform:uppercase;margin:14px 0 7px}
+.alert{padding:8px 12px;border-radius:var(--border-radius-md);font-size:12px;margin:8px 0;border-left:2px solid}
+.aw{background:var(--color-background-warning);border-color:var(--color-text-warning);color:var(--color-text-warning)}
+.ai{background:var(--color-background-info);border-color:var(--color-text-info);color:var(--color-text-info)}
+.as{background:var(--color-background-success);border-color:var(--color-text-success);color:var(--color-text-success)}
+.chain{display:flex;align-items:center;gap:0;overflow-x:auto;padding:4px 0}
+.cn{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 10px;min-width:100px;font-size:11px;font-weight:500;flex-shrink:0}
+.cn .cp{font-size:10px;color:var(--color-text-tertiary);letter-spacing:1px;margin-bottom:3px;text-transform:uppercase}
+.cn .cc{font-family:var(--font-mono);font-size:10px;color:var(--color-text-info);margin-top:4px}
+.arr{padding:0 5px;color:var(--color-text-tertiary);flex-shrink:0}
+.mtab{width:100%;border-collapse:collapse;font-size:12px}
+.mtab th{text-align:left;padding:6px 8px;background:var(--color-background-secondary);color:var(--color-text-secondary);font-weight:500;font-size:11px;letter-spacing:1px;border-bottom:0.5px solid var(--color-border-secondary)}
+.mtab td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top}
+.mtab tr:hover td{background:var(--color-background-secondary)}
+.pb{height:5px;background:var(--color-background-secondary);border-radius:3px;overflow:hidden;flex:1}
+.pf{height:100%;border-radius:3px}
+.pr{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.pl{width:130px;font-size:12px;font-weight:500;flex-shrink:0}
+.day-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.dc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 5px;cursor:pointer;transition:all .15s;min-height:62px}
+.dc:hover{border-color:var(--color-border-info);background:var(--color-background-info)}
+.dc.w1{border-top:2px solid var(--color-text-info)}
+.dc.w2{border-top:2px solid var(--color-text-success)}
+.dc.w3{border-top:2px solid var(--color-text-warning)}
+.dc.w4{border-top:2px solid var(--color-text-danger)}
+.dn{font-family:var(--font-mono);font-size:10px;color:var(--color-text-tertiary)}
+.dt{font-size:10px;font-weight:500;color:var(--color-text-primary);margin-top:3px;line-height:1.3}
+.dp{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:14px;margin-top:10px;display:none}
+.dp.on{display:block}
+.src-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.src-card{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px}
+.src-name{font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.src-type{font-size:11px;color:var(--color-text-secondary)}
+.flow-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px}
+.flow-num{width:22px;height:22px;border-radius:50%;background:var(--color-background-info);color:var(--color-text-info);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.flow-body{flex:1}
+.flow-title{font-size:13px;font-weight:500;margin-bottom:4px}
+</style>
+
+<h2 class="sr-only">Subfinder Mastery Canvas — Complete bug bounty and OSINT subdomain enumeration reference covering passive recon, ASN enumeration, DNS intelligence, attack chains, automation, labs, and a 30-day roadmap.</h2>
+
+<div class="topbar">
+  <div class="logo">SUBFINDER::OPS</div>
+  <button class="nb on" onclick="show('overview',this)">Overview</button>
+  <button class="nb" onclick="show('sources',this)">Sources</button>
+  <button class="nb" onclick="show('dns',this)">DNS Intel</button>
+  <button class="nb" onclick="show('chain',this)">Attack Chain</button>
+  <button class="nb" onclick="show('evasion',this)">Rate Limits</button>
+  <button class="nb" onclick="show('labs',this)">Labs</button>
+  <button class="nb" onclick="show('auto',this)">Automation</button>
+  <button class="nb" onclick="show('monitor',this)">Monitoring</button>
+  <button class="nb" onclick="show('cloud',this)">Cloud</button>
+  <button class="nb" onclick="show('roadmap',this)">30-Day</button>
+</div>
+
+<div id="tab-overview" class="tab on">
+  <div class="card">
+    <div class="ct">Subfinder — passive subdomain enumeration engine</div>
+    <div class="g2">
+      <div>
+        <div class="sh">Installation & setup</div>
+        <pre><span class="c"># Install via Go</span>
+go install -v github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+
+<span class="c"># Install via apt (Kali)</span>
+sudo apt install subfinder
+
+<span class="c"># Verify</span>
+subfinder -version
+
+<span class="c"># Config file location</span>
+~/.config/subfinder/provider-config.yaml</pre>
+
+        <div class="sh">Core flags</div>
+        <pre><span class="k">-d</span>          Target domain
+<span class="k">-dL</span>         Domain list file
+<span class="k">-o</span>          Output file
+<span class="k">-oJ</span>         JSON output
+<span class="k">-oD</span>         Output directory
+<span class="k">-all</span>        All sources
+<span class="k">-active</span>     DNS resolve results
+<span class="k">-ip</span>         Include IPs
+<span class="k">-silent</span>     Silent mode
+<span class="k">-v</span>          Verbose
+<span class="k">-t</span>          Threads (default 10)
+<span class="k">-timeout</span>    Seconds per source
+<span class="k">-rL</span>         Resolver list
+<span class="k">-nW</span>         Remove wildcard subdomains
+<span class="k">-cs</span>         Collect sources used</pre>
+      </div>
+      <div>
+        <div class="sh">First recon commands</div>
+        <pre><span class="c"># Basic enumeration</span>
+subfinder <span class="k">-d</span> example.com
+
+<span class="c"># All sources + resolve IPs</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-all -ip -active</span>
+
+<span class="c"># Save to file</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-o</span> subs.txt
+
+<span class="c"># JSON output (for pipelines)</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-oJ -o</span> subs.json
+
+<span class="c"># Multiple domains from file</span>
+subfinder <span class="k">-dL</span> domains.txt <span class="k">-o</span> all_subs.txt
+
+<span class="c"># Show which source found each sub</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-cs -v</span>
+
+<span class="c"># Specific sources only</span>
+subfinder <span class="k">-d</span> example.com \
+  <span class="k">-sources</span> shodan,censys,crtsh
+
+<span class="c"># Exclude sources</span>
+subfinder <span class="k">-d</span> example.com \
+  <span class="k">-exclude-sources</span> dnsdumpster</pre>
+
+        <div class="sh">Provider config template</div>
+        <pre><span class="c"># ~/.config/subfinder/provider-config.yaml</span>
+shodan:
+  - YOUR_SHODAN_API_KEY
+censys:
+  - YOUR_CENSYS_ID:YOUR_CENSYS_SECRET
+virustotal:
+  - YOUR_VT_API_KEY
+securitytrails:
+  - YOUR_ST_API_KEY
+chaos:
+  - YOUR_CHAOS_KEY
+github:
+  - YOUR_GITHUB_TOKEN
+binaryedge:
+  - YOUR_BE_API_KEY</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Passive vs active recon</div>
+      <div class="pr"><div class="pl"><span class="tag ti">Passive</span></div><div class="pb"><div class="pf" style="width:40%;background:var(--color-text-info)"></div></div><div style="font-size:11px;color:var(--color-text-tertiary)">No target contact</div></div>
+      <div class="pr"><div class="pl"><span class="tag ts">Active DNS</span></div><div class="pb"><div class="pf" style="width:70%;background:var(--color-text-success)"></div></div><div style="font-size:11px;color:var(--color-text-tertiary)">Resolves, noisy</div></div>
+      <div class="pr"><div class="pl"><span class="tag tw">Brute force</span></div><div class="pb"><div class="pf" style="width:90%;background:var(--color-text-warning)"></div></div><div style="font-size:11px;color:var(--color-text-tertiary)">Loud, detectable</div></div>
+      <div class="pr"><div class="pl"><span class="tag td">Crawl+scrape</span></div><div class="pb"><div class="pf" style="width:85%;background:var(--color-text-danger)"></div></div><div style="font-size:11px;color:var(--color-text-tertiary)">High footprint</div></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Bar = noise level. Subfinder operates fully passively — zero packets to target.</div>
+    </div>
+    <div class="card">
+      <div class="ct">Bug bounty scope check</div>
+      <pre><span class="c"># Check scope before recon</span>
+<span class="c"># Always verify program rules!</span>
+
+<span class="c"># Filter to in-scope subdomains</span>
+subfinder <span class="k">-d</span> target.com \
+  <span class="k">-all -silent</span> | \
+  grep -E \
+  "(api|app|admin|staging|dev)"
+
+<span class="c"># Exclude out-of-scope</span>
+subfinder <span class="k">-d</span> target.com | \
+  grep -v \
+  "(cdn|static|assets|img)"
+
+<span class="c"># Count unique subdomains</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-silent</span> | \
+  sort -u | wc -l</pre>
+    </div>
+  </div>
+</div>
+
+<div id="tab-sources" class="tab">
+  <div class="card">
+    <div class="ct">Passive data sources</div>
+    <div class="src-grid">
+      <div class="src-card"><div class="src-name">crt.sh</div><div class="src-type"><span class="tag ts">Free</span> Certificate transparency logs</div></div>
+      <div class="src-card"><div class="src-name">Shodan</div><div class="src-type"><span class="tag tw">API key</span> Internet-wide scan DB</div></div>
+      <div class="src-card"><div class="src-name">Censys</div><div class="src-type"><span class="tag tw">API key</span> TLS cert + host data</div></div>
+      <div class="src-card"><div class="src-name">VirusTotal</div><div class="src-type"><span class="tag tw">API key</span> DNS resolution history</div></div>
+      <div class="src-card"><div class="src-name">SecurityTrails</div><div class="src-type"><span class="tag tw">API key</span> Historical DNS data</div></div>
+      <div class="src-card"><div class="src-name">Chaos</div><div class="src-type"><span class="tag tw">API key</span> ProjectDiscovery dataset</div></div>
+      <div class="src-card"><div class="src-name">AlienVault</div><div class="src-type"><span class="tag ts">Free</span> Threat intel passive DNS</div></div>
+      <div class="src-card"><div class="src-name">GitHub</div><div class="src-type"><span class="tag tw">Token</span> Code search for subdomains</div></div>
+      <div class="src-card"><div class="src-name">BinaryEdge</div><div class="src-type"><span class="tag tw">API key</span> Internet scan data</div></div>
+      <div class="src-card"><div class="src-name">FOFA</div><div class="src-type"><span class="tag tw">API key</span> Chinese internet scan DB</div></div>
+      <div class="src-card"><div class="src-name">Netlas</div><div class="src-type"><span class="tag tw">API key</span> Internet intelligence</div></div>
+      <div class="src-card"><div class="src-name">Wayback</div><div class="src-type"><span class="tag ts">Free</span> Archive.org crawl history</div></div>
+      <div class="src-card"><div class="src-name">DNSdumpster</div><div class="src-type"><span class="tag ts">Free</span> Zone transfer attempts</div></div>
+      <div class="src-card"><div class="src-name">Passive DNS</div><div class="src-type"><span class="tag ts">Free</span> CIRCL / DNSDB</div></div>
+      <div class="src-card"><div class="src-name">Rapiddns</div><div class="src-type"><span class="tag ts">Free</span> Fast passive DNS</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">ASN enumeration — find all company IP ranges</div>
+    <div class="g2">
+      <div>
+        <div class="sh">ASN to subnet discovery</div>
+        <pre><span class="c"># Install asnmap</span>
+go install github.com/projectdiscovery/asnmap/cmd/asnmap@latest
+
+<span class="c"># Find ASN for company</span>
+asnmap <span class="k">-org</span> "Google LLC"
+
+<span class="c"># Get CIDRs from ASN</span>
+asnmap <span class="k">-a</span> AS15169
+
+<span class="c"># From domain</span>
+asnmap <span class="k">-d</span> google.com
+
+<span class="c"># Pipe to subfinder</span>
+asnmap <span class="k">-org</span> "Target Corp" | \
+  subfinder <span class="k">-dL</span> - <span class="k">-all</span></pre>
+      </div>
+      <div>
+        <div class="sh">Manual ASN recon</div>
+        <pre><span class="c"># BGP.he.net lookup</span>
+curl -s "https://bgp.he.net/search?search[search]=target.com" | \
+  grep -oP 'AS\d+'
+
+<span class="c"># Whois ASN info</span>
+whois -h whois.radb.net -- '-i origin AS15169'
+
+<span class="c"># Shodan ASN pivot</span>
+shodan search "org:Target Corp" \
+  --fields ip_str,port,org
+
+<span class="c"># ARIN / RIPE lookup</span>
+curl "https://rdap.arin.net/registry/ip/1.2.3.4"
+
+<span class="c"># Get IPs from CIDR block</span>
+prips 192.168.1.0/24 | \
+  subfinder -dL - -all</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Multi-source recon combining tools</div>
+    <pre><span class="c"># Maximum coverage — combine 5 tools</span>
+TARGET="example.com"
+
+<span class="c"># 1. Subfinder (passive)</span>
+subfinder <span class="k">-d</span> $TARGET <span class="k">-all -silent</span> > subs_sf.txt
+
+<span class="c"># 2. Amass (passive + brute)</span>
+amass enum <span class="k">-passive -d</span> $TARGET > subs_amass.txt
+
+<span class="c"># 3. Assetfinder</span>
+assetfinder <span class="k">--subs-only</span> $TARGET > subs_af.txt
+
+<span class="c"># 4. GitHub dorks (manual)</span>
+<span class="c"># site:github.com "example.com" subdomain</span>
+
+<span class="c"># 5. Certificate transparency</span>
+curl -s "https://crt.sh/?q=%25.$TARGET&output=json" | \
+  jq -r '.[].name_value' | \
+  sed 's/\*\.//g' | sort -u > subs_crt.txt
+
+<span class="c"># Merge + deduplicate</span>
+cat subs_sf.txt subs_amass.txt subs_af.txt subs_crt.txt | \
+  sort -u > all_subs.txt
+
+<span class="c"># Count results</span>
+echo "[+] Total unique subdomains: $(wc -l < all_subs.txt)"</pre>
+  </div>
+</div>
+
+<div id="tab-dns" class="tab">
+  <div class="g2">
+    <div class="card">
+      <div class="ct">DNS resolution with dnsx</div>
+      <pre><span class="c"># Install dnsx</span>
+go install github.com/projectdiscovery/dnsx/cmd/dnsx@latest
+
+<span class="c"># Resolve subdomains</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-silent</span> | \
+  dnsx <span class="k">-silent</span>
+
+<span class="c"># Get A records</span>
+dnsx <span class="k">-l</span> subs.txt <span class="k">-a -resp</span>
+
+<span class="c"># Get all record types</span>
+dnsx <span class="k">-l</span> subs.txt \
+  <span class="k">-a -aaaa -cname -mx -txt -resp</span>
+
+<span class="c"># Custom resolvers (fast)</span>
+dnsx <span class="k">-l</span> subs.txt \
+  <span class="k">-r</span> resolvers.txt \
+  <span class="k">-t</span> 100 <span class="k">-silent</span>
+
+<span class="c"># Wildcard filtering</span>
+dnsx <span class="k">-l</span> subs.txt <span class="k">-wd</span> example.com</pre>
+    </div>
+    <div class="card">
+      <div class="ct">DNS takeover detection</div>
+      <div class="alert aw">DNS takeover occurs when a CNAME points to an unclaimed third-party service. High severity in bug bounty — typically $500–$5000.</div>
+      <pre><span class="c"># Install subjack</span>
+go install github.com/haccer/subjack@latest
+
+<span class="c"># Check for takeovers</span>
+subjack <span class="k">-w</span> subs.txt \
+  <span class="k">-t</span> 100 <span class="k">-timeout</span> 30 \
+  <span class="k">-o</span> takeovers.txt \
+  <span class="k">-ssl</span>
+
+<span class="c"># nuclei template for takeover</span>
+nuclei <span class="k">-l</span> subs.txt \
+  <span class="k">-t</span> takeovers/ \
+  <span class="k">-o</span> takeover_results.txt
+
+<span class="c"># Manual CNAME check</span>
+for sub in $(cat subs.txt); do
+  dig CNAME $sub +short | \
+  grep -E "(amazonaws|azure|heroku)"
+done</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Wildcard detection & handling</div>
+    <div class="g2">
+      <div>
+        <pre><span class="c"># Detect wildcards</span>
+<span class="c"># A wildcard returns A record for ANY subdomain</span>
+dig randomXXXXX.example.com A +short
+<span class="c"># If returns IP → wildcard exists</span>
+
+<span class="c"># Subfinder wildcard filter</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-nW</span>
+
+<span class="c"># dnsx wildcard detection</span>
+dnsx <span class="k">-l</span> subs.txt \
+  <span class="k">-wd</span> example.com \
+  <span class="k">-wt</span> 5
+
+<span class="c"># puredns for wildcard-aware brute</span>
+puredns bruteforce \
+  wordlist.txt example.com \
+  <span class="k">-r</span> resolvers.txt \
+  <span class="k">--wildcard-tests</span> 10</pre>
+      </div>
+      <div>
+        <pre><span class="c"># Fast resolvers list</span>
+<span class="c"># Use dnsvalidator to get valid resolvers</span>
+go install github.com/vortexau/dnsvalidator@latest
+dnsvalidator \
+  <span class="k">-tL</span> https://public-dns.info/nameservers.txt \
+  <span class="k">-threads</span> 200 \
+  <span class="k">-o</span> resolvers.txt
+
+<span class="c"># Massdns for fast bulk resolve</span>
+massdns <span class="k">-r</span> resolvers.txt \
+  <span class="k">-t A -o S</span> \
+  subs.txt > resolved.txt
+
+<span class="c"># Parse massdns output</span>
+grep " A " resolved.txt | \
+  awk '{print $1}' | \
+  sed 's/\.$//' > live_subs.txt</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">DNS intelligence — zone transfer & record mining</div>
+    <pre><span class="c"># Zone transfer attempt (AXFR)</span>
+dig axfr example.com @ns1.example.com
+
+<span class="c"># Find all nameservers first</span>
+dig NS example.com +short
+
+<span class="c"># Try AXFR on each NS</span>
+for ns in $(dig NS example.com +short); do
+  echo "[*] Trying $ns"
+  dig axfr example.com @$ns | grep -v ";" | head -50
+done
+
+<span class="c"># SPF record parsing (reveals infra)</span>
+dig TXT example.com | grep "v=spf1"
+<span class="c"># Extract: include: → reveals mail/SaaS providers</span>
+
+<span class="c"># DMARC record</span>
+dig TXT _dmarc.example.com
+
+<span class="c"># SRV record discovery</span>
+dig SRV _sip._tcp.example.com
+dig SRV _xmpp-server._tcp.example.com</pre>
+  </div>
+</div>
+
+<div id="tab-chain" class="tab">
+  <div class="card">
+    <div class="ct">Full attack chain: subfinder → httpx → nuclei → ffuf → sqlmap</div>
+    <div class="chain">
+      <div class="cn" style="border-top:2px solid var(--color-text-info)">
+        <div class="cp">Step 1</div>
+        Subfinder
+        <div class="cc">passive enum</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="cn" style="border-top:2px solid var(--color-text-info)">
+        <div class="cp">Step 2</div>
+        httpx
+        <div class="cc">live hosts</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="cn" style="border-top:2px solid var(--color-text-success)">
+        <div class="cp">Step 3</div>
+        Nuclei
+        <div class="cc">vuln scan</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="cn" style="border-top:2px solid var(--color-text-warning)">
+        <div class="cp">Step 4</div>
+        ffuf
+        <div class="cc">dir/api fuzz</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="cn" style="border-top:2px solid var(--color-text-danger)">
+        <div class="cp">Step 5</div>
+        SQLMap
+        <div class="cc">injection</div>
+      </div>
+      <div class="arr">→</div>
+      <div class="cn" style="border-top:2px solid var(--color-text-danger)">
+        <div class="cp">Report</div>
+        Write-up
+        <div class="cc">CVE/CVSS</div>
+      </div>
+    </div>
+
+    <div class="sh">Step 1 — subfinder: subdomain discovery</div>
+    <pre>subfinder <span class="k">-d</span> target.com <span class="k">-all -silent -o</span> subs.txt
+echo <span class="s">"[+] Found $(wc -l < subs.txt) subdomains"</span></pre>
+
+    <div class="sh">Step 2 — httpx: probe live web services</div>
+    <pre><span class="c"># Install httpx</span>
+go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+
+<span class="c"># Probe all subdomains</span>
+cat subs.txt | httpx \
+  <span class="k">-silent -mc</span> 200,301,302,401,403 \
+  <span class="k">-title -tech-detect -status-code</span> \
+  <span class="k">-web-server -o</span> live.txt
+
+<span class="c"># With screenshots</span>
+cat subs.txt | httpx \
+  <span class="k">-screenshot -o</span> live_screen.txt
+
+<span class="c"># JSON for pipeline</span>
+cat subs.txt | httpx <span class="k">-json -o</span> live.json</pre>
+
+    <div class="sh">Step 3 — nuclei: vulnerability scanning</div>
+    <pre><span class="c"># Install nuclei + update templates</span>
+go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+nuclei <span class="k">-update-templates</span>
+
+<span class="c"># Scan live hosts</span>
+nuclei <span class="k">-l</span> live.txt \
+  <span class="k">-t</span> cves/,vulnerabilities/,exposures/ \
+  <span class="k">-severity</span> critical,high,medium \
+  <span class="k">-o</span> vulns.txt
+
+<span class="c"># Fast mode (no intrusive)</span>
+nuclei <span class="k">-l</span> live.txt \
+  <span class="k">-tags</span> safe,passive \
+  <span class="k">-rate-limit</span> 100
+
+<span class="c"># Custom template</span>
+nuclei <span class="k">-l</span> live.txt \
+  <span class="k">-t</span> ~/custom-templates/</pre>
+
+    <div class="sh">Step 4 — ffuf: directory & API endpoint fuzzing</div>
+    <pre><span class="c"># Install ffuf</span>
+go install github.com/ffuf/ffuf/v2@latest
+
+<span class="c"># Directory fuzzing</span>
+ffuf <span class="k">-u</span> https://api.target.com/FUZZ \
+  <span class="k">-w</span> /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt \
+  <span class="k">-mc</span> 200,301,302,401,403 \
+  <span class="k">-o</span> dirs.json <span class="k">-of json</span>
+
+<span class="c"># API endpoint fuzzing</span>
+ffuf <span class="k">-u</span> https://api.target.com/v1/FUZZ \
+  <span class="k">-w</span> ~/wordlists/api-endpoints.txt \
+  <span class="k">-H</span> "Authorization: Bearer TOKEN" \
+  <span class="k">-mc</span> 200,201,204
+
+<span class="c"># Parameter fuzzing</span>
+ffuf <span class="k">-u</span> "https://target.com/page?FUZZ=1" \
+  <span class="k">-w</span> ~/wordlists/params.txt \
+  <span class="k">-mc</span> 200 <span class="k">-fs</span> 1234</pre>
+
+    <div class="sh">Step 5 — sqlmap: injection testing</div>
+    <pre><span class="c"># Basic injection test</span>
+sqlmap <span class="k">-u</span> "https://target.com/item?id=1" \
+  <span class="k">--dbs --batch --random-agent</span>
+
+<span class="c"># POST request injection</span>
+sqlmap <span class="k">-u</span> "https://target.com/login" \
+  <span class="k">--data</span> "user=admin&pass=test" \
+  <span class="k">--dbs --level</span> 3 <span class="k">--risk</span> 2
+
+<span class="c"># From ffuf results</span>
+cat ffuf_results.json | \
+  jq -r '.results[].url' | \
+  grep "?.*=" | \
+  while read url; do
+    sqlmap <span class="k">-u</span> "$url" <span class="k">--batch --crawl</span> 2 <span class="k">--dbs</span>
+  done</pre>
+  </div>
+
+  <div class="card">
+    <div class="ct">API endpoint discovery workflow</div>
+    <pre><span class="c"># 1. Find API subdomains</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-silent</span> | \
+  grep -E "^(api|v1|v2|v3|rest|graphql|gw|gateway)"
+
+<span class="c"># 2. Probe API hosts</span>
+cat api_subs.txt | httpx \
+  <span class="k">-path</span> /swagger.json,/openapi.json,/api-docs \
+  <span class="k">-mc</span> 200 <span class="k">-o</span> swagger_hosts.txt
+
+<span class="c"># 3. Parse swagger for endpoints</span>
+cat swagger.json | jq -r '.paths | keys[]'
+
+<span class="c"># 4. Fuzz discovered endpoints</span>
+cat endpoints.txt | \
+  ffuf <span class="k">-u</span> https://api.target.com/FUZZ \
+    <span class="k">-w</span> - <span class="k">-mc</span> 200,201,204,400,401</pre>
+  </div>
+</div>
+
+<div id="tab-evasion" class="tab">
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Rate limit handling</div>
+      <div class="alert aw">Some sources block aggressive enumeration. Use delays, rotate keys, and throttle requests.</div>
+      <pre><span class="c"># Subfinder rate limiting</span>
+subfinder <span class="k">-d</span> target.com \
+  <span class="k">-timeout</span> 30 \
+  <span class="k">-t</span> 10 \
+  <span class="k">-rl</span> 60
+
+<span class="c"># httpx rate limit</span>
+cat subs.txt | httpx \
+  <span class="k">-rate-limit</span> 150 \
+  <span class="k">-timeout</span> 5 \
+  <span class="k">-retries</span> 2
+
+<span class="c"># nuclei rate control</span>
+nuclei <span class="k">-l</span> live.txt \
+  <span class="k">-rate-limit</span> 100 \
+  <span class="k">-bulk-size</span> 25 \
+  <span class="k">-concurrency</span> 25
+
+<span class="c"># ffuf rate control</span>
+ffuf <span class="k">-u</span> URL/FUZZ \
+  <span class="k">-w</span> wordlist.txt \
+  <span class="k">-rate</span> 100 \
+  <span class="k">-p</span> 0.1</pre>
+    </div>
+    <div class="card">
+      <div class="ct">Rotating API keys & proxies</div>
+      <pre><span class="c"># Multiple API keys in config</span>
+<span class="c"># provider-config.yaml supports multiple keys</span>
+virustotal:
+  - KEY_1
+  - KEY_2
+  - KEY_3
+<span class="c"># Subfinder rotates them automatically</span>
+
+<span class="c"># httpx through proxy</span>
+cat subs.txt | httpx \
+  <span class="k">-proxy</span> http://127.0.0.1:8080
+
+<span class="c"># nuclei through burp proxy</span>
+nuclei <span class="k">-l</span> live.txt \
+  <span class="k">-proxy</span> http://127.0.0.1:8080
+
+<span class="c"># Custom resolvers (avoid DNS blocking)</span>
+echo "8.8.8.8
+1.1.1.1
+9.9.9.9" > resolvers.txt
+subfinder <span class="k">-d</span> target.com \
+  <span class="k">-rL</span> resolvers.txt</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Scope validation & filtering</div>
+    <pre><span class="c"># Validate subdomains are in scope</span>
+<span class="c"># scope.txt contains: *.example.com, api.example.com</span>
+
+<span class="c"># Filter results by scope</span>
+subfinder <span class="k">-d</span> example.com <span class="k">-silent</span> | \
+  grep -Ef scope_patterns.txt > in_scope.txt
+
+<span class="c"># Remove CDN / shared infrastructure</span>
+cat subs.txt | httpx <span class="k">-silent -cdn</span> | \
+  grep -v "[cdn]" > no_cdn.txt
+
+<span class="c"># Deduplicate across scan runs</span>
+cat old_scan.txt new_scan.txt | \
+  sort -u > combined.txt
+
+<span class="c"># Find NEW subdomains since last scan</span>
+comm <span class="k">-13</span> \
+  <(sort old_scan.txt) \
+  <(sort new_scan.txt) > new_subs.txt
+
+echo "[+] $(wc -l < new_subs.txt) new subdomains found!"</pre>
+  </div>
+</div>
+
+<div id="tab-labs" class="tab">
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Lab 1 — bug bounty recon</div>
+      <div class="flow-row"><div class="flow-num">1</div><div class="flow-body"><div class="flow-title">Target selection</div><pre>Pick a program (HackerOne / Bugcrowd)
+Read scope carefully — note wildcards
+List all in-scope domains</pre></div></div>
+      <div class="flow-row"><div class="flow-num">2</div><div class="flow-body"><div class="flow-title">Subdomain enumeration</div><pre>subfinder <span class="k">-d</span> target.com <span class="k">-all -o</span> subs.txt</pre></div></div>
+      <div class="flow-row"><div class="flow-num">3</div><div class="flow-body"><div class="flow-title">Probe live hosts</div><pre>cat subs.txt | httpx <span class="k">-silent -title -tech-detect</span></pre></div></div>
+      <div class="flow-row"><div class="flow-num">4</div><div class="flow-body"><div class="flow-title">Nuclei scan + report</div><pre>nuclei <span class="k">-l</span> live.txt <span class="k">-t</span> cves/ <span class="k">-severity</span> critical,high</pre></div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Lab 2 — enterprise recon</div>
+      <pre><span class="c"># Full enterprise recon chain</span>
+COMPANY="Target Corp"
+DOMAIN="target.com"
+
+<span class="c"># 1. ASN discovery</span>
+asnmap <span class="k">-org</span> "$COMPANY" > asns.txt
+asnmap <span class="k">-a</span> $(cat asns.txt) > cidrs.txt
+
+<span class="c"># 2. All domains via cert transparency</span>
+curl -s "https://crt.sh/?q=%25.$DOMAIN&output=json" | \
+  jq -r '.[].name_value' | \
+  grep -v '\*' | sort -u > crt_domains.txt
+
+<span class="c"># 3. Subdomain enum on all domains</span>
+subfinder <span class="k">-dL</span> crt_domains.txt \
+  <span class="k">-all -o</span> enterprise_subs.txt
+
+<span class="c"># 4. Mass probe</span>
+cat enterprise_subs.txt | \
+  httpx <span class="k">-silent -json -o</span> enterprise_live.json
+
+<span class="c"># 5. Count attack surface</span>
+jq 'length' enterprise_live.json</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Lab 3 — DNS takeover basics step-by-step</div>
+    <div class="alert ai">Practice on your own domains or in a lab environment. Never attempt takeover on domains you don't own without explicit permission.</div>
+    <div class="g2">
+      <pre><span class="c"># Step 1: Enumerate subdomains</span>
+subfinder <span class="k">-d</span> target.com \
+  <span class="k">-all -silent</span> > subs.txt
+
+<span class="c"># Step 2: Get CNAME records</span>
+dnsx <span class="k">-l</span> subs.txt \
+  <span class="k">-cname -resp -silent</span> | \
+  grep "CNAME" > cnames.txt
+
+<span class="c"># Step 3: Check if CNAME target exists</span>
+while read line; do
+  cname=$(echo $line | awk '{print $2}')
+  if ! host $cname &>/dev/null; then
+    echo <span class="s">"[TAKEOVER] $line"</span>
+  fi
+done < cnames.txt</pre>
+      <pre><span class="c"># Step 4: Identify service type</span>
+<span class="c"># Common vulnerable services:</span>
+<span class="c"># *.s3.amazonaws.com  → S3</span>
+<span class="c"># *.azurewebsites.net → Azure</span>
+<span class="c"># *.github.io         → GitHub Pages</span>
+<span class="c"># *.herokuapp.com     → Heroku</span>
+<span class="c"># *.fastly.net        → Fastly</span>
+<span class="c"># *.pantheonsite.io   → Pantheon</span>
+
+<span class="c"># Step 5: Automated check (subjack)</span>
+subjack <span class="k">-w</span> subs.txt \
+  <span class="k">-t</span> 100 <span class="k">-o</span> takeover.txt \
+  <span class="k">-ssl -v</span></pre>
+    </div>
+  </div>
+</div>
+
+<div id="tab-auto" class="tab">
+  <div class="card">
+    <div class="ct">Bash automation — full recon pipeline</div>
+    <pre><span class="g">#!/bin/bash</span>
+<span class="c"># recon.sh — Full passive recon pipeline</span>
+<span class="c"># Usage: ./recon.sh target.com /output/dir</span>
+
+TARGET=<span class="s">"$1"</span>
+OUT=<span class="s">"${2:-./recon_$(date +%Y%m%d_%H%M%S)}"</span>
+mkdir -p "$OUT"
+
+echo <span class="s">"[*] Starting recon: $TARGET"</span>
+
+<span class="c"># Phase 1: Subdomain enumeration</span>
+echo <span class="s">"[*] Phase 1: Passive subdomain enum..."</span>
+subfinder <span class="k">-d</span> $TARGET <span class="k">-all -silent -o</span> "$OUT/subs.txt"
+amass enum <span class="k">-passive -d</span> $TARGET >> "$OUT/subs.txt"
+cat "$OUT/subs.txt" | sort -u -o "$OUT/subs.txt"
+echo <span class="s">"[+] $(wc -l < $OUT/subs.txt) unique subdomains"</span>
+
+<span class="c"># Phase 2: DNS resolution</span>
+echo <span class="s">"[*] Phase 2: DNS resolution..."</span>
+dnsx <span class="k">-l</span> "$OUT/subs.txt" <span class="k">-silent -a -cname -resp \</span>
+  <span class="k">-o</span> "$OUT/resolved.txt"
+
+<span class="c"># Phase 3: HTTP probing</span>
+echo <span class="s">"[*] Phase 3: HTTP probing..."</span>
+cat "$OUT/subs.txt" | httpx \
+  <span class="k">-silent -mc</span> 200,301,302,401,403 \
+  <span class="k">-title -tech-detect -status-code \</span>
+  <span class="k">-o</span> "$OUT/live.txt"
+
+<span class="c"># Phase 4: Vulnerability scan</span>
+echo <span class="s">"[*] Phase 4: Nuclei vuln scan..."</span>
+nuclei <span class="k">-l</span> "$OUT/live.txt" \
+  <span class="k">-t</span> cves/,vulnerabilities/,exposures/ \
+  <span class="k">-severity</span> critical,high,medium \
+  <span class="k">-rate-limit</span> 100 \
+  <span class="k">-o</span> "$OUT/vulns.txt"
+
+<span class="c"># Phase 5: DNS takeover check</span>
+echo <span class="s">"[*] Phase 5: Takeover check..."</span>
+subjack <span class="k">-w</span> "$OUT/subs.txt" \
+  <span class="k">-t</span> 100 <span class="k">-o</span> "$OUT/takeovers.txt" <span class="k">-ssl</span>
+
+<span class="c"># Summary</span>
+echo ""
+echo <span class="s">"=== RECON COMPLETE ==="</span>
+echo <span class="s">"Subdomains: $(wc -l < $OUT/subs.txt)"</span>
+echo <span class="s">"Live hosts:  $(wc -l < $OUT/live.txt)"</span>
+echo <span class="s">"Vulns found: $(wc -l < $OUT/vulns.txt)"</span>
+echo <span class="s">"Output:      $OUT"</span></pre>
+  </div>
+
+  <div class="card">
+    <div class="ct">Python automation — recon orchestrator</div>
+    <pre><span class="g">#!/usr/bin/env python3</span>
+<span class="c"># recon_orchestrator.py</span>
+<span class="k">import</span> subprocess, json, sys, datetime
+<span class="k">from</span> pathlib <span class="k">import</span> Path
+
+<span class="k">class</span> ReconPipeline:
+    <span class="k">def</span> __init__(self, domain, output_dir="./recon"):
+        self.domain = domain
+        self.out = Path(output_dir) / domain / datetime.datetime.now().strftime("%Y%m%d")
+        self.out.mkdir(parents=True, exist_ok=True)
+        self.results = {}
+
+    <span class="k">def</span> run(self, cmd, desc):
+        print(f"[*] {desc}...")
+        result = subprocess.run(
+            cmd, shell=True, capture_output=True, text=True
+        )
+        return result.stdout.strip().splitlines()
+
+    <span class="k">def</span> subfinder(self):
+        out = self.out / "subs.txt"
+        subs = self.run(
+            f"subfinder -d {self.domain} -all -silent",
+            "Running subfinder"
+        )
+        out.write_text("\n".join(subs))
+        self.results['subdomains'] = len(subs)
+        return subs
+
+    <span class="k">def</span> httpx_probe(self, subs):
+        inp = self.out / "subs.txt"
+        out = self.out / "live.json"
+        self.run(
+            f"cat {inp} | httpx -silent -json -o {out} -mc 200,301,302,401,403",
+            "Probing live hosts"
+        )
+        <span class="k">try</span>:
+            data = json.loads(f"[{out.read_text().strip().replace(chr(10),',')}]")
+            self.results['live'] = len(data)
+            return data
+        <span class="k">except</span>: return []
+
+    <span class="k">def</span> nuclei_scan(self):
+        live = self.out / "live.json"
+        out = self.out / "vulns.txt"
+        self.run(
+            f"nuclei -l {live} -severity critical,high -o {out} -silent",
+            "Running nuclei scan"
+        )
+        vulns = out.read_text().splitlines() <span class="k">if</span> out.exists() <span class="k">else</span> []
+        self.results['vulns'] = len(vulns)
+        return vulns
+
+    <span class="k">def</span> report(self):
+        report = self.out / "summary.json"
+        report.write_text(json.dumps(self.results, indent=2))
+        print(f"\n[+] Recon complete: {self.domain}")
+        print(json.dumps(self.results, indent=2))
+
+    <span class="k">def</span> run_all(self):
+        subs = self.subfinder()
+        live = self.httpx_probe(subs)
+        vulns = self.nuclei_scan()
+        self.report()
+
+<span class="k">if</span> __name__ == "__main__":
+    p = ReconPipeline(sys.argv[1])
+    p.run_all()</pre>
+  </div>
+</div>
+
+<div id="tab-monitor" class="tab">
+  <div class="card">
+    <div class="ct">Continuous monitoring — new subdomain alerts</div>
+    <pre><span class="g">#!/bin/bash</span>
+<span class="c"># monitor.sh — Runs daily via cron, alerts on new subs</span>
+TARGET=<span class="s">"$1"</span>
+DB=<span class="s">"~/.recon_db/$TARGET"</span>
+mkdir -p $DB
+TODAY="$DB/$(date +%Y%m%d).txt"
+PREV="$DB/latest.txt"
+SLACK_WEBHOOK=<span class="s">"https://hooks.slack.com/services/XXX"</span>
+
+<span class="c"># Run current scan</span>
+subfinder <span class="k">-d</span> $TARGET <span class="k">-all -silent</span> | sort -u > $TODAY
+
+<span class="c"># Compare with previous run</span>
+if [ -f "$PREV" ]; then
+  NEW=$(comm <span class="k">-13</span> $PREV $TODAY)
+  if [ -n "$NEW" ]; then
+    MSG="*New subdomains for $TARGET:*\n\`\`\`$NEW\`\`\`"
+    curl <span class="k">-s -X POST</span> $SLACK_WEBHOOK \
+      <span class="k">-H</span> 'Content-type: application/json' \
+      <span class="k">-d</span> "{\"text\":\"$MSG\"}"
+  fi
+fi
+
+cp $TODAY $PREV
+echo <span class="s">"[+] Monitoring complete: $(wc -l < $TODAY) subs"</span></pre>
+
+    <div class="sh">Cron schedule</div>
+    <pre><span class="c"># Run daily at 6 AM</span>
+0 6 * * * /path/to/monitor.sh target.com >> /var/log/recon.log 2>&1
+
+<span class="c"># Run every 12 hours</span>
+0 */12 * * * /path/to/monitor.sh target.com</pre>
+  </div>
+
+  <div class="card">
+    <div class="ct">GitHub Actions CI/CD recon automation</div>
+    <pre><span class="c"># .github/workflows/recon.yml</span>
+name: Continuous Recon
+on:
+  schedule:
+    - cron: <span class="s">'0 6 * * *'</span>
+  workflow_dispatch:
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install tools
+        run: |
+          go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
+          go install github.com/projectdiscovery/httpx/cmd/httpx@latest
+          go install github.com/projectdiscovery/nuclei/v3/cmd/nuclei@latest
+          nuclei -update-templates
+
+      - name: Configure subfinder
+        run: |
+          mkdir -p ~/.config/subfinder
+          echo "${{ secrets.PROVIDER_CONFIG }}" > ~/.config/subfinder/provider-config.yaml
+
+      - name: Run recon pipeline
+        run: |
+          subfinder -d ${{ vars.TARGET_DOMAIN }} -all -silent -o subs.txt
+          cat subs.txt | httpx -silent -o live.txt -mc 200,301,302,403
+          nuclei -l live.txt -severity critical,high -o vulns.txt -silent
+
+      - name: Check for new subdomains
+        run: |
+          git diff --name-only HEAD~1 HEAD | grep subs.txt | \
+          xargs -I{} comm -13 <(git show HEAD~1:{}) <(cat {}) > new_subs.txt
+          cat new_subs.txt
+
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: recon-results
+          path: |
+            subs.txt
+            live.txt
+            vulns.txt
+
+      - name: Notify Slack on findings
+        if: ${{ hashFiles('vulns.txt') != '' }}
+        run: |
+          curl -s -X POST ${{ secrets.SLACK_WEBHOOK }} \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"Vulnerabilities found! Check artifacts.\"}"</pre>
+  </div>
+</div>
+
+<div id="tab-cloud" class="tab">
+  <div class="g2">
+    <div class="card">
+      <div class="ct">Cloud attack surface mapping</div>
+      <div class="sh">AWS asset discovery</div>
+      <pre><span class="c"># Find AWS subdomains</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-silent</span> | \
+  grep -E "\.amazonaws\.com|s3\.|cloudfront\."
+
+<span class="c"># S3 bucket enumeration</span>
+<span class="c"># Tools: s3scanner, awscli, bucket-finder</span>
+s3scanner scan --buckets-file buckets.txt
+
+<span class="c"># CloudFront origin pull</span>
+curl -H <span class="s">"Host: cdn.target.com"</span> \
+  https://XXXX.cloudfront.net/
+
+<span class="c"># AWS metadata (if SSRF found)</span>
+curl http://169.254.169.254/latest/meta-data/
+
+<span class="c"># Find elastic IPs attached to subs</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-ip -silent</span> | \
+  grep -E "\b3[4-5]\.|52\.|54\." > aws_ips.txt</pre>
+    </div>
+    <div class="card">
+      <div class="ct">Azure & GCP discovery</div>
+      <pre><span class="c"># Azure subdomain patterns</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-silent</span> | \
+  grep -E "\.azure|\.windows\.net|\.azurewebsites"
+
+<span class="c"># GCP patterns</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-silent</span> | \
+  grep -E "\.googleapis|\.appspot|\.run\.app"
+
+<span class="c"># Cloud asset dorks (subfinder + shodan)</span>
+shodan search "org:Target Corp" \
+  "cloud" --fields ip_str,hostnames,port
+
+<span class="c"># Check for open cloud storage</span>
+cat subs.txt | httpx \
+  <span class="k">-path</span> /.well-known/security.txt \
+  <span class="k">-mc</span> 200 <span class="k">-silent</span>
+
+<span class="c"># GCP metadata (SSRF)</span>
+curl -H <span class="s">"Metadata-Flavor: Google"</span> \
+  http://metadata.google.internal/computeMetadata/v1/</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ct">Kubernetes external asset discovery</div>
+    <pre><span class="c"># Find K8s-related subdomains</span>
+subfinder <span class="k">-d</span> target.com <span class="k">-silent</span> | \
+  grep -E "(k8s|kube|cluster|ingress|gateway|istio)"
+
+<span class="c"># Probe K8s API endpoints on found hosts</span>
+cat k8s_subs.txt | httpx \
+  <span class="k">-path</span> /api,/api/v1,/healthz,/metrics,/version \
+  <span class="k">-mc</span> 200,401,403 <span class="k">-silent</span>
+
+<span class="c"># Check for exposed dashboards</span>
+cat k8s_subs.txt | httpx \
+  <span class="k">-path</span> /api/v1/namespaces,/ui,/dashboard \
+  <span class="k">-mc</span> 200 <span class="k">-title</span>
+
+<span class="c"># Nuclei K8s templates</span>
+nuclei <span class="k">-l</span> k8s_subs.txt \
+  <span class="k">-tags</span> kubernetes \
+  <span class="k">-severity</span> critical,high
+
+<span class="c"># Check for etcd exposure (port 2379)</span>
+cat k8s_ips.txt | httpx \
+  <span class="k">-port</span> 2379 \
+  <span class="k">-path</span> /v2/keys,/v3/kv \
+  <span class="k">-mc</span> 200</pre>
+  </div>
+
+  <div class="card">
+    <div class="ct">DevSecOps integration</div>
+    <div class="g2">
+      <div>
+        <div class="sh">Docker-based recon</div>
+        <pre>docker run \
+  -v $(pwd)/output:/output \
+  projectdiscovery/subfinder \
+  -d target.com \
+  -all -o /output/subs.txt
+
+<span class="c"># httpx container</span>
+docker run \
+  -i projectdiscovery/httpx \
+  -l /dev/stdin < subs.txt</pre>
+      </div>
+      <div>
+        <div class="sh">Makefile target</div>
+        <pre>recon:
+	subfinder -d $(DOMAIN) \
+	  -all -o subs.txt
+	cat subs.txt | httpx \
+	  -silent -o live.txt
+	nuclei -l live.txt \
+	  -severity critical \
+	  -o vulns.txt
+
+.PHONY: recon</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="tab-roadmap" class="tab">
+  <div class="card">
+    <div class="ct">30-day subfinder mastery roadmap</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">
+      <span style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-text-info);display:inline-block"></span>Week 1: Foundations</span>
+      <span style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-text-success);display:inline-block"></span>Week 2: Passive recon</span>
+      <span style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-text-warning);display:inline-block"></span>Week 3: Automation</span>
+      <span style="font-size:11px;color:var(--color-text-secondary);display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-text-danger);display:inline-block"></span>Week 4: Expert</span>
+    </div>
+    <div class="day-grid" id="daygrid"></div>
+    <div class="dp" id="daypanel"></div>
+  </div>
+</div>
+
+<script>
+const days=[
+  {d:1,w:1,t:"DNS fundamentals",lab:"Study A, CNAME, MX, TXT, NS records. Use dig to query each type on 3 domains.",cmd:"dig A example.com && dig CNAME www.example.com"},
+  {d:2,w:1,t:"Install toolchain",lab:"Install subfinder, httpx, nuclei, dnsx, ffuf. Configure Go PATH. Test each tool.",cmd:"subfinder -version && httpx -version"},
+  {d:3,w:1,t:"First enumeration",lab:"Run subfinder on a bug bounty target. Count results. Explore verbose mode.",cmd:"subfinder -d target.com -all -v"},
+  {d:4,w:1,t:"API key setup",lab:"Register for Shodan, VirusTotal, SecurityTrails free tiers. Add to provider config.",cmd:"cat ~/.config/subfinder/provider-config.yaml"},
+  {d:5,w:1,t:"Output formats",lab:"Generate TXT, JSON, CSV output. Write a jq filter to extract just domains.",cmd:"subfinder -d target.com -oJ | jq -r '.[].host'"},
+  {d:6,w:1,t:"httpx probing",lab:"Take subfinder output and probe all hosts. Filter by status code. Note tech stack.",cmd:"cat subs.txt | httpx -title -tech-detect"},
+  {d:7,w:1,t:"Week 1 recap lab",lab:"Full beginner flow: subfinder → dnsx → httpx on HackerOne public program. Document findings.",cmd:"Full chain on real target"},
+  {d:8,w:2,t:"Source comparison",lab:"Run subfinder with each major source separately. Compare result counts.",cmd:"subfinder -d t.com -sources shodan,crtsh -cs"},
+  {d:9,w:2,t:"Certificate transparency",lab:"Query crt.sh directly. Parse JSON. Compare with subfinder crtsh results.",cmd:"curl 'https://crt.sh/?q=%.target.com&output=json'"},
+  {d:10,w:2,t:"ASN enumeration",lab:"Find company ASN with bgp.he.net. Use asnmap to get all CIDRs. Scan for subdomains.",cmd:"asnmap -org 'Target Corp'"},
+  {d:11,w:2,t:"DNS resolution",lab:"Use dnsx with custom resolvers. Get A, CNAME, MX records. Find CDN vs origin.",cmd:"dnsx -l subs.txt -a -cname -resp"},
+  {d:12,w:2,t:"Wildcard detection",lab:"Find domains with wildcards. Use puredns or nW flag. Document your findings.",cmd:"subfinder -d target.com -nW"},
+  {d:13,w:2,t:"Zone transfer attempt",lab:"Find all NS records for 5 targets. Attempt AXFR. Document what worked.",cmd:"dig axfr target.com @ns1.target.com"},
+  {d:14,w:2,t:"Week 2 lab",lab:"Full passive recon on an enterprise target. Map ASN → domains → subdomains. Create asset inventory.",cmd:"Full enterprise recon chain"},
+  {d:15,w:3,t:"Bash scripting",lab:"Build the full recon.sh pipeline from scratch. Test on 3 targets.",cmd:"./recon.sh target.com ./output"},
+  {d:16,w:3,t:"Python automation",lab:"Build the Python ReconPipeline class. Add JSON reporting.",cmd:"python3 recon_orchestrator.py target.com"},
+  {d:17,w:3,t:"Nuclei integration",lab:"Chain subfinder → httpx → nuclei. Focus on exposures and CVE templates.",cmd:"nuclei -l live.txt -t cves/ -severity high"},
+  {d:18,w:3,t:"ffuf API fuzzing",lab:"Discover API endpoints on 3 targets. Find swagger.json, openapi.json.",cmd:"ffuf -u URL/FUZZ -w api-wordlist.txt"},
+  {d:19,w:3,t:"Continuous monitor",lab:"Set up monitor.sh. Run twice, add fake subdomain, verify alert fires.",cmd:"cron + monitor.sh + Slack webhook"},
+  {d:20,w:3,t:"GitHub Actions setup",lab:"Fork a repo. Add recon.yml workflow. Run manually. Review artifacts.",cmd:"gh workflow run recon.yml"},
+  {d:21,w:3,t:"Week 3 lab",lab:"Full automated pipeline: GH Actions + Slack alerts + artifact storage. Run on real target.",cmd:"CI/CD full recon pipeline"},
+  {d:22,w:4,t:"DNS takeover basics",lab:"Use subjack on 3 targets. Identify CNAME chains. Research each vulnerable service.",cmd:"subjack -w subs.txt -t 100 -ssl"},
+  {d:23,w:4,t:"Cloud asset mapping",lab:"Map AWS/Azure/GCP subdomains. Check for S3 buckets. Probe metadata endpoints.",cmd:"subfinder | grep amazonaws"},
+  {d:24,w:4,t:"K8s discovery",lab:"Find kubernetes-related subdomains. Probe API ports. Check for exposed dashboards.",cmd:"nmap -p 6443,8080,10250"},
+  {d:25,w:4,t:"Rate limit mastery",lab:"Configure rate limits on all tools. Test with a target that throttles requests.",cmd:"-rate-limit flags across tools"},
+  {d:26,w:4,t:"Multi-source merge",lab:"Combine subfinder + amass + assetfinder + crt.sh. Build dedup pipeline.",cmd:"cat *.txt | sort -u > master.txt"},
+  {d:27,w:4,t:"SQLMap integration",lab:"Find endpoints via ffuf. Pass to sqlmap. Document any injection points.",cmd:"sqlmap -u URL --dbs --batch"},
+  {d:28,w:4,t:"Full bug bounty run",lab:"Pick a new HackerOne program. Run full chain. Write a proper report.",cmd:"Full attack chain → report"},
+  {d:29,w:4,t:"DevSecOps pipeline",lab:"Integrate recon into a Docker-based pipeline. Add Makefile targets.",cmd:"make recon DOMAIN=target.com"},
+  {d:30,w:4,t:"Capstone day",lab:"Full red team recon on an enterprise-grade bug bounty program. Document attack surface. Submit findings.",cmd:"Submit bug bounty report"}
+];
+
+const wc={1:'w1',2:'w2',3:'w3',4:'w4'};
+const grid=document.getElementById('daygrid');
+const panel=document.getElementById('daypanel');
+let sel=null;
+
+days.forEach(day=>{
+  const cell=document.createElement('div');
+  cell.className=`dc ${wc[day.w]}`;
+  cell.innerHTML=`<div class="dn">DAY ${day.d}</div><div class="dt">${day.t}</div>`;
+  cell.onclick=()=>{
+    if(sel===day.d){sel=null;panel.className='dp';return}
+    sel=day.d;
+    panel.className='dp on';
+    panel.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span style="font-family:var(--font-mono);font-size:11px;color:var(--color-text-info)">DAY ${day.d}</span>
+      <span style="font-size:14px;font-weight:500">${day.t}</span>
+    </div>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.6"><b style="color:var(--color-text-tertiary)">LAB:</b> ${day.lab}</div>
+    <pre style="margin:0"><span class="k">${day.cmd}</span></pre>`;
+  };
+  grid.appendChild(cell);
+});
+
+function show(tab,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+tab).classList.add('on');
+  btn.classList.add('on');
+}
+</script>

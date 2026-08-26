@@ -1,0 +1,251 @@
+
+<style>
+h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.header{padding:20px 24px 16px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500}
+.b-blue{background:var(--color-background-info);color:var(--color-text-info)}
+.b-green{background:var(--color-background-success);color:var(--color-text-success)}
+.b-amber{background:#FAEEDA;color:#854F0B}
+.b-red{background:var(--color-background-danger);color:var(--color-text-danger)}
+.phase-row{display:flex;gap:0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.phase-label{width:90px;min-width:90px;padding:12px 10px;display:flex;flex-direction:column;justify-content:center;border-right:0.5px solid var(--color-border-tertiary);font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;background:var(--color-background-secondary)}
+.phase-label span{font-size:16px;font-weight:500;color:var(--color-text-primary);text-transform:none;letter-spacing:0;margin-bottom:2px}
+.track-grid{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px}
+.card{border-radius:8px;border:0.5px solid var(--color-border-tertiary);padding:8px 10px;cursor:pointer;transition:border-color .15s,background .15s;background:var(--color-background-primary)}
+.card:hover{border-color:var(--color-border-secondary);background:var(--color-background-secondary)}
+.card.active{border-color:var(--color-border-info);background:var(--color-background-info)}
+.card-icon{font-size:18px;margin-bottom:4px}
+.card-title{font-size:12px;font-weight:500;color:var(--color-text-primary);line-height:1.3}
+.card-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.detail-panel{border-top:0.5px solid var(--color-border-tertiary);padding:16px 20px;display:none}
+.detail-panel.open{display:block}
+.dp-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.dp-title{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.dp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-top:10px}
+.dp-item{padding:8px 10px;border-radius:6px;border:0.5px solid var(--color-border-tertiary);font-size:12px;color:var(--color-text-secondary);cursor:pointer;transition:background .12s}
+.dp-item:hover{background:var(--color-background-secondary)}
+.dp-item strong{display:block;font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.cert-row{display:flex;gap:6px;flex-wrap:wrap;padding:10px 20px 14px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.progress-bar{height:3px;border-radius:2px;background:var(--color-border-tertiary);margin:14px 20px 0;overflow:hidden}
+.progress-fill{height:100%;border-radius:2px;background:var(--color-text-info);width:0%;transition:width .4s}
+.stat-row{display:flex;gap:16px;padding:10px 20px 6px;border-top:0.5px solid var(--color-border-tertiary)}
+.stat{text-align:center}
+.stat-n{font-size:18px;font-weight:500;color:var(--color-text-primary)}
+.stat-l{font-size:11px;color:var(--color-text-secondary)}
+.roadmap-btn{padding:5px 12px;border-radius:6px;border:0.5px solid var(--color-border-secondary);font-size:12px;background:transparent;color:var(--color-text-primary);cursor:pointer;transition:background .12s}
+.roadmap-btn:hover{background:var(--color-background-secondary)}
+.close-btn{font-size:18px;cursor:pointer;color:var(--color-text-tertiary);padding:0 4px;background:none;border:none;line-height:1}
+</style>
+
+<h2 class="sr-only">GCP mastery curriculum navigator — interactive roadmap from beginner to architect level covering all major GCP services, Kubernetes, DevOps, SRE, security, and AI infrastructure.</h2>
+
+<div class="header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+  <div>
+    <div style="font-size:17px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px">GCP Mastery Curriculum</div>
+    <div style="font-size:12px;color:var(--color-text-secondary)">Senior DevOps Engineer → SRE → Platform Engineer → Cloud Architect</div>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <span class="badge b-blue"><i class="ti ti-server-2" aria-hidden="true"></i> 45+ Services</span>
+    <span class="badge b-green"><i class="ti ti-calendar" aria-hidden="true"></i> 90-Day Plan</span>
+    <span class="badge b-amber"><i class="ti ti-certificate" aria-hidden="true"></i> 3 Certs</span>
+    <span class="badge b-red"><i class="ti ti-shield-check" aria-hidden="true"></i> SRE Ready</span>
+  </div>
+</div>
+
+<div id="phases"></div>
+
+<div id="detail-panel" class="detail-panel"></div>
+
+<div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+<div style="display:flex;justify-content:space-between;padding:4px 20px 0;font-size:11px;color:var(--color-text-tertiary)">
+  <span>Beginner</span><span>Intermediate</span><span>Advanced</span><span>Architect</span>
+</div>
+
+<div class="stat-row">
+  <div class="stat"><div class="stat-n">4</div><div class="stat-l">Phases</div></div>
+  <div class="stat"><div class="stat-n">16</div><div class="stat-l">Tracks</div></div>
+  <div class="stat"><div class="stat-n">90</div><div class="stat-l">Days</div></div>
+  <div class="stat"><div class="stat-n" id="sel-count">0</div><div class="stat-l">Selected</div></div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:flex-end">
+    <button class="roadmap-btn" onclick="sendPrompt('Start Day 1: GCP foundations — show me the visual architecture canvas for Compute Engine, VPC, and IAM with CLI labs and Terraform examples')">Begin Day 1 ↗</button>
+  </div>
+</div>
+
+<div class="cert-row">
+  <span style="font-size:11px;color:var(--color-text-secondary);align-self:center;margin-right:4px">Maps to:</span>
+  <span class="badge b-blue" style="cursor:pointer" onclick="sendPrompt('Show me the Associate Cloud Engineer certification roadmap and which topics I need to master')"><i class="ti ti-award" aria-hidden="true"></i> ACE</span>
+  <span class="badge b-green" style="cursor:pointer" onclick="sendPrompt('Show me the Professional Cloud Architect certification path and sample architecture questions')"><i class="ti ti-award" aria-hidden="true"></i> PCA</span>
+  <span class="badge b-amber" style="cursor:pointer" onclick="sendPrompt('Show me the Professional DevOps Engineer certification topics and SRE concepts I need to master')"><i class="ti ti-award" aria-hidden="true"></i> DevOps Engineer</span>
+</div>
+
+<script>
+const phases=[
+  {
+    label:"Phase 1",name:"Foundations",days:"Days 1–20",badge:"b-blue",
+    tracks:[
+      {icon:"🌐",title:"VPC & Networking",sub:"Subnets, firewall, peering",
+       topics:["VPC architecture deep dive","Subnets & CIDR planning","Firewall rules & policies","VPC peering & Shared VPC","Cloud NAT & Private Google Access","Cloud DNS internals","Load Balancer types (L4/L7)"],
+       labs:["Build a 3-tier VPC from scratch","Configure Shared VPC with 3 projects","Set up Cloud NAT for private GKE nodes"],
+       prompt:"Teach me VPC architecture on GCP with visual diagrams, Shared VPC setup, firewall rules, and a hands-on lab to build a 3-tier network from scratch"},
+      {icon:"💻",title:"Compute Engine",sub:"VMs, instance groups, disks",
+       topics:["VM machine types & pricing","Managed Instance Groups (MIGs)","Autoscaling policies","Persistent Disk types","Preemptible & Spot VMs","VM startup scripts","OS Login & SSH"],
+       labs:["Deploy a MIG with autoscaling","Blue/green VM deployment","Attach and snapshot persistent disks"],
+       prompt:"Teach me Compute Engine deeply — VM types, MIGs, autoscaling, persistent disks, preemptible VMs, with architecture diagrams and Terraform examples"},
+      {icon:"🔐",title:"IAM & Security",sub:"Roles, policies, KMS",
+       topics:["IAM hierarchy (org/folder/project)","Predefined vs custom roles","Service accounts best practices","Workload Identity Federation","Organization Policies","KMS key management","Secret Manager patterns"],
+       labs:["Create least-privilege service account","Set up Workload Identity for GKE","Implement org-level deny policies"],
+       prompt:"Teach me GCP IAM deeply — hierarchy, roles, service accounts, Workload Identity Federation, org policies, with security architecture and production scenarios"},
+      {icon:"🗄️",title:"Storage & Databases",sub:"GCS, Cloud SQL, Firestore",
+       topics:["Cloud Storage classes & lifecycle","Signed URLs & IAM conditions","Cloud SQL HA & read replicas","Firestore vs Datastore","BigQuery architecture","Persistent Disk vs Filestore","Backup & disaster recovery"],
+       labs:["GCS lifecycle policy lab","Cloud SQL failover test","BigQuery partitioning & clustering"],
+       prompt:"Teach me GCP storage deeply — Cloud Storage, Cloud SQL HA, Firestore, BigQuery, Filestore with architecture diagrams, cost optimization, and production troubleshooting"},
+    ]
+  },
+  {
+    label:"Phase 2",name:"Kubernetes & GKE",days:"Days 21–45",badge:"b-green",
+    tracks:[
+      {icon:"☸️",title:"GKE Core",sub:"Autopilot, Standard, networking",
+       topics:["Autopilot vs Standard mode","Node pools & machine types","GKE networking (VPC-native)","Ingress & Gateway API","Network policies","GKE private clusters","Cluster autoscaler vs Node auto-provisioning"],
+       labs:["Deploy private GKE cluster","Configure Ingress with Cloud Armor","Set up cluster autoscaler"],
+       prompt:"Teach me GKE deeply — Autopilot vs Standard, VPC-native networking, Ingress, private clusters, autoscaling with architecture diagrams and production labs"},
+      {icon:"🔀",title:"Service Mesh & Istio",sub:"Anthos, Istio, Workload Identity",
+       topics:["Istio architecture (control/data plane)","mTLS & traffic management","Workload Identity in GKE","Anthos Service Mesh","Traffic splitting & canary","Observability with Istio","Multi-cluster mesh patterns"],
+       labs:["Install Istio on GKE","Configure canary deployment","Enable mTLS between services"],
+       prompt:"Teach me Istio and Anthos Service Mesh on GKE — architecture, mTLS, traffic management, canary deployments, Workload Identity with production examples"},
+      {icon:"📦",title:"Helm & GitOps",sub:"Helm, ArgoCD, Kustomize",
+       topics:["Helm chart architecture","Helm hooks & lifecycle","ArgoCD installation & config","GitOps patterns (app-of-apps)","Kustomize overlays","Multi-env promotion","Rollback strategies"],
+       labs:["Build a Helm chart from scratch","Set up ArgoCD with multi-env","Implement app-of-apps pattern"],
+       prompt:"Teach me Helm and ArgoCD GitOps on GKE — Helm chart design, ArgoCD multi-env setup, app-of-apps pattern, with production CI/CD pipeline integration"},
+      {icon:"🏗️",title:"GKE Enterprise Platform",sub:"Multi-cluster, security, policies",
+       topics:["Multi-cluster GKE design","GKE Gateway for multi-cluster routing","Config Sync (ACM)","Policy Controller (OPA/Gatekeeper)","Binary Authorization","GKE Backup","Fleet management"],
+       labs:["Multi-cluster GKE with Gateway","Deploy Policy Controller","Configure Binary Authorization"],
+       prompt:"Teach me enterprise GKE platform design — multi-cluster, Fleet management, Config Sync, Policy Controller, Binary Authorization with architecture diagrams"},
+    ]
+  },
+  {
+    label:"Phase 3",name:"DevOps & SRE",days:"Days 46–70",badge:"b-amber",
+    tracks:[
+      {icon:"🔄",title:"CI/CD Pipelines",sub:"Cloud Build, Artifact Registry",
+       topics:["Cloud Build architecture & triggers","Cloud Build with GKE","Artifact Registry multi-format","GitHub Actions + GCP","Jenkins on GKE","Deployment strategies (canary, blue/green, rolling)","Supply chain security (SLSA)"],
+       labs:["Build full CI/CD with Cloud Build","GitHub Actions to GKE deployment","Secure artifact pipeline with signing"],
+       prompt:"Teach me production CI/CD pipelines on GCP — Cloud Build, Artifact Registry, GitHub Actions, deployment strategies, supply chain security with real enterprise examples"},
+      {icon:"🏭",title:"Terraform & IaC",sub:"Modules, state, environments",
+       topics:["Terraform GCP provider internals","Module design patterns","Remote state with GCS","Terraform workspaces vs directories","Terragrunt patterns","Deployment Manager vs Terraform","Infrastructure drift detection"],
+       labs:["Build a Terraform GKE module","Multi-env Terraform with workspaces","Terraform in CI/CD pipeline"],
+       prompt:"Teach me Terraform on GCP deeply — module design, remote state, multi-env patterns, Terragrunt, CI/CD integration with production examples and best practices"},
+      {icon:"📊",title:"Observability Stack",sub:"Cloud Monitoring, Prometheus, Grafana",
+       topics:["Cloud Monitoring metrics & alerting","Cloud Logging log sinks & exports","Error Reporting & Trace","OpenTelemetry on GKE","Prometheus + Grafana on GKE","SLI/SLO/Error budget design","Custom dashboards & uptime checks"],
+       labs:["Deploy full observability stack","Define SLOs with error budgets","Build Grafana dashboards from scratch"],
+       prompt:"Teach me the full GCP observability stack — Cloud Monitoring, Logging, Trace, OpenTelemetry, Prometheus, Grafana, SLI/SLO design with hands-on labs"},
+      {icon:"🚨",title:"SRE Operations",sub:"Incident response, chaos, RCA",
+       topics:["SRE operational model","Incident command & runbooks","Error budget policies","Chaos engineering on GKE","Root cause analysis (RCA)","Post-mortem culture","On-call design & toil reduction"],
+       labs:["Run a chaos engineering experiment","Write an incident runbook","Conduct a production RCA simulation"],
+       prompt:"Teach me SRE operations — incident response, error budgets, chaos engineering, RCA, post-mortem culture with real enterprise incident simulations"},
+    ]
+  },
+  {
+    label:"Phase 4",name:"Architect Level",days:"Days 71–90",badge:"b-red",
+    tracks:[
+      {icon:"🛡️",title:"Enterprise Security",sub:"Cloud Armor, SCC, Binary Auth",
+       topics:["Cloud Armor WAF & DDoS protection","Security Command Center","Binary Authorization pipeline","VPC Service Controls","Private Service Connect","Data Loss Prevention (DLP)","Compliance & audit logging"],
+       labs:["Configure Cloud Armor rules","Set up VPC Service Controls perimeter","Implement Binary Auth in CI/CD"],
+       prompt:"Teach me enterprise GCP security — Cloud Armor, Security Command Center, VPC Service Controls, Binary Authorization, compliance architecture with threat scenarios"},
+      {icon:"🌍",title:"Multi-Region Architecture",sub:"Global LB, DR, failover",
+       topics:["Global HTTP(S) Load Balancer internals","Multi-region GKE with Gateway","Active-active vs active-passive DR","RTO/RPO design patterns","Cloud Spanner for global DB","Disaster recovery runbooks","Cost vs resilience trade-offs"],
+       labs:["Build multi-region active-active","Failover simulation exercise","DR runbook for GKE workload"],
+       prompt:"Teach me multi-region GCP architecture — global load balancing, active-active DR, GKE multi-region, Cloud Spanner, disaster recovery design with architecture diagrams"},
+      {icon:"🤖",title:"AI & Data Platform",sub:"Vertex AI, TPU/GPU, BigQuery ML",
+       topics:["Vertex AI pipeline architecture","GPU/TPU node pools on GKE","Dataflow streaming & batch","Dataproc cluster design","BigQuery ML models","Feast feature store on GCP","MLOps with Vertex Pipelines"],
+       labs:["Deploy GPU workload on GKE","Build a Vertex AI pipeline","BigQuery ML classification model"],
+       prompt:"Teach me AI and data platform on GCP — Vertex AI, GPU/TPU on GKE, Dataflow, Dataproc, BigQuery ML, MLOps with architecture diagrams and labs"},
+      {icon:"💰",title:"Cost & Governance",sub:"FinOps, quotas, org design",
+       topics:["FinOps on GCP (committed use, sustained use)","Resource hierarchy & billing","Quotas & budget alerts","Committed Use Discounts","Spot VM cost strategies","Cost allocation & chargebacks","Organization design patterns"],
+       labs:["Build a cost dashboard","Set up committed use discount","Design org hierarchy for enterprise"],
+       prompt:"Teach me GCP cost optimization and governance — FinOps, committed use discounts, resource hierarchy, org design, budget alerts with enterprise governance patterns"},
+    ]
+  }
+];
+
+let selected=new Set();
+let openCard=null;
+
+function renderPhases(){
+  const cont=document.getElementById('phases');
+  phases.forEach((phase,pi)=>{
+    const row=document.createElement('div');
+    row.className='phase-row';
+    row.innerHTML=`<div class="phase-label"><span>${phase.name}</span>${phase.label}<br><span style="font-size:10px;font-weight:400">${phase.days}</span></div>
+    <div class="track-grid" id="grid-${pi}"></div>`;
+    cont.appendChild(row);
+    const grid=row.querySelector(`#grid-${pi}`);
+    phase.tracks.forEach((t,ti)=>{
+      const key=`${pi}-${ti}`;
+      const card=document.createElement('div');
+      card.className='card';
+      card.id=`card-${key}`;
+      card.innerHTML=`<div class="card-icon">${t.icon}</div><div class="card-title">${t.title}</div><div class="card-sub">${t.sub}</div>`;
+      card.onclick=()=>toggleCard(key,t,phase.badge);
+      grid.appendChild(card);
+    });
+  });
+}
+
+function toggleCard(key,track,badge){
+  const panel=document.getElementById('detail-panel');
+  if(openCard===key){
+    panel.classList.remove('open');
+    document.getElementById(`card-${key}`).classList.remove('active');
+    openCard=null;
+    return;
+  }
+  if(openCard) document.getElementById(`card-${openCard}`)?.classList.remove('active');
+  openCard=key;
+  document.getElementById(`card-${key}`).classList.add('active');
+  
+  const bmap={
+    'b-blue':'var(--color-text-info)',
+    'b-green':'var(--color-text-success)',
+    'b-amber':'#854F0B',
+    'b-red':'var(--color-text-danger)'
+  };
+  const col=bmap[badge]||'var(--color-text-primary)';
+  
+  panel.innerHTML=`
+    <div class="dp-header">
+      <div>
+        <div class="dp-title" style="color:${col}">${track.icon} ${track.title}</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">${track.sub}</div>
+      </div>
+      <button class="close-btn" onclick="closePanel()">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Topics</div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          ${track.topics.map(t=>`<div style="font-size:12px;color:var(--color-text-secondary);display:flex;gap:6px;align-items:flex-start"><span style="color:${col};font-size:10px;margin-top:3px">▸</span>${t}</div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Hands-on labs</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${track.labs.map((l,i)=>`<div style="padding:7px 10px;border-radius:6px;border:0.5px solid var(--color-border-tertiary);font-size:12px;cursor:pointer;background:var(--color-background-primary)" onclick="sendPrompt('${track.prompt} — start with: ${l}')" onmouseover="this.style.background='var(--color-background-secondary)'" onmouseout="this.style.background='var(--color-background-primary)')"><span style="font-size:10px;font-weight:500;color:${col}">LAB ${i+1}</span> <span style="color:var(--color-text-primary)">${l}</span> <span style="float:right;font-size:11px;color:var(--color-text-tertiary)">↗</span></div>`).join('')}
+        </div>
+        <button onclick="sendPrompt('${track.prompt}')" style="margin-top:10px;width:100%;padding:8px;border-radius:7px;border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-primary);font-size:12px;cursor:pointer;font-weight:500" onmouseover="this.style.background='var(--color-background-secondary)'" onmouseout="this.style.background='transparent'">
+          Start full ${track.title} module ↗
+        </button>
+      </div>
+    </div>
+  `;
+  panel.classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('detail-panel').classList.remove('open');
+  if(openCard) document.getElementById(`card-${openCard}`)?.classList.remove('active');
+  openCard=null;
+}
+
+renderPhases();
+</script>

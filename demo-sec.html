@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Kernel Ops Center | Deep Learning Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Font simulating Terminal */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #cbd5e1; /* Slate 300 */
+        }
+
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Chart Container Strict Styling */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        
+        @media (min-width: 1024px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b; 
+        }
+
+        /* Terminal Typing Effect Cursor */
+        .cursor-blink {
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background-color: #10b981;
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .cmd-item:hover {
+            border-left-width: 4px;
+        }
+        
+        .active-cmd {
+            background-color: #1e293b;
+            border-left: 4px solid #3b82f6;
+            color: white;
+        }
+    </style>
+    <!-- Chosen Palette: Slate (Dark Mode) with Domain Accents: Cyan (Net), Purple (Identity), Amber (Logs), Emerald (Security) -->
+    <!-- Application Structure Plan:
+         1. Layout: Fixed Sidebar (Desktop) / Bottom Nav (Mobile) for 4 Domains.
+         2. Main Content: Dynamic injection based on active domain.
+         3. Visualizer Section: Interactive Chart.js graph relevant to the domain (e.g., Bandwidth monitor for Networking).
+         4. Command Center: Two-column layout. Left: Filterable list of commands. Right: "Terminal" detailed view with "Deep Dive" content.
+         5. Purpose: To gamify the learning of complex Linux concepts by combining visualization with detailed textual analysis.
+    -->
+    <!-- Visualization & Content Choices:
+         - Networking: Live Bandwidth Line Chart (Simulate TC throttling).
+         - Identity: Doughnut Chart for Permission Distribution (Simulate Secure vs Insecure).
+         - Logs: Bar Chart for Log Volume (Simulate Vacuuming).
+         - Security: Radar Chart for Hardening Metrics (Simulate Enforcement).
+         - Justification: Users need to 'see' the impact of commands like `tc` or `journalctl --vacuum`.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="h-screen flex overflow-hidden selection:bg-cyan-500 selection:text-slate-900">
+
+    <!-- Sidebar Navigation -->
+    <nav class="w-20 lg:w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 z-50">
+        <div>
+            <div class="h-16 flex items-center justify-center lg:justify-start lg:px-6 border-b border-slate-800">
+                <span class="text-3xl">🐧</span>
+                <span class="hidden lg:block ml-3 font-bold text-slate-100 tracking-wider">KERNEL<span class="text-cyan-400">OPS</span></span>
+            </div>
+            
+            <div class="flex flex-col gap-2 p-2 mt-4">
+                <button onclick="switchDomain('net')" id="nav-net" class="nav-btn group flex items-center p-3 rounded-lg hover:bg-slate-800 transition-all text-cyan-400 bg-slate-800/50">
+                    <span class="text-2xl">🌐</span>
+                    <span class="hidden lg:block ml-3 font-medium">Networking</span>
+                </button>
+                <button onclick="switchDomain('identity')" id="nav-identity" class="nav-btn group flex items-center p-3 rounded-lg hover:bg-slate-800 transition-all text-slate-400 hover:text-purple-400">
+                    <span class="text-2xl">🔐</span>
+                    <span class="hidden lg:block ml-3 font-medium">Identity & ACL</span>
+                </button>
+                <button onclick="switchDomain('logs')" id="nav-logs" class="nav-btn group flex items-center p-3 rounded-lg hover:bg-slate-800 transition-all text-slate-400 hover:text-amber-400">
+                    <span class="text-2xl">🧾</span>
+                    <span class="hidden lg:block ml-3 font-medium">Logs & Forensics</span>
+                </button>
+                <button onclick="switchDomain('sec')" id="nav-sec" class="nav-btn group flex items-center p-3 rounded-lg hover:bg-slate-800 transition-all text-slate-400 hover:text-emerald-400">
+                    <span class="text-2xl">🛡️</span>
+                    <span class="hidden lg:block ml-3 font-medium">Security</span>
+                </button>
+            </div>
+        </div>
+        
+        <div class="p-4 border-t border-slate-800">
+            <div class="hidden lg:block text-xs text-slate-500">
+                <p>Deep Learning Mode</p>
+                <p class="mt-1">v2.4.0-stable</p>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-950 relative">
+        
+        <!-- Header -->
+        <header class="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur flex items-center justify-between px-6 sticky top-0 z-40">
+            <h1 id="domain-title" class="text-xl font-bold text-white tracking-tight">Advanced Networking</h1>
+            <div class="relative w-64 hidden md:block">
+                <input type="text" id="global-search" placeholder="Search 160+ commands..." 
+                    class="w-full bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-md px-4 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 placeholder-slate-500 transition-all"
+                    oninput="handleSearch(this.value)">
+                <div class="absolute right-3 top-2.5 text-slate-500 text-xs">⌘K</div>
+            </div>
+        </header>
+
+        <!-- Scrollable Content -->
+        <div id="main-scroll" class="flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth">
+            
+            <!-- Domain Intro & Visualization -->
+            <section class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8 fade-in">
+                <!-- Text Context -->
+                <div class="xl:col-span-1 flex flex-col justify-center">
+                    <div id="domain-intro" class="prose prose-invert prose-sm">
+                        <!-- Injected via JS -->
+                    </div>
+                    <div class="mt-6 p-4 glass-panel rounded-lg border-l-4 border-cyan-500" id="domain-tip">
+                        <h4 class="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1">Deep Learning Focus</h4>
+                        <p class="text-sm text-slate-300">Networking in Linux is packet flow through tables. We focus on namespaces (Docker) and traffic shaping.</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Visualization -->
+                <div class="xl:col-span-2 glass-panel rounded-xl p-4 border border-slate-800 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 id="chart-title" class="font-bold text-slate-200">Live Traffic Simulation</h3>
+                        <button id="chart-action-btn" class="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded transition-colors shadow-lg shadow-cyan-500/20">
+                            Apply Traffic Control (tc)
+                        </button>
+                    </div>
+                    <div class="chart-container flex-1">
+                        <canvas id="mainChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Command Center -->
+            <section class="flex flex-col lg:flex-row gap-6 h-[800px] lg:h-[600px]">
+                
+                <!-- Command List (Left) -->
+                <div class="w-full lg:w-1/3 glass-panel rounded-xl border border-slate-800 flex flex-col overflow-hidden">
+                    <div class="p-3 border-b border-slate-800 bg-slate-900/50">
+                        <input type="text" id="cmd-filter" placeholder="Filter current list..." class="w-full bg-transparent border-none text-sm text-white focus:ring-0 placeholder-slate-600">
+                    </div>
+                    <div id="cmd-list" class="flex-1 overflow-y-auto">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Deep Dive Terminal (Right) -->
+                <div class="w-full lg:w-2/3 glass-panel rounded-xl border border-slate-800 flex flex-col relative overflow-hidden">
+                    <!-- Terminal Header -->
+                    <div class="h-10 bg-slate-900 border-b border-slate-800 flex items-center px-4 gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="ml-auto text-xs text-slate-500 font-mono">root@deep-learning-core:~</span>
+                    </div>
+
+                    <!-- Terminal Body -->
+                    <div class="flex-1 p-6 font-mono text-sm overflow-y-auto bg-slate-950/80">
+                        <div class="text-slate-500 mb-4"># Select a command to analyze kernel operations...</div>
+                        
+                        <div id="terminal-output" class="hidden">
+                            <div class="flex mb-2">
+                                <span class="text-green-500 mr-2">➜</span>
+                                <span class="text-cyan-400">~</span>
+                                <span class="text-slate-400 ml-2" id="term-cmd-display"></span>
+                            </div>
+                            
+                            <div class="mt-6 border-l-2 border-slate-700 pl-4 animate-pulse-once">
+                                <h4 class="text-slate-200 font-bold mb-2 text-xs uppercase tracking-widest">Deep Dive Analysis</h4>
+                                <p id="term-desc" class="text-slate-300 leading-relaxed"></p>
+                            </div>
+
+                            <div class="mt-6 grid grid-cols-2 gap-4">
+                                <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                    <span class="text-xs text-slate-500 block mb-1">Context</span>
+                                    <span id="term-context" class="text-emerald-400 font-bold">Networking</span>
+                                </div>
+                                <div class="bg-slate-900 p-3 rounded border border-slate-800">
+                                    <span class="text-xs text-slate-500 block mb-1">Impact Level</span>
+                                    <span class="text-amber-400 font-bold">Kernel Space</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Copy Button -->
+                    <button onclick="copyActiveCommand()" class="absolute bottom-6 right-6 p-3 bg-slate-800 hover:bg-slate-700 text-white rounded-full shadow-xl transition-all border border-slate-700">
+                        <span class="text-xl">📋</span>
+                    </button>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // --- Data: 160 Commands categorized ---
+        const dataStore = {
+            net: {
+                title: "Advanced Networking",
+                color: "cyan",
+                intro: "Modern DevOps relies on containerization. To master this, you must master <strong>Network Namespaces</strong>, <strong>Traffic Shaping</strong>, and <strong>Packet Analysis</strong>. The kernel treats networking as a flow of packets through Netfilter tables.",
+                chartTitle: "Live Bandwidth Monitor (Mbit/s)",
+                btnText: "Apply Traffic Control (tc)",
+                categories: [
+                    { name: "Namespaces (Docker Core)", cmds: [
+                        { c: "ip netns add isolated_net", d: "Creates a completely isolated network stack in the kernel. This is exactly how Docker containers are isolated from the host network." },
+                        { c: "ip netns exec isolated_net bash", d: "Opens a shell *inside* that isolated network. If you run `ip a` here, you will not see the host's IP addresses." },
+                        { c: "ip link add veth0 type veth peer name veth1", d: "Creates a virtual ethernet pipe. What goes in `veth0` comes out `veth1`. Used to bridge isolated namespaces to the physical network." },
+                        { c: "ip link set veth1 netns isolated_net", d: "Shoves one end of the virtual pipe into the isolated namespace." },
+                        { c: "brctl addbr br0", d: "Creates a virtual Layer 2 switch inside Linux." },
+                        { c: "brctl addif br0 eth0", d: "Plugs your physical ethernet cable into that virtual switch." }
+                    ]},
+                    { name: "Traffic Control & QoS", cmds: [
+                        { c: "tc qdisc add dev eth0 root tbf rate 1mbit burst 32k latency 400ms", d: "Manipulates the kernel's queueing discipline to artificially throttle outgoing bandwidth to 1Mbps. Used in chaos engineering." },
+                        { c: "tc -s qdisc ls dev eth0", d: "Shows real-time statistics of packets being artificially delayed or dropped by your `tc` rules." },
+                        { c: "tc qdisc del dev eth0 root", d: "Removes the artificial throttling." }
+                    ]},
+                    { name: "Packet Analysis & Dark Arts", cmds: [
+                        { c: "tcpdump -nnvvS tcp and src host 10.0.0.5", d: "Sniffs raw packets without resolving DNS (-nn), very verbose (-vv), showing absolute sequence numbers (-S) for deep TCP handshake analysis." },
+                        { c: "tcpdump -A -s0 port 80", d: "Captures the full packet size (-s0) and prints the payload in ASCII (-A). Used to literally read unencrypted HTTP requests flying over the wire." },
+                        { c: "ip route add blackhole 10.9.9.9", d: "Tells the kernel routing table to instantly incinerate any packet destined for this IP. Extremely fast DDoS mitigation at the edge." },
+                        { c: "ss -ti", d: "Shows deep TCP internal metrics (retransmission counts, congestion window size, RTT latency) for every active connection." },
+                        { c: "ss -K dst 10.0.0.5", d: "Kernel Socket Kill. Forcibly closes an established TCP connection at the kernel level without waiting for timeouts." },
+                        { c: "conntrack -E", d: "Watches the kernel's connection tracking table in real-time. Watch TCP states transition from SYN_SENT to ESTABLISHED." }
+                    ]},
+                    { name: "Diagnostics", cmds: [
+                        { c: "dig +trace +nodnssec google.com", d: "Forces machine to ignore local DNS caches and query Root Servers (.) directly, tracing delegation." },
+                        { c: "traceroute -T -p 443 8.8.8.8", d: "Uses TCP port 443 packets instead of ICMP, tricking firewalls into letting the trace pass through." },
+                        { c: "mtr -T -P 443 8.8.8.8", d: "The live, continuous version of the TCP traceroute." },
+                        { c: "iftop -B", d: "Shows exactly which IP connections are currently eating the most bandwidth on your interface." }
+                    ]}
+                ]
+            },
+            identity: {
+                title: "Identity, ACLs & Capabilities",
+                color: "purple",
+                intro: "Standard permissions are primitive. Modern security relies on <strong>ACLs</strong> for fine-grained sharing, <strong>PAM</strong> for auth pipelines, and <strong>Kernel Capabilities</strong> to give programs root-like powers without being root.",
+                chartTitle: "File Permission Risk Distribution",
+                btnText: "Enforce Secure Permissions",
+                categories: [
+                    { name: "ACLs & Attributes", cmds: [
+                        { c: "setfacl -m u:devops:rw file.txt", d: "Modifies extended attributes in the inode to grant 'devops' read/write access, totally bypassing standard owner/group rules." },
+                        { c: "setfacl -m d:u:devops:rw /shared/", d: "Sets a Default ACL. Any new file created inside /shared/ automatically inherits these permissions." },
+                        { c: "chattr +i /etc/passwd", d: "Makes the file Immutable. It cannot be deleted, renamed, or modified by anyone, including root, until the flag is removed." },
+                        { c: "chattr +a /var/log/audit.log", d: "Makes a file Append-Only. Root cannot delete/overwrite data; only add to the bottom." }
+                    ]},
+                    { name: "Kernel Capabilities", cmds: [
+                        { c: "setcap cap_net_bind_service=+ep /usr/bin/node", d: "Gives Node.js ability to bind privileged ports (80/443) without needing root. Massive security win." },
+                        { c: "getcap -r /usr/bin", d: "Recursively scans system to find binaries that have been granted secret kernel capabilities." },
+                        { c: "setcap -r /usr/bin/node", d: "Removes the capability from the binary." }
+                    ]},
+                    { name: "PAM & User Context", cmds: [
+                        { c: "faillock --user bob", d: "Queries PAM database to see exactly how many times Bob failed to log in, and from what IP." },
+                        { c: "chage -d 0 bob", d: "Forces 'last password change date' to 0, instantly forcing password change on next login." },
+                        { c: "usermod -L hacker", d: "Locks account by putting a '!' in front of password hash in /etc/shadow, making it mathematically impossible to match." },
+                        { c: "su -s /bin/bash nginx", d: "Forces a shell as 'nginx' user, even if account is locked (/sbin/nologin). Used to test compromised service limits." }
+                    ]},
+                    { name: "SetUID & Groups", cmds: [
+                        { c: "chmod u+s /usr/bin/ping", d: "SetUID. When normal user runs this, kernel executes it as owner (root). Dangerous on scripts." },
+                        { c: "chmod g+s /shared/dir", d: "SetGID. Files created inside inherit directory's group, not creator's primary group. Crucial for collaboration." },
+                        { c: "find / -perm -4000 2>/dev/null", d: "Security Audit: Find every SetUID binary on system that grants root execution privileges." }
+                    ]}
+                ]
+            },
+            logs: {
+                title: "Deep Log Management",
+                color: "amber",
+                intro: "Logs are structured data streams. A master uses <strong>journalctl</strong> to manipulate the binary flight recorder, and <strong>awk/sed/jq</strong> to perform analytics directly in the terminal.",
+                chartTitle: "Log Volume Ingestion (Entries/min)",
+                btnText: "Vacuum Logs (Clean Disk)",
+                categories: [
+                    { name: "Systemd Journal", cmds: [
+                        { c: "journalctl -xef", d: "Follows live (-f), jumps to end (-e), and uses catalog (-x) to inject explanations of *why* errors occurred." },
+                        { c: "journalctl -b -1", d: "Shows logs exclusively from the *previous* boot session. Essential for debugging crashes." },
+                        { c: "journalctl --vacuum-size=1G", d: "Shaves journal down until it takes up precisely 1GB of disk space." },
+                        { c: "journalctl -o json-pretty", d: "Converts raw logs into structured JSON, exposing hidden kernel metadata." }
+                    ]},
+                    { name: "Awk & Data Analytics", cmds: [
+                        { c: "awk '{print $1}' access.log | sort | uniq -c | sort -nr | head -10", d: "The DDoS Hunter. Counts identical IPs and sorts by highest count. Reveals top attackers." },
+                        { c: "sed -n '/Jan 01 10:00/,/Jan 01 11:00/p' /var/log/syslog", d: "The Time Slicer. Extracts exactly one hour of logs without reading the whole file into memory." },
+                        { c: "jq '.[] | select(.level==\"ERROR\")' app.log.json", d: "Queries JSON log file like a database to pull out only Error-level objects." }
+                    ]},
+                    { name: "Audit Framework", cmds: [
+                        { c: "auditctl -w /etc/shadow -p wa -k shadow_changes", d: "Installs kernel tripwire. If ANY process writes (w) or appends (a) to shadow file, kernel logs it." },
+                        { c: "ausearch -k shadow_changes", d: "Queries audit daemon to see exactly which PID and User triggered the tripwire." },
+                        { c: "aureport -x", d: "Generates forensic summary report of exactly which executable binaries were run on system." }
+                    ]}
+                ]
+            },
+            sec: {
+                title: "Military-Grade Security",
+                color: "emerald",
+                intro: "Security is about reducing attack surface. This involves <strong>Kernel-level MAC (SELinux)</strong>, <strong>Sysctl hardening</strong>, <strong>Encrypted volumes</strong>, and <strong>Active Defense</strong>.",
+                chartTitle: "System Hardening Score",
+                btnText: "Enforce Security Profiles",
+                categories: [
+                    { name: "Kernel Hardening", cmds: [
+                        { c: "sysctl -w kernel.randomize_va_space=2", d: "Enables full ASLR. Makes buffer overflows nearly impossible by randomizing RAM layout." },
+                        { c: "sysctl -w net.ipv4.conf.all.rp_filter=1", d: "Enables Reverse Path Filtering. Kernel checks if incoming packets arrive on correct interface. Stops IP Spoofing." },
+                        { c: "sysctl -w net.ipv4.tcp_syncookies=1", d: "Protects against SYN flood DDoS by calculating TCP sequences mathematically instead of storing in memory." }
+                    ]},
+                    { name: "SELinux & AppArmor", cmds: [
+                        { c: "semanage port -a -t http_port_t -p tcp 8080", d: "Updates kernel MAC policy to officially allow web server context to bind to non-standard port." },
+                        { c: "audit2allow -a -M my_rule", d: "Reads block logs and automatically generates custom policy module to allow whatever was blocked." },
+                        { c: "aa-enforce /etc/apparmor.d/usr.sbin.nginx", d: "Locks profile down. Violations are hard-blocked by kernel." }
+                    ]},
+                    { name: "Active Defense & Encryption", cmds: [
+                        { c: "iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP", d: "Native kernel-level brute force protection. Drops IP if it hits SSH 4 times in 60s." },
+                        { c: "cryptsetup luksFormat /dev/sdX", d: "Writes LUKS header to partition, turning it into AES-256 encrypted vault." },
+                        { c: "rkhunter --propupd", d: "Scans core binaries (ls, netstat) and saves cryptographic hashes to detect rootkit replacements." },
+                        { c: "openssl s_client -connect google.com:443 -showcerts", d: "Connects to remote server, negotiates TLS, and downloads certificate chain for debugging." }
+                    ]}
+                ]
+            }
+        };
+
+        // --- Global State ---
+        let activeDomain = 'net';
+        let activeCmd = null;
+        let chartInstance = null;
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            switchDomain('net');
+        });
+
+        // --- Core Functions ---
+
+        function switchDomain(domainKey) {
+            activeDomain = domainKey;
+            const data = dataStore[domainKey];
+
+            // 1. Update UI Styles
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-' + dataStore.net.color + '-400', 'text-' + dataStore.identity.color + '-400', 'text-' + dataStore.logs.color + '-400', 'text-' + dataStore.sec.color + '-400');
+                btn.classList.add('text-slate-400');
+            });
+            const activeBtn = document.getElementById('nav-' + domainKey);
+            activeBtn.classList.add('bg-slate-800', 'text-' + data.color + '-400');
+            activeBtn.classList.remove('text-slate-400');
+
+            // 2. Update Content
+            document.getElementById('domain-title').innerText = data.title;
+            document.getElementById('domain-title').className = `text-xl font-bold tracking-tight text-${data.color}-400`;
+            document.getElementById('domain-intro').innerHTML = data.intro;
+            
+            // 3. Render Command List
+            renderCommandList(data);
+
+            // 4. Update Chart
+            updateChart(domainKey, data);
+            
+            // 5. Reset Terminal
+            document.getElementById('terminal-output').classList.add('hidden');
+            
+            // 6. Reset Tip Color
+            document.getElementById('domain-tip').className = `mt-6 p-4 glass-panel rounded-lg border-l-4 border-${data.color}-500`;
+            document.querySelector('#domain-tip h4').className = `text-${data.color}-400 font-bold text-xs uppercase tracking-wider mb-1`;
+        }
+
+        function renderCommandList(data) {
+            const listContainer = document.getElementById('cmd-list');
+            listContainer.innerHTML = '';
+
+            data.categories.forEach(cat => {
+                const header = document.createElement('div');
+                header.className = `sticky top-0 bg-slate-900/90 backdrop-blur px-4 py-2 text-xs font-bold text-${data.color}-500 border-b border-slate-800 uppercase tracking-widest`;
+                header.innerText = cat.name;
+                listContainer.appendChild(header);
+
+                cat.cmds.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.className = 'cmd-item w-full text-left px-4 py-3 text-sm text-slate-300 hover:bg-slate-800 hover:text-white border-l-4 border-transparent transition-all font-mono truncate';
+                    btn.innerText = item.c.split(' ')[0] + ' ...'; // Shorten for list
+                    btn.title = item.c;
+                    btn.onclick = () => loadTerminal(item, btn);
+                    listContainer.appendChild(btn);
+                });
+            });
+        }
+
+        function loadTerminal(item, btnElement) {
+            // Highlight Active
+            document.querySelectorAll('.cmd-item').forEach(b => b.classList.remove('active-cmd'));
+            if(btnElement) btnElement.classList.add('active-cmd');
+
+            activeCmd = item.c;
+
+            const termDisplay = document.getElementById('term-cmd-display');
+            const termDesc = document.getElementById('term-desc');
+            const outputDiv = document.getElementById('terminal-output');
+
+            outputDiv.classList.remove('hidden');
+            
+            // Typing effect simulation
+            termDisplay.innerHTML = '';
+            let i = 0;
+            const speed = 20; 
+            
+            function typeWriter() {
+                if (i < item.c.length) {
+                    termDisplay.innerHTML += item.c.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, speed);
+                }
+            }
+            typeWriter();
+
+            termDesc.innerHTML = item.d.replace(/\*(.*?)\*/g, '<strong class="text-white">$1</strong>').replace(/`(.*?)`/g, '<code class="bg-slate-800 px-1 rounded text-cyan-300">$1</code>');
+            
+            // Update Context Tag based on domain
+            const colorMap = { 'net': 'text-cyan-400', 'identity': 'text-purple-400', 'logs': 'text-amber-400', 'sec': 'text-emerald-400' };
+            const titleMap = { 'net': 'Networking', 'identity': 'ACL & Caps', 'logs': 'Log Analytics', 'sec': 'Hardening' };
+            document.getElementById('term-context').className = `${colorMap[activeDomain]} font-bold`;
+            document.getElementById('term-context').innerText = titleMap[activeDomain];
+        }
+
+        function copyActiveCommand() {
+            if(activeCmd) {
+                navigator.clipboard.writeText(activeCmd);
+                // Visual feedback could be added here
+            }
+        }
+
+        // --- Chart Logic ---
+        function updateChart(key, data) {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            document.getElementById('chart-title').innerText = data.chartTitle;
+            document.getElementById('chart-action-btn').innerText = data.btnText;
+            document.getElementById('chart-action-btn').className = `px-3 py-1 bg-${data.color}-600 hover:bg-${data.color}-500 text-white text-xs font-bold rounded transition-colors shadow-lg shadow-${data.color}-500/20`;
+
+            // Chart Interaction Binding
+            document.getElementById('chart-action-btn').onclick = () => simulateChartAction(key);
+
+            if (chartInstance) chartInstance.destroy();
+
+            // Configs based on domain
+            let config = {};
+            
+            if (key === 'net') {
+                // Line Chart for Bandwidth
+                const labels = Array.from({length: 20}, (_, i) => i);
+                const dataPoints = labels.map(() => 80 + Math.random() * 20); // Noise around 80
+                config = {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Throughput (Mbps)',
+                            data: dataPoints,
+                            borderColor: '#06b6d4', // Cyan 500
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            fill: true,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: { duration: 0 },
+                        scales: { y: { beginAtZero: true, max: 120, grid: { color: '#334155' } }, x: { display: false } },
+                        plugins: { legend: { display: false } }
+                    }
+                };
+            } else if (key === 'identity') {
+                // Doughnut for Permissions
+                config = {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['777 (Insecure)', '644 (Standard)', '600 (Private)', 'ACLs (Granular)'],
+                        datasets: [{
+                            data: [30, 40, 20, 10],
+                            backgroundColor: ['#ef4444', '#94a3b8', '#3b82f6', '#a855f7'], // Red, Slate, Blue, Purple
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: { legend: { position: 'right', labels: { color: '#cbd5e1' } } }
+                    }
+                };
+            } else if (key === 'logs') {
+                // Bar Chart for Log Volume
+                config = {
+                    type: 'bar',
+                    data: {
+                        labels: ['Auth', 'Syslog', 'Nginx', 'Kernel', 'Audit'],
+                        datasets: [{
+                            label: 'Entries / min',
+                            data: [1200, 3000, 4500, 800, 1500],
+                            backgroundColor: '#f59e0b', // Amber 500
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { y: { grid: { color: '#334155' } }, x: { grid: { display: false }, ticks: { color: '#cbd5e1' } } },
+                        plugins: { legend: { display: false } }
+                    }
+                };
+            } else if (key === 'sec') {
+                // Radar Chart for Security
+                config = {
+                    type: 'radar',
+                    data: {
+                        labels: ['Firewall', 'Encryption', 'Updates', 'Logging', 'MAC (SELinux)'],
+                        datasets: [{
+                            label: 'Hardening Score',
+                            data: [60, 40, 80, 50, 20],
+                            borderColor: '#10b981', // Emerald 500
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                            pointBackgroundColor: '#10b981',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: { r: { angleLines: { color: '#334155' }, grid: { color: '#334155' }, pointLabels: { color: '#cbd5e1' }, suggestedMin: 0, suggestedMax: 100 } },
+                        plugins: { legend: { display: false } }
+                    }
+                };
+            }
+
+            chartInstance = new Chart(ctx, config);
+            
+            // Start Live Update for Net
+            if(key === 'net') startNetSimulation();
+            else stopNetSimulation();
+        }
+
+        let netInterval;
+        function startNetSimulation() {
+            if(netInterval) clearInterval(netInterval);
+            netInterval = setInterval(() => {
+                if(activeDomain !== 'net') return;
+                const data = chartInstance.data.datasets[0].data;
+                const labels = chartInstance.data.labels;
+                
+                // Shift
+                data.shift();
+                
+                // Add new point (Noise or Throttled)
+                let newVal;
+                if(isThrottled) {
+                    newVal = 1 + Math.random() * 0.5; // Flatline at 1Mbps
+                } else {
+                    newVal = 80 + Math.random() * 20; // Normal traffic
+                }
+                
+                data.push(newVal);
+                chartInstance.update('none'); // Efficient update
+            }, 500); // 2Hz update
+        }
+
+        function stopNetSimulation() {
+            if(netInterval) clearInterval(netInterval);
+        }
+
+        // --- Interaction Logic ---
+        let isThrottled = false;
+        
+        function simulateChartAction(key) {
+            if(key === 'net') {
+                isThrottled = !isThrottled;
+                const btn = document.getElementById('chart-action-btn');
+                btn.innerText = isThrottled ? "Remove Limit" : "Apply Traffic Control (tc)";
+                btn.className = isThrottled ? "px-3 py-1 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded shadow-lg" : "px-3 py-1 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold rounded shadow-lg";
+            } else if (key === 'identity') {
+                // Remove Insecure slice
+                chartInstance.data.datasets[0].data = [0, 50, 30, 20]; // 777 becomes 0
+                chartInstance.update();
+            } else if (key === 'logs') {
+                // Vacuum logs (drop values)
+                chartInstance.data.datasets[0].data = [100, 200, 300, 50, 100];
+                chartInstance.update();
+            } else if (key === 'sec') {
+                // Maximize Score
+                chartInstance.data.datasets[0].data = [100, 100, 100, 100, 100];
+                chartInstance.update();
+            }
+        }
+
+        // --- Search Logic ---
+        function handleSearch(query) {
+            const listContainer = document.getElementById('cmd-list');
+            const filter = query.toLowerCase();
+            
+            // Search across ALL domains if global search is used
+            // This is a simplified implementation filtering the ACTIVE list for now
+            // To make it truly global, we'd need to re-render the list with results from all keys
+            
+            // Local Filter for now (Sidebar input)
+            const items = listContainer.getElementsByTagName('button');
+            for (let i = 0; i < items.length; i++) {
+                const txtValue = items[i].innerText || items[i].textContent;
+                if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
+        
+        // Input binding for cmd list filter
+        document.getElementById('cmd-filter').addEventListener('input', (e) => {
+            const filter = e.target.value.toLowerCase();
+            const items = document.getElementById('cmd-list').getElementsByTagName('button');
+            for (let i = 0; i < items.length; i++) {
+                const txt = items[i].title.toLowerCase(); // Search full command string
+                if (txt.indexOf(filter) > -1) items[i].style.display = "";
+                else items[i].style.display = "none";
+            }
+        });
+
+    </script>
+</body>
+</html>

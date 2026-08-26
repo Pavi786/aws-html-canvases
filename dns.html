@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Infrastructure Mastery Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+
+        .tab-active {
+            color: #f59e0b;
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            font-family: 'ui-monospace', monospace;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            border: 1px solid #334155;
+            overflow-x: auto;
+        }
+
+        .analogy-bubble {
+            background-image: linear-gradient(to right, #fefce8, #fffbeb);
+            border: 1px solid #fde68a;
+        }
+
+        .scenario-tag {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 800;
+        }
+
+        /* Proxy Flow Animation (CSS Only) */
+        .proxy-dot {
+            width: 8px;
+            height: 8px;
+            background: #f59e0b;
+            border-radius: 50%;
+            position: absolute;
+            animation: moveDot 3s infinite linear;
+        }
+        @keyframes moveDot {
+            0% { left: 0%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { left: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 selection:bg-amber-100">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-72 bg-white border-r border-slate-200 hidden lg:block sticky top-0 h-screen overflow-y-auto">
+            <div class="p-8">
+                <div class="flex items-center gap-2 mb-10">
+                    <div class="bg-amber-500 text-white w-8 h-8 rounded flex items-center justify-center font-bold">D</div>
+                    <span class="font-extrabold text-xl tracking-tighter">Mastery<span class="text-amber-500">Lab</span></span>
+                </div>
+                
+                <nav class="space-y-1">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 pl-4">Volume 1: Domains</p>
+                    <button onclick="navTo('godaddy-core')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all tab-active" id="nav-godaddy-core">GoDaddy Foundations</button>
+                    <button onclick="navTo('dns-records')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50" id="nav-dns-records">DNS Record Library</button>
+                    
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2 pl-4">Volume 2: Security</p>
+                    <button onclick="navTo('ssl-tls')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50" id="nav-ssl-tls">SSL/TLS Deep-Dive</button>
+                    <button onclick="navTo('email-sec')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50" id="nav-email-sec">Email Authenticity</button>
+                    
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-6 mb-2 pl-4">Volume 3: Edge</p>
+                    <button onclick="navTo('cloudflare-shield')" class="nav-item w-full text-left px-4 py-3 rounded-lg text-sm font-semibold transition-all text-slate-600 hover:bg-slate-50" id="nav-cloudflare-shield">Cloudflare Shield</button>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 bg-slate-50 min-w-0">
+            <!-- Header -->
+            <header class="bg-white border-b border-slate-200 py-6 px-10 sticky top-0 z-40 flex justify-between items-center">
+                <div>
+                    <h1 id="view-title" class="text-xl font-extrabold text-slate-900 tracking-tight">GoDaddy & Domain Fundamentals</h1>
+                    <p id="view-subtitle" class="text-xs text-slate-500">Volume 1 • Section A</p>
+                </div>
+                <div class="flex gap-2">
+                    <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-1 rounded">DevOps Certified</span>
+                    <span class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-1 rounded">Layman Friendly</span>
+                </div>
+            </header>
+
+            <div class="p-10 max-w-5xl mx-auto">
+                
+                <!-- CONTENT CONTAINER -->
+                <div id="mastery-content">
+
+                    <!-- SECTION: GODADDY CORE -->
+                    <div id="pane-godaddy-core" class="pane space-y-10">
+                        <!-- Analogy -->
+                        <div class="analogy-bubble p-6 rounded-2xl border-l-4 border-amber-500 shadow-sm">
+                            <h3 class="font-extrabold text-amber-900 text-lg mb-2 flex items-center gap-2"><span>🤝</span> The Layman Analogy: The Land Registry</h3>
+                            <p class="text-amber-800 text-sm leading-relaxed">
+                                Think of <strong>GoDaddy</strong> as the City's Land Registry Office. You visit them to buy a "Street Name" (Domain). 
+                                Once you have the name, you decide which "Map Maker" (Nameserver) will tell people where your house is. 
+                                <strong>Locking</strong> your domain is like putting a physical padlock on your property deed so nobody can steal it while you're sleeping.
+                            </p>
+                        </div>
+
+                        <!-- Mastery Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                                <h4 class="font-bold text-slate-800 mb-4">1. Domain Lifecycle</h4>
+                                <ul class="space-y-4 text-xs">
+                                    <li class="flex gap-3"><span class="text-amber-500 font-bold">Register:</span> Claiming the land (1-10 years).</li>
+                                    <li class="flex gap-3"><span class="text-amber-500 font-bold">Renew:</span> Paying your taxes to keep the land.</li>
+                                    <li class="flex gap-3"><span class="text-amber-500 font-bold">Expire:</span> The "Grace Period" where utilities are cut but you can still pay.</li>
+                                    <li class="flex gap-3"><span class="text-amber-500 font-bold">Transfer:</span> Moving your deed from one registry to another (e.g., GoDaddy to Namecheap).</li>
+                                </ul>
+                                <div class="mt-6 p-3 bg-red-50 text-red-700 rounded-lg text-[10px] font-bold">
+                                    ⚠️ DEVOPS WARNING: Always enable "Transfer Lock" and "WHOIS Privacy" to prevent social engineering attacks.
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+                                <h4 class="font-bold text-slate-800 mb-4">2. The "Glue Record" Mystery</h4>
+                                <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                    <strong>Glue Records</strong> are used when your domain’s map-maker (Nameserver) is hosted ON the domain itself.
+                                </p>
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p class="text-[10px] font-extrabold text-slate-400 mb-2 uppercase">Pro Example</p>
+                                    <p class="text-xs text-slate-700 italic">"My nameserver is <strong>ns1.example.com</strong>. But wait! To find example.com, I need to ask ns1.example.com. That's a circular trap!"</p>
+                                    <p class="text-xs text-slate-900 mt-2 font-bold">Solution: The Glue Record provides the IP address of the nameserver directly at the Registry.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- DNS Resolution Flow -->
+                        <div class="bg-slate-900 rounded-3xl p-10 text-white">
+                            <h3 class="text-xl font-bold mb-8 text-amber-400">Step-by-Step DNS Resolution</h3>
+                            <div class="space-y-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="bg-amber-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</div>
+                                    <div>
+                                        <p class="font-bold text-sm">Recursive Resolver (ISP)</p>
+                                        <p class="text-xs text-slate-400">"Hey, does anyone know where <strong>google.com</strong> is?"</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="bg-amber-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</div>
+                                    <div>
+                                        <p class="font-bold text-sm">Root Servers (.)</p>
+                                        <p class="text-xs text-slate-400">"I don't know, but here is the address for the <strong>.com</strong> office."</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4">
+                                    <div class="bg-amber-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</div>
+                                    <div>
+                                        <p class="font-bold text-sm">Authoritative Server (GoDaddy/Cloudflare)</p>
+                                        <p class="text-xs text-slate-400">"I own this domain! Here is the IP Address you need: <strong>142.250.x.x</strong>"</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: DNS RECORDS -->
+                    <div id="pane-dns-records" class="pane hidden space-y-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- A Record -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-amber-400 transition-all">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded text-xs">A / AAAA</span>
+                                    <span class="text-slate-400 text-[10px]">The Address</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4">Connects your domain name to the physical IP address of your server.</p>
+                                <div class="code-block text-[10px]">example.com.  IN  A  1.2.3.4</div>
+                            </div>
+                            <!-- CNAME -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-amber-400 transition-all">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="bg-purple-100 text-purple-700 font-bold px-3 py-1 rounded text-xs">CNAME</span>
+                                    <span class="text-slate-400 text-[10px]">The Alias</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4">Maps one domain name to another. Used for load balancers or CDNs.</p>
+                                <div class="code-block text-[10px]">www.example.com.  IN  CNAME  example.com.</div>
+                            </div>
+                            <!-- SRV -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-amber-400 transition-all">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="bg-emerald-100 text-emerald-700 font-bold px-3 py-1 rounded text-xs">SRV</span>
+                                    <span class="text-slate-400 text-[10px]">Service Discovery</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4">Specifies the location of a specific service (like SIP or LDAP) by port.</p>
+                                <div class="code-block text-[10px]">_sip._tcp.example.com. 86400 IN SRV 10 60 5060 srv.example.com.</div>
+                            </div>
+                            <!-- CAA -->
+                            <div class="bg-white p-6 rounded-2xl border border-slate-200 hover:border-amber-400 transition-all">
+                                <div class="flex justify-between items-center mb-4">
+                                    <span class="bg-red-100 text-red-700 font-bold px-3 py-1 rounded text-xs">CAA</span>
+                                    <span class="text-slate-400 text-[10px]">Security Control</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4">Tells the world: "Only Let's Encrypt can issue SSL for me!"</p>
+                                <div class="code-block text-[10px]">example.com. IN CAA 0 issue "letsencrypt.org"</div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="propagationChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: SSL TLS -->
+                    <div id="pane-ssl-tls" class="pane hidden space-y-10">
+                        <div class="analogy-bubble p-6 rounded-2xl border-l-4 border-indigo-500 shadow-sm">
+                            <h3 class="font-extrabold text-indigo-900 text-lg mb-2 flex items-center gap-2"><span>🔐</span> The Layman Analogy: The Bank Vault</h3>
+                            <p class="text-indigo-800 text-sm leading-relaxed">
+                                A <strong>Public Key</strong> is like a padlock you hand out to everyone. Anyone can put a letter in a box and snap your padlock shut. 
+                                But ONLY YOU have the <strong>Private Key</strong> to open that padlock. 
+                                <strong>CSR</strong> is like you filling out an application to the "Department of IDs" asking them to verify you are who you say you are.
+                            </p>
+                        </div>
+
+                        <!-- Installation Scenarios -->
+                        <div class="space-y-6">
+                            <h3 class="font-bold text-slate-800">Pro Implementation Scenarios</h3>
+                            
+                            <!-- Scenario: NGINX -->
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="scenario-tag bg-slate-800 text-white">NGINX / APACHE</span>
+                                    <h4 class="font-bold">Standard Web Server</h4>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4">Best for standalone VMs. You manually bundle the certificate and key.</p>
+                                <div class="code-block text-[10px]">
+                                    ssl_certificate /etc/nginx/ssl/fullchain.pem;<br>
+                                    ssl_certificate_key /etc/nginx/ssl/privkey.pem;
+                                </div>
+                            </div>
+
+                            <!-- Scenario: K8s -->
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <span class="scenario-tag bg-blue-600 text-white">Kubernetes</span>
+                                    <h4 class="font-bold">K8s Ingress SSL</h4>
+                                </div>
+                                <p class="text-xs text-slate-600 mb-4">Best for modern cloud apps. We use a "Secret" to store the cert.</p>
+                                <div class="code-block text-[10px]">
+                                    spec:<br>
+                                    &nbsp;&nbsp;tls:<br>
+                                    &nbsp;&nbsp;- hosts:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;- example.com<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;secretName: my-tls-secret
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: EMAIL SECURITY -->
+                    <div id="pane-email-sec" class="pane hidden space-y-10">
+                        <div class="bg-white p-10 rounded-3xl border border-slate-200">
+                            <h3 class="text-2xl font-bold mb-6 text-emerald-700">The Email Notary Protocol</h3>
+                            <p class="text-sm text-slate-600 mb-8 leading-relaxed">
+                                In production, 80% of email delivery issues are caused by missing these 3 TXT records.
+                            </p>
+                            
+                            <div class="space-y-6">
+                                <div class="p-6 rounded-2xl bg-emerald-50 border border-emerald-100">
+                                    <h5 class="font-extrabold text-emerald-900 mb-2">1. SPF (The Approved List)</h5>
+                                    <p class="text-xs text-emerald-800 mb-4">Scenario: "Only my Google Workspace and my local office IP are allowed to send mail."</p>
+                                    <div class="code-block text-[10px] bg-emerald-900 border-emerald-800">v=spf1 include:_spf.google.com ip4:203.0.113.1 ~all</div>
+                                </div>
+
+                                <div class="p-6 rounded-2xl bg-blue-50 border border-blue-100">
+                                    <h5 class="font-extrabold text-blue-900 mb-2">2. DKIM (The Digital Seal)</h5>
+                                    <p class="text-xs text-blue-800 mb-4">Scenario: "I'm signing every letter with a wax seal that only my DNS public key can verify."</p>
+                                    <div class="code-block text-[10px] bg-blue-900 border-blue-800">v=DKIM1; k=rsa; p=MIIBIjANBgkqh...</div>
+                                </div>
+
+                                <div class="p-6 rounded-2xl bg-purple-50 border border-purple-100">
+                                    <h5 class="font-extrabold text-purple-900 mb-2">3. DMARC (The Instruction)</h5>
+                                    <p class="text-xs text-purple-800 mb-4">Scenario: "If someone sends a mail claiming to be me but fails SPF/DKIM, throw it in the trash!"</p>
+                                    <div class="code-block text-[10px] bg-purple-900 border-purple-800">v=DMARC1; p=reject; rua=mailto:admin@example.com</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION: CLOUDFLARE SHIELD -->
+                    <div id="pane-cloudflare-shield" class="pane hidden space-y-10">
+                        <div class="analogy-bubble p-6 rounded-2xl border-l-4 border-orange-500 shadow-sm">
+                            <h3 class="font-extrabold text-orange-900 text-lg mb-2 flex items-center gap-2"><span>🛡️</span> The Layman Analogy: The Cloned Bouncer</h3>
+                            <p class="text-orange-800 text-sm leading-relaxed">
+                                <strong>Cloudflare Anycast</strong> is like having a bouncer at your club entrance. But instead of one entrance, your club has 200 entrances all over the world. 
+                                The bouncer is a clone: no matter where the guest stands, the bouncer greets them in their own language instantly.
+                            </p>
+                        </div>
+
+                        <!-- Proxy Visualizer -->
+                        <div class="bg-white p-8 rounded-3xl border border-slate-200">
+                            <h4 class="font-bold mb-6">Visual Flow: Proxy (Orange Cloud)</h4>
+                            <div class="relative h-20 flex items-center justify-between px-10 border-b border-slate-100 pb-10 mb-10">
+                                <div class="text-center">
+                                    <div class="text-2xl mb-1">💻</div>
+                                    <p class="text-[10px] font-bold">User</p>
+                                </div>
+                                <div class="flex-1 relative h-2 mx-4 bg-slate-100 rounded">
+                                    <div class="proxy-dot"></div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl mb-1">☁️</div>
+                                    <p class="text-[10px] font-bold text-orange-500">Cloudflare</p>
+                                </div>
+                                <div class="flex-1 relative h-2 mx-4 bg-slate-100 rounded">
+                                    <div class="proxy-dot" style="animation-delay: 1.5s"></div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl mb-1">🏢</div>
+                                    <p class="text-[10px] font-bold">Origin Server</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-500 leading-relaxed italic">
+                                Note: Your Origin Server's IP address (e.g. 192.0.2.1) is hidden. The User only sees Cloudflare IPs. This prevents direct DDoS attacks on your hardware.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="bg-slate-900 p-8 rounded-2xl text-white">
+                                <h4 class="font-bold text-amber-500 mb-6">Cloudflare SSL Modes</h4>
+                                <div class="space-y-4">
+                                    <div class="p-3 bg-slate-800 rounded-lg border-l-4 border-red-500">
+                                        <p class="text-xs font-bold">Flexible</p>
+                                        <p class="text-[10px] text-slate-400">User -> HTTPS -> Cloudflare -> HTTP -> Origin. ❌ Dangerous!</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-800 rounded-lg border-l-4 border-amber-500">
+                                        <p class="text-xs font-bold">Full</p>
+                                        <p class="text-[10px] text-slate-400">User -> HTTPS -> Cloudflare -> HTTPS -> Origin (Self-signed ok).</p>
+                                    </div>
+                                    <div class="p-3 bg-slate-800 rounded-lg border-l-4 border-emerald-500">
+                                        <p class="text-xs font-bold">Full (Strict)</p>
+                                        <p class="text-[10px] text-slate-400">User -> HTTPS -> Cloudflare -> HTTPS -> Origin (Valid CA only). ✅ Best!</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200 flex flex-col items-center justify-center">
+                                <h4 class="font-bold mb-4 text-slate-800">TLS 1.2 vs 1.3 Speed</h4>
+                                <div class="chart-container">
+                                    <canvas id="tlsChart"></canvas>
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-4 text-center">TLS 1.3 removes one full "Round Trip," making site loading significantly faster.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Navigation Logic ---
+        const meta = {
+            'godaddy-core': { title: "GoDaddy & Domain Fundamentals", sub: "Volume 1 • Section A" },
+            'dns-records': { title: "DNS Record Library", sub: "Volume 1 • Section B" },
+            'ssl-tls': { title: "SSL / TLS Encryption Deep-Dive", sub: "Volume 2 • Section A" },
+            'email-sec': { title: "Email Authenticity & Safety", sub: "Volume 2 • Section B" },
+            'cloudflare-shield': { title: "Cloudflare Edge Shield", sub: "Volume 3 • Section A" }
+        };
+
+        function navTo(paneId) {
+            // Update Title
+            document.getElementById('view-title').innerText = meta[paneId].title;
+            document.getElementById('view-subtitle').innerText = meta[paneId].sub;
+
+            // Panes
+            document.querySelectorAll('.pane').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`pane-${paneId}`).classList.remove('hidden');
+
+            // Sidebar
+            document.querySelectorAll('.nav-item').forEach(n => {
+                n.classList.remove('tab-active', 'bg-amber-50', 'text-amber-500');
+                n.classList.add('text-slate-600', 'hover:bg-slate-50');
+            });
+            const activeNav = document.getElementById(`nav-${paneId}`);
+            activeNav.classList.add('tab-active');
+            activeNav.classList.remove('text-slate-600', 'hover:bg-slate-50');
+
+            // Initialize Charts if needed
+            if(paneId === 'dns-records' && !charts.prop) initPropChart();
+            if(paneId === 'cloudflare-shield' && !charts.tls) initTLSChart();
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- Charts Implementation ---
+        const charts = {};
+
+        function initPropChart() {
+            const ctx = document.getElementById('propagationChart').getContext('2d');
+            charts.prop = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['0h', '1h', '6h', '12h', '24h', '48h'],
+                    datasets: [
+                        {
+                            label: 'Low TTL (60s)',
+                            data: [0, 95, 100, 100, 100, 100],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'High TTL (24h)',
+                            data: [0, 5, 20, 50, 85, 100],
+                            borderColor: '#64748b',
+                            borderDash: [5, 5],
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: { display: true, text: 'DNS Propagation Speed (Global Coverage %)' },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        function initTLSChart() {
+            const ctx = document.getElementById('tlsChart').getContext('2d');
+            charts.tls = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['TLS 1.2', 'TLS 1.3'],
+                    datasets: [{
+                        label: 'Network Round-Trips (Latency)',
+                        data: [2, 1],
+                        backgroundColor: ['#cbd5e1', '#f59e0b'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, max: 3 } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        window.onload = () => navTo('godaddy-core');
+    </script>
+</body>
+</html>

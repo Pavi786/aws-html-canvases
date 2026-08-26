@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps: Domain, DNS & Security — Interactive Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&family=IBM+Plex+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a0f;
+    --surface: #0d1a24;
+    --surface2: #112030;
+    --border: #1a3a4a;
+    --accent: #00e5ff;
+    --accent2: #ff6b2b;
+    --accent3: #7cff6b;
+    --accent4: #ff3baa;
+    --text: #c8dde8;
+    --text-dim: #5a7a8a;
+    --gold: #ffd166;
+    --purple: #a78bfa;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(5,10,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 20px;
+    height: 54px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    white-space: nowrap;
+    margin-right: 12px;
+    letter-spacing: 1px;
+  }
+
+  .nav-btn {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--text-dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .2s;
+    letter-spacing: 0.5px;
+  }
+  .nav-btn:hover { border-color: var(--border); color: var(--text); }
+  .nav-btn.active {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ── CANVAS AREA ── */
+  .canvas-area {
+    position: fixed;
+    top: 54px; left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .page {
+    display: none;
+    min-height: calc(100vh - 54px);
+    padding: 40px 32px 60px;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn .4s ease;
+  }
+  .page.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .page-title {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+  .page-subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  h2 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+  h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  p  { font-size: 15px; line-height: 1.7; color: var(--text); margin-bottom: 10px; }
+  p.dim { color: var(--text-dim); font-size: 13px; }
+
+  /* ── CARDS ── */
+  .grid { display: grid; gap: 20px; margin-bottom: 28px; }
+  .g2 { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .g3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .card.cyan::before  { background: var(--accent); }
+  .card.orange::before { background: var(--accent2); }
+  .card.green::before  { background: var(--accent3); }
+  .card.pink::before   { background: var(--accent4); }
+  .card.gold::before   { background: var(--gold); }
+  .card.purple::before { background: var(--purple); }
+
+  .card-icon { font-size: 28px; margin-bottom: 12px; }
+  .card h3 { margin-bottom: 8px; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0;
+    margin: 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+  .flow-step {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    white-space: nowrap;
+    color: var(--accent);
+  }
+  .flow-arrow {
+    font-size: 18px;
+    color: var(--text-dim);
+    padding: 0 8px;
+  }
+
+  /* ── TABLE ── */
+  .dtable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+  .dtable th {
+    background: var(--surface2);
+    color: var(--accent);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .dtable td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .dtable tr:hover td { background: var(--surface2); }
+
+  /* ── BADGE ── */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge.good  { background: rgba(124,255,107,.15); color: var(--accent3); border: 1px solid var(--accent3); }
+  .badge.bad   { background: rgba(255,59,170,.12); color: var(--accent4); border: 1px solid var(--accent4); }
+  .badge.warn  { background: rgba(255,209,102,.12); color: var(--gold); border: 1px solid var(--gold); }
+  .badge.info  { background: rgba(0,229,255,.1); color: var(--accent); border: 1px solid var(--accent); }
+
+  /* ── PROS CONS ── */
+  .pc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
+  .pc-box { border-radius: 10px; padding: 20px; }
+  .pc-box.pros { background: rgba(124,255,107,.06); border: 1px solid rgba(124,255,107,.25); }
+  .pc-box.cons { background: rgba(255,59,170,.06); border: 1px solid rgba(255,59,170,.25); }
+  .pc-box h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px; }
+  .pc-box.pros h4 { color: var(--accent3); }
+  .pc-box.cons h4 { color: var(--accent4); }
+  .pc-item { display: flex; gap: 8px; margin-bottom: 8px; font-size: 13px; line-height: 1.5; }
+  .pc-item span:first-child { flex-shrink: 0; margin-top: 2px; }
+
+  /* ── CODE BLOCK ── */
+  .code {
+    background: #020c12;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent3);
+    margin: 12px 0;
+    overflow-x: auto;
+    white-space: pre;
+    line-height: 1.8;
+  }
+
+  /* ── HIGHLIGHT BOX ── */
+  .highlight {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .highlight.info  { background: rgba(0,229,255,.07); border: 1px solid rgba(0,229,255,.2); }
+  .highlight.warn  { background: rgba(255,209,102,.07); border: 1px solid rgba(255,209,102,.2); }
+  .highlight.danger{ background: rgba(255,59,170,.07); border: 1px solid rgba(255,59,170,.2); }
+  .highlight.good  { background: rgba(124,255,107,.07); border: 1px solid rgba(124,255,107,.2); }
+  .hl-icon { font-size: 20px; flex-shrink: 0; }
+  .hl-body p { font-size: 13px; margin: 0; line-height: 1.6; }
+  .hl-body strong { color: var(--gold); }
+
+  /* ── STEP CARDS ── */
+  .steps { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+  .step-num {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #000;
+    font-weight: 800;
+    font-size: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+  }
+  .step-body h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .step-body p  { font-size: 13px; color: var(--text-dim); margin: 0; }
+
+  /* ── SSL MODE TABLE ── */
+  .ssl-mode { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin: 16px 0; }
+  .ssl-row { display: grid; grid-template-columns: 140px 1fr 40px; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; align-items: center; gap: 12px; }
+  .ssl-row:last-child { border-bottom: none; }
+  .ssl-row.header { background: var(--surface2); font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim); }
+
+  /* ── HERO ── */
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+    min-height: 300px;
+    margin-bottom: 40px;
+  }
+  @media (max-width: 700px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .pc-grid { grid-template-columns: 1fr; }
+  }
+
+  .big-number {
+    font-size: 96px;
+    font-weight: 800;
+    color: var(--surface2);
+    font-family: 'Space Mono', monospace;
+    line-height: 1;
+    position: absolute;
+    right: 24px;
+    top: 16px;
+    pointer-events: none;
+  }
+
+  .separator {
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    margin: 32px 0;
+    opacity: .3;
+  }
+
+  /* ── SCROLLBAR ── */
+  .canvas-area::-webkit-scrollbar { width: 5px; }
+  .canvas-area::-webkit-scrollbar-track { background: var(--bg); }
+  .canvas-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ── COST BOX ── */
+  .cost-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .cost-row:last-child { border-bottom: none; }
+  .cost-price { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--gold); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">⚡ DNS/SSL GUIDE</div>
+  <button class="nav-btn active" onclick="showPage(0)">🏠 Intro</button>
+  <button class="nav-btn" onclick="showPage(1)">🌐 Domain</button>
+  <button class="nav-btn" onclick="showPage(2)">📡 DNS Deep Dive</button>
+  <button class="nav-btn" onclick="showPage(3)">🔁 DNS Records</button>
+  <button class="nav-btn" onclick="showPage(4)">☁️ Cloudflare</button>
+  <button class="nav-btn" onclick="showPage(5)">🔐 SSL / TLS</button>
+  <button class="nav-btn" onclick="showPage(6)">📜 Certificates</button>
+  <button class="nav-btn" onclick="showPage(7)">🤝 TLS Handshake</button>
+  <button class="nav-btn" onclick="showPage(8)">🏗️ Full Workflow</button>
+  <button class="nav-btn" onclick="showPage(9)">💰 Cost & Best Practices</button>
+</nav>
+
+<div class="canvas-area">
+
+<!-- ══════════════ PAGE 0: INTRO ══════════════ -->
+<div class="page active" id="page-0">
+  <div class="hero-grid">
+    <div>
+      <p class="page-subtitle">DEVOPS COMPLETE GUIDE — START HERE</p>
+      <div class="page-title" style="color:var(--accent)">Domain, DNS<br>&amp; Security</div>
+      <p style="margin-top:16px; font-size:16px; color:var(--text-dim)">Everything you need to know — explained like you're 10 years old, but built for engineers. Navigate through 10 interactive pages.</p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:24px;">
+        <span class="badge info">10 PAGES</span>
+        <span class="badge good">LAYMAN FRIENDLY</span>
+        <span class="badge warn">DEVOPS FOCUSED</span>
+      </div>
+    </div>
+    <div style="position:relative">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:2;">
+        <span style="color:var(--accent)">you type</span> → <span style="color:var(--gold)">example.com</span><br>
+        <span style="color:var(--text-dim)">↓ browser asks DNS</span><br>
+        <span style="color:var(--accent)">DNS replies</span> → <span style="color:var(--gold)">93.184.216.34</span><br>
+        <span style="color:var(--text-dim)">↓ browser connects</span><br>
+        <span style="color:var(--accent)">TLS handshake</span> → <span style="color:var(--accent3)">🔒 SECURE</span><br>
+        <span style="color:var(--text-dim)">↓ you see the page</span><br>
+        <span style="color:var(--accent3)">✅ Done in &lt; 300ms</span>
+      </div>
+    </div>
+  </div>
+
+  <p class="page-subtitle" style="margin-bottom:20px">WHAT YOU'LL LEARN</p>
+  <div class="grid g3">
+    <div class="card cyan" onclick="showPage(1)" style="cursor:pointer">
+      <div class="card-icon">🌐</div>
+      <h3>Domain Names</h3>
+      <p class="dim">What they are, how to buy one, and what GoDaddy actually does.</p>
+    </div>
+    <div class="card orange" onclick="showPage(2)" style="cursor:pointer">
+      <div class="card-icon">📡</div>
+      <h3>DNS System</h3>
+      <p class="dim">The internet's phonebook. How your domain finds a server.</p>
+    </div>
+    <div class="card green" onclick="showPage(3)" style="cursor:pointer">
+      <div class="card-icon">🗂️</div>
+      <h3>DNS Records</h3>
+      <p class="dim">A, CNAME, MX, TXT — every type decoded with examples.</p>
+    </div>
+    <div class="card pink" onclick="showPage(4)" style="cursor:pointer">
+      <div class="card-icon">☁️</div>
+      <h3>Cloudflare</h3>
+      <p class="dim">CDN, WAF, DDoS protection — the Swiss Army knife of DevOps.</p>
+    </div>
+    <div class="card gold" onclick="showPage(5)" style="cursor:pointer">
+      <div class="card-icon">🔐</div>
+      <h3>SSL / TLS / HTTPS</h3>
+      <p class="dim">How your connection gets encrypted. The green lock explained.</p>
+    </div>
+    <div class="card purple" onclick="showPage(6)" style="cursor:pointer">
+      <div class="card-icon">📜</div>
+      <h3>Certificates</h3>
+      <p class="dim">CSR, CA, CRT, PEM files and what each one actually does.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 1: DOMAIN ══════════════ -->
+<div class="page" id="page-1">
+  <p class="page-subtitle">PAGE 1 / 10</p>
+  <div class="page-title">What is a <span style="color:var(--accent)">Domain</span>?</div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">Think of a domain like a home address. Instead of memorising "go to house #93, street 184, city 216" — you just say "go to Alice's house". Domains do the same for computers.</p>
+
+  <div class="grid g2">
+    <div class="card cyan">
+      <div class="card-icon">🏠</div>
+      <h3>Real Life Analogy</h3>
+      <p>Your home has a physical address like <strong>42 Elm Street, City</strong>. Computers have IP addresses like <strong>93.184.216.34</strong>. A domain (<strong>example.com</strong>) is a friendly nickname for that IP so humans don't have to memorise numbers.</p>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🧩</div>
+      <h3>Anatomy of a Domain</h3>
+      <div class="code">api . example . com
+ ↑       ↑       ↑
+Sub    Second  Top Level
+domain  Level   Domain</div>
+      <p class="dim"><strong>TLD:</strong> .com, .org, .in, .io<br><strong>SLD:</strong> your brand name<br><strong>Subdomain:</strong> optional prefix</p>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <h2>🏷️ Domain Registration — How GoDaddy Works</h2>
+  <p>Buying a domain from GoDaddy is like paying a landlord to reserve your address in the global address book. Here's what happens behind the scenes:</p>
+
+  <div class="steps" style="margin-top:20px">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>You search for "myapp.com" on GoDaddy</h4><p>GoDaddy checks if that name is available in the global registry.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>You pay ~$12/year</h4><p>GoDaddy becomes your "registrar" — the official holder of your domain rights.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>GoDaddy registers it with ICANN</h4><p>ICANN is the global authority that manages all domain names on Earth. They record your ownership.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>You get a control panel</h4><p>You can manage DNS records, nameservers, renewal, and email forwarding.</p></div></div>
+  </div>
+
+  <div class="highlight warn">
+    <div class="hl-icon">⚠️</div>
+    <div class="hl-body"><p><strong>Key Insight:</strong> GoDaddy is just the <em>registrar</em> — they hold the title deed. You can point the domain's DNS to <em>any</em> provider (like Cloudflare) while keeping it registered at GoDaddy.</p></div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>✅ Pros &amp; ❌ Cons of GoDaddy</h2>
+  <div class="pc-grid">
+    <div class="pc-box pros">
+      <h4>✅ PROS</h4>
+      <div class="pc-item"><span>✔</span><span>Very easy to buy domains — beginner friendly</span></div>
+      <div class="pc-item"><span>✔</span><span>Trusted globally, widely used</span></div>
+      <div class="pc-item"><span>✔</span><span>24/7 customer support</span></div>
+      <div class="pc-item"><span>✔</span><span>Lots of TLDs available (.com, .io, .dev)</span></div>
+    </div>
+    <div class="pc-box cons">
+      <h4>❌ CONS</h4>
+      <div class="pc-item"><span>✖</span><span>Renewal prices jump up (cheap first year, expensive later)</span></div>
+      <div class="pc-item"><span>✖</span><span>Aggressive upselling — they push SSL, email, hosting</span></div>
+      <div class="pc-item"><span>✖</span><span>Their built-in DNS is slower than Cloudflare</span></div>
+      <div class="pc-item"><span>✖</span><span>Privacy protection (WHOIS) costs extra</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 2: DNS DEEP DIVE ══════════════ -->
+<div class="page" id="page-2">
+  <p class="page-subtitle">PAGE 2 / 10</p>
+  <div class="page-title">The <span style="color:var(--accent2)">DNS</span> System</div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">DNS = Domain Name System. It's the internet's phonebook. When you type a domain, DNS secretly translates it to an IP address. Without DNS, you'd have to remember numbers for every website.</p>
+
+  <div class="highlight info">
+    <div class="hl-icon">📖</div>
+    <div class="hl-body"><p><strong>Analogy:</strong> You want to call "Pizza Palace". You don't know their number, so you look them up in a phonebook. DNS is that phonebook — you give it a name, it gives you a number (IP address).</p></div>
+  </div>
+
+  <h2 style="margin-top:32px">🔄 DNS Resolution — Step by Step</h2>
+  <p>When you type <strong>example.com</strong>, here's what happens in under 100ms:</p>
+
+  <div class="flow" style="flex-direction:column; align-items:flex-start; gap:0">
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);width:100%">
+      <div class="step-num" style="background:var(--accent2)">1</div>
+      <div>
+        <strong>Browser Cache</strong>
+        <p class="dim" style="margin:0">Browser first checks if it already knows the IP from a previous visit.</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);width:100%">
+      <div class="step-num" style="background:var(--accent2)">2</div>
+      <div>
+        <strong>ISP Resolver (Recursive DNS)</strong>
+        <p class="dim" style="margin:0">Your internet provider's DNS server looks up the answer on your behalf.</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);width:100%">
+      <div class="step-num" style="background:var(--accent2)">3</div>
+      <div>
+        <strong>Root Name Server</strong>
+        <p class="dim" style="margin:0">The top of the DNS tree. There are 13 root server groups worldwide. They say "go ask the .com server".</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);width:100%">
+      <div class="step-num" style="background:var(--accent2)">4</div>
+      <div>
+        <strong>TLD Server (.com server)</strong>
+        <p class="dim" style="margin:0">The .com server says "go ask the authoritative server for example.com".</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);width:100%">
+      <div class="step-num" style="background:var(--accent2)">5</div>
+      <div>
+        <strong>Authoritative DNS Server</strong>
+        <p class="dim" style="margin:0">This is the final source of truth. It returns the actual IP address.</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;width:100%">
+      <div class="step-num" style="background:var(--accent3);color:#000">6</div>
+      <div>
+        <strong style="color:var(--accent3)">IP Returned → Browser Connects</strong>
+        <p class="dim" style="margin:0">Browser now has the IP and connects to your server. Done!</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <h2>🔑 What are Nameservers?</h2>
+  <p>Nameservers tell the world <em>who is in charge</em> of your DNS. Think of them as "this is which phonebook to use for my domain".</p>
+  <div class="code">GoDaddy default nameservers:
+  ns1.godaddy.com
+  ns2.godaddy.com
+
+After switching to Cloudflare:
+  liam.ns.cloudflare.com
+  mary.ns.cloudflare.com
+
+⚡ DNS control now belongs to Cloudflare!</div>
+
+  <div class="highlight good">
+    <div class="hl-icon">💡</div>
+    <div class="hl-body"><p><strong>Why switch nameservers?</strong> Cloudflare's DNS is globally distributed and faster. Changing nameservers moves DNS management without moving your domain registration. It's like keeping your address but using a better phonebook company.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 3: DNS RECORDS ══════════════ -->
+<div class="page" id="page-3">
+  <p class="page-subtitle">PAGE 3 / 10</p>
+  <div class="page-title">DNS <span style="color:var(--accent3)">Records</span> Explained</div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">DNS records are individual entries in your domain's "phonebook page". Each record type has a specific job. Here are all the important ones with real-world examples.</p>
+
+  <div class="grid g2">
+    <div class="card cyan">
+      <div class="card-icon">📍</div>
+      <h3>A Record — The Main One</h3>
+      <p>Maps your domain to an IPv4 address. This is the most common record.</p>
+      <div class="code">example.com  →  93.184.216.34
+api.example.com  →  54.20.10.5</div>
+      <p class="dim">Think of it as: "When someone asks for my domain, send them to this IP address."</p>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">📍📍</div>
+      <h3>AAAA Record — IPv6 Version</h3>
+      <p>Same as A record but for modern IPv6 addresses (longer format).</p>
+      <div class="code">example.com → 2606:2800:220:1:248:1893:25c8:1946</div>
+      <p class="dim">IPv6 is the next-generation address system. Most servers still use IPv4 (A records).</p>
+    </div>
+    <div class="card green">
+      <div class="card-icon">🔀</div>
+      <h3>CNAME Record — Alias</h3>
+      <p>Points one domain to ANOTHER domain (not an IP). Used for subdomains.</p>
+      <div class="code">www.example.com  →  example.com
+shop.example.com →  myshop.shopify.com</div>
+      <p class="dim">Think of it as a nickname. "When they ask for www, send them to the main domain."</p>
+    </div>
+    <div class="card pink">
+      <div class="card-icon">📧</div>
+      <h3>MX Record — Email</h3>
+      <p>Tells the world which server handles email for your domain.</p>
+      <div class="code">example.com  MX  10  mail.google.com
+example.com  MX  20  mail2.google.com</div>
+      <p class="dim">The number (10, 20) is priority. Lower = preferred. Used for Gmail / Outlook etc.</p>
+    </div>
+    <div class="card gold">
+      <div class="card-icon">📝</div>
+      <h3>TXT Record — Text / Verification</h3>
+      <p>Stores plain text. Used for domain verification, SPF, DKIM (email security).</p>
+      <div class="code">example.com TXT "google-site-verification=abc123"
+example.com TXT "v=spf1 include:_spf.google.com ~all"</div>
+      <p class="dim">When Google/GitHub says "verify your domain" — you add a TXT record they give you.</p>
+    </div>
+    <div class="card purple">
+      <div class="card-icon">🗂️</div>
+      <h3>NS Record — Nameservers</h3>
+      <p>Declares which nameservers are authoritative for your domain.</p>
+      <div class="code">example.com  NS  liam.ns.cloudflare.com
+example.com  NS  mary.ns.cloudflare.com</div>
+      <p class="dim">These are set at your registrar (GoDaddy). They delegate DNS control to another provider.</p>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+
+  <h2>📊 Quick Reference Table</h2>
+  <table class="dtable">
+    <thead><tr><th>RECORD</th><th>PURPOSE</th><th>EXAMPLE USE CASE</th><th>POINTS TO</th></tr></thead>
+    <tbody>
+      <tr><td>A</td><td>Domain → IPv4</td><td>Your main website or API</td><td>IP address</td></tr>
+      <tr><td>AAAA</td><td>Domain → IPv6</td><td>Modern IPv6 servers</td><td>IPv6 address</td></tr>
+      <tr><td>CNAME</td><td>Domain alias</td><td>www, Shopify/Vercel subdomain</td><td>Another domain</td></tr>
+      <tr><td>MX</td><td>Email routing</td><td>Gmail, Outlook setup</td><td>Mail server domain</td></tr>
+      <tr><td>TXT</td><td>Verification + Email security</td><td>Google verify, SPF, DKIM</td><td>Text string</td></tr>
+      <tr><td>NS</td><td>Who controls DNS</td><td>Delegate to Cloudflare</td><td>Nameserver hostnames</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight warn">
+    <div class="hl-icon">⏱️</div>
+    <div class="hl-body"><p><strong>TTL (Time To Live):</strong> Every DNS record has a TTL value in seconds. This is how long other servers cache your record before checking again. <strong>Low TTL = changes propagate faster</strong>. Before making DNS changes, lower your TTL to 60-300 seconds. After, you can raise it to 3600+.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 4: CLOUDFLARE ══════════════ -->
+<div class="page" id="page-4">
+  <p class="page-subtitle">PAGE 4 / 10</p>
+  <div class="page-title"><span style="color:var(--accent4)">Cloudflare</span> — The DevOps Swiss Army Knife</div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">Cloudflare sits between your users and your server, acting as a bouncer, a speed booster, and a security guard — all at once. And the free tier is genuinely incredible.</p>
+
+  <div class="highlight info">
+    <div class="hl-icon">☁️</div>
+    <div class="hl-body"><p><strong>What Cloudflare is NOT:</strong> Cloudflare is mostly <em>not</em> a domain registrar. You still buy domains from GoDaddy (or similar). Cloudflare's job is to manage your DNS and stand in front of your server to protect and speed it up.</p></div>
+  </div>
+
+  <div class="grid g3" style="margin-top:28px">
+    <div class="card cyan">
+      <div class="card-icon">🚀</div>
+      <h3>CDN (Content Delivery Network)</h3>
+      <p>Cloudflare has servers in 300+ cities. Your images, JS, CSS get cached at the nearest city to your user. Instead of all traffic hitting your server in the US, a user in Chennai gets files from a nearby Cloudflare node.</p>
+      <div style="margin-top:8px"><span class="badge good">SPEED</span></div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🛡️</div>
+      <h3>DDoS Protection</h3>
+      <p>DDoS = hackers flood your server with fake traffic to crash it. Cloudflare absorbs that attack. They handle up to <strong>71 Tbps</strong> of attack traffic — your server never even sees it.</p>
+      <div style="margin-top:8px"><span class="badge good">SECURITY</span></div>
+    </div>
+    <div class="card green">
+      <div class="card-icon">🔐</div>
+      <h3>Free SSL</h3>
+      <p>Cloudflare automatically gives your site a free SSL certificate. No configuration needed. Your visitors get the green 🔒 lock without you buying a cert from GoDaddy.</p>
+      <div style="margin-top:8px"><span class="badge good">FREE</span></div>
+    </div>
+    <div class="card pink">
+      <div class="card-icon">🧱</div>
+      <h3>WAF — Web Application Firewall</h3>
+      <p>Cloudflare inspects incoming traffic and blocks known attack patterns (SQL injection, XSS, bot scraping). Like a bouncer who checks IDs and knows every troublemaker.</p>
+      <div style="margin-top:8px"><span class="badge warn">PRO PLAN</span></div>
+    </div>
+    <div class="card gold">
+      <div class="card-icon">📊</div>
+      <h3>Rate Limiting</h3>
+      <p>Limit how many requests an IP can make per second. Stops brute-force attacks on your login page or API. "Only 10 requests per minute from this IP."</p>
+      <div style="margin-top:8px"><span class="badge warn">PRO PLAN</span></div>
+    </div>
+    <div class="card purple">
+      <div class="card-icon">🤖</div>
+      <h3>Bot Protection</h3>
+      <p>Cloudflare identifies and blocks bad bots that scrape your site, steal content, or fake form submissions. Shows real users a CAPTCHA, blocks obvious bots.</p>
+      <div style="margin-top:8px"><span class="badge info">FREE + PRO</span></div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🌐 Cloudflare SSL Modes (Critical!)</h2>
+  <p>When Cloudflare sits between users and your server, you need to configure how SSL is handled. This is one of the most important settings to get right.</p>
+
+  <div class="ssl-mode">
+    <div class="ssl-row header"><span>MODE</span><span>WHAT HAPPENS</span><span>SAFE?</span></div>
+    <div class="ssl-row">
+      <span style="font-family:'Space Mono',monospace;color:var(--accent4)">Flexible</span>
+      <div>
+        <p style="margin:0;font-size:13px">User ↔ Cloudflare is encrypted. But <strong>Cloudflare ↔ Your Server is plain HTTP!</strong> Your server doesn't even need SSL. This is dangerous — your actual traffic is unencrypted.</p>
+      </div>
+      <span class="badge bad">❌</span>
+    </div>
+    <div class="ssl-row">
+      <span style="font-family:'Space Mono',monospace;color:var(--gold)">Full</span>
+      <div>
+        <p style="margin:0;font-size:13px">User ↔ Cloudflare ↔ Server all encrypted. But Cloudflare doesn't verify your server's certificate. A self-signed or expired cert still works. Better, but not perfect.</p>
+      </div>
+      <span class="badge warn">⚠️</span>
+    </div>
+    <div class="ssl-row">
+      <span style="font-family:'Space Mono',monospace;color:var(--accent3)">Full (Strict)</span>
+      <div>
+        <p style="margin:0;font-size:13px">Best mode. User ↔ Cloudflare ↔ Server all encrypted. Cloudflare <em>verifies</em> your server has a valid certificate (Let's Encrypt works great here). Use this always.</p>
+      </div>
+      <span class="badge good">✅</span>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>✅ Pros &amp; ❌ Cons of Cloudflare</h2>
+  <div class="pc-grid">
+    <div class="pc-box pros">
+      <h4>✅ PROS</h4>
+      <div class="pc-item"><span>✔</span><span>Free SSL, CDN, DDoS protection — no cost</span></div>
+      <div class="pc-item"><span>✔</span><span>World's fastest DNS (1.1.1.1)</span></div>
+      <div class="pc-item"><span>✔</span><span>Easy setup — add domain, get 2 nameservers, done</span></div>
+      <div class="pc-item"><span>✔</span><span>Analytics, firewall rules, page rules all in one dashboard</span></div>
+      <div class="pc-item"><span>✔</span><span>Integrates perfectly with AWS, K8s, VMs</span></div>
+    </div>
+    <div class="pc-box cons">
+      <h4>❌ CONS</h4>
+      <div class="pc-item"><span>✖</span><span>Adds a network hop — tiny latency in rare cases</span></div>
+      <div class="pc-item"><span>✖</span><span>Debugging is harder — hard to tell where an error originates</span></div>
+      <div class="pc-item"><span>✖</span><span>WAF and rate limiting are paid (Pro = $20/mo)</span></div>
+      <div class="pc-item"><span>✖</span><span>Vendor lock-in — heavily dependent on Cloudflare staying reliable</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 5: SSL/TLS ══════════════ -->
+<div class="page" id="page-5">
+  <p class="page-subtitle">PAGE 5 / 10</p>
+  <div class="page-title">SSL, TLS &amp; <span style="color:var(--gold)">HTTPS</span></div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">The green padlock in your browser. The "S" in HTTPS. Let's demystify exactly what happens when your browser says "this connection is secure".</p>
+
+  <div class="grid g3">
+    <div class="card cyan">
+      <div class="card-icon">🔒</div>
+      <h3>SSL (Old — Deprecated)</h3>
+      <p>Secure Sockets Layer. Invented in 1995 by Netscape. Had several security vulnerabilities. <strong>No longer used</strong> — only the name stuck around in everyday speech.</p>
+      <p class="dim">When people say "SSL certificate" they technically mean TLS.</p>
+    </div>
+    <div class="card green">
+      <div class="card-icon">🛡️</div>
+      <h3>TLS (Modern Standard)</h3>
+      <p>Transport Layer Security. The modern, secure replacement for SSL. TLS 1.3 (2018) is what all modern browsers use. Faster and more secure than ever.</p>
+      <p class="dim">Everyone still calls it SSL but every server runs TLS. It's just a naming legacy.</p>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🌐</div>
+      <h3>HTTPS = HTTP + TLS</h3>
+      <p>HTTPS is just normal HTTP web traffic, but wrapped in a TLS encryption layer. Your browser negotiates a secret key with the server before sending any data.</p>
+      <p class="dim">HTTP sends data in plain text (anyone can read it). HTTPS encrypts everything.</p>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🎯 What Does TLS Actually Give You?</h2>
+  <div class="grid g3">
+    <div class="card cyan">
+      <div class="card-icon">🔐</div>
+      <h3>Encryption</h3>
+      <p>Your data is scrambled before sending. Even if someone intercepts the packets, they see gibberish. Like sending a letter in a locked box only the recipient can open.</p>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">✅</div>
+      <h3>Authentication</h3>
+      <p>TLS proves you're talking to the REAL server, not an impersonator. The certificate proves "this really is bank.com and not a fake". Prevents man-in-the-middle attacks.</p>
+    </div>
+    <div class="card green">
+      <div class="card-icon">🔏</div>
+      <h3>Data Integrity</h3>
+      <p>TLS ensures data wasn't tampered with in transit. The receiver verifies the data arrived exactly as sent. No one could modify your packet mid-journey.</p>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🏷️ SSL Certificate Types</h2>
+  <table class="dtable">
+    <thead><tr><th>TYPE</th><th>WHAT IT VERIFIES</th><th>COST</th><th>USE CASE</th></tr></thead>
+    <tbody>
+      <tr><td>DV — Domain Validated</td><td>You own the domain</td><td>Free (Let's Encrypt)</td><td>Most websites, blogs, apps</td></tr>
+      <tr><td>OV — Organization Validated</td><td>Your company is real</td><td>$50–200/year</td><td>Business websites</td></tr>
+      <tr><td>EV — Extended Validation</td><td>Full company vetting</td><td>$200–900/year</td><td>Banks, financial institutions</td></tr>
+      <tr><td>Wildcard *.example.com</td><td>All subdomains at once</td><td>$100–200/year</td><td>When you have many subdomains</td></tr>
+      <tr><td>SAN / Multi-Domain</td><td>Multiple different domains</td><td>Varies</td><td>Covering app.com + api.com + cdn.com</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight good">
+    <div class="hl-icon">💡</div>
+    <div class="hl-body"><p><strong>For 99% of DevOps use cases:</strong> Use <strong>Let's Encrypt</strong> (free DV cert) on your origin server + Cloudflare SSL in front. This gives you enterprise-grade security for $0.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 6: CERTIFICATES ══════════════ -->
+<div class="page" id="page-6">
+  <p class="page-subtitle">PAGE 6 / 10</p>
+  <div class="page-title">Certificate Files<br><span style="color:var(--purple)">CSR, CA, CRT, PEM, KEY</span></div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">When you set up HTTPS, you deal with several cryptic files. Here's what each file actually is — in plain English.</p>
+
+  <div class="highlight warn">
+    <div class="hl-icon">🔑</div>
+    <div class="hl-body"><p><strong>The Big Picture:</strong> You create a key pair (public + private). Send your public key to a Certificate Authority (CA). They issue a certificate proving your domain identity. You install cert + private key on your server.</p></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:28px">
+    <div class="card purple">
+      <div class="card-icon">🔑</div>
+      <h3>.key — Private Key</h3>
+      <p>Generated on YOUR server. This is your secret. <strong>Never share this with anyone, ever.</strong> It's the password that proves you own the certificate.</p>
+      <div class="code">server.key  ← SECRET! Never leave server</div>
+      <p class="dim">If someone gets your private key, they can impersonate your server. Treat it like a master password.</p>
+    </div>
+    <div class="card cyan">
+      <div class="card-icon">📋</div>
+      <h3>.csr — Certificate Signing Request</h3>
+      <p>A file you generate on your server and send to a CA. It contains your domain name, public key, and company info. The CA uses this to issue your certificate.</p>
+      <div class="code">Server generates:  server.csr
+Contains: domain, public key, org info
+You send this to: Let's Encrypt / DigiCert</div>
+    </div>
+    <div class="card green">
+      <div class="card-icon">📜</div>
+      <h3>.crt — Certificate</h3>
+      <p>The certificate issued by the CA. Contains your domain, your public key, the CA's signature, and an expiry date. This is what browsers validate.</p>
+      <div class="code">server.crt  ← Public — safe to share
+Contains: domain proof, expiry, CA signature</div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">📦</div>
+      <h3>.pem — Bundle File</h3>
+      <p>A combined file containing your certificate + intermediate CA certificates in one. Many web servers (Nginx, Apache) want this format because it includes the full trust chain.</p>
+      <div class="code">fullchain.pem =
+  Your cert
+  + Intermediate CA cert
+  + (sometimes Root CA cert)</div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🏛️ Certificate Authority (CA) — The Trusted Third Party</h2>
+  <p>A CA is an organisation that browsers trust to vouch for certificates. When your browser sees a certificate signed by Let's Encrypt, it trusts it because browsers come pre-loaded with a list of trusted CAs.</p>
+
+  <div class="grid g3">
+    <div class="card cyan"><div class="card-icon">🆓</div><h3>Let's Encrypt</h3><p>Free, automated DV certificates. Renews every 90 days. Used by millions of sites. Perfect for DevOps with tools like Certbot.</p></div>
+    <div class="card orange"><div class="card-icon">💼</div><h3>DigiCert</h3><p>Paid, enterprise-grade. Used by banks, governments. OV and EV certificates. Very expensive but highly trusted.</p></div>
+    <div class="card green"><div class="card-icon">🌐</div><h3>GlobalSign</h3><p>Another commercial CA. Popular for OV/EV. Used by large enterprises who need verified org identity in their certificate.</p></div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>⛓️ Certificate Chain — Why It Matters</h2>
+  <p>Your certificate doesn't work alone — it relies on a chain of trust going up to a Root CA that browsers have pre-installed.</p>
+  <div class="code">Your Certificate (example.com)
+       ↓ signed by
+  Intermediate CA (Let's Encrypt R3)
+       ↓ signed by
+    Root CA (ISRG Root X1)
+       ↓ trusted by
+    Browser (pre-installed)</div>
+  <div class="highlight danger">
+    <div class="hl-icon">❌</div>
+    <div class="hl-body"><p><strong>Missing chain = SSL error!</strong> If you only install your cert without the intermediate, browsers show a scary "Your connection is not private" error. Always use the <strong>full chain</strong> file (fullchain.pem).</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 7: TLS HANDSHAKE ══════════════ -->
+<div class="page" id="page-7">
+  <p class="page-subtitle">PAGE 7 / 10</p>
+  <div class="page-title">The TLS <span style="color:var(--accent2)">Handshake</span></div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">Every time you open an HTTPS website, a "handshake" happens invisibly in milliseconds. It's like two strangers agreeing on a secret language before talking. Here's exactly what happens.</p>
+
+  <div class="grid g2">
+    <div>
+      <h2>🤝 Step-by-Step Handshake</h2>
+      <div class="steps" style="margin-top:16px">
+        <div class="step">
+          <div class="step-num" style="background:var(--accent2)">1</div>
+          <div class="step-body">
+            <h4>Client Hello</h4>
+            <p>Your browser says: "Hi! I support these TLS versions and encryption methods. Here's a random number." It lists what algorithms it can use.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:var(--accent2)">2</div>
+          <div class="step-body">
+            <h4>Server Hello + Certificate</h4>
+            <p>Server picks a mutually supported encryption method and says: "Let's use TLS 1.3 + AES-256. Here's my certificate to prove who I am."</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:var(--accent2)">3</div>
+          <div class="step-body">
+            <h4>Browser Validates Certificate</h4>
+            <p>Browser checks: Is the cert expired? Is it for the right domain? Is it signed by a trusted CA? If anything fails — big red warning page.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:var(--accent2)">4</div>
+          <div class="step-body">
+            <h4>Key Exchange</h4>
+            <p>Browser and server do math (Diffie-Hellman) to agree on a shared secret key — without ever sending the actual key over the internet. Magic!</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="background:var(--accent3);color:#000">5</div>
+          <div class="step-body">
+            <h4>Encrypted Session Begins</h4>
+            <p>Both sides now have the same secret key. All future communication is encrypted with this key. The padlock appears. You're safe.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h2>📊 Visualised</h2>
+      <div class="code" style="margin-top:16px;line-height:2.2">BROWSER          SERVER
+   |                 |
+   |── ClientHello ─→|
+   |                 |
+   |←─ ServerHello ──|
+   |←─ Certificate ──|
+   |                 |
+   |── Verify cert  →| (browser checks CA)
+   |                 |
+   |── Key Exchange─→|
+   |←─ Key Exchange──|
+   |                 |
+   |══ ENCRYPTED ════|
+   |══ SESSION   ════|
+   |                 |
+   GET /home HTTP/1.1 (encrypted)
+   200 OK + page data (encrypted)</div>
+
+      <div class="highlight info" style="margin-top:20px">
+        <div class="hl-icon">⚡</div>
+        <div class="hl-body"><p><strong>TLS 1.3 speed:</strong> The newest version (1.3) does the handshake in <strong>1 round-trip</strong> (vs 2 in TLS 1.2). And for repeat visitors, it can do <strong>0-RTT</strong> — resuming instantly with no handshake at all.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🔮 Diffie-Hellman Key Exchange — The Magic Explained</h2>
+  <p>How do two parties agree on a secret key without a spy seeing it? This is the genius of Diffie-Hellman, used in TLS:</p>
+  <div class="highlight info">
+    <div class="hl-icon">🎨</div>
+    <div class="hl-body"><p><strong>Paint Analogy:</strong> Alice and Bob both start with yellow paint (public info). Alice adds her secret red, Bob adds his secret blue. They swap their mixed paints. Alice adds her red to Bob's blue-yellow — gets the same final colour as Bob who adds his blue to Alice's red-yellow. The spy only ever sees the mixed paints — never the secret colours. The final combined colour is the shared encryption key.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 8: FULL WORKFLOW ══════════════ -->
+<div class="page" id="page-8">
+  <p class="page-subtitle">PAGE 8 / 10</p>
+  <div class="page-title">The Real DevOps <span style="color:var(--accent3)">Workflow</span></div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">Here's the complete setup every professional DevOps team uses. GoDaddy for the domain, Cloudflare for DNS + security, Let's Encrypt on the origin server.</p>
+
+  <div class="flow" style="flex-direction:column;gap:12px;">
+    <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--text-dim);letter-spacing:1px;margin-bottom:8px">COMPLETE SETUP FLOW</div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--gold);color:#000">1</div>
+      <div><strong>Buy domain</strong> from GoDaddy (or Namecheap, Google Domains, etc.) — $12/year</div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent)">2</div>
+      <div><strong>Create Cloudflare account</strong> and add your domain → <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent);font-size:13px">cloudflare.com/add-site</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent)">3</div>
+      <div><strong>Get 2 nameservers</strong> from Cloudflare: e.g., <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent3);font-size:13px">liam.ns.cloudflare.com</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent)">4</div>
+      <div><strong>Update nameservers in GoDaddy</strong> — GoDaddy panel → DNS → Nameservers → Custom → paste Cloudflare NSs</div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent)">5</div>
+      <div><strong>Wait 1–48 hours</strong> for DNS propagation (usually under 1 hour with Cloudflare)</div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent)">6</div>
+      <div><strong>Add DNS A record</strong> in Cloudflare: <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent3);font-size:13px">example.com → your server IP</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent2)">7</div>
+      <div><strong>On your server:</strong> Install Let's Encrypt cert with Certbot → <span style="font-family:'IBM Plex Mono',monospace;color:var(--accent2);font-size:13px">certbot --nginx -d example.com</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent2)">8</div>
+      <div><strong>Cloudflare SSL: Full (Strict)</strong> — Cloudflare dashboard → SSL/TLS → Full (Strict) mode</div>
+    </div>
+    <div style="display:grid;grid-template-columns:32px 1fr;gap:12px;align-items:center">
+      <div class="step-num" style="background:var(--accent3);color:#000">9</div>
+      <div><strong>Enable WAF + Rate Limiting</strong> in Cloudflare → Security → Done! 🎉</div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🏗️ Architecture Diagram</h2>
+  <div class="code">  User Browser
+       │
+       ▼
+  ┌──────────────────────┐
+  │     CLOUDFLARE       │  ← DDoS protection
+  │  CDN + WAF + SSL     │  ← Free SSL terminates here
+  └──────────┬───────────┘
+             │ Encrypted (Full Strict)
+             ▼
+  ┌──────────────────────┐
+  │  Your Load Balancer  │  ← AWS ALB / Nginx / K8s Ingress
+  │  (AWS / K8s / VM)    │
+  └──────────┬───────────┘
+             │
+     ┌───────┴───────┐
+     ▼               ▼
+  [App Server 1] [App Server 2]
+  (Let's Encrypt on each)
+
+  Domain registered at GoDaddy
+  DNS managed at Cloudflare
+  Traffic flows through Cloudflare CDN
+  Origin protected behind Cloudflare</div>
+
+  <div class="separator"></div>
+  <h2>☸️ Cloudflare + Kubernetes</h2>
+  <div class="grid g3">
+    <div class="card cyan"><div class="card-icon">🔗</div><h3>Point DNS → Load Balancer</h3><p>Add Cloudflare A record pointing to your K8s LoadBalancer external IP. Cloudflare sits in front.</p></div>
+    <div class="card orange"><div class="card-icon">🔐</div><h3>SSL Termination</h3><p>Let Cloudflare terminate SSL from users. Inside your cluster, use cert-manager + Let's Encrypt for origin certs.</p></div>
+    <div class="card green"><div class="card-icon">🚀</div><h3>Cache Frontend</h3><p>Enable Cloudflare caching for your React/Next.js static assets. Reduces K8s load dramatically.</p></div>
+  </div>
+</div>
+
+<!-- ══════════════ PAGE 9: COST ══════════════ -->
+<div class="page" id="page-9">
+  <p class="page-subtitle">PAGE 9 / 10</p>
+  <div class="page-title">Cost, Comparison<br>&amp; <span style="color:var(--gold)">Best Practices</span></div>
+  <p style="font-size:16px;margin-bottom:32px;color:var(--text-dim)">The actual numbers. What things cost. And the golden rules every DevOps engineer follows.</p>
+
+  <div class="grid g2">
+    <div class="card orange" style="position:relative">
+      <div class="big-number" style="font-size:60px;opacity:.08">$$$</div>
+      <h2>💰 GoDaddy Costs</h2>
+      <div class="cost-row"><span>Domain (.com) — Year 1</span><span class="cost-price">$2–12</span></div>
+      <div class="cost-row"><span>Domain (.com) — Renewal</span><span class="cost-price">$18–22/yr</span></div>
+      <div class="cost-row"><span>GoDaddy SSL (basic)</span><span class="cost-price">$75/yr</span></div>
+      <div class="cost-row"><span>WHOIS Privacy</span><span class="cost-price">$10/yr</span></div>
+      <div class="cost-row"><span>Email Forwarding</span><span class="cost-price">$5/mo</span></div>
+      <div class="highlight danger" style="margin-top:16px">
+        <div class="hl-icon">⚠️</div>
+        <div class="hl-body"><p><strong>Never buy SSL from GoDaddy.</strong> Get it free from Let's Encrypt or Cloudflare. GoDaddy's SSL is the same technology at 100x the price.</p></div>
+      </div>
+    </div>
+    <div class="card cyan" style="position:relative">
+      <div class="big-number" style="font-size:60px;opacity:.08">FREE</div>
+      <h2>💰 Cloudflare Costs</h2>
+      <div class="cost-row"><span>DNS</span><span class="cost-price cost-price" style="color:var(--accent3)">FREE</span></div>
+      <div class="cost-row"><span>CDN</span><span class="cost-price" style="color:var(--accent3)">FREE</span></div>
+      <div class="cost-row"><span>DDoS Protection</span><span class="cost-price" style="color:var(--accent3)">FREE</span></div>
+      <div class="cost-row"><span>SSL (Universal)</span><span class="cost-price" style="color:var(--accent3)">FREE</span></div>
+      <div class="cost-row"><span>Bot Protection (basic)</span><span class="cost-price" style="color:var(--accent3)">FREE</span></div>
+      <div class="cost-row"><span>Pro Plan (WAF + more)</span><span class="cost-price">$20/mo</span></div>
+      <div class="cost-row"><span>Business Plan</span><span class="cost-price">$200/mo</span></div>
+      <div class="highlight good" style="margin-top:16px">
+        <div class="hl-icon">💡</div>
+        <div class="hl-body"><p><strong>Free tier is genuinely powerful.</strong> Most startups and even mid-size companies run entirely on the free Cloudflare tier for years.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🏆 Best Practices — The Golden Rules</h2>
+
+  <div class="grid g2">
+    <div class="card green">
+      <div class="card-icon">🌐</div>
+      <h3>Rule 1: Buy domain anywhere, DNS on Cloudflare</h3>
+      <p>It doesn't matter where you buy the domain (GoDaddy, Namecheap, Google). Always move your DNS to Cloudflare. The speed and security difference is enormous.</p>
+    </div>
+    <div class="card cyan">
+      <div class="card-icon">🔒</div>
+      <h3>Rule 2: Always use Full (Strict) SSL</h3>
+      <p>Never use Flexible mode. Install Let's Encrypt on your origin server (certbot), then set Cloudflare to Full (Strict). End-to-end encryption, zero cost.</p>
+    </div>
+    <div class="card purple">
+      <div class="card-icon">🔄</div>
+      <h3>Rule 3: Automate cert renewal</h3>
+      <p>Let's Encrypt certs expire every 90 days. Use certbot's auto-renew cron job so you never get a cert expiry surprise at 3am. Set it and forget it.</p>
+      <div class="code">0 12 * * * certbot renew --quiet</div>
+    </div>
+    <div class="card orange">
+      <div class="card-icon">🛡️</div>
+      <h3>Rule 4: Enable WAF + Rate Limiting</h3>
+      <p>Even on the free plan, enable Cloudflare's managed rules. Add rate limiting on your login and API endpoints. Stops 99% of automated attacks cold.</p>
+    </div>
+    <div class="card pink">
+      <div class="card-icon">🕵️</div>
+      <h3>Rule 5: Use Cloudflare "Orange Cloud"</h3>
+      <p>When adding DNS records in Cloudflare, make sure the orange cloud (proxy) is enabled. This hides your real server IP from attackers. Without it, they can bypass Cloudflare and DDoS your server directly.</p>
+    </div>
+    <div class="card gold">
+      <div class="card-icon">📉</div>
+      <h3>Rule 6: Lower TTL before changes</h3>
+      <p>Before changing any DNS record, first reduce its TTL to 60-120 seconds. Wait for propagation. Make your change. Then restore TTL to 3600. This minimises downtime during migrations.</p>
+    </div>
+  </div>
+
+  <div class="separator"></div>
+  <h2>🗂️ Final Summary Cheatsheet</h2>
+  <table class="dtable">
+    <thead><tr><th>TERM</th><th>LAYMAN EXPLANATION</th><th>YOUR ACTION</th></tr></thead>
+    <tbody>
+      <tr><td>Domain</td><td>Friendly name for your server's IP</td><td>Buy at GoDaddy/Namecheap</td></tr>
+      <tr><td>DNS</td><td>Phonebook that converts name → IP</td><td>Manage at Cloudflare</td></tr>
+      <tr><td>Nameservers</td><td>Who controls your phonebook page</td><td>Set to Cloudflare's NSs in GoDaddy</td></tr>
+      <tr><td>A Record</td><td>domain.com → IP address</td><td>Add in Cloudflare DNS</td></tr>
+      <tr><td>CNAME</td><td>Alias / nickname for another domain</td><td>Add in Cloudflare DNS</td></tr>
+      <tr><td>TLS/SSL</td><td>Encryption for your connection</td><td>Let's Encrypt on server + Cloudflare</td></tr>
+      <tr><td>Certificate</td><td>ID card proving you own the domain</td><td>certbot --nginx (free)</td></tr>
+      <tr><td>CA</td><td>Trusted authority that signs certs</td><td>Use Let's Encrypt</td></tr>
+      <tr><td>Cloudflare Mode</td><td>How SSL works between CF and server</td><td>Always: Full (Strict)</td></tr>
+      <tr><td>WAF</td><td>Firewall that blocks attack patterns</td><td>Enable in Cloudflare Security</td></tr>
+      <tr><td>CDN</td><td>Copies your files close to users</td><td>Auto-enabled with Cloudflare</td></tr>
+    </tbody>
+  </table>
+
+  <div class="highlight good" style="margin-top:24px">
+    <div class="hl-icon">🎉</div>
+    <div class="hl-body"><p><strong>You made it!</strong> You now understand domains, DNS, Cloudflare, SSL/TLS, certificates, and the full DevOps workflow. The stack: <strong>GoDaddy (buy) → Cloudflare (DNS + security) → Let's Encrypt (origin SSL) → Your Server.</strong> Total cost for a secure, production-grade setup: <strong>~$12/year</strong> for the domain. Everything else is free.</p></div>
+  </div>
+</div>
+
+</div><!-- /canvas-area -->
+
+<script>
+function showPage(idx) {
+  document.querySelectorAll('.page').forEach((p,i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.nav-btn').forEach((b,i) => b.classList.toggle('active', i === idx));
+  document.querySelector('.canvas-area').scrollTo(0,0);
+}
+</script>
+</body>
+</html>

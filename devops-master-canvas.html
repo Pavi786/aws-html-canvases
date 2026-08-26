@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Master Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --card: #161b24;
+    --border: #1e2530;
+    --accent1: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #f97316;
+    --accent4: #10b981;
+    --accent5: #ec4899;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: rgba(0,229,255,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(0,229,255,0.08) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent2), var(--accent1));
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    padding: 6px 18px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    background: linear-gradient(135deg, #fff 0%, var(--accent1) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto 30px;
+    line-height: 1.6;
+  }
+  .stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent1);
+  }
+  .stat-label { font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  /* Navigation pills */
+  .nav-pills {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .nav-pills::-webkit-scrollbar { display: none; }
+  .pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .pill:hover { border-color: var(--accent1); color: var(--accent1); transform: translateY(-1px); }
+  .pill.docker { border-color: rgba(0,229,255,0.4); color: var(--accent1); }
+  .pill.k8s { border-color: rgba(124,58,237,0.4); color: var(--accent2); }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  .section {
+    margin-bottom: 60px;
+    scroll-margin-top: 80px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .section-title {
+    font-size: 1.6rem;
+    font-weight: 800;
+  }
+  .section-sub {
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .grid { display: grid; gap: 16px; }
+  .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .grid-3 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.1); }
+  .card:hover::before { opacity: 1; }
+
+  .card.cyan::before { background: linear-gradient(90deg, var(--accent1), transparent); }
+  .card.purple::before { background: linear-gradient(90deg, var(--accent2), transparent); }
+  .card.orange::before { background: linear-gradient(90deg, var(--accent3), transparent); }
+  .card.green::before { background: linear-gradient(90deg, var(--accent4), transparent); }
+  .card.pink::before { background: linear-gradient(90deg, var(--accent5), transparent); }
+  .card:hover.cyan { box-shadow: 0 8px 40px rgba(0,229,255,0.08); }
+  .card:hover.purple { box-shadow: 0 8px 40px rgba(124,58,237,0.1); }
+  .card:hover.orange { box-shadow: 0 8px 40px rgba(249,115,22,0.08); }
+  .card:hover.green { box-shadow: 0 8px 40px rgba(16,185,129,0.08); }
+  .card:hover.pink { box-shadow: 0 8px 40px rgba(236,72,153,0.08); }
+
+  .card-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot.cyan { background: var(--accent1); }
+  .dot.purple { background: var(--accent2); }
+  .dot.orange { background: var(--accent3); }
+  .dot.green { background: var(--accent4); }
+  .dot.pink { background: var(--accent5); }
+
+  .concept {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .concept-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .concept-item strong {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .concept-item strong.cyan { color: var(--accent1); }
+  .concept-item strong.purple { color: var(--accent2); }
+  .concept-item strong.orange { color: var(--accent3); }
+  .concept-item strong.green { color: var(--accent4); }
+  .concept-item strong.pink { color: var(--accent5); }
+  .concept-item span { color: var(--muted); }
+
+  code, .cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 7px;
+    color: var(--accent1);
+  }
+  .cmd-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    color: #a5f3fc;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin-top: 8px;
+  }
+  .cmd-block .comment { color: #4a5568; }
+  .cmd-block .flag { color: var(--accent3); }
+  .cmd-block .value { color: var(--accent4); }
+
+  .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .tag.must { background: rgba(236,72,153,0.2); color: var(--accent5); border: 1px solid rgba(236,72,153,0.3); }
+  .tag.adv { background: rgba(124,58,237,0.2); color: var(--accent2); border: 1px solid rgba(124,58,237,0.3); }
+  .tag.core { background: rgba(0,229,255,0.1); color: var(--accent1); border: 1px solid rgba(0,229,255,0.2); }
+  .tag.tip { background: rgba(16,185,129,0.2); color: var(--accent4); border: 1px solid rgba(16,185,129,0.3); }
+
+  .wide-card {
+    grid-column: 1 / -1;
+  }
+
+  .flow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .flow-step {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+  .flow-arrow { color: var(--muted); font-size: 0.9rem; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media(max-width: 500px) { .two-col { grid-template-columns: 1fr; } }
+
+  .level-bar {
+    display: flex;
+    gap: 3px;
+    margin-top: 8px;
+  }
+  .level-seg {
+    height: 4px;
+    flex: 1;
+    border-radius: 2px;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+  .level-seg.fill-cyan { background: var(--accent1); }
+  .level-seg.fill-purple { background: var(--accent2); }
+  .level-seg.fill-orange { background: var(--accent3); }
+  .level-seg.fill-green { background: var(--accent4); }
+  .level-seg.fill-pink { background: var(--accent5); }
+
+  .separator {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(0,229,255,0.05), rgba(124,58,237,0.05));
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+  .highlight-box strong { color: var(--text); }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🚀 DevOps Master Canvas · 1 Year Pro Edition</div>
+  <h1>DevOps<br>Master Canvas</h1>
+  <p>Everything you need to own your DevOps game — from beginner brain to beast mode. Layman explanations + real commands.</p>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num">15</div><div class="stat-label">Tools Covered</div></div>
+    <div class="stat"><div class="stat-num">100+</div><div class="stat-label">Core Concepts</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Power Unlocked</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-pills">
+  <a class="pill docker" href="#docker">🐳 Docker</a>
+  <a class="pill k8s" href="#k8s">☸️ Kubernetes</a>
+  <a class="pill" href="#argocd">🔄 ArgoCD</a>
+  <a class="pill" href="#cicd">⚙️ Jenkins</a>
+  <a class="pill" href="#ansible">📦 Ansible</a>
+  <a class="pill" href="#terraform">🏗️ Terraform</a>
+  <a class="pill" href="#observability">👁️ Observability</a>
+  <a class="pill" href="#git">🌿 Git</a>
+  <a class="pill" href="#proxy">🔀 Squid/Proxy</a>
+  <a class="pill" href="#monitoring">📊 Monitoring</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════ DOCKER ═══════════════ -->
+<section class="section" id="docker">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3)">🐳</div>
+    <div>
+      <div class="section-title" style="color:var(--accent1)">Docker + Docker Desktop</div>
+      <div class="section-sub">Think of Docker as a magic lunchbox — it packs your app + everything it needs, runs anywhere</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>Core Concepts <span class="tag core">must</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Image</strong><span>A recipe/blueprint. Like a class in OOP. Read-only snapshot.</span></div>
+        <div class="concept-item"><strong class="cyan">Container</strong><span>Running instance of an image. Like a process from that blueprint.</span></div>
+        <div class="concept-item"><strong class="cyan">Dockerfile</strong><span>Instructions to BUILD an image. Like a recipe card.</span></div>
+        <div class="concept-item"><strong class="cyan">Registry</strong><span>Store for images. DockerHub = GitHub for images.</span></div>
+        <div class="concept-item"><strong class="cyan">Volume</strong><span>Persistent storage. Data survives container restarts.</span></div>
+        <div class="concept-item"><strong class="cyan">Network</strong><span>How containers talk to each other. bridge/host/overlay.</span></div>
+      </div>
+    </div>
+
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>Must-Know Commands</div>
+      <div class="cmd-block">
+<span class="comment"># Build & Run</span>
+docker build -t myapp:1.0 .
+docker run <span class="flag">-d -p</span> 8080:80 myapp:1.0
+docker run <span class="flag">-it</span> ubuntu bash
+
+<span class="comment"># Inspect & Debug</span>
+docker ps <span class="flag">-a</span>
+docker logs <span class="flag">-f</span> container_id
+docker exec <span class="flag">-it</span> container bash
+docker inspect container_id
+
+<span class="comment"># Cleanup</span>
+docker system prune <span class="flag">-af</span>
+docker volume prune
+      </div>
+    </div>
+
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>Docker Compose <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Purpose</strong><span>Run MULTI-container apps with one command. Like an orchestra conductor.</span></div>
+        <div class="concept-item"><strong class="cyan">services</strong><span>Each container = one service. app, db, redis, nginx etc.</span></div>
+        <div class="concept-item"><strong class="cyan">depends_on</strong><span>Start order. DB starts before app.</span></div>
+        <div class="concept-item"><strong class="cyan">env_file</strong><span>Load env variables from .env file. Keep secrets out of code!</span></div>
+      </div>
+      <div class="cmd-block">
+docker compose up <span class="flag">-d</span>
+docker compose down <span class="flag">-v</span>
+docker compose logs <span class="flag">-f</span> app
+docker compose scale app=3
+      </div>
+    </div>
+
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>Advanced Docker <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Multi-stage build</strong><span>Build in stage 1, copy only output to stage 2. Tiny final image!</span></div>
+        <div class="concept-item"><strong class="cyan">Layer caching</strong><span>Unchanged layers reused. Put rarely-changed stuff first in Dockerfile.</span></div>
+        <div class="concept-item"><strong class="cyan">Health check</strong><span>Docker knows if your app is actually alive, not just "running".</span></div>
+        <div class="concept-item"><strong class="cyan">.dockerignore</strong><span>Like .gitignore. Don't copy node_modules into image!</span></div>
+      </div>
+    </div>
+
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>Docker Desktop (Local Dev)</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Dev Environments</strong><span>Full dev setup in a container. Share with team via Git.</span></div>
+        <div class="concept-item"><strong class="cyan">Kubernetes (built-in)</strong><span>Single-node K8s cluster in 1 click. Test K8s locally!</span></div>
+        <div class="concept-item"><strong class="cyan">Extensions</strong><span>Disk usage, logs, Portainer, Snyk scan — all in GUI.</span></div>
+        <div class="concept-item"><strong class="cyan">Resource limits</strong><span>Set CPU/RAM in Settings. Don't let Docker eat your laptop!</span></div>
+      </div>
+    </div>
+
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>Dockerfile Best Practices <span class="tag tip">tips</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Use slim/alpine base</strong><span>alpine = 5MB. ubuntu = 70MB. Huge difference in prod!</span></div>
+        <div class="concept-item"><strong class="cyan">Run as non-root</strong><span>USER 1001. Security must. Don't run containers as root.</span></div>
+        <div class="concept-item"><strong class="cyan">COPY vs ADD</strong><span>COPY is explicit. ADD can untar/fetch URLs. Prefer COPY.</span></div>
+        <div class="concept-item"><strong class="cyan">Combine RUN layers</strong><span>apt-get update && install in ONE RUN. Fewer layers = smaller image.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ KUBERNETES ═══════════════ -->
+<section class="section" id="k8s">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3)">☸️</div>
+    <div>
+      <div class="section-title" style="color:var(--accent2)">Kubernetes (K8s)</div>
+      <div class="section-sub">K8s is the manager who decides where your containers run, restarts them if they die, and scales on demand</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>The Big Picture</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Control Plane</strong><span>The brain. API server, etcd (DB), scheduler, controller manager.</span></div>
+        <div class="concept-item"><strong class="purple">Node / Worker</strong><span>The muscle. Machines that actually run your pods.</span></div>
+        <div class="concept-item"><strong class="purple">Pod</strong><span>Smallest unit. 1+ containers sharing network + storage. Like a tiny VM.</span></div>
+        <div class="concept-item"><strong class="purple">Namespace</strong><span>Virtual cluster inside a cluster. Isolate teams/envs. dev/staging/prod.</span></div>
+        <div class="concept-item"><strong class="purple">kubelet</strong><span>Agent on each node. Reports to control plane. Runs pods.</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>Core Resources</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Deployment</strong><span>Desired state for pods. Handles rolling updates and rollbacks.</span></div>
+        <div class="concept-item"><strong class="purple">Service</strong><span>Stable IP/DNS for pods. ClusterIP/NodePort/LoadBalancer.</span></div>
+        <div class="concept-item"><strong class="purple">ConfigMap</strong><span>Non-sensitive config as key-value. Inject as env or file.</span></div>
+        <div class="concept-item"><strong class="purple">Secret</strong><span>Base64 encoded sensitive data. Use Vault/Sealed Secrets in prod!</span></div>
+        <div class="concept-item"><strong class="purple">PersistentVolume</strong><span>Storage that lives beyond pod death. DB data lives here.</span></div>
+        <div class="concept-item"><strong class="purple">Ingress</strong><span>HTTP/S routing. One LB → many services. Host/path rules.</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>kubectl Cheatsheet</div>
+      <div class="cmd-block">
+<span class="comment"># Get info</span>
+kubectl get pods <span class="flag">-n</span> <span class="value">mynamespace</span> <span class="flag">-o wide</span>
+kubectl describe pod podname
+kubectl logs <span class="flag">-f</span> podname <span class="flag">-c</span> container
+
+<span class="comment"># Apply/delete</span>
+kubectl apply <span class="flag">-f</span> manifest.yaml
+kubectl delete <span class="flag">-f</span> manifest.yaml
+
+<span class="comment"># Debug</span>
+kubectl exec <span class="flag">-it</span> pod -- bash
+kubectl port-forward svc/app 8080:80
+kubectl top pods
+kubectl rollout status deploy/app
+kubectl rollout undo deploy/app
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>Advanced K8s <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">HPA</strong><span>HorizontalPodAutoscaler. Scale pods based on CPU/memory or custom metrics.</span></div>
+        <div class="concept-item"><strong class="purple">Resource Limits</strong><span>requests (guaranteed) vs limits (max). Always set both to avoid OOM kills.</span></div>
+        <div class="concept-item"><strong class="purple">Liveness Probe</strong><span>Is app alive? K8s restarts if fails. Check /healthz endpoint.</span></div>
+        <div class="concept-item"><strong class="purple">Readiness Probe</strong><span>Is app ready for traffic? No traffic sent until passes.</span></div>
+        <div class="concept-item"><strong class="purple">Taints & Tolerations</strong><span>Reserve specific nodes for specific workloads. GPU nodes, etc.</span></div>
+        <div class="concept-item"><strong class="purple">RBAC</strong><span>Role-Based Access Control. Who can do what to which resource.</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>StatefulSet vs Deployment</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Deployment</strong><span>Stateless apps. Pods are interchangeable. Scale freely. web/api servers.</span></div>
+        <div class="concept-item"><strong class="purple">StatefulSet</strong><span>Stateful apps. Pods have stable names. pod-0, pod-1. DBs, Kafka, Zookeeper.</span></div>
+        <div class="concept-item"><strong class="purple">DaemonSet</strong><span>One pod per node. Log collectors, monitoring agents, network plugins.</span></div>
+        <div class="concept-item"><strong class="purple">Job/CronJob</strong><span>Run-to-completion tasks. Backups, reports, data migrations.</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>K8s Networking</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">CNI Plugin</strong><span>Network plugin. Calico, Flannel, Cilium. Handles pod-to-pod comms.</span></div>
+        <div class="concept-item"><strong class="purple">DNS</strong><span>Every service gets DNS: svc.namespace.svc.cluster.local</span></div>
+        <div class="concept-item"><strong class="purple">NetworkPolicy</strong><span>Firewall for pods. "Only frontend pod can talk to backend pod".</span></div>
+        <div class="concept-item"><strong class="purple">Service Mesh</strong><span>Istio/Linkerd. mTLS, traffic management, observability between services.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ ARGOCD ═══════════════ -->
+<section class="section" id="argocd">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3)">🔄</div>
+    <div>
+      <div class="section-title" style="color:var(--accent3)">ArgoCD — GitOps for K8s</div>
+      <div class="section-sub">Git is the truth. ArgoCD watches Git and makes K8s match it. Always. Forever.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>GitOps Brain Model</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="orange">GitOps = Git is source of truth</strong><span>K8s manifests live in Git. You push to Git, Argo deploys. No more manual kubectl apply in prod!</span></div>
+        <div class="concept-item"><strong class="orange">Declarative</strong><span>You declare WHAT you want (desired state). ArgoCD handles HOW to get there.</span></div>
+        <div class="concept-item"><strong class="orange">Drift Detection</strong><span>Someone manually changed K8s? ArgoCD notices and alerts (or auto-reverts).</span></div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>Core Concepts</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="orange">Application</strong><span>ArgoCD resource. Points to Git repo + K8s cluster + namespace. The glue.</span></div>
+        <div class="concept-item"><strong class="orange">Sync</strong><span>Make K8s match Git. Manual or auto-sync. Like kubectl apply but smarter.</span></div>
+        <div class="concept-item"><strong class="orange">Synced/OutOfSync</strong><span>Health status. OutOfSync = someone touched K8s directly. Bad!</span></div>
+        <div class="concept-item"><strong class="orange">App of Apps</strong><span>One Argo app that manages other Argo apps. Scale deployments!</span></div>
+        <div class="concept-item"><strong class="orange">Rollback</strong><span>One click to go back to any Git commit. Time travel for deployments!</span></div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>ArgoCD Commands</div>
+      <div class="cmd-block">
+<span class="comment"># Login & apps</span>
+argocd login argocd.mycompany.com
+argocd app list
+argocd app get myapp
+argocd app sync myapp
+
+<span class="comment"># Rollback to prev version</span>
+argocd app history myapp
+argocd app rollback myapp 2
+
+<span class="comment"># Diff before sync</span>
+argocd app diff myapp
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>ArgoCD + Helm/Kustomize</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="orange">Helm charts in Git</strong><span>Store Helm charts in Git. Argo renders them and applies. Best practice!</span></div>
+        <div class="concept-item"><strong class="orange">Kustomize overlays</strong><span>Base + overlays per env. base/dev/staging/prod. DRY K8s configs!</span></div>
+        <div class="concept-item"><strong class="orange">valueFiles</strong><span>Different values.yaml per environment in Argo app spec.</span></div>
+      </div>
+      <div class="highlight-box">
+        <strong>Interview Gold:</strong> ArgoCD pull-based model is more secure than push-based CI/CD. The cluster pulls from Git — no need to give CI pipeline cluster credentials!
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ JENKINS ═══════════════ -->
+<section class="section" id="cicd">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)">⚙️</div>
+    <div>
+      <div class="section-title" style="color:var(--accent4)">Jenkins — CI/CD Workhorse</div>
+      <div class="section-sub">Jenkins = the factory line. Code in → test → build → deploy → done. Automated every step.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card green">
+      <div class="card-title"><div class="dot green"></div>Jenkins Concepts</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="green">Pipeline</strong><span>Whole CI/CD flow as code. Jenkinsfile in your repo. Version controlled!</span></div>
+        <div class="concept-item"><strong class="green">Agent</strong><span>Where pipeline runs. agent any = any node. agent {docker} = in container.</span></div>
+        <div class="concept-item"><strong class="green">Stage</strong><span>Step in pipeline: Build, Test, Scan, Push, Deploy. Visual in UI.</span></div>
+        <div class="concept-item"><strong class="green">Credential</strong><span>Secrets stored in Jenkins. Referenced as withCredentials. Never hardcode!</span></div>
+        <div class="concept-item"><strong class="green">Shared Library</strong><span>Reusable pipeline code across multiple projects. DRY principle.</span></div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><div class="dot green"></div>Declarative Pipeline</div>
+      <div class="cmd-block">
+pipeline {
+  agent { docker { image <span class="value">'node:18'</span> } }
+  environment {
+    IMAGE = <span class="value">"myapp:${BUILD_NUMBER}"</span>
+  }
+  stages {
+    stage(<span class="value">'Test'</span>) {
+      steps { sh <span class="value">'npm test'</span> }
+    }
+    stage(<span class="value">'Build'</span>) {
+      steps { sh <span class="value">'docker build -t $IMAGE .'</span> }
+    }
+    stage(<span class="value">'Deploy'</span>) {
+      steps { sh <span class="value">'kubectl apply -f k8s/'</span> }
+    }
+  }
+  post {
+    failure { slackSend message: <span class="value">'Build failed!'</span> }
+  }
+}
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><div class="dot green"></div>Advanced Jenkins <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="green">Blue Ocean</strong><span>Modern UI for pipelines. Visual pipeline editor. Much nicer than classic UI.</span></div>
+        <div class="concept-item"><strong class="green">Multibranch</strong><span>Auto-create pipelines for each Git branch. PR pipelines too!</span></div>
+        <div class="concept-item"><strong class="green">Parallel stages</strong><span>Run test suites in parallel. Cut pipeline time dramatically!</span></div>
+        <div class="concept-item"><strong class="green">Stash/Unstash</strong><span>Pass files between stages. Build artifacts between pipeline steps.</span></div>
+        <div class="concept-item"><strong class="green">input step</strong><span>Pause pipeline for human approval before prod deploy. Manual gate.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ ANSIBLE ═══════════════ -->
+<section class="section" id="ansible">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.3)">📦</div>
+    <div>
+      <div class="section-title" style="color:var(--accent5)">Ansible — Config Management</div>
+      <div class="section-sub">Ansible = your robot sysadmin. Write once, configure 1000 servers at once. No agents needed!</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card pink">
+      <div class="card-title"><div class="dot pink"></div>Core Concepts</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="pink">Inventory</strong><span>List of servers to manage. ini or YAML format. Groups: web, db, app.</span></div>
+        <div class="concept-item"><strong class="pink">Playbook</strong><span>Your automation script in YAML. Series of tasks. The "recipe".</span></div>
+        <div class="concept-item"><strong class="pink">Task</strong><span>One action: install nginx, copy file, restart service.</span></div>
+        <div class="concept-item"><strong class="pink">Role</strong><span>Bundle of tasks for one purpose. nginx role, postgres role. Reusable!</span></div>
+        <div class="concept-item"><strong class="pink">Module</strong><span>Built-in tools. apt, yum, copy, template, service, docker_container, k8s etc.</span></div>
+        <div class="concept-item"><strong class="pink">Idempotent</strong><span>Running twice = same result. Safe to re-run. Ansible ensures desired state.</span></div>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-title"><div class="dot pink"></div>Playbook Example + Commands</div>
+      <div class="cmd-block">
+<span class="comment"># playbook.yml</span>
+- hosts: webservers
+  become: yes
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+    - name: Start nginx
+      service:
+        name: nginx
+        state: started
+
+<span class="comment"># Run commands</span>
+ansible-playbook -i inventory.ini playbook.yml
+ansible-playbook playbook.yml <span class="flag">--check</span>  <span class="comment"># dry run</span>
+ansible-playbook playbook.yml <span class="flag">--diff</span>   <span class="comment"># show changes</span>
+ansible-playbook playbook.yml <span class="flag">--tags</span> <span class="value">deploy</span>
+      </div>
+    </div>
+
+    <div class="card pink">
+      <div class="card-title"><div class="dot pink"></div>Advanced Ansible <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="pink">Vault</strong><span>Encrypt secrets in playbooks. ansible-vault encrypt secrets.yml. Commit safely!</span></div>
+        <div class="concept-item"><strong class="pink">Jinja2 Templates</strong><span>Dynamic config files with variables. nginx.conf.j2 → nginx.conf</span></div>
+        <div class="concept-item"><strong class="pink">Handlers</strong><span>Tasks triggered by notify. Restart nginx ONLY if config changed.</span></div>
+        <div class="concept-item"><strong class="pink">Dynamic Inventory</strong><span>Pull server list from AWS/GCP/Azure APIs automatically. No manual list!</span></div>
+        <div class="concept-item"><strong class="pink">Blocks & Error handling</strong><span>block/rescue/always. Like try/catch for tasks.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ TERRAFORM ═══════════════ -->
+<section class="section" id="terraform">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3)">🏗️</div>
+    <div>
+      <div class="section-title" style="color:var(--accent2)">Terraform — Infrastructure as Code</div>
+      <div class="section-sub">Terraform = order cloud resources (EC2, VPC, RDS) from code. Like Amazon.com but for infrastructure.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>Core Concepts</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Provider</strong><span>Plugin for AWS/GCP/Azure/K8s. Knows how to talk to that cloud API.</span></div>
+        <div class="concept-item"><strong class="purple">Resource</strong><span>One cloud thing: EC2 instance, S3 bucket, VPC, RDS. You declare it.</span></div>
+        <div class="concept-item"><strong class="purple">State file</strong><span>Terraform's memory. Tracks what's created. STORE IN S3, not locally!</span></div>
+        <div class="concept-item"><strong class="purple">Module</strong><span>Reusable resource group. vpc module, eks module. Like functions in IaC.</span></div>
+        <div class="concept-item"><strong class="purple">Variables</strong><span>Parameterize configs. Different values for dev/prod. terraform.tfvars</span></div>
+        <div class="concept-item"><strong class="purple">Output</strong><span>Export values (IP, ARN) for other configs or pipelines to use.</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>Terraform Workflow</div>
+      <div class="flow">
+        <div class="flow-step">terraform init</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">terraform plan</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">terraform apply</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">terraform destroy</div>
+      </div>
+      <div class="cmd-block" style="margin-top:14px">
+terraform init          <span class="comment"># download providers</span>
+terraform plan -out=tfplan <span class="comment"># preview changes</span>
+terraform apply tfplan  <span class="comment"># create resources</span>
+terraform state list    <span class="comment"># what's managed</span>
+terraform import aws_instance.web i-1234 <span class="comment"># import existing</span>
+terraform workspace new staging <span class="comment"># separate envs</span>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>Advanced Terraform <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Remote Backend</strong><span>State in S3 + DynamoDB for locking. TEAM MUST. Never git commit tfstate!</span></div>
+        <div class="concept-item"><strong class="purple">Workspaces</strong><span>Same code, different state. dev/staging/prod from one codebase.</span></div>
+        <div class="concept-item"><strong class="purple">data sources</strong><span>Read existing cloud resources. Look up AMI, VPC ID, etc. Read-only.</span></div>
+        <div class="concept-item"><strong class="purple">for_each / count</strong><span>Create N resources dynamically. 3 EC2 instances from one block!</span></div>
+        <div class="concept-item"><strong class="purple">Terragrunt</strong><span>Wrapper for Terraform. DRY configs. Manage multiple envs cleanly.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ OBSERVABILITY ═══════════════ -->
+<section class="section" id="observability">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3)">👁️</div>
+    <div>
+      <div class="section-title" style="color:var(--accent1)">Observability Stack</div>
+      <div class="section-sub">Prometheus + Grafana + Jaeger + Kibana + Zabbix + Uptime Kuma = Total system visibility</div>
+    </div>
+  </div>
+
+  <!-- Observability Pillars -->
+  <div class="grid grid-3" style="margin-bottom:20px">
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>3 Pillars of Observability</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">📊 Metrics (Prometheus)</strong><span>Numbers over time. CPU=80%, requests/sec=1000, error_rate=0.1%. What is happening.</span></div>
+        <div class="concept-item"><strong class="cyan">📝 Logs (ELK/Kibana)</strong><span>Text records of events. Errors, warnings, debug lines. Why it happened.</span></div>
+        <div class="concept-item"><strong class="cyan">🔗 Traces (Jaeger)</strong><span>Full journey of a request across microservices. Where it slowed down.</span></div>
+      </div>
+    </div>
+    <div class="card cyan wide-card" style="grid-column: span 2">
+      <div class="card-title"><div class="dot cyan"></div>When to use which tool</div>
+      <div class="two-col">
+        <div class="concept">
+          <div class="concept-item"><strong class="cyan">Prometheus → Grafana</strong><span>"Show me CPU/memory trends for the last 7 days. Alert when &gt;90%."</span></div>
+          <div class="concept-item"><strong class="cyan">Kibana (ELK)</strong><span>"Find all ERROR logs from payment service between 2pm-3pm today."</span></div>
+        </div>
+        <div class="concept">
+          <div class="concept-item"><strong class="cyan">Jaeger</strong><span>"Why is this API call slow? Show me which microservice is the bottleneck."</span></div>
+          <div class="concept-item"><strong class="cyan">Zabbix</strong><span>"Monitor bare metal servers, network devices, legacy systems at scale."</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <!-- PROMETHEUS -->
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>🔥 Prometheus</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Pull model</strong><span>Prometheus SCRAPES metrics from /metrics endpoint. Apps expose it, Prom fetches it every 15s.</span></div>
+        <div class="concept-item"><strong class="cyan">PromQL</strong><span>Query language. rate(http_requests_total[5m]) = req/sec over 5 min average.</span></div>
+        <div class="concept-item"><strong class="cyan">Exporters</strong><span>node_exporter (OS), kube-state-metrics (K8s), blackbox_exporter (URLs). Bridges for things that don't have /metrics.</span></div>
+        <div class="concept-item"><strong class="cyan">AlertManager</strong><span>Routes alerts to Slack/PagerDuty/email. Silences, inhibitions, grouping.</span></div>
+        <div class="concept-item"><strong class="cyan">Recording Rules</strong><span>Pre-compute expensive queries. Faster dashboards. Save as new metric.</span></div>
+      </div>
+      <div class="cmd-block">
+<span class="comment"># PromQL Examples</span>
+rate(http_requests_total[5m])   <span class="comment"># req/sec</span>
+histogram_quantile(0.99, ...)   <span class="comment"># p99 latency</span>
+sum by(pod) (container_memory_usage_bytes)
+up == 0                         <span class="comment"># down targets</span>
+      </div>
+    </div>
+
+    <!-- GRAFANA -->
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>📊 Grafana</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Data Sources</strong><span>Connect to Prometheus, Loki, Elasticsearch, InfluxDB, even SQL. One UI for all!</span></div>
+        <div class="concept-item"><strong class="cyan">Panels</strong><span>Graph, stat, gauge, table, heatmap, alerting panels. Drag-drop dashboard builder.</span></div>
+        <div class="concept-item"><strong class="cyan">Variables</strong><span>Dashboard variables = dropdowns. Switch between pods/namespaces dynamically.</span></div>
+        <div class="concept-item"><strong class="cyan">Alerting</strong><span>Grafana Unified Alerting. Alert from any data source. Route to Slack/PD.</span></div>
+        <div class="concept-item"><strong class="cyan">Provisioning</strong><span>Dashboards + datasources as code (YAML). Version control your dashboards!</span></div>
+        <div class="concept-item"><strong class="cyan">Grafana Loki</strong><span>Like Prometheus but for LOGS. Cheap. K8s-native. Pairs with Prometheus perfectly.</span></div>
+      </div>
+    </div>
+
+    <!-- JAEGER -->
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>🔗 Jaeger (Distributed Tracing)</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Trace</strong><span>Full path of one request. User → API gateway → auth service → DB. See each hop.</span></div>
+        <div class="concept-item"><strong class="cyan">Span</strong><span>One unit of work within a trace. Auth service processing = one span.</span></div>
+        <div class="concept-item"><strong class="cyan">TraceID</strong><span>Unique ID that follows request across all services. Pass in headers!</span></div>
+        <div class="concept-item"><strong class="cyan">Sampling</strong><span>Don't trace 100% of requests. 1% sampling reduces overhead. Head vs tail sampling.</span></div>
+        <div class="concept-item"><strong class="cyan">OpenTelemetry</strong><span>The standard now. OTel SDK → Jaeger/Zipkin/Tempo. Instrument once, send anywhere!</span></div>
+      </div>
+    </div>
+
+    <!-- ELK/KIBANA -->
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>📝 ELK Stack + Kibana</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">E = Elasticsearch</strong><span>Search engine + storage. Full-text search on logs. Stores billions of log lines.</span></div>
+        <div class="concept-item"><strong class="cyan">L = Logstash</strong><span>Log pipeline. Collect → parse → transform → send to ES. Heavy but powerful.</span></div>
+        <div class="concept-item"><strong class="cyan">K = Kibana</strong><span>UI on top of ES. Discover logs, build visualizations, dashboards.</span></div>
+        <div class="concept-item"><strong class="cyan">Beats</strong><span>Lightweight shippers. Filebeat (files), Metricbeat (OS metrics), Packetbeat (network).</span></div>
+        <div class="concept-item"><strong class="cyan">KQL</strong><span>Kibana Query Language. status:error AND service:payment. Filter logs fast.</span></div>
+        <div class="concept-item"><strong class="cyan">Index lifecycle</strong><span>Hot → warm → cold → delete. Manage storage costs automatically.</span></div>
+      </div>
+    </div>
+
+    <!-- ZABBIX -->
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>🖥️ Zabbix</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">Best for</strong><span>Legacy infra, bare metal, network devices (SNMP), Windows servers. Enterprise scale.</span></div>
+        <div class="concept-item"><strong class="cyan">Agent/Agentless</strong><span>Zabbix agent installed on servers. Or agentless via SNMP/SSH/WMI.</span></div>
+        <div class="concept-item"><strong class="cyan">Templates</strong><span>Reusable monitoring sets. Linux template = CPU+RAM+disk+network in one click.</span></div>
+        <div class="concept-item"><strong class="cyan">Triggers</strong><span>Conditions that fire alerts. CPU &gt; 90% for 5 mins → ALERT. Severity levels.</span></div>
+        <div class="concept-item"><strong class="cyan">Proxy</strong><span>Zabbix proxy collects data from remote sites, forwards to server. Distributed monitoring.</span></div>
+        <div class="concept-item"><strong class="cyan">Actions</strong><span>What to do on trigger: send email, run script, create ticket, notify Slack.</span></div>
+      </div>
+    </div>
+
+    <!-- UPTIME KUMA -->
+    <div class="card cyan">
+      <div class="card-title"><div class="dot cyan"></div>💚 Uptime Kuma</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="cyan">What it is</strong><span>Self-hosted uptime monitoring. Beautiful UI. Like Uptime Robot but you own it.</span></div>
+        <div class="concept-item"><strong class="cyan">Monitor types</strong><span>HTTP/HTTPS, TCP port, DNS, Ping, Docker container, Push (heartbeat).</span></div>
+        <div class="concept-item"><strong class="cyan">Status pages</strong><span>Public/private status page. Show clients your service health. Branded!</span></div>
+        <div class="concept-item"><strong class="cyan">Notifications</strong><span>90+ integrations: Slack, Teams, PagerDuty, Telegram, Discord, webhook.</span></div>
+        <div class="concept-item"><strong class="cyan">Certificates</strong><span>SSL cert expiry monitoring. Alert 30 days before cert expires!</span></div>
+      </div>
+      <div class="cmd-block">
+<span class="comment"># Run with Docker</span>
+docker run -d -p 3001:3001 \
+  -v uptime-kuma:/app/data \
+  louislam/uptime-kuma:1
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ GIT ═══════════════ -->
+<section class="section" id="git">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3)">🌿</div>
+    <div>
+      <div class="section-title" style="color:var(--accent3)">Git — Version Control Mastery</div>
+      <div class="section-sub">Git is a time machine for code. Never lose work, collaborate safely, track every change.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>Core Commands</div>
+      <div class="cmd-block">
+<span class="comment"># Everyday git</span>
+git clone url
+git status
+git add . && git commit -m <span class="value">"feat: add login"</span>
+git push origin feature/xyz
+git pull --rebase
+
+<span class="comment"># Branching</span>
+git checkout -b feature/new
+git merge feature/new
+git rebase main
+
+<span class="comment"># Undo stuff</span>
+git reset HEAD~1 --soft   <span class="comment"># undo commit, keep changes</span>
+git reset HEAD~1 --hard   <span class="comment"># undo + delete changes</span>
+git revert abc123         <span class="comment"># safe undo with new commit</span>
+git stash && git stash pop
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>Git Branching Strategies</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="orange">Git Flow</strong><span>main + develop + feature/release/hotfix branches. Good for versioned products.</span></div>
+        <div class="concept-item"><strong class="orange">Trunk-based</strong><span>All devs commit to main frequently. Short-lived feature branches. Best for CI/CD!</span></div>
+        <div class="concept-item"><strong class="orange">GitHub Flow</strong><span>main + feature branches + PRs. Simple. Deploy from main. Great for SaaS.</span></div>
+        <div class="concept-item"><strong class="orange">Feature flags</strong><span>Merge unfinished features hidden behind flags. Enable per user/env. Ship safe!</span></div>
+      </div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title"><div class="dot orange"></div>Advanced Git <span class="tag adv">advanced</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="orange">cherry-pick</strong><span>Apply one specific commit to another branch. Hotfix a bug in prod without full merge.</span></div>
+        <div class="concept-item"><strong class="orange">bisect</strong><span>Binary search to find which commit introduced a bug. INCREDIBLE for debugging.</span></div>
+        <div class="concept-item"><strong class="orange">reflog</strong><span>God mode. See ALL git operations ever. Recover "deleted" branches.</span></div>
+        <div class="concept-item"><strong class="orange">hooks</strong><span>Scripts that run on git events. pre-commit: lint/test. pre-push: build check.</span></div>
+        <div class="concept-item"><strong class="orange">Signing commits</strong><span>GPG sign commits. Verified badge on GitHub. Trust your team's code.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ SQUID PROXY ═══════════════ -->
+<section class="section" id="proxy">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3)">🔀</div>
+    <div>
+      <div class="section-title" style="color:var(--accent4)">Squid Proxy</div>
+      <div class="section-sub">Squid = traffic cop for internet. Control, cache, and log all outbound web traffic from your network.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-3">
+    <div class="card green">
+      <div class="card-title"><div class="dot green"></div>What Squid Does</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="green">Forward Proxy</strong><span>Clients → Squid → Internet. Company laptop can't reach internet directly. Must go via Squid.</span></div>
+        <div class="concept-item"><strong class="green">Caching</strong><span>Squid saves web content. 2nd request = serve from cache. Saves bandwidth. Faster!</span></div>
+        <div class="concept-item"><strong class="green">Access Control (ACL)</strong><span>Whitelist/blacklist URLs, IPs, time of day. Block social media during work hours!</span></div>
+        <div class="concept-item"><strong class="green">SSL Bumping</strong><span>Inspect HTTPS traffic. Man-in-the-middle (with company cert). Deep packet inspection.</span></div>
+        <div class="concept-item"><strong class="green">Logging</strong><span>Every URL accessed. Who. When. How much data. Audit trail for compliance.</span></div>
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><div class="dot green"></div>Squid Config Basics</div>
+      <div class="cmd-block">
+<span class="comment"># /etc/squid/squid.conf</span>
+http_port <span class="value">3128</span>
+acl localnet src 192.168.0.0/16
+
+<span class="comment"># Allow internal, block rest</span>
+http_access allow localnet
+http_access deny all
+
+<span class="comment"># Block specific sites</span>
+acl blocked_sites dstdomain .facebook.com
+http_access deny blocked_sites
+
+<span class="comment"># Restart & check logs</span>
+systemctl restart squid
+tail -f /var/log/squid/access.log
+      </div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title"><div class="dot green"></div>Squid + Docker/K8s</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="green">Egress control in K8s</strong><span>Pods route outbound traffic through Squid. Control what external APIs they can hit.</span></div>
+        <div class="concept-item"><strong class="green">Container builds via proxy</strong><span>docker build with --build-arg HTTP_PROXY=http://squid:3128. Pull images through proxy.</span></div>
+        <div class="concept-item"><strong class="green">Transparent proxy</strong><span>No client config needed. Network routes all port 80/443 traffic to Squid automatically.</span></div>
+        <div class="concept-item"><strong class="green">Sidecar pattern</strong><span>Run Squid as K8s sidecar container for per-pod outbound control.</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="separator">
+
+<!-- ═══════════════ MONITORING SUMMARY ═══════════════ -->
+<section class="section" id="monitoring">
+  <div class="section-header">
+    <div class="section-icon" style="background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.3)">📊</div>
+    <div>
+      <div class="section-title" style="color:var(--accent2)">Monitoring Mindset + Career Tips</div>
+      <div class="section-sub">Know the WHY behind each tool. This is what separates 1-year from 3-year engineers.</div>
+    </div>
+  </div>
+
+  <div class="grid grid-2">
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>SRE Golden Signals <span class="tag must">must know</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Latency</strong><span>How long requests take. p50/p99/p99.9. Prometheus histogram. Don't just track averages!</span></div>
+        <div class="concept-item"><strong class="purple">Traffic</strong><span>How many requests/sec. Load on your system. Capacity planning.</span></div>
+        <div class="concept-item"><strong class="purple">Errors</strong><span>Error rate %. 5xx responses. Alert at 1% error rate. Business impact immediate.</span></div>
+        <div class="concept-item"><strong class="purple">Saturation</strong><span>How "full" is your system. CPU/Memory/Disk near limit. Predict before it breaks!</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>SLI / SLO / SLA</div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">SLI (Indicator)</strong><span>The metric you measure. "99.2% of requests returned 200 in last 30 days".</span></div>
+        <div class="concept-item"><strong class="purple">SLO (Objective)</strong><span>Target you set internally. "We aim for 99.9% uptime". Internal goal.</span></div>
+        <div class="concept-item"><strong class="purple">SLA (Agreement)</strong><span>Contract with customer. "We GUARANTEE 99.5% or you get credit". Legal!</span></div>
+        <div class="concept-item"><strong class="purple">Error Budget</strong><span>100% - SLO = error budget. 99.9% SLO = 43 min downtime/month allowed. Spend wisely!</span></div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>Incident Response Flow</div>
+      <div class="flow" style="flex-direction:column; align-items:flex-start">
+        <div style="display:flex; align-items:center; gap:8px">
+          <div class="flow-step">1. Alert fires (Alertmanager/Zabbix)</div>
+        </div>
+        <div class="flow-arrow" style="margin-left:8px">↓</div>
+        <div class="flow-step">2. Check Grafana dashboard (metrics overview)</div>
+        <div class="flow-arrow" style="margin-left:8px">↓</div>
+        <div class="flow-step">3. Check Kibana logs (find error messages)</div>
+        <div class="flow-arrow" style="margin-left:8px">↓</div>
+        <div class="flow-step">4. Check Jaeger (trace slow request)</div>
+        <div class="flow-arrow" style="margin-left:8px">↓</div>
+        <div class="flow-step">5. Fix → kubectl rollout / ansible / terraform</div>
+        <div class="flow-arrow" style="margin-left:8px">↓</div>
+        <div class="flow-step">6. Write postmortem (blameless!)</div>
+      </div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title"><div class="dot purple"></div>🧠 Interview Must-Knows <span class="tag must">must</span></div>
+      <div class="concept">
+        <div class="concept-item"><strong class="purple">Docker vs VM</strong><span>Docker shares host kernel = lighter, faster. VMs = full OS. Docker starts in seconds.</span></div>
+        <div class="concept-item"><strong class="purple">K8s vs Docker Compose</strong><span>Compose = single host. K8s = multi-node cluster, self-healing, production scale.</span></div>
+        <div class="concept-item"><strong class="purple">Push vs Pull CI/CD</strong><span>Jenkins pushes to K8s (less secure). ArgoCD pulls from Git (more secure). GitOps = pull.</span></div>
+        <div class="concept-item"><strong class="purple">Blue-Green deploy</strong><span>Two identical envs. Switch traffic from blue to green. Instant rollback!</span></div>
+        <div class="concept-item"><strong class="purple">Canary deploy</strong><span>Send 5% traffic to new version. Watch metrics. If fine, increase to 100%.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="highlight-box" style="margin-top:24px; max-width:100%">
+    <strong>🎯 Your 1-Year Edge:</strong> You're not just "someone who runs docker commands." You own the FULL DevOps lifecycle: Code (Git) → Build (Jenkins/Docker) → Ship (ArgoCD/K8s) → Monitor (Prometheus/Grafana/ELK/Jaeger) → Alert (Zabbix/Uptime Kuma) → Infra (Terraform/Ansible). That's a complete loop. Most juniors only know 2-3 of these. You know ALL of them. Own it.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div style="font-size:1.5rem; margin-bottom:8px">🚀</div>
+  <div style="color:var(--accent1); font-weight:700; margin-bottom:4px; font-family:'JetBrains Mono', monospace">DevOps Master Canvas</div>
+  <div>Built for the 1-year DevOps engineer who wants to go beast mode.</div>
+  <div style="margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:11px; color:#2d3748">docker · k8s · argocd · jenkins · ansible · terraform · prometheus · grafana · jaeger · elk · zabbix · uptime-kuma · git · squid</div>
+</footer>
+
+</body>
+</html>

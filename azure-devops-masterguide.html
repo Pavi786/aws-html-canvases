@@ -1,0 +1,3571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure DevOps Master Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,wght@0,300;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azure: #0078d4;
+    --azure-dark: #004578;
+    --azure-light: #50a0e0;
+    --electric: #00d4ff;
+    --neon: #00ff88;
+    --warn: #ff6b35;
+    --gold: #ffd700;
+    --bg: #050a14;
+    --bg2: #0a1628;
+    --bg3: #0f1f35;
+    --card: #0d1e33;
+    --card2: #112240;
+    --text: #e8f4fd;
+    --muted: #7a9bb5;
+    --border: #1a3a5c;
+    --pro: #00ff88;
+    --con: #ff4757;
+    --tip: #ffd700;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0;
+    width: 280px; height: 100vh;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    padding: 0 0 40px;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(135deg, var(--azure-dark), var(--bg2));
+  }
+
+  .sidebar-logo h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--electric);
+    line-height: 1.2;
+  }
+
+  .sidebar-logo span {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    display: block;
+    margin-top: 4px;
+  }
+
+  .sidebar-section {
+    padding: 16px 16px 8px;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--muted);
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+    text-decoration: none;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .nav-item:hover, .nav-item.active {
+    color: var(--electric);
+    border-left-color: var(--electric);
+    background: rgba(0,212,255,0.05);
+  }
+
+  .nav-icon { font-size: 14px; flex-shrink: 0; }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 280px;
+    min-height: 100vh;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,120,212,0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.08) 0%, transparent 50%),
+                var(--bg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230078d4' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    color: var(--electric);
+    letter-spacing: 1px;
+    margin-bottom: 32px;
+    width: fit-content;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(42px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1.0;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(90deg, var(--electric), var(--azure-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 40px;
+    max-width: 600px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--electric);
+    display: block;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+  .hero-chapters {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    max-width: 900px;
+  }
+
+  .chapter-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 12px;
+  }
+
+  .chapter-pill:hover {
+    border-color: var(--azure);
+    background: var(--card2);
+    transform: translateY(-2px);
+  }
+
+  .chapter-pill .icon { font-size: 18px; }
+  .chapter-pill .label { color: var(--text); font-weight: 500; }
+
+  /* ── SECTIONS ── */
+  .section {
+    padding: 80px 60px;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+
+  .section:nth-child(even) { background: var(--bg2); }
+
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon-big {
+    width: 64px; height: 64px;
+    background: linear-gradient(135deg, var(--azure-dark), var(--bg3));
+    border: 1px solid var(--azure);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+
+  .section-title-block { flex: 1; }
+
+  .section-num {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--electric);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+
+  .section-tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .section-intro {
+    background: var(--card);
+    border-left: 3px solid var(--electric);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text);
+  }
+
+  /* ── SERVICE CARD ── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .service-card:hover {
+    border-color: var(--azure);
+    box-shadow: 0 8px 40px rgba(0,120,212,0.15);
+    transform: translateY(-3px);
+  }
+
+  .service-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .service-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--azure), var(--azure-dark));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .service-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .service-tag {
+    margin-left: auto;
+    font-size: 9px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0,212,255,0.1);
+    color: var(--electric);
+    border: 1px solid rgba(0,212,255,0.2);
+    white-space: nowrap;
+  }
+
+  .service-body { padding: 20px 24px; }
+
+  .layman-box {
+    background: rgba(0,212,255,0.05);
+    border: 1px dashed rgba(0,212,255,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .layman-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--electric);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .deep-explain {
+    font-size: 12.5px;
+    line-height: 1.8;
+    color: #b0c8e0;
+    margin-bottom: 16px;
+  }
+
+  .pro-con {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .pros, .cons {
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .pros {
+    background: rgba(0,255,136,0.05);
+    border: 1px solid rgba(0,255,136,0.2);
+  }
+
+  .cons {
+    background: rgba(255,71,87,0.05);
+    border: 1px solid rgba(255,71,87,0.2);
+  }
+
+  .pros-title, .cons-title {
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .pros-title { color: var(--pro); }
+  .cons-title { color: var(--con); }
+
+  .pro-con ul { list-style: none; }
+  .pro-con li {
+    font-size: 11.5px;
+    line-height: 1.6;
+    color: #90b0cc;
+    padding: 2px 0;
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .pros li::before { content: '✓'; position: absolute; left: 0; color: var(--pro); font-size: 10px; }
+  .cons li::before { content: '✗'; position: absolute; left: 0; color: var(--con); font-size: 10px; }
+
+  .devops-tip {
+    background: rgba(255,215,0,0.05);
+    border: 1px solid rgba(255,215,0,0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #d4b800;
+    line-height: 1.7;
+  }
+
+  .devops-tip::before {
+    content: '⚡ DevOps Tip: ';
+    font-weight: 600;
+    color: var(--gold);
+  }
+
+  .analogy-box {
+    background: rgba(120,80,180,0.08);
+    border: 1px solid rgba(120,80,180,0.25);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 12px;
+    color: #b8a0d8;
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+
+  .analogy-box::before {
+    content: '🧠 Real-World Analogy: ';
+    font-weight: 600;
+    color: #c4a0ff;
+  }
+
+  /* ── FOCUS BOX ── */
+  .devops-focus {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 40px;
+  }
+
+  .focus-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--electric);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .focus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+  }
+
+  .focus-item {
+    background: rgba(0,120,212,0.1);
+    border: 1px solid rgba(0,120,212,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .focus-dot {
+    width: 6px; height: 6px;
+    background: var(--electric);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── COMPARISON TABLE ── */
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 12px;
+  }
+
+  .compare-table th {
+    background: var(--card2);
+    color: var(--electric);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 12px 16px;
+    text-align: left;
+    border: 1px solid var(--border);
+  }
+
+  .compare-table td {
+    padding: 11px 16px;
+    border: 1px solid var(--border);
+    color: #b0c8e0;
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .compare-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+  .compare-table tr:hover td { background: rgba(0,120,212,0.05); }
+
+  .badge-yes { color: var(--pro); }
+  .badge-no { color: var(--con); }
+  .badge-mid { color: var(--gold); }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch-box {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+    margin: 32px 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 2;
+    overflow-x: auto;
+  }
+
+  .arch-title {
+    color: var(--electric);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .arch-diagram {
+    color: #7a9bb5;
+  }
+
+  .arch-diagram .hl { color: var(--electric); }
+  .arch-diagram .hl2 { color: var(--neon); }
+  .arch-diagram .hl3 { color: var(--warn); }
+  .arch-diagram .hl4 { color: var(--gold); }
+
+  /* ── TOP 20 SECTION ── */
+  .top20-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .top20-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+  }
+
+  .top20-card:hover {
+    border-color: var(--neon);
+    background: var(--card2);
+  }
+
+  .top20-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--border);
+    min-width: 36px;
+  }
+
+  .top20-card:hover .top20-num { color: var(--neon); }
+
+  .top20-info { flex: 1; }
+  .top20-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+  .top20-why { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* ── PROGRESS BAR ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 280px; right: 0;
+    height: 2px;
+    background: var(--border);
+    z-index: 200;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--azure), var(--electric));
+    width: 0%;
+    transition: width 0.1s;
+  }
+
+  /* ── KEYWORD CHIPS ── */
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 12px 0;
+  }
+
+  .chip {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--bg3);
+  }
+
+  .chip.azure { border-color: rgba(0,120,212,0.4); color: var(--azure-light); background: rgba(0,120,212,0.08); }
+  .chip.green { border-color: rgba(0,255,136,0.3); color: var(--neon); background: rgba(0,255,136,0.05); }
+  .chip.orange { border-color: rgba(255,107,53,0.3); color: var(--warn); background: rgba(255,107,53,0.05); }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .progress-bar { left: 0; }
+    .section, .hero { padding: 60px 24px; }
+    .services-grid { grid-template-columns: 1fr; }
+    .pro-con { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h1>Azure DevOps<br>Master Guide</h1>
+    <span>// 55-Page Deep Reference</span>
+  </div>
+
+  <div class="sidebar-section">Navigation</div>
+  <a class="nav-item active" href="#hero"><span class="nav-icon">🏠</span> Home</a>
+
+  <div class="sidebar-section">Core Services</div>
+  <a class="nav-item" href="#compute"><span class="nav-icon">🖥</span> 1. Compute</a>
+  <a class="nav-item" href="#networking"><span class="nav-icon">🌐</span> 2. Networking</a>
+  <a class="nav-item" href="#storage"><span class="nav-icon">💾</span> 3. Storage</a>
+  <a class="nav-item" href="#databases"><span class="nav-icon">🗄</span> 4. Databases</a>
+  <a class="nav-item" href="#messaging"><span class="nav-icon">📩</span> 5. Messaging</a>
+  <a class="nav-item" href="#cicd"><span class="nav-icon">🚀</span> 6. CI/CD & IaC</a>
+  <a class="nav-item" href="#monitoring"><span class="nav-icon">📊</span> 7. Monitoring</a>
+  <a class="nav-item" href="#security"><span class="nav-icon">🔐</span> 8. Security</a>
+  <a class="nav-item" href="#orchestration"><span class="nav-icon">⚙️</span> 9. Orchestration</a>
+  <a class="nav-item" href="#cost"><span class="nav-icon">💰</span> 10. Cost Management</a>
+
+  <div class="sidebar-section">Master Level</div>
+  <a class="nav-item" href="#architecture"><span class="nav-icon">🏗</span> Architecture Patterns</a>
+  <a class="nav-item" href="#top20"><span class="nav-icon">🎯</span> Top 20 Must Master</a>
+  <a class="nav-item" href="#cheatsheet"><span class="nav-icon">📋</span> Cheat Sheet</a>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-badge">☁️ AZURE DEVOPS MASTERY GUIDE // LAYMAN EDITION</div>
+  <h1>Master <span>Azure</span><br>for DevOps</h1>
+  <p class="hero-sub">Every service explained simply — like you're 12 — with deep technical truth behind it.</p>
+  <div class="hero-stats">
+    <div class="stat"><span class="stat-num">10</span><span class="stat-label">CORE DOMAINS</span></div>
+    <div class="stat"><span class="stat-num">60+</span><span class="stat-label">SERVICES COVERED</span></div>
+    <div class="stat"><span class="stat-num">20</span><span class="stat-label">MUST-MASTER LIST</span></div>
+    <div class="stat"><span class="stat-num">55</span><span class="stat-label">PAGES OF DEPTH</span></div>
+  </div>
+  <div class="hero-chapters">
+    <div class="chapter-pill" onclick="document.getElementById('compute').scrollIntoView({behavior:'smooth'})"><span class="icon">🖥</span><span class="label">Compute</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('networking').scrollIntoView({behavior:'smooth'})"><span class="icon">🌐</span><span class="label">Networking</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('storage').scrollIntoView({behavior:'smooth'})"><span class="icon">💾</span><span class="label">Storage</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('databases').scrollIntoView({behavior:'smooth'})"><span class="icon">🗄</span><span class="label">Databases</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('messaging').scrollIntoView({behavior:'smooth'})"><span class="icon">📩</span><span class="label">Messaging</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('cicd').scrollIntoView({behavior:'smooth'})"><span class="icon">🚀</span><span class="label">CI/CD & IaC</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('monitoring').scrollIntoView({behavior:'smooth'})"><span class="icon">📊</span><span class="label">Monitoring</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('security').scrollIntoView({behavior:'smooth'})"><span class="icon">🔐</span><span class="label">Security</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('architecture').scrollIntoView({behavior:'smooth'})"><span class="icon">🏗</span><span class="label">Architecture</span></div>
+    <div class="chapter-pill" onclick="document.getElementById('top20').scrollIntoView({behavior:'smooth'})"><span class="icon">🎯</span><span class="label">Top 20 List</span></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 1. COMPUTE -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="compute">
+  <div class="section-header">
+    <div class="section-icon-big">🖥</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 01 // CORE SERVICES</div>
+      <h2 class="section-title">Compute — Run Your Applications</h2>
+      <p class="section-tagline">Where your actual code lives and breathes in the cloud</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Think of Compute as the "hardware" layer of the cloud.</strong> On-premises, you'd rack physical servers. In Azure, you just pick a compute service, tell it how powerful you want it, and Azure handles everything underneath. The key DevOps question is: <em>which compute service fits my workload?</em>
+  </div>
+
+  <div class="services-grid">
+
+    <!-- VM -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">💻</div>
+        <div>
+          <div class="service-name">Azure Virtual Machines</div>
+          <div style="font-size:11px;color:var(--muted);">IaaS — Infrastructure as a Service</div>
+        </div>
+        <span class="service-tag">IAAS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          It's like renting a full laptop/server in Microsoft's datacenter. You get the hardware, you install the OS yourself, configure everything yourself. Maximum control — maximum responsibility.
+        </div>
+        <div class="analogy-box">Imagine renting an empty apartment. Azure gives you the walls, electricity, and plumbing. You decide furniture, paint, and locks — everything inside is yours to manage.</div>
+        <div class="deep-explain">
+          An Azure VM is a virtualized compute instance running on Azure's hypervisor (Hyper-V). You choose the VM size (e.g., Standard_D2s_v3 = 2 vCPUs, 8GB RAM), the OS image (Windows/Linux), storage disks, networking, and availability options. VMs live inside a Virtual Network, get a private IP (and optional public IP), and can be placed in Availability Zones for redundancy. You SSH or RDP into them just like a real machine.
+        </div>
+        <div class="chips">
+          <span class="chip azure">Availability Zones</span>
+          <span class="chip azure">Managed Disks</span>
+          <span class="chip azure">Custom Images</span>
+          <span class="chip orange">OS Patching</span>
+          <span class="chip orange">Manual Scaling</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Full OS-level control</li>
+              <li>Run any software/legacy app</li>
+              <li>Lift-and-shift migrations</li>
+              <li>Custom networking configs</li>
+              <li>Persistent storage</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>You manage OS patching</li>
+              <li>Slow to provision vs containers</li>
+              <li>Idle cost even when not in use</li>
+              <li>Harder to scale rapidly</li>
+              <li>Heavy operational overhead</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always use Managed Disks, not unmanaged. Enable Azure Update Manager for automatic OS patching. Use Azure Bastion for SSH — never expose port 22 to the internet.</div>
+      </div>
+    </div>
+
+    <!-- VMSS -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📊</div>
+        <div>
+          <div class="service-name">VM Scale Sets (VMSS)</div>
+          <div style="font-size:11px;color:var(--muted);">Auto-scale fleet of identical VMs</div>
+        </div>
+        <span class="service-tag">AUTO-SCALE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Imagine a pizza shop. When the lunch rush hits, you clone your best chef 10 times. When it's quiet at 3pm, you send 8 of them home. VMSS does exactly that — automatically spawns or removes identical VMs based on load.
+        </div>
+        <div class="analogy-box">It's like a photocopier for your server. One template, unlimited identical copies, automatically managed.</div>
+        <div class="deep-explain">
+          VMSS manages a group of load-balanced VMs that can scale from 0 to thousands. You define a VM image/config once, and VMSS maintains that uniformity across all instances. Autoscale rules can trigger based on CPU %, memory, custom metrics, or schedules. VMSS integrates with Azure Load Balancer and Application Gateway. "Uniform" mode gives uniform VMs; "Flexible" mode allows mixed VM configs. Rolling, blue-green, or canary upgrade modes let you update apps without downtime.
+        </div>
+        <div class="chips">
+          <span class="chip green">Autoscale</span>
+          <span class="chip azure">Load Balanced</span>
+          <span class="chip azure">Rolling Upgrades</span>
+          <span class="chip orange">Stateless Preferred</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Auto-scales with demand</li>
+              <li>Handles massive traffic spikes</li>
+              <li>Rolling updates with zero downtime</li>
+              <li>Cost-efficient (scale to zero)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Still requires OS management</li>
+              <li>Stateful apps are tricky</li>
+              <li>Scaling takes 2-5 minutes (not instant)</li>
+              <li>Heavier than containers</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Set scale-in cooldown periods to avoid flapping. Use custom scripts in the VM image for bootstrapping. Prefer AKS for containerized apps — VMSS is ideal for legacy apps that can't containerize.</div>
+      </div>
+    </div>
+
+    <!-- AKS -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">⎈</div>
+        <div>
+          <div class="service-name">Azure Kubernetes Service (AKS)</div>
+          <div style="font-size:11px;color:var(--muted);">Managed Kubernetes orchestration</div>
+        </div>
+        <span class="service-tag">CONTAINERS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Kubernetes is like an airline operations center. You have thousands of flights (containers), runways (servers), and crew (resources). AKS is like hiring a professional airline manager — you just say "I want 10 flights to NYC daily" and it handles gates, crew schedules, rerouting, everything.
+        </div>
+        <div class="analogy-box">Think of containers as shipping boxes. Kubernetes is the cargo ship sorting system. AKS is Azure running that cargo ship for you — you just pack the boxes.</div>
+        <div class="deep-explain">
+          AKS is Azure's managed Kubernetes service. Azure manages the control plane (API server, etcd, scheduler) for free. You only pay for the worker nodes. You deploy containerized apps via YAML manifests (Deployments, Services, Ingress). AKS integrates with ACR (pull images), Azure Monitor (logs/metrics), Key Vault (secrets via CSI driver), Entra ID (RBAC), Azure CNI networking, and Application Gateway as Ingress. Node pools let you mix VM sizes. KEDA enables event-driven autoscaling. Virtual nodes (ACI burst) handle traffic spikes without pre-provisioning nodes.
+        </div>
+        <div class="chips">
+          <span class="chip green">Horizontal Pod Autoscaler</span>
+          <span class="chip green">KEDA</span>
+          <span class="chip azure">Azure CNI</span>
+          <span class="chip azure">Workload Identity</span>
+          <span class="chip orange">Ingress AGIC</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Industry standard orchestration</li>
+              <li>Excellent auto-scaling</li>
+              <li>Rich ecosystem (Helm, Flux, ArgoCD)</li>
+              <li>Multi-tenancy with namespaces</li>
+              <li>Azure manages control plane free</li>
+              <li>Blue/green and canary native</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Steep Kubernetes learning curve</li>
+              <li>Complex networking concepts</li>
+              <li>Node pools still cost money idle</li>
+              <li>Overkill for simple apps</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Workload Identity (not service principals) for pod-level Azure access. Enable cluster autoscaler on node pools. Use namespaces to separate environments. Apply Pod Disruption Budgets for HA deployments.</div>
+      </div>
+    </div>
+
+    <!-- Container Apps -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📦</div>
+        <div>
+          <div class="service-name">Azure Container Apps</div>
+          <div style="font-size:11px;color:var(--muted);">Serverless container platform (built on Kubernetes)</div>
+        </div>
+        <span class="service-tag">SERVERLESS K8S</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          AKS but without having to know Kubernetes. You just say "here's my Docker container, run 3 copies, auto-scale on HTTP requests." Azure does all the Kubernetes plumbing invisibly. It's the sweet spot between Azure Functions (too limited) and AKS (too complex).
+        </div>
+        <div class="analogy-box">Like AKS with training wheels — all the power of containers, none of the cluster management headaches.</div>
+        <div class="deep-explain">
+          Container Apps runs on Kubernetes + KEDA + Dapr under the hood, but abstracts all of that. You define your container, scaling rules (HTTP requests, CPU, message queue depth), ingress (internal/external), environment variables, and secrets. It scales to zero automatically. Dapr sidecar support gives you pub/sub, state management, service invocation out of the box. Revisions let you do canary/A-B deployments. Traffic splitting sends X% to revision A, Y% to revision B. Ideal for microservices, APIs, background workers.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>No Kubernetes knowledge needed</li>
+              <li>Scale to zero (cost efficient)</li>
+              <li>Built-in Dapr integration</li>
+              <li>Traffic splitting for canary</li>
+              <li>Event-driven scaling (KEDA)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Less control than raw AKS</li>
+              <li>No custom Kubernetes operators</li>
+              <li>Limited GPU/specialty node support</li>
+              <li>Cold start latency when scaled to 0</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Container Apps for microservices where you don't want full K8s overhead. Use it with Service Bus or Event Grid for event-driven workloads. Perfect for APIs + background workers combo.</div>
+      </div>
+    </div>
+
+    <!-- Azure Functions -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">⚡</div>
+        <div>
+          <div class="service-name">Azure Functions</div>
+          <div style="font-size:11px;color:var(--muted);">Serverless event-driven compute</div>
+        </div>
+        <span class="service-tag">SERVERLESS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Imagine a vending machine. You press a button (trigger), it does its one job (dispenses snack), charges you per use, then goes idle. Azure Functions is the same — event happens, function runs, you pay for execution time only. No server to manage ever.
+        </div>
+        <div class="analogy-box">Functions are freelancers — you call them when needed, they work, you pay per job. No salary when idle.</div>
+        <div class="deep-explain">
+          Azure Functions supports multiple trigger types: HTTP (REST API), Timer (cron), Queue, Blob, Event Hub, Service Bus, CosmosDB change feed, etc. Plans matter: Consumption Plan (true serverless, pay-per-execution, 5min timeout max), Premium Plan (no cold start, VNet integration, longer timeout), Dedicated Plan (always-on, runs on App Service). Durable Functions extend this with stateful workflows — orchestrator + activity functions, fan-out/fan-in patterns, and human approval steps.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Zero infrastructure management</li>
+              <li>Pay per execution (very cheap)</li>
+              <li>Event-driven by nature</li>
+              <li>Rich trigger/binding ecosystem</li>
+              <li>Auto-scales infinitely</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Cold start latency (Consumption)</li>
+              <li>5-minute execution limit (Consumption)</li>
+              <li>Stateless by default</li>
+              <li>Debugging is harder</li>
+              <li>Vendor lock-in risk</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Premium Plan for production APIs to avoid cold starts. Store secrets in Key Vault and reference via app settings. Use Application Insights auto-instrumentation — it's built-in.</div>
+      </div>
+    </div>
+
+    <!-- App Service -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🌍</div>
+        <div>
+          <div class="service-name">Azure App Service</div>
+          <div style="font-size:11px;color:var(--muted);">Managed PaaS for web apps & APIs</div>
+        </div>
+        <span class="service-tag">PAAS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Like Heroku or Railway.app. You give Azure your code (or Docker image), it handles the server, OS, scaling, SSL certificates, and deployment slots. You just focus on your app. No server configuration ever.
+        </div>
+        <div class="analogy-box">A furnished apartment vs empty apartment (VM). App Service = fully furnished. You move in with just your bags (code).</div>
+        <div class="deep-explain">
+          App Service runs on App Service Plans (defines compute: F1 Free → P3v3 Premium). Supports .NET, Java, Node.js, Python, PHP, Ruby natively plus Docker containers. Deployment Slots are game-changing: you deploy to "staging" slot, test it, then swap to "production" — zero-downtime. Slot swap also swaps environment variables. Auto-scaling is rules-based. Built-in SSL, custom domains, auth (Entra ID, Google, GitHub), WebSocket support, and VNet integration on Standard+.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Dead simple deployment</li>
+              <li>Deployment slots for zero-downtime</li>
+              <li>Built-in auth, SSL, scaling</li>
+              <li>Supports containers + code</li>
+              <li>Integrated CI/CD with Azure DevOps</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Less control than VMs/containers</li>
+              <li>Can get expensive at scale</li>
+              <li>Windows plans have quirks</li>
+              <li>Not ideal for microservices</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always use deployment slots (Blue/Green). Keep app settings in Key Vault references — never hardcode secrets. Enable Always On to prevent cold starts on B1+.</div>
+      </div>
+    </div>
+
+    <!-- ACI -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🧊</div>
+        <div>
+          <div class="service-name">Azure Container Instances (ACI)</div>
+          <div style="font-size:11px;color:var(--muted);">Run containers without any cluster</div>
+        </div>
+        <span class="service-tag">EPHEMERAL</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Need to run a container for 10 minutes to process a file, then throw it away? ACI is your on-demand container runner. No cluster, no setup. Just: "run this Docker image NOW." Pay by the second.
+        </div>
+        <div class="deep-explain">
+          ACI is the fastest way to run a Docker container in Azure. Spins up in seconds. No node management. You define CPU, RAM, image, environment variables, and volumes. Ideal for: one-off batch jobs, CI pipeline steps, short-lived API tasks, testing images, bursting from AKS via virtual nodes. Container groups let you run sidecars alongside your main container. Supports GPU instances too.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Fastest container startup in Azure</li>
+              <li>Pay per second, no idle cost</li>
+              <li>No cluster to manage</li>
+              <li>Great for batch/CI workloads</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>No orchestration/auto-healing</li>
+              <li>Not for persistent long-running apps</li>
+              <li>Limited networking features</li>
+              <li>No built-in load balancing</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use ACI in Azure DevOps pipelines as ephemeral build agents. Use it to burst AKS workloads via virtual nodes during traffic spikes — cheaper than pre-provisioning nodes.</div>
+      </div>
+    </div>
+
+  </div><!-- services-grid -->
+
+  <!-- Compute Comparison Table -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">⚡ Compute — When to Use What?</h3>
+  <table class="compare-table">
+    <tr>
+      <th>Service</th>
+      <th>Best For</th>
+      <th>Manages OS?</th>
+      <th>Scale to Zero?</th>
+      <th>Complexity</th>
+      <th>Cost Model</th>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">Virtual Machine</td>
+      <td>Legacy apps, custom OS needs</td>
+      <td><span class="badge-no">You do</span></td>
+      <td><span class="badge-no">No</span></td>
+      <td>Medium</td>
+      <td>Per hour (always on)</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">VMSS</td>
+      <td>Auto-scaling VM fleets</td>
+      <td><span class="badge-no">You do</span></td>
+      <td><span class="badge-mid">Partial</span></td>
+      <td>Medium</td>
+      <td>Per VM hour</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">AKS</td>
+      <td>Microservices, containers at scale</td>
+      <td><span class="badge-yes">Nodes only</span></td>
+      <td><span class="badge-mid">Node pool scale</span></td>
+      <td>High</td>
+      <td>Per node hour</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">Container Apps</td>
+      <td>Microservices, no-K8s teams</td>
+      <td><span class="badge-yes">Azure</span></td>
+      <td><span class="badge-yes">Yes</span></td>
+      <td>Low-Medium</td>
+      <td>Per vCPU/memory/sec</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">Azure Functions</td>
+      <td>Event-driven, short tasks</td>
+      <td><span class="badge-yes">Azure</span></td>
+      <td><span class="badge-yes">Yes</span></td>
+      <td>Low</td>
+      <td>Per execution</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">App Service</td>
+      <td>Web apps, APIs, easy deploys</td>
+      <td><span class="badge-yes">Azure</span></td>
+      <td><span class="badge-no">No (F1 only)</span></td>
+      <td>Low</td>
+      <td>Per plan hour</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600;">ACI</td>
+      <td>One-off containers, CI steps</td>
+      <td><span class="badge-yes">Azure</span></td>
+      <td><span class="badge-yes">Yes</span></td>
+      <td>Very Low</td>
+      <td>Per second</td>
+    </tr>
+  </table>
+
+  <div class="devops-focus">
+    <div class="focus-title">👉 DevOps Focus Points — Compute</div>
+    <div class="focus-grid">
+      <div class="focus-item"><div class="focus-dot"></div>Choose VM for legacy, AKS for cloud-native</div>
+      <div class="focus-item"><div class="focus-dot"></div>Always define autoscale rules — never manual</div>
+      <div class="focus-item"><div class="focus-dot"></div>Use health probes on LB for self-healing</div>
+      <div class="focus-item"><div class="focus-dot"></div>Enable OS auto-patching on VMs</div>
+      <div class="focus-item"><div class="focus-dot"></div>Deployment slots = zero-downtime releases</div>
+      <div class="focus-item"><div class="focus-dot"></div>Container > VM for new workloads always</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 2. NETWORKING -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="networking">
+  <div class="section-header">
+    <div class="section-icon-big">🌐</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 02 // MOST CRITICAL</div>
+      <h2 class="section-title">Networking — The Backbone</h2>
+      <p class="section-tagline">If compute is the muscles, networking is the nervous system</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">No DevOps without networking.</strong> Every resource you deploy in Azure lives inside a network. You control who can talk to what, how traffic flows in and out, and how to keep attackers out. A bad network design = security breaches and outages. A good design = zero-trust, resilient, and fast.
+  </div>
+
+  <div class="services-grid">
+
+    <!-- VNet -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🏘</div>
+        <div>
+          <div class="service-name">Virtual Network (VNet)</div>
+          <div style="font-size:11px;color:var(--muted);">Your private cloud network space</div>
+        </div>
+        <span class="service-tag">FOUNDATION</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          A VNet is like buying a plot of land in Azure's city. You define your property boundaries (IP address range like 10.0.0.0/16), divide it into sections (subnets), and control who can enter your property and who can leave.
+        </div>
+        <div class="analogy-box">Your office building. Floors = subnets. Security guard at door = NSG. Address = IP range. VNet peering = connecting two office buildings with a private bridge.</div>
+        <div class="deep-explain">
+          A VNet is an isolated Layer-3 network in Azure. You define a CIDR range (e.g., 10.0.0.0/16 = 65,536 addresses). Within it, you create subnets (e.g., 10.0.1.0/24 = 256 addresses). Resources (VMs, AKS, App Service) get deployed into subnets. VNets are region-scoped. To connect VNets: VNet Peering (same or cross-region), VPN Gateway (over internet encrypted), or ExpressRoute (dedicated circuit). VNet peering traffic stays on Microsoft backbone — no public internet.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Complete network isolation</li>
+              <li>Free to create (pay for data egress)</li>
+              <li>Full control over IP addressing</li>
+              <li>Works with all Azure services</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Plan CIDR carefully — can't resize easily</li>
+              <li>Overlapping IPs break peering</li>
+              <li>Region-scoped (one VNet per region)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Plan your IP space carefully before deploying anything. Use /16 for VNets, /24 for subnets. Never overlap CIDR ranges across VNets you'll ever peer. Document your IP map in Confluence from day 1.</div>
+      </div>
+    </div>
+
+    <!-- NSG -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🛡</div>
+        <div>
+          <div class="service-name">Network Security Groups (NSG)</div>
+          <div style="font-size:11px;color:var(--muted);">Traffic firewall rules for subnets & NICs</div>
+        </div>
+        <span class="service-tag">FIREWALL L4</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          NSG is a bouncer at the club. It has a list: "Port 443 from anywhere — IN. Port 22 from only office IPs — IN. Everything else — OUT." Every packet of traffic hitting your subnet goes through this bouncer first.
+        </div>
+        <div class="analogy-box">Airport customs. Each rule is a customs officer instruction: "Passengers from country X with visa Y — let through on gate 80." No rule match = deny by default.</div>
+        <div class="deep-explain">
+          NSGs contain inbound and outbound rules. Each rule has: priority (100-4096, lower = higher priority), source/destination (IP, CIDR, service tag, or ASG), port, protocol (TCP/UDP/ICMP), and action (Allow/Deny). Service Tags simplify rules — "AzureLoadBalancer" means Azure's health probe IPs. "Internet" means all public IPs. Application Security Groups (ASG) let you group VMs by role (WebServers, DBServers) and write rules against those groups. NSGs apply at subnet-level AND NIC-level — both are evaluated.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Free, built-in micro-segmentation</li>
+              <li>Service tags simplify management</li>
+              <li>Stateful (return traffic auto-allowed)</li>
+              <li>Apply at subnet or NIC level</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>L4 only (no L7/app-layer filtering)</li>
+              <li>Can't do URL-based filtering</li>
+              <li>Complex rules get hard to audit</li>
+              <li>No WAF capabilities</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Default deny all, then open only what's needed. Use service tags instead of IP lists — they auto-update. Apply NSGs to subnets, not individual NICs (easier to manage). Use NSG Flow Logs + Traffic Analytics to audit.</div>
+      </div>
+    </div>
+
+    <!-- UDR -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🗺</div>
+        <div>
+          <div class="service-name">User Defined Routes (UDR)</div>
+          <div style="font-size:11px;color:var(--muted);">Custom traffic routing tables</div>
+        </div>
+        <span class="service-tag">ROUTING</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Normally Azure decides how traffic gets from A to B automatically. UDR lets you override that. "Hey Azure, when someone in my app subnet wants to reach the internet, force ALL that traffic through my Azure Firewall first for inspection."
+        </div>
+        <div class="deep-explain">
+          UDRs (Route Tables) override Azure's default system routes. You create a route table, add routes (prefix + next hop), and associate it with a subnet. Next hop types: Virtual Appliance (e.g., Azure Firewall's IP), VNet Gateway, VNet (local), Internet, or None (black hole). The classic pattern: Associate a UDR on all subnets that sends 0.0.0.0/0 (all internet traffic) to Azure Firewall's private IP — this forces all outbound internet through the firewall for inspection and logging.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Force traffic through security appliances</li>
+              <li>Hub-spoke routing control</li>
+              <li>Override default Azure routing</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Misconfiguration causes blackholes</li>
+              <li>Easy to lock yourself out</li>
+              <li>Routing debugging is complex</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always route all egress through Azure Firewall in production. Disable BGP route propagation on subnets to prevent VPN routes from overriding your UDRs unexpectedly.</div>
+      </div>
+    </div>
+
+    <!-- Load Balancer -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">⚖️</div>
+        <div>
+          <div class="service-name">Azure Load Balancer</div>
+          <div style="font-size:11px;color:var(--muted);">L4 TCP/UDP traffic distribution</div>
+        </div>
+        <span class="service-tag">L4 LB</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Ten cashiers at a supermarket. The manager directs customers evenly: "You go to cashier 1, you to cashier 2..." Azure Load Balancer distributes network connections evenly across your VMs. If a cashier calls in sick (VM fails), the manager automatically stops sending customers there.
+        </div>
+        <div class="deep-explain">
+          Azure Load Balancer operates at Layer 4 (TCP/UDP). It doesn't understand HTTP — it just distributes raw connections. SKUs: Basic (free, limited features) and Standard (production-ready, zone-redundant, SLA-backed). Standard LB supports Availability Zones for HA. Health probes (TCP/HTTP) check backend VM health every few seconds — unhealthy VMs are removed from rotation. Inbound NAT rules for individual VM SSH access. Outbound rules for SNAT (source NAT for outbound internet).
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Extremely low latency (no SSL termination)</li>
+              <li>Free for Standard (pay for rules)</li>
+              <li>Zone-redundant for HA</li>
+              <li>Health probe auto-removes failed VMs</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>No HTTP awareness (use App GW for that)</li>
+              <li>No WAF, no URL routing</li>
+              <li>Limited logging vs Application Gateway</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always use Standard SKU. Set health probe to HTTP endpoint, not just TCP — TCP doesn't tell you if your app is healthy, only if the port is open. Use session persistence only if truly needed.</div>
+      </div>
+    </div>
+
+    <!-- Application Gateway -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🚪</div>
+        <div>
+          <div class="service-name">Application Gateway + WAF</div>
+          <div style="font-size:11px;color:var(--muted);">L7 HTTP/HTTPS load balancer with firewall</div>
+        </div>
+        <span class="service-tag">L7 + WAF</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Azure Load Balancer is a dumb traffic splitter. Application Gateway is a smart one. It understands HTTP. "Route /api requests to the API VMs. Route /static to blob storage. Block requests that look like SQL injection attacks." It also handles your SSL certificate — your backends speak plain HTTP internally.
+        </div>
+        <div class="analogy-box">Load Balancer = traffic cop waving cars through. Application Gateway = airport gate agent who reads your boarding pass (URL), assigns you the right gate (backend), and checks you're not on the no-fly list (WAF).</div>
+        <div class="deep-explain">
+          App Gateway (v2) is a regional L7 load balancer. Key features: URL-based routing (path-based rules), host-based routing (multiple domains), SSL termination (and end-to-end SSL), session affinity (cookie-based), connection draining, auto-scaling, and WAF_v2 for OWASP rule sets. In AKS, the AGIC (App GW Ingress Controller) manages App Gateway routing via Kubernetes Ingress resources. WAF policies can be in Detection (log only) or Prevention (block) mode.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>URL/host-based routing</li>
+              <li>SSL termination — backends simpler</li>
+              <li>Built-in WAF (OWASP 3.2)</li>
+              <li>Works as AKS Ingress</li>
+              <li>Auto-scaling v2</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Expensive (~$250+/month minimum)</li>
+              <li>Slow to provision (5-10 mins)</li>
+              <li>Regional only (use Front Door for global)</li>
+              <li>Complex configuration</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Put App Gateway in its own dedicated subnet (/24 or larger — it needs space). Use WAF in Prevention mode for production. Offload SSL here — backends use HTTP internally for simplicity.</div>
+      </div>
+    </div>
+
+    <!-- Front Door -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🌍</div>
+        <div>
+          <div class="service-name">Azure Front Door</div>
+          <div style="font-size:11px;color:var(--muted);">Global CDN + L7 LB + WAF at edge</div>
+        </div>
+        <span class="service-tag">GLOBAL CDN</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          App Gateway is regional (one city). Front Door is global (every city on Earth). It puts a presence at 200+ edge locations worldwide. A user in India hits your app — Front Door routes them to the nearest Azure region. If that region goes down, it automatically fails over to another region.
+        </div>
+        <div class="deep-explain">
+          Azure Front Door (Standard/Premium) is a global entry point running on Microsoft's backbone. It provides: anycast routing (user connects to nearest PoP), caching (CDN at edge), WAF globally, health monitoring across origins, instant failover, and URL rewrite/redirect. Origin groups define backends (multiple regions). Priority + weight control traffic distribution. Custom domains with managed SSL certs. Premium SKU adds Private Link origins (backend stays private, Front Door reaches it via private link).
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Global L7 load balancing</li>
+              <li>CDN caching reduces latency worldwide</li>
+              <li>Multi-region failover (automatic)</li>
+              <li>WAF at the edge (closest to attacker)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>More expensive than App Gateway</li>
+              <li>Global propagation can take minutes</li>
+              <li>Complex for simple single-region apps</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Front Door when you have multi-region deployments or global users. Combine with App Gateway behind it: Front Door (global edge/WAF) → App Gateway (regional L7 routing) → AKS/VMs.</div>
+      </div>
+    </div>
+
+    <!-- Private Endpoints -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🔒</div>
+        <div>
+          <div class="service-name">Private Endpoints</div>
+          <div style="font-size:11px;color:var(--muted);">Bring Azure PaaS into your VNet privately</div>
+        </div>
+        <span class="service-tag">ZERO-TRUST</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          By default, Azure Storage, SQL, Key Vault etc. have public endpoints — any machine on the internet can try to reach them. Private Endpoints create a private doorway from your VNet directly into that service, and you can then lock the public door shut. Your VM talks to storage privately, never touching the public internet.
+        </div>
+        <div class="analogy-box">Instead of your employees going through the public lobby (internet) to reach the HR office (Azure SQL), you build a private hallway (private endpoint) directly from your floor to HR. Nobody outside can use that hallway.</div>
+        <div class="deep-explain">
+          A Private Endpoint creates a Network Interface Card (NIC) inside your subnet with a private IP. It maps to a specific Azure PaaS resource (storage account, SQL server, Key Vault, ACR, etc.). DNS is crucial: you need Azure Private DNS Zones to override public DNS resolution — so "mystorageaccount.blob.core.windows.net" resolves to the private IP inside your VNet. After creating a private endpoint, disable public network access on the PaaS resource — now only VNet-connected resources can reach it.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>PaaS services become fully private</li>
+              <li>Traffic never leaves Microsoft backbone</li>
+              <li>Eliminates public attack surface</li>
+              <li>Works across peered VNets</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>DNS setup is tricky (Azure Private DNS Zones)</li>
+              <li>Cost per endpoint (~$7-10/month)</li>
+              <li>Debugging DNS issues is hard</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">For every PaaS resource in production: create a private endpoint + disable public access. Use Azure Private DNS Zones linked to your VNet. This is a zero-trust requirement, not optional.</div>
+      </div>
+    </div>
+
+    <!-- Azure DNS -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📖</div>
+        <div>
+          <div class="service-name">Azure DNS</div>
+          <div style="font-size:11px;color:var(--muted);">Public & private DNS hosting</div>
+        </div>
+        <span class="service-tag">DNS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          DNS is the phone book of the internet. You type "myapp.com" and DNS translates that to an IP like 20.40.50.60. Azure DNS hosts that phone book. Private DNS Zones host a private internal phone book only your VNet can read.
+        </div>
+        <div class="deep-explain">
+          Azure DNS hosts public DNS zones (your domain's A, CNAME, MX records) with 100% SLA, anycast routing for low-latency resolution, and DNSSEC support. Private DNS Zones provide name resolution within VNets — critical for private endpoints. You can auto-register VM hostnames. Azure DNS integrates with Traffic Manager for geo-routing and Front Door for CNAME delegation. Azure DNS is not a domain registrar — buy the domain elsewhere, then delegate name servers to Azure DNS.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Extremely low latency (anycast global)</li>
+              <li>100% availability SLA</li>
+              <li>Private zones for internal resolution</li>
+              <li>Azure RBAC for DNS management</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Not a registrar (buy domain elsewhere)</li>
+              <li>Private zones need VNet links</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Create private DNS zones for every Azure service you use with private endpoints (e.g., privatelink.blob.core.windows.net). Link them to your VNet. Without this, private endpoints won't work.</div>
+      </div>
+    </div>
+
+  </div><!-- services-grid -->
+
+  <!-- 3-Tier Architecture -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">🏗 Classic 3-Tier Secure Architecture</h3>
+  <div class="arch-box">
+    <div class="arch-title">// Azure 3-Tier Network Architecture (Zero-Trust)</div>
+    <div class="arch-diagram">
+<span class="hl">Internet</span>
+    │
+    ▼
+<span class="hl">[ Azure Front Door / App Gateway + WAF ]</span>   ← Public subnet, SSL termination, DDoS
+    │  (HTTPS only, blocks bad traffic)
+    ▼
+<span class="hl2">[ Web Tier Subnet 10.0.1.0/24 ]</span>             ← NSG: Allow 443 from AppGW only
+    │  AKS Frontend Pods / App Service
+    │  (private IPs only)
+    ▼
+<span class="hl4">[ App Tier Subnet 10.0.2.0/24 ]</span>             ← NSG: Allow only from Web Tier subnet
+    │  AKS Backend Pods / VM Scale Sets
+    │  (no direct internet access)
+    ▼
+<span class="hl3">[ Data Tier Subnet 10.0.3.0/24 ]</span>            ← NSG: Allow only from App Tier subnet
+    │  Azure SQL Private Endpoint
+    │  Cosmos DB Private Endpoint
+    │  Key Vault Private Endpoint
+    ▼
+<span class="hl">[ Azure Firewall / UDR ]</span>                     ← Forces all egress through inspection
+    │  (logs all outbound, blocks C2C)
+    ▼
+<span class="hl">Internet (filtered egress)</span>
+    </div>
+  </div>
+
+  <div class="devops-focus">
+    <div class="focus-title">👉 DevOps Focus Points — Networking</div>
+    <div class="focus-grid">
+      <div class="focus-item"><div class="focus-dot"></div>Plan IP space before deployment — never after</div>
+      <div class="focus-item"><div class="focus-dot"></div>NSG default-deny, open only required ports</div>
+      <div class="focus-item"><div class="focus-dot"></div>Private Endpoints for all PaaS in production</div>
+      <div class="focus-item"><div class="focus-dot"></div>SSL/TLS terminate at App Gateway or Front Door</div>
+      <div class="focus-item"><div class="focus-dot"></div>Route all egress through Azure Firewall (UDR)</div>
+      <div class="focus-item"><div class="focus-dot"></div>Use Azure Bastion — never expose SSH port 22</div>
+      <div class="focus-item"><div class="focus-dot"></div>WAF in Prevention mode in production</div>
+      <div class="focus-item"><div class="focus-dot"></div>Zero-trust: verify every connection, trust nobody</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 3. STORAGE -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="storage">
+  <div class="section-header">
+    <div class="section-icon-big">💾</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 03 // DATA LAYER</div>
+      <h2 class="section-title">Storage — Where Data Lives</h2>
+      <p class="section-tagline">Blobs, disks, files, and lakes — each has its purpose</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Storage is where everything gets persisted.</strong> Logs, backups, container images, VM disks, application data — all needs a home. Azure's storage services are among the cheapest and most reliable in the cloud. As a DevOps engineer, you need to know which storage type fits which use case and how to optimize cost using tiering.
+  </div>
+
+  <div class="services-grid">
+
+    <!-- Blob Storage -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🪣</div>
+        <div>
+          <div class="service-name">Azure Blob Storage</div>
+          <div style="font-size:11px;color:var(--muted);">Object store for unstructured data</div>
+        </div>
+        <span class="service-tag">OBJECT STORE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Blob Storage is a giant file cabinet in the cloud. Videos, images, log files, backups, Terraform state files, ML datasets — anything that's just a file goes here. It's like Google Drive but for machines. Infinitely scalable, incredibly cheap.
+        </div>
+        <div class="analogy-box">An Amazon warehouse with unlimited shelves. Each shelf = container. Each item on it = blob. You can store a million items or a single 100TB file. Amazon (Azure) manages the warehouse building.</div>
+        <div class="deep-explain">
+          Blob Storage is Azure's primary object store. Organized as: Storage Account → Containers → Blobs. Three blob types: Block Blobs (standard files, logs, images), Append Blobs (log streaming — append-only), Page Blobs (VHD disks for VMs). Three tiers: Hot (frequent access, higher storage cost), Cool (infrequent access, cheaper storage, penalty on access), Archive (rarely accessed, dirt cheap storage, hours to rehydrate). Lifecycle policies automatically move blobs between tiers based on age. Public access can be disabled completely. Supports NFS 3.0 for Hadoop workloads.
+        </div>
+        <div class="chips">
+          <span class="chip azure">Hot / Cool / Archive</span>
+          <span class="chip green">Lifecycle Policies</span>
+          <span class="chip azure">SAS Tokens</span>
+          <span class="chip orange">Immutable Storage</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Cheapest storage in Azure</li>
+              <li>Infinitely scalable (exabytes)</li>
+              <li>99.999999999% (11 9s) durability</li>
+              <li>Lifecycle policies for cost control</li>
+              <li>Supports static website hosting</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Not a filesystem (no directory structure)</li>
+              <li>Archive tier = hours to access</li>
+              <li>Egress costs add up at scale</li>
+              <li>No random-write access</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Store Terraform state in Blob with state locking via Azure Table Storage. Use lifecycle policies to auto-archive logs older than 30 days. Enable soft-delete + versioning for blob recovery. Use private endpoints for production.</div>
+      </div>
+    </div>
+
+    <!-- Managed Disks -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">💽</div>
+        <div>
+          <div class="service-name">Azure Disk Storage</div>
+          <div style="font-size:11px;color:var(--muted);">Block storage for VM operating & data disks</div>
+        </div>
+        <span class="service-tag">BLOCK STORAGE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          When a VM boots up, it needs a hard drive. Azure Disk Storage is that hard drive in the cloud. You pick the size and speed (spinning disk vs SSD vs NVMe SSD). The OS boots from the OS disk; you attach extra data disks for your database files.
+        </div>
+        <div class="deep-explain">
+          Azure Managed Disks are SSD/HDD volumes attached to VMs. Disk tiers: Ultra Disk (highest IOPS, lowest latency — for databases), Premium SSD v2 (configurable IOPS, sub-ms latency), Premium SSD (production workloads), Standard SSD (dev/test), Standard HDD (backups, archival). Managed = Azure handles replication and physical management. Disk snapshots for point-in-time backup. Disk encryption at rest via platform-managed or customer-managed keys in Key Vault. Shared disks let multiple VMs mount the same disk (clustering scenarios).
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>High IOPS for database workloads</li>
+              <li>Encryption at rest (automatic)</li>
+              <li>Snapshots for backup</li>
+              <li>Online resize without restart</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Tied to one VM (mostly)</li>
+              <li>Ultra Disk is expensive</li>
+              <li>Can't share like blob storage</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always use Managed Disks (never unmanaged). Use Premium SSD for production VMs. Enable Azure Backup for VM disk snapshots. For database VMs, use Ultra Disk or Premium SSD v2 — never Standard HDD.</div>
+      </div>
+    </div>
+
+    <!-- Azure Files -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📂</div>
+        <div>
+          <div class="service-name">Azure Files</div>
+          <div style="font-size:11px;color:var(--muted);">Managed file share (SMB/NFS protocol)</div>
+        </div>
+        <span class="service-tag">FILE SHARE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Like a shared network drive (like Z: drive in an office). Multiple VMs or containers mount the same folder and all read/write to it. In AKS, your pods can share files this way. Think of it as a corporate shared drive but in the cloud.
+        </div>
+        <div class="deep-explain">
+          Azure Files provides fully managed SMB 3.x and NFS 4.1 file shares in the cloud. Mount them on Windows (drive letter mapping) or Linux (mount command). Multiple VMs can mount simultaneously with read/write. Azure File Sync syncs on-premises file servers to Azure Files — great for migrations. In AKS, Azure Files is used as Persistent Volume (PV) for ReadWriteMany workloads where multiple pods need the same data. Premium Azure Files uses SSD for low latency.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Multiple concurrent mounts (RWX)</li>
+              <li>SMB + NFS protocol support</li>
+              <li>Azure File Sync for hybrid</li>
+              <li>Works in AKS as PV</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>More expensive than Blob</li>
+              <li>NFS requires Premium tier</li>
+              <li>Latency higher than local disk</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Azure Files in AKS for shared config/data volumes that need ReadWriteMany. Use Azure File Sync to gradually migrate on-prem file servers to cloud. Use NFS shares for Linux workloads.</div>
+      </div>
+    </div>
+
+    <!-- Data Lake -->
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🏞</div>
+        <div>
+          <div class="service-name">Azure Data Lake Storage Gen2</div>
+          <div style="font-size:11px;color:var(--muted);">Hierarchical blob storage for big data analytics</div>
+        </div>
+        <span class="service-tag">BIG DATA</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Regular Blob Storage is a flat warehouse — everything piled together. Data Lake adds directory structure (folders!) and fine-grained access control per folder. If you have petabytes of data being processed by Spark, Databricks, or Synapse — this is your storage.
+        </div>
+        <div class="deep-explain">
+          ADLS Gen2 is Blob Storage with Hierarchical Namespace (HNS) enabled. HNS makes folder operations atomic and efficient (rename a folder with a billion files is near-instant). Access Control Lists (ACLs) at file/folder level via POSIX-style permissions. Integrates natively with Azure Databricks, Synapse Analytics, HDInsight, and ADF. Use it for raw landing zones (Bronze), curated data (Silver), analytics-ready (Gold) in a medallion architecture. Much cheaper than traditional data warehouses for cold storage.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Folder-level ACLs (security)</li>
+              <li>Efficient big data analytics</li>
+              <li>Integrates with all Azure analytics</li>
+              <li>Same cost as blob storage</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Some blob features unsupported with HNS</li>
+              <li>Overkill for non-analytics workloads</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Enable HNS at creation time — you can't add it later. Use Service Principal + ACLs for Databricks/Synapse access. DevOps: manage ADLS structure and ACLs via Terraform to avoid manual drift.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">📊 Storage — Which Type for Which Use Case?</h3>
+  <table class="compare-table">
+    <tr>
+      <th>Use Case</th>
+      <th>Service</th>
+      <th>Protocol</th>
+      <th>Shared?</th>
+      <th>Cost Level</th>
+    </tr>
+    <tr><td>VM OS drive</td><td style="color:#fff">Managed Disk (OS)</td><td>Block</td><td>No</td><td>$$</td></tr>
+    <tr><td>VM database files</td><td style="color:#fff">Managed Disk (Premium SSD)</td><td>Block</td><td>No</td><td>$$$</td></tr>
+    <tr><td>App images/videos/backups</td><td style="color:#fff">Blob Storage (Hot/Cool)</td><td>HTTPS/REST</td><td>Yes</td><td>$</td></tr>
+    <tr><td>Archived logs</td><td style="color:#fff">Blob Storage (Archive)</td><td>HTTPS/REST</td><td>Yes</td><td>¢</td></tr>
+    <tr><td>Shared config between pods</td><td style="color:#fff">Azure Files</td><td>SMB/NFS</td><td>Yes (RWX)</td><td>$$</td></tr>
+    <tr><td>Big data / analytics</td><td style="color:#fff">ADLS Gen2</td><td>HTTPS/HDFS</td><td>Yes</td><td>$</td></tr>
+    <tr><td>Terraform state</td><td style="color:#fff">Blob Storage + Table (lock)</td><td>HTTPS/REST</td><td>Yes</td><td>$</td></tr>
+    <tr><td>Container images (Docker)</td><td style="color:#fff">Azure Container Registry</td><td>HTTPS/OCI</td><td>Yes</td><td>$$</td></tr>
+  </table>
+
+  <div class="devops-focus">
+    <div class="focus-title">👉 DevOps Focus Points — Storage</div>
+    <div class="focus-grid">
+      <div class="focus-item"><div class="focus-dot"></div>Lifecycle policies auto-archive old blobs</div>
+      <div class="focus-item"><div class="focus-dot"></div>Enable soft-delete for blob recovery (30 days)</div>
+      <div class="focus-item"><div class="focus-dot"></div>Use private endpoints — disable public access</div>
+      <div class="focus-item"><div class="focus-dot"></div>Backup strategy: blob snapshots + Azure Backup</div>
+      <div class="focus-item"><div class="focus-dot"></div>Encryption at rest is ON by default — verify keys</div>
+      <div class="focus-item"><div class="focus-dot"></div>Store TF state in blob with state locking</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 4. DATABASES -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="databases">
+  <div class="section-header">
+    <div class="section-icon-big">🗄</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 04 // DATA PERSISTENCE</div>
+      <h2 class="section-title">Databases</h2>
+      <p class="section-tagline">Structured data that your app reads and writes constantly</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Databases are the most critical layer — lose your data, lose your business.</strong> Azure offers managed databases where Azure handles patching, backups, replication, and HA. You focus on schema and queries. DevOps responsibility: connection management, monitoring, and failover configuration.
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🔷</div>
+        <div>
+          <div class="service-name">Azure SQL Database</div>
+          <div style="font-size:11px;color:var(--muted);">Fully managed SQL Server PaaS</div>
+        </div>
+        <span class="service-tag">RELATIONAL</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          SQL Server database, but Azure manages the machine, OS, patches, backups, and high availability. You just create tables and write queries. If a datacenter catches fire, Azure fails over to another copy automatically.
+        </div>
+        <div class="deep-explain">
+          Azure SQL DB is built on SQL Server engine, enhanced for cloud. Purchasing models: DTU (simple bundled resources) or vCore (flexible, predictable). Service tiers: General Purpose (most workloads), Business Critical (in-memory OLTP, local SSD, 3 replicas), Hyperscale (up to 100TB, rapid scaling). Elastic Pools let multiple databases share compute. Built-in HA: General Purpose uses remote storage with 99.99% SLA; Business Critical uses in-memory with read replica. Automatic backups (7-35 days retention), point-in-time restore. Active Geo-Replication for cross-region disaster recovery. Auto-failover groups for automatic regional failover.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Fully managed — no DBA for ops</li>
+              <li>Auto backups + PITR</li>
+              <li>Geo-replication for DR</li>
+              <li>Serverless tier (auto-pause)</li>
+              <li>Built-in threat detection</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Not full SQL Server compatibility</li>
+              <li>Can be expensive at Business Critical tier</li>
+              <li>Limited OS/SQL agent jobs</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Auto-Failover Groups for multi-region HA — it gives you a single read-write connection string that auto-updates on failover. Use connection pooling (PgBouncer equivalent: SQL Elastic Pool). Monitor with Query Performance Insight for slow queries.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🐘</div>
+        <div>
+          <div class="service-name">Azure Database for PostgreSQL</div>
+          <div style="font-size:11px;color:var(--muted);">Managed PostgreSQL — Flexible Server</div>
+        </div>
+        <span class="service-tag">POSTGRES</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          PostgreSQL database without managing the server. Azure handles the VM, OS, Postgres version upgrades, backups, and replication. You just connect with your app and run SQL. Perfect for modern web apps using Django, Rails, or any ORM.
+        </div>
+        <div class="deep-explain">
+          Flexible Server is the recommended deployment mode (replaces Single Server). Runs PostgreSQL 11-16. Features: same-zone or zone-redundant HA (standby replica auto-promoted on failure), read replicas (up to 5), scheduled maintenance windows, VNet integration (deploy inside your subnet), connection pooling via PgBouncer (built-in!), and point-in-time restore (1-35 days). Burstable tier for dev/test. Stop/start capability (stop database on weekends = massive savings). Supports extensions: pgvector (AI), PostGIS (geo), pg_stat_statements (perf).
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Full PostgreSQL compatibility</li>
+              <li>Built-in PgBouncer (connection pooling)</li>
+              <li>Stop/start for cost savings</li>
+              <li>Zone-redundant HA</li>
+              <li>VNet integrated (private)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Cross-region failover manual (use read replica)</li>
+              <li>Not as feature-rich as Azure SQL</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always enable Built-in PgBouncer — apps love too many connections. Set connection_limit per role. Use pg_stat_statements extension to find slow queries. Deploy with VNet integration from day 1.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🌐</div>
+        <div>
+          <div class="service-name">Azure Cosmos DB</div>
+          <div style="font-size:11px;color:var(--muted);">Globally distributed multi-model NoSQL</div>
+        </div>
+        <span class="service-tag">NOSQL GLOBAL</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Imagine a database that exists simultaneously in New York, London, Tokyo, and Mumbai — all perfectly in sync (or almost). A user in Japan gets millisecond reads from the Tokyo copy. That's Cosmos DB. It's NoSQL, globally replicated, and handles enormous scale.
+        </div>
+        <div class="analogy-box">A Google Doc that auto-saves to 10 offices worldwide. Anyone in any office sees updates almost instantly. No single point of failure — office burns down, everyone else keeps working.</div>
+        <div class="deep-explain">
+          Cosmos DB supports multiple APIs: NoSQL (native JSON documents), MongoDB (wire protocol compatible), Cassandra, Gremlin (graph), Table, and PostgreSQL. Consistency levels (5 options, from strong to eventual) control the tradeoff between consistency, availability, and latency. Multi-region writes: writes go to nearest region, replicate asynchronously. Turnkey global distribution — add/remove regions at runtime. Throughput: provisioned (RU/s) or serverless. Autoscale RU/s scales up instantly. Change feed enables event-driven architecture (trigger Azure Functions on document change).
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Single-digit millisecond reads globally</li>
+              <li>Multi-region active-active writes</li>
+              <li>Multiple APIs (MongoDB compatible!)</li>
+              <li>Serverless mode for variable traffic</li>
+              <li>Change feed for event-driven patterns</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Very expensive at scale</li>
+              <li>RU model is tricky to estimate</li>
+              <li>Not ideal for complex SQL joins</li>
+              <li>Strong consistency = higher latency</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Monitor RU consumption obsessively — throttling (429 errors) means under-provisioned RUs. Use partition keys wisely — hot partitions kill performance. Enable serverless for dev/test to avoid paying for idle RUs.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">⚡</div>
+        <div>
+          <div class="service-name">Azure Cache for Redis</div>
+          <div style="font-size:11px;color:var(--muted);">In-memory caching layer</div>
+        </div>
+        <span class="service-tag">CACHE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Your database is slow (milliseconds). Redis is lightning (microseconds) because it stores data in RAM. Your app asks Redis first: "Do you have this?" If yes — instant answer. If no — fetch from SQL, store in Redis, serve from RAM next time. Massively reduces database load.
+        </div>
+        <div class="deep-explain">
+          Azure Cache for Redis is a managed Redis service. Tiers: Basic (single node, no SLA — dev only), Standard (2 nodes, 99.9% SLA), Premium (clustering, geo-replication, VNet, persistence). Supports Redis clustering (horizontal sharding). Redis Enterprise tiers for ultra-low latency. Use cases: session storage, pub/sub messaging, rate limiting, leaderboards, distributed locks (Redlock), database query caching. Persistence: RDB snapshots or AOF logging for durability. Geo-replication links two Premium instances across regions.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Sub-millisecond operations</li>
+              <li>Dramatically reduces DB load</li>
+              <li>Pub/sub for lightweight messaging</li>
+              <li>Session storage for stateless apps</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>RAM-based = expensive at large size</li>
+              <li>Data loss risk if not persisted</li>
+              <li>Cache invalidation is complex</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Premium tier with VNet integration in production. Enable SSL (port 6380, not 6379). Set TTL on cached items — infinite cache = stale data. Monitor cache hit rate; below 80% = cache not helping enough.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="devops-focus">
+    <div class="focus-title">👉 DevOps Focus Points — Databases</div>
+    <div class="focus-grid">
+      <div class="focus-item"><div class="focus-dot"></div>Always use Geo-Replication / Failover Groups for production</div>
+      <div class="focus-item"><div class="focus-dot"></div>Connection pooling prevents connection exhaustion</div>
+      <div class="focus-item"><div class="focus-dot"></div>Monitor slow queries — use pg_stat_statements / Query Insight</div>
+      <div class="focus-item"><div class="focus-dot"></div>Private Endpoint + disable public access = required</div>
+      <div class="focus-item"><div class="focus-dot"></div>Redis between app and DB for read-heavy workloads</div>
+      <div class="focus-item"><div class="focus-dot"></div>Test DR failover — don't discover it's broken during incident</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 5. MESSAGING -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="messaging">
+  <div class="section-header">
+    <div class="section-icon-big">📩</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 05 // EVENT-DRIVEN ARCHITECTURE</div>
+      <h2 class="section-title">Messaging & Eventing</h2>
+      <p class="section-tagline">Decoupling services so they don't crash together</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Direct API calls between services create tight coupling.</strong> If Service B is down, Service A fails too. Messaging decouples them: A drops a message in a queue and moves on. B picks it up when ready. This is the foundation of resilient, event-driven architecture.
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🚌</div>
+        <div>
+          <div class="service-name">Azure Service Bus</div>
+          <div style="font-size:11px;color:var(--muted);">Enterprise message broker — queues & topics</div>
+        </div>
+        <span class="service-tag">ENTERPRISE MQ</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Like a post office with guaranteed delivery. You (sender) drop a package in the mailbox (queue). The post office holds it safely. The recipient picks it up when ready. If the recipient is sick for a week, the package waits. Nobody loses anything.
+        </div>
+        <div class="analogy-box">A restaurant order system. Waiter takes order (producer), puts ticket on the kitchen rail (queue). Chef (consumer) picks tickets when ready. Kitchen going slow doesn't make customers at the table disappear.</div>
+        <div class="deep-explain">
+          Service Bus has two modes: Queues (one sender, one receiver — point-to-point) and Topics with Subscriptions (one publisher, many subscribers — pub/sub). Messages have: TTL (time-to-live), delivery count, and properties. Dead Letter Queue (DLQ): when a message fails processing X times, it moves to the DLQ for investigation — never lost. Sessions support ordered message processing (FIFO per session ID). Duplicate detection prevents processing same message twice. Lock mechanism: consumer claims a message for N seconds, must complete/abandon before timeout. Standard tier vs Premium (isolated, predictable latency, VNet support, large messages up to 100MB).
+        </div>
+        <div class="chips">
+          <span class="chip green">Dead Letter Queue</span>
+          <span class="chip azure">Topics + Subscriptions</span>
+          <span class="chip azure">Message Sessions</span>
+          <span class="chip orange">At-least-once delivery</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Guaranteed delivery (at-least-once)</li>
+              <li>Dead Letter Queue for failures</li>
+              <li>Ordered processing with sessions</li>
+              <li>Duplicate detection</li>
+              <li>Pub/sub with Topics</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Not for high-volume streaming (use Event Hub)</li>
+              <li>Premium tier is expensive</li>
+              <li>80GB max storage per namespace</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always monitor DLQ — messages there need investigation. Set message TTL appropriately. Use Topics for fan-out patterns (one event, multiple independent consumers). Use Premium for production with VNet integration.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📡</div>
+        <div>
+          <div class="service-name">Azure Event Grid</div>
+          <div style="font-size:11px;color:var(--muted);">Reactive event routing service</div>
+        </div>
+        <span class="service-tag">EVENT ROUTING</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Event Grid is like a notification system. "When someone uploads a photo to blob storage, tell my Azure Function." It's the nervous system that says: "this happened" → "notify these things." It's push-based — events are pushed to subscribers immediately.
+        </div>
+        <div class="deep-explain">
+          Event Grid routes events from sources (Azure services: Blob, Resource Groups, Service Bus, custom apps) to event handlers (Azure Functions, Logic Apps, Event Hub, Webhooks, Service Bus). System topics are built-in (blob events, resource events). Custom topics for your own events. Event subscriptions filter events by type, subject prefix, or advanced filters. CloudEvents schema support for standards compliance. Near-real-time delivery (sub-second). At-least-once delivery with dead-lettering. Not for high-volume streaming — for reactive event-driven workflows.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Push-based — no polling needed</li>
+              <li>Near-instant event delivery</li>
+              <li>Native integration with 20+ Azure services</li>
+              <li>Very cheap (pay per event)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Not for ordered processing</li>
+              <li>Not for streaming large volumes</li>
+              <li>Events not replayed after TTL</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Event Grid to trigger automation: blob uploaded → process, resource deployed → tag it, VM deallocated → alert. Chain with Logic Apps for no-code automation workflows.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🌊</div>
+        <div>
+          <div class="service-name">Azure Event Hub</div>
+          <div style="font-size:11px;color:var(--muted);">Real-time data streaming platform (Kafka-compatible)</div>
+        </div>
+        <span class="service-tag">STREAMING</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          If Service Bus is a post office, Event Hub is a firehose. Millions of events per second — IoT sensor data, application telemetry, clickstream data — all streaming in. Think Apache Kafka but managed by Azure. Multiple consumers can read the same stream independently, each at their own pace.
+        </div>
+        <div class="deep-explain">
+          Event Hub is a partitioned (up to 32 partitions) event log. Producers write events; consumers read from partitions at their own offset (position). Events retained for 1-7 days (Standard) or up to 90 days (Premium). Consumer groups allow multiple independent consumers. Kafka protocol compatibility: point your existing Kafka apps at Event Hub without code changes. Event Hub Capture auto-writes all events to Blob/ADLS for permanent storage. Throughput Units (Standard) or Processing Units (Premium) control capacity. Scalable to millions of events/second.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Millions of events/second</li>
+              <li>Kafka wire protocol compatible</li>
+              <li>Multiple independent consumers</li>
+              <li>Event capture to ADLS</li>
+              <li>Time-based replay</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>No dead letter queue</li>
+              <li>Events expire after retention period</li>
+              <li>No guaranteed ordering across partitions</li>
+              <li>Complex consumer offset management</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Capture to persist all events to ADLS — replaying from scratch otherwise is impossible. Monitor consumer lag per partition. Use dedicated partition keys for ordered processing per entity (e.g., deviceId).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- When to use which -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">📊 Messaging — Which Service When?</h3>
+  <table class="compare-table">
+    <tr>
+      <th>Scenario</th>
+      <th>Use This</th>
+      <th>Why</th>
+    </tr>
+    <tr>
+      <td>Order processing between microservices</td>
+      <td style="color:#00ff88">Service Bus Queue</td>
+      <td>Guaranteed delivery, DLQ, ordering</td>
+    </tr>
+    <tr>
+      <td>Notify multiple services of one event</td>
+      <td style="color:#00ff88">Service Bus Topic</td>
+      <td>Pub/sub fan-out to multiple subscribers</td>
+    </tr>
+    <tr>
+      <td>Blob uploaded → trigger function</td>
+      <td style="color:#00d4ff">Event Grid</td>
+      <td>Push event to function instantly</td>
+    </tr>
+    <tr>
+      <td>IoT telemetry, clickstream, log streaming</td>
+      <td style="color:#ffd700">Event Hub</td>
+      <td>Millions/sec, time-series, replay</td>
+    </tr>
+    <tr>
+      <td>Replace Apache Kafka</td>
+      <td style="color:#ffd700">Event Hub (Kafka API)</td>
+      <td>Wire-compatible, no code changes</td>
+    </tr>
+    <tr>
+      <td>Simple task queue (dev/test)</td>
+      <td style="color:#7a9bb5">Storage Queue</td>
+      <td>Very cheap, simple, less features</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 6. CI/CD -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="cicd">
+  <div class="section-header">
+    <div class="section-icon-big">🚀</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 06 // DEVOPS HEART</div>
+      <h2 class="section-title">CI/CD & Infrastructure as Code</h2>
+      <p class="section-tagline">The reason you exist as a DevOps engineer</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">This is the core of DevOps.</strong> CI/CD automates testing and deploying code. IaC automates provisioning infrastructure. Together, they mean: every change is tested, tracked, and deployed safely — no manual clicks, no snowflake servers. "If it's not in code, it doesn't exist."
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🔄</div>
+        <div>
+          <div class="service-name">Azure DevOps Pipelines</div>
+          <div style="font-size:11px;color:var(--muted);">Microsoft's native CI/CD platform</div>
+        </div>
+        <span class="service-tag">CI/CD</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Every time a developer pushes code, a robot automatically: runs all tests, builds a Docker image, deploys to staging, runs smoke tests, and if all pass — deploys to production. Zero human clicks. Azure DevOps is the robot factory.
+        </div>
+        <div class="deep-explain">
+          Azure DevOps is a complete ALM platform: Repos (Git), Boards (Agile), Pipelines (CI/CD), Artifacts (package feeds), Test Plans. YAML pipelines (pipeline as code) define stages → jobs → steps. Multi-stage pipelines: Build → Test → Deploy to Dev → Deploy to Stage → Deploy to Prod. Environments with approval gates (human approval before prod deploy). Service connections authenticate to Azure, ACR, Docker, AWS, etc. Variable groups + Azure Key Vault integration for secrets. Parallel jobs for speed. Self-hosted agents for custom environments.
+        </div>
+        <div class="chips">
+          <span class="chip green">YAML Pipelines</span>
+          <span class="chip azure">Multi-stage</span>
+          <span class="chip azure">Environments</span>
+          <span class="chip orange">Approval Gates</span>
+          <span class="chip green">Self-hosted Agents</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Native Azure integration</li>
+              <li>YAML pipeline as code</li>
+              <li>Approval gates for prod safety</li>
+              <li>Built-in artifact feeds</li>
+              <li>Free for open source</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>YAML can get complex fast</li>
+              <li>Microsoft-hosted agents are slow sometimes</li>
+              <li>UI is dated compared to GitHub</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Store pipeline YAML in the repo — pipelines as code. Never hardcode secrets — use variable groups linked to Key Vault. Use environments with approval checks before every production deployment.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🐙</div>
+        <div>
+          <div class="service-name">GitHub Actions (Azure Integration)</div>
+          <div style="font-size:11px;color:var(--muted);">GitHub-native CI/CD with Azure actions</div>
+        </div>
+        <span class="service-tag">CI/CD</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Like Azure DevOps Pipelines but living inside GitHub. If your code is on GitHub, GitHub Actions is the natural choice. Azure provides official actions (az login, deploy to AKS, push to ACR) so you don't have to write the deployment scripts yourself.
+        </div>
+        <div class="deep-explain">
+          GitHub Actions uses workflow YAML files in .github/workflows/. Triggers: push, PR, schedule, workflow_dispatch (manual). Jobs run on GitHub-hosted runners (ubuntu, windows, macos) or self-hosted. Azure integration: azure/login action (OIDC federated identity — no stored secrets!), azure/webapps-deploy, azure/aks-set-context, azure/docker-login. Environments with protection rules and required reviewers. OIDC with Azure Entra ID eliminates service principal secrets — GitHub Actions gets a short-lived token automatically. Marketplace has 20,000+ actions.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Native GitHub integration</li>
+              <li>OIDC (no stored Azure secrets!)</li>
+              <li>Massive action marketplace</li>
+              <li>Better UI than Azure DevOps</li>
+              <li>Free for public repos</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Less Azure-native than Azure DevOps</li>
+              <li>Paid minutes can add up</li>
+              <li>Limited Azure Boards equivalent</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use OIDC authentication — never store Azure service principal credentials as GitHub secrets. Use environment protection rules with required reviewers for production deployments. Cache dependencies to speed up workflows.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📦</div>
+        <div>
+          <div class="service-name">Azure Container Registry (ACR)</div>
+          <div style="font-size:11px;color:var(--muted);">Private Docker image registry</div>
+        </div>
+        <span class="service-tag">IMAGE REGISTRY</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Docker Hub is a public image store. ACR is your private Docker Hub inside Azure. You build a Docker image, push it to ACR, and your AKS/Container Apps/ACI pulls it from there. Private means only you (and your services) can access your images.
+        </div>
+        <div class="deep-explain">
+          ACR is an OCI-compliant container and Helm chart registry. Tiers: Basic, Standard, Premium (geo-replication, private links, dedicated data endpoints). ACR Tasks can build images in the cloud (no local Docker needed) — triggered on git commits. Geo-replication in Premium tier: registry exists in multiple regions, AKS pulls from nearest copy for speed + resilience. Private Endpoint ensures AKS pulls images privately (never over public internet). Integrated with Azure Defender for container scanning (vulnerability scanning on every push). RBAC via Entra ID — AKS uses Managed Identity to pull images (no credentials).
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Private secure image storage</li>
+              <li>Integrated with AKS via Managed Identity</li>
+              <li>Built-in vulnerability scanning</li>
+              <li>Geo-replication for global pulls</li>
+              <li>ACR Tasks for cloud builds</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Storage cost per GB</li>
+              <li>Geo-replication only in Premium ($$)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Managed Identity for AKS → ACR pull (no passwords). Enable Private Endpoint for ACR. Use ACR Tasks to build images in pipelines — faster than GitHub-hosted runners. Enable image purge policies to auto-delete old images.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🦾</div>
+        <div>
+          <div class="service-name">Bicep — Azure Native IaC</div>
+          <div style="font-size:11px;color:var(--muted);">Microsoft's DSL for Azure resources</div>
+        </div>
+        <span class="service-tag">IAC</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Instead of clicking "Create VM" in the Azure portal (manual, not repeatable), you write a Bicep file that says: "Create a VM with these specs." Now you can create identical infrastructure 100 times, in any environment, just by running the file. Infrastructure as Code.
+        </div>
+        <div class="deep-explain">
+          Bicep is Microsoft's domain-specific language (DSL) that compiles to ARM JSON. Much cleaner syntax than ARM. Idempotent: run it 100 times, the infrastructure stays the same. Modules: reusable Bicep files you share across teams. Loops for deploying multiple resources. Conditions for environment-specific configs. What-if mode: preview changes before applying. Target scopes: resource group, subscription, management group, tenant. Native VS Code extension with IntelliSense. Bicep is preferred over ARM for new Azure-only projects.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Azure-native (no extra tools)</li>
+              <li>Cleaner than ARM JSON</li>
+              <li>What-if preview before apply</li>
+              <li>First-class Azure support</li>
+              <li>Free (no enterprise licensing)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Azure-only (not multi-cloud)</li>
+              <li>Smaller community than Terraform</li>
+              <li>State managed by Azure (less control)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Bicep modules to create reusable components (VNet module, AKS module). Deploy via Azure DevOps pipelines using az deployment group create. Use parameter files for per-environment configs.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🌍</div>
+        <div>
+          <div class="service-name">Terraform (Azure Provider)</div>
+          <div style="font-size:11px;color:var(--muted);">Multi-cloud IaC with state management</div>
+        </div>
+        <span class="service-tag">IAC MULTI-CLOUD</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Like Bicep, but works on Azure AND AWS AND GCP. You write HCL code (simple config language), run "terraform plan" to see what will change, then "terraform apply" to make it happen. Terraform remembers what it created via a state file — so it knows what to change/destroy next time.
+        </div>
+        <div class="deep-explain">
+          Terraform uses HCL (HashiCorp Configuration Language). azurerm provider supports all Azure resources. Workflow: terraform init (download providers) → plan (preview) → apply (execute) → state (drift detection). State file is critical — stores current infrastructure state. Store in Azure Blob Storage with state locking (azurerm backend). Modules: reusable components from Terraform Registry. Workspaces or separate state files for environments. Atlantis/Terraform Cloud for PR-based workflows. Data sources to reference existing resources. Local-exec for custom scripts. Provider version pinning in versions.tf.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Multi-cloud (AWS, Azure, GCP)</li>
+              <li>Excellent state management</li>
+              <li>Huge community + module registry</li>
+              <li>Plan preview before applying</li>
+              <li>Drift detection</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>State file is a critical single point</li>
+              <li>State corruption = bad day</li>
+              <li>Enterprise features need HCP/TFC</li>
+              <li>Slower to get Azure new features</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always store state in Azure Blob with locking. Pin provider versions. Use remote modules from private registry. Never run terraform apply locally in teams — use pipelines with PR reviews. Run terraform fmt and validate in CI.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Deployment Strategies -->
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">🎯 Deployment Strategies Explained Simply</h3>
+  <table class="compare-table">
+    <tr>
+      <th>Strategy</th>
+      <th>What It Is (Layman)</th>
+      <th>Downtime?</th>
+      <th>Risk</th>
+      <th>How in Azure</th>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600">Rolling</td>
+      <td>Replace old pods one by one gradually</td>
+      <td>None</td>
+      <td>Both versions run briefly</td>
+      <td>AKS RollingUpdate strategy</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600">Blue/Green</td>
+      <td>Run two identical environments; flip traffic instantly</td>
+      <td>None</td>
+      <td>Low — instant rollback</td>
+      <td>App Service Slots, App Gateway, Front Door</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600">Canary</td>
+      <td>Send 5% of traffic to new version, monitor, then increase</td>
+      <td>None</td>
+      <td>Very low — tiny blast radius</td>
+      <td>Front Door weights, AKS + AGIC, Argo Rollouts</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600">Recreate</td>
+      <td>Kill all old instances, start new ones</td>
+      <td>Brief downtime</td>
+      <td>High</td>
+      <td>Simple but never use in prod</td>
+    </tr>
+    <tr>
+      <td style="color:#fff;font-weight:600">Feature Flags</td>
+      <td>Deploy code to everyone, enable feature for some users</td>
+      <td>None</td>
+      <td>Lowest</td>
+      <td>Azure App Configuration feature flags</td>
+    </tr>
+  </table>
+
+  <div class="devops-focus">
+    <div class="focus-title">👉 DevOps Focus Points — CI/CD & IaC</div>
+    <div class="focus-grid">
+      <div class="focus-item"><div class="focus-dot"></div>Multi-stage pipelines: Build → Test → Stage → Prod</div>
+      <div class="focus-item"><div class="focus-dot"></div>Secrets NEVER in YAML — always Key Vault</div>
+      <div class="focus-item"><div class="focus-dot"></div>Blue/Green is safest for web apps — always use slots</div>
+      <div class="focus-item"><div class="focus-dot"></div>Terraform state in blob with state locking</div>
+      <div class="focus-item"><div class="focus-dot"></div>OIDC for GitHub Actions — no stored credentials</div>
+      <div class="focus-item"><div class="focus-dot"></div>Approval gates required before every prod deploy</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 7. MONITORING -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="monitoring">
+  <div class="section-header">
+    <div class="section-icon-big">📊</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 07 // OBSERVABILITY</div>
+      <h2 class="section-title">Monitoring & Observability</h2>
+      <p class="section-tagline">You can't fix what you can't see</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Observability = Metrics + Logs + Traces.</strong> Without monitoring, you're flying blind. You'll find out production is down when a customer calls. With good monitoring, your alert fires before users notice anything. Azure Monitor is the umbrella, Log Analytics stores everything, App Insights handles application-level telemetry.
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📈</div>
+        <div>
+          <div class="service-name">Azure Monitor</div>
+          <div style="font-size:11px;color:var(--muted);">Unified monitoring platform for Azure</div>
+        </div>
+        <span class="service-tag">UMBRELLA</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Azure Monitor is the control room for your entire Azure estate. It collects metrics (CPU %, memory, network bytes) and logs from every Azure resource automatically. It's like the hospital monitoring system — every patient (resource) has their vitals displayed on one screen.
+        </div>
+        <div class="deep-explain">
+          Azure Monitor collects: Platform Metrics (every Azure resource emits metrics, stored 93 days), Activity Log (all Azure control plane operations — who did what when), Diagnostic Logs (resource-specific operational data, sent to Log Analytics/Storage/Event Hub). Metrics Explorer for graphing and comparing metrics over time. Autoscale rules for VMSS and App Service are configured in Azure Monitor. Workbooks for rich dashboards combining metrics, logs, and custom HTML. Azure Monitor Managed Prometheus (AKS metrics → Prometheus → Grafana). Container Insights for AKS monitoring.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Free platform metrics for all Azure resources</li>
+              <li>Single pane for all monitoring</li>
+              <li>Integrates with Grafana, PagerDuty, etc.</li>
+              <li>Prometheus-compatible for AKS</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Log Analytics costs can surprise</li>
+              <li>KQL learning curve</li>
+              <li>Alert noise if not tuned</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Enable Diagnostic Settings on every resource to send logs to Log Analytics. Set up action groups (email, Slack, PagerDuty) for alerts. Create Workbooks dashboards for your SLO/SLA visualization.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🔍</div>
+        <div>
+          <div class="service-name">Log Analytics Workspace</div>
+          <div style="font-size:11px;color:var(--muted);">Central log storage and query engine</div>
+        </div>
+        <span class="service-tag">LOG STORE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Every Azure resource generates logs. Log Analytics is a giant central database that stores all of them. You query logs using KQL (Kusto Query Language — like SQL but for logs). "Show me all 500 errors from the last hour." "Show CPU spikes above 90% in the last week."
+        </div>
+        <div class="deep-explain">
+          Log Analytics is based on Azure Data Explorer (Kusto engine). Data is ingested from: Diagnostic Settings (Azure resources), Azure Monitor Agent (VMs), Application Insights, Container Insights, Security Center, and custom sources via the Data Collection API. KQL (Kusto Query Language) is used to query. Example: AzureDiagnostics | where Level == "Error" | summarize count() by Resource | order by count_ desc. Tables include: AzureActivity, Perf, Event, Syslog, ContainerLog, AppExceptions. Retention: 30-730 days (pay per GB). Archive data to Storage for long-term compliance.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Central log store for all Azure resources</li>
+              <li>Powerful KQL querying</li>
+              <li>Correlate logs across services</li>
+              <li>Alerts based on log queries</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>KQL takes time to learn</li>
+              <li>Can be expensive (pay per GB ingested)</li>
+              <li>Query over huge datasets can be slow</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Learn these KQL patterns: summarize, project, where, render. Use Basic Logs tier for verbose logs (10x cheaper, but 30-day retention only). Set data cap to avoid bill shock. Use table-level RBAC — developers shouldn't see security logs.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🧩</div>
+        <div>
+          <div class="service-name">Application Insights</div>
+          <div style="font-size:11px;color:var(--muted);">APM — Application Performance Monitoring</div>
+        </div>
+        <span class="service-tag">APM</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Azure Monitor tracks your server's health (CPU, memory). Application Insights tracks your APP's health — how many users got 500 errors, which API endpoint is slowest, how long a specific user's request took from browser to database and back. It's the X-ray vision for your application internals.
+        </div>
+        <div class="deep-explain">
+          Application Insights (part of Azure Monitor) is an APM (Application Performance Monitoring) tool. SDK auto-instrumentation for .NET, Java, Node.js, Python. Tracks: requests (HTTP), dependencies (SQL, Redis, external APIs), exceptions, custom events, page views, user sessions. Distributed Tracing: follow a single user request across 10 microservices — see exactly where time was spent. Application Map: visual dependency graph of your services. Live Metrics: real-time stream of requests/failures. Availability Tests: ping your endpoint every minute from 5 global locations. Smart Detection: AI-powered anomaly detection.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Distributed tracing across services</li>
+              <li>User behavior analytics</li>
+              <li>Availability (synthetic) monitoring</li>
+              <li>AI anomaly detection</li>
+              <li>Auto-instrumentation (no code changes)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Sampling needed for high-volume apps</li>
+              <li>Cost per GB data ingested</li>
+              <li>SDK overhead (small but real)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Enable auto-instrumentation via environment variables — no code changes needed for most languages. Set up availability tests for every critical endpoint. Use custom properties to add business context to traces (orderId, userId).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="arch-box">
+    <div class="arch-title">// KQL Query Examples — Learn These for Job Interviews</div>
+    <div class="arch-diagram">
+<span class="hl">// 1. Find all 500 errors in last hour</span>
+AppRequests
+| where TimeGenerated > ago(1h)
+| where ResultCode == "500"
+| summarize count() by Name, Cloud_RoleName
+| order by count_ desc
+
+<span class="hl">// 2. Average response time by endpoint</span>
+AppRequests
+| where TimeGenerated > ago(24h)
+| summarize avg(DurationMs) by Name
+| order by avg_DurationMs desc
+
+<span class="hl">// 3. Top exceptions</span>
+AppExceptions
+| where TimeGenerated > ago(6h)
+| summarize count() by ExceptionType, OuterMessage
+| order by count_ desc
+
+<span class="hl">// 4. CPU alert query</span>
+Perf
+| where ObjectName == "Processor" and CounterName == "% Processor Time"
+| where CounterValue > 90
+| summarize avg(CounterValue) by Computer, bin(TimeGenerated, 5m)
+| render timechart
+
+<span class="hl">// 5. Who deleted what in Azure (Audit Log)</span>
+AzureActivity
+| where OperationNameValue endswith "DELETE"
+| where ActivityStatusValue == "Success"
+| project TimeGenerated, Caller, OperationNameValue, ResourceGroup
+| order by TimeGenerated desc
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 8. SECURITY -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="security">
+  <div class="section-header">
+    <div class="section-icon-big">🔐</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 08 // VERY CRITICAL</div>
+      <h2 class="section-title">Security & Identity</h2>
+      <p class="section-tagline">Security is not a feature — it's the foundation</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">A single misconfigured IAM policy or exposed secret = data breach.</strong> Security in Azure is built around identity (who are you?), access (what can you do?), and protection (how do we block bad actors?). The DevOps security philosophy: shift security left, automate compliance, never trust implicitly.
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🪪</div>
+        <div>
+          <div class="service-name">Microsoft Entra ID (formerly AAD)</div>
+          <div style="font-size:11px;color:var(--muted);">Azure's identity & access management platform</div>
+        </div>
+        <span class="service-tag">IAM</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Entra ID is Azure's bouncer database. Every human (developer, admin) and every machine (VM, app, service) must have an identity here. When you try to do something in Azure, Entra ID checks: "Who are you? Is your ID valid? Are you allowed to do this?" Like an Active Directory for everything in the cloud.
+        </div>
+        <div class="deep-explain">
+          Microsoft Entra ID is an IDaaS (Identity as a Service). Key concepts: Users (humans), Groups (collections of users), Service Principals (machine identities for apps), Managed Identities (special service principals tied to Azure resources — no credential management needed), App Registrations (OAuth/OIDC apps), Enterprise Apps. Supports: OAuth 2.0, OIDC, SAML. Multi-tenant architecture lets you manage external users. Conditional Access policies add context-aware MFA: "if user is outside corporate network OR logging in from new device, require MFA." Privileged Identity Management (PIM) for just-in-time access.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Single identity for all Azure resources</li>
+              <li>MFA + Conditional Access</li>
+              <li>Managed Identities (no passwords!)</li>
+              <li>SCIM provisioning from HR systems</li>
+              <li>SSO for thousands of apps</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Complex permissions model</li>
+              <li>P2 license required for PIM ($$$)</li>
+              <li>Guest user management can get messy</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Always use Managed Identities instead of service principals with passwords. Enable MFA for all users — no exceptions for admins. Use PIM for privileged roles — no standing admin access ever.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🎭</div>
+        <div>
+          <div class="service-name">Azure RBAC</div>
+          <div style="font-size:11px;color:var(--muted);">Role-Based Access Control for Azure resources</div>
+        </div>
+        <span class="service-tag">LEAST PRIVILEGE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          RBAC answers: what can you DO in Azure? "Alice is a Contributor on the Dev resource group" = she can create/edit/delete resources there, but can't assign permissions. "Bob is Reader everywhere" = he can see everything, change nothing. Least privilege: give only the access someone needs for their job — nothing more.
+        </div>
+        <div class="deep-explain">
+          RBAC uses: Principal (who — user/group/service principal/managed identity), Role Definition (what — list of allowed actions like Microsoft.Compute/virtualMachines/write), Scope (where — management group → subscription → resource group → individual resource). Built-in roles: Owner (everything including RBAC), Contributor (everything except RBAC), Reader (read only), plus 100+ service-specific roles (AKS Admin, Key Vault Secrets Officer, Storage Blob Data Contributor). Custom roles let you define exact permissions. Deny assignments block even Owners. Role assignments are inherited downward in scope hierarchy.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Granular per-resource permissions</li>
+              <li>Inherited scope hierarchy</li>
+              <li>100+ built-in roles</li>
+              <li>Custom roles for precise control</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Complex to audit at scale</li>
+              <li>Role proliferation is common</li>
+              <li>Maximum 2000 assignments per subscription</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Never use Owner role in production — use Contributor. Assign roles to Groups not individuals (easier to manage). Use PIM for time-bound elevated access. Audit role assignments monthly with Azure Access Reviews.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🤖</div>
+        <div>
+          <div class="service-name">Managed Identities</div>
+          <div style="font-size:11px;color:var(--muted);">Password-free machine identities</div>
+        </div>
+        <span class="service-tag">ZERO SECRETS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Your AKS pod needs to read from Key Vault. Old way: create a username/password, store it as secret, hope nobody leaks it. New way: give the pod a Managed Identity — Azure auto-generates a certificate, rotates it every day, and your pod authenticates automatically with zero secrets in your code.
+        </div>
+        <div class="deep-explain">
+          Managed Identities come in two flavors: System-Assigned (tied to one Azure resource — deleted when resource deleted, 1:1) and User-Assigned (standalone identity shared across multiple resources, lifecycle independent). The resource uses the identity to get an access token from Entra ID via the Instance Metadata Service endpoint. That token is used to authenticate to Azure services (Key Vault, Blob, SQL, ACR, etc.). Works with: VMs, VMSS, AKS (Workload Identity), App Service, Functions, Container Apps, Logic Apps. For AKS pods: Workload Identity uses OIDC federation to give individual pods distinct identities.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Zero credentials to manage or rotate</li>
+              <li>Auto-rotated by Azure</li>
+              <li>Works with RBAC like normal identities</li>
+              <li>Free (no additional cost)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Only for Azure resources (not on-prem apps)</li>
+              <li>AKS Workload Identity is complex to configure</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Make this your default: every Azure resource authenticating to another Azure resource should use Managed Identity. If you find yourself creating a service principal with a password for Azure-to-Azure auth, stop — use Managed Identity instead.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🗝</div>
+        <div>
+          <div class="service-name">Azure Key Vault</div>
+          <div style="font-size:11px;color:var(--muted);">Centralized secrets, keys & certificates management</div>
+        </div>
+        <span class="service-tag">SECRETS MGMT</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Never store passwords, API keys, or connection strings in your code or environment variables. Put them all in Key Vault (a secure digital vault). Your app has a Managed Identity and permission to read from Key Vault. Key Vault delivers the secret at runtime. Nobody ever sees it in plain text.
+        </div>
+        <div class="deep-explain">
+          Key Vault stores three object types: Secrets (username/password, connection strings, API keys — text values), Keys (RSA/EC cryptographic keys for encryption — never leaves the vault, operations done in HSM), Certificates (SSL/TLS certs with auto-renewal from DigiCert/Let's Encrypt). Two tiers: Standard (software-protected) and Premium (HSM-protected keys). Access policies (legacy) or RBAC (modern) control who can read/write secrets. Access model: GET secret = read a secret value, SET secret = create/update. Soft-delete protects against accidental deletion (90-day recovery). Audit log of every access. Secrets versioned — you can roll back.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Centralizes all secrets management</li>
+              <li>Managed Identity authentication (no passwords)</li>
+              <li>Secret versioning and rotation</li>
+              <li>Full audit log of access</li>
+              <li>Certificate auto-renewal</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Adds latency (SDK call per secret)</li>
+              <li>Rate limits can be hit at scale</li>
+              <li>HSM Premium is expensive</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Key Vault references in App Service — secrets auto-sync. In AKS, use the CSI Secrets Store driver to mount secrets as files or env vars. Enable Private Endpoint for Key Vault in production. Rotate secrets on a schedule using Azure Automation or Event Grid.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📋</div>
+        <div>
+          <div class="service-name">Azure Policy</div>
+          <div style="font-size:11px;color:var(--muted);">Compliance guardrails for your Azure environment</div>
+        </div>
+        <span class="service-tag">COMPLIANCE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Azure Policy is a set of rules that FORCE compliance. "All storage accounts MUST use HTTPS only." "All VMs MUST be in approved regions." "All resources MUST have these tags." If someone tries to create a non-compliant resource, Azure Policy blocks it. Existing non-compliant resources are flagged and auto-remediated.
+        </div>
+        <div class="deep-explain">
+          Azure Policy works on three levels: Audit (log non-compliant resources), Deny (block non-compliant resource creation), DeployIfNotExists/Modify (auto-remediate by adding/changing properties). Policy Definitions → Initiatives (collections) → Assignments (applied at scope). Built-in initiatives: Azure Security Benchmark, CIS Controls, PCI DSS, HIPAA. Compliance dashboard shows overall compliance percentage. Remediation tasks run auto-fix for existing resources. Policy exemptions for resources that legitimately need to break rules. Integrate with Azure DevOps pipelines: run policy compliance checks before deploying.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Enforce standards at infrastructure level</li>
+              <li>Auto-remediation (no manual fix)</li>
+              <li>Compliance reporting built-in</li>
+              <li>Works across all subscriptions</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Overly strict policies block legitimate work</li>
+              <li>Remediation tasks can take hours</li>
+              <li>Complex policy authoring</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Assign policies at Management Group level for consistent enforcement. Start with Audit mode before switching to Deny — avoid blocking legitimate deployments. Use Initiatives for grouped compliance standards. Define all policies as code (Bicep/Terraform) and version control them.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🏰</div>
+        <div>
+          <div class="service-name">Azure Bastion</div>
+          <div style="font-size:11px;color:var(--muted);">Secure VM access without public IP or VPN</div>
+        </div>
+        <span class="service-tag">SECURE ACCESS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Your VM has no public IP. No one from the internet can even see it. But you (the admin) need to SSH in. Azure Bastion creates a secure tunnel from your browser through the Azure Portal directly to the VM — without exposing any ports to the internet. No VPN client needed.
+        </div>
+        <div class="deep-explain">
+          Azure Bastion is deployed in your VNet (in its own AzureBastionSubnet /26 or larger). It provides browser-based RDP/SSH to VMs in the same VNet or peered VNets — over HTTPS (port 443). Your VMs need NO public IP and NO NSG rule for port 22 or 3389. Bastion authenticates you via Entra ID. Session audit log shows who connected to which VM when. Standard tier adds IP-based connect (connect to VMs in peered VNets by IP). Developer/Shareable Link tiers available for specific use cases.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>No port 22/3389 exposure</li>
+              <li>No public IP needed on VMs</li>
+              <li>Browser-based (no client software)</li>
+              <li>Session audit logging</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>$140-200+/month minimum</li>
+              <li>One Bastion per VNet (use peering)</li>
+              <li>Some features require Standard tier</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Deploy one Bastion in the hub VNet (hub-spoke model) — it can access all spoke VNets via peering. This is much cheaper than one per VNet. Remove ALL NSG rules for port 22/3389 from VM subnets — if anyone questions it, it's intentional.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="devops-focus">
+    <div class="focus-title">👉 DevOps Security Focus — Zero-Trust Checklist</div>
+    <div class="focus-grid">
+      <div class="focus-item"><div class="focus-dot"></div>Managed Identities everywhere — zero stored credentials</div>
+      <div class="focus-item"><div class="focus-dot"></div>MFA enforced for ALL users, no exceptions</div>
+      <div class="focus-item"><div class="focus-dot"></div>Key Vault for every secret — never in code</div>
+      <div class="focus-item"><div class="focus-dot"></div>Least privilege RBAC — Contributor not Owner</div>
+      <div class="focus-item"><div class="focus-dot"></div>PIM for admin roles — just-in-time access</div>
+      <div class="focus-item"><div class="focus-dot"></div>Private Endpoints for all PaaS services</div>
+      <div class="focus-item"><div class="focus-dot"></div>Azure Bastion — no public IPs on VMs ever</div>
+      <div class="focus-item"><div class="focus-dot"></div>Azure Policy — enforce compliance automatically</div>
+      <div class="focus-item"><div class="focus-dot"></div>Defender for Cloud — enable for all subscriptions</div>
+      <div class="focus-item"><div class="focus-dot"></div>Secret rotation automated via Key Vault + Automation</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 9. ORCHESTRATION -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="orchestration">
+  <div class="section-header">
+    <div class="section-icon-big">⚙️</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 09 // AUTOMATION</div>
+      <h2 class="section-title">Orchestration & Automation</h2>
+      <p class="section-tagline">If you do it twice, automate it</p>
+    </div>
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🔗</div>
+        <div>
+          <div class="service-name">Azure Logic Apps</div>
+          <div style="font-size:11px;color:var(--muted);">Low-code workflow automation</div>
+        </div>
+        <span class="service-tag">LOW-CODE</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Logic Apps is IFTTT (If This Then That) on steroids for enterprise. "If someone emails HR with 'New Employee Request' → create user in Active Directory → send Slack message to IT → open Jira ticket → email the manager." All visually designed, no real coding needed.
+        </div>
+        <div class="deep-explain">
+          Logic Apps uses visual workflow designer. 400+ connectors: Office 365, Salesforce, ServiceNow, SAP, SQL, SharePoint, GitHub, Slack, and every Azure service. Triggers: HTTP, schedule, email, event, queue message. Actions: HTTP calls, data transforms, conditions, loops, parallel branches. Standard tier runs in dedicated compute (VNet integration, scale on demand). Consumption tier is serverless pay-per-execution. Stateful workflows persist state for long-running processes. Business Process Automation without code.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>400+ connectors out of the box</li>
+              <li>No code — visual designer</li>
+              <li>Handles complex integration scenarios</li>
+              <li>Built-in error handling and retry</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Cost can surprise at scale</li>
+              <li>Complex debugging</li>
+              <li>Limited developer control vs Azure Functions</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Logic Apps for cross-SaaS integrations (Jira + Slack + Azure). Use Azure Functions when you need custom code logic. Chain them: Logic Apps for orchestration, Functions for execution.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">🤖</div>
+        <div>
+          <div class="service-name">Azure Automation + Runbooks</div>
+          <div style="font-size:11px;color:var(--muted);">PowerShell/Python automation for Azure ops</div>
+        </div>
+        <span class="service-tag">OPS AUTOMATION</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Runbooks are scripts that run automatically on a schedule or trigger. "Every Friday at 5pm, shut down all dev VMs to save cost." "When Defender alerts fire, auto-quarantine the affected VM." You write the script once (PowerShell or Python), schedule it, and never think about it again.
+        </div>
+        <div class="deep-explain">
+          Azure Automation is a hybrid automation platform. Key features: Runbooks (PowerShell/Python scripts stored and versioned in Azure), Job Schedules (cron-like triggers), DSC (Desired State Configuration for VM config management), Update Management (patch VMs across Azure + on-prem), Change Tracking (detect config drift), Inventory (list software installed on VMs). Hybrid Runbook Workers extend automation to on-premises machines. System-assigned Managed Identity for Azure access. Start/stop VM schedules are the classic use case. Automation can call ARM/Bicep/Terraform.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Scheduled/triggered ops automation</li>
+              <li>Works on-premises via Hybrid Workers</li>
+              <li>Built-in Azure integration</li>
+              <li>Free tier (500 minutes/month)</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>PowerShell heavy (less modern)</li>
+              <li>Limited compared to full CI/CD pipelines</li>
+              <li>Debugging runbooks is painful</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Use Automation for: start/stop VMs on schedule, rotate secrets in Key Vault, apply patches, clean up old snapshots. These save significant cost and toil. Store runbooks in Git, import to Automation via pipeline.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 10. COST -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="cost">
+  <div class="section-header">
+    <div class="section-icon-big">💰</div>
+    <div class="section-title-block">
+      <div class="section-num">CHAPTER 10 // FINOPS</div>
+      <h2 class="section-title">Cost Management</h2>
+      <p class="section-tagline">Cloud is a credit card — know what you're spending and why</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Cloud costs are invisible until the bill arrives — then they're terrifying.</strong> FinOps is the practice of understanding and optimizing cloud spend. As a DevOps engineer, you own the infrastructure — you own the costs. Key principle: rightsizing and reservations can cut bills by 60-70%.
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">📊</div>
+        <div>
+          <div class="service-name">Azure Cost Management + Billing</div>
+          <div style="font-size:11px;color:var(--muted);">Visibility, analysis, and budgets for cloud spend</div>
+        </div>
+        <span class="service-tag">VISIBILITY</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Your Azure credit card statement — but interactive. See which services cost the most, which team is spending what, where costs are trending up. Set a budget of $5,000/month and get emailed when you hit 80% — before you're in trouble.
+        </div>
+        <div class="deep-explain">
+          Cost Analysis: slice costs by service, resource group, tag, subscription, location, or custom time range. Anomaly detection alerts when spending suddenly spikes. Budgets: set spending limits with email/action group alerts at 80%, 100%, 120% of budget. Cost allocation rules distribute shared costs. Export to CSV/Storage for deeper BI analysis in Power BI. Invoice and reservation management. Recommendations tab suggests cost savings (from Advisor). Multi-cloud cost management (AWS, GCP) in unified view.
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Free to use</li>
+              <li>Granular cost breakdown by tag/RG</li>
+              <li>Anomaly detection</li>
+              <li>Budget alerts prevent bill shock</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>48-72 hour data delay</li>
+              <li>Not real-time (not instant billing)</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Tag EVERYTHING: environment, team, project, cost-center. Cost Management is useless without tags — you can't see who/what is spending. Set budgets at subscription AND resource group level. Review weekly.</div>
+      </div>
+    </div>
+
+    <div class="service-card">
+      <div class="service-header">
+        <div class="service-icon">💡</div>
+        <div>
+          <div class="service-name">Reserved Instances + Savings Plans</div>
+          <div style="font-size:11px;color:var(--muted);">Pre-commit to save up to 72%</div>
+        </div>
+        <span class="service-tag">COST SAVINGS</span>
+      </div>
+      <div class="service-body">
+        <div class="layman-box">
+          <span class="layman-label">🗣 Layman Explanation</span>
+          Pay-as-you-go: rent a hotel room at full price any night. Reserved Instance: book the hotel for 1-3 years at checkout — 40-72% discount. If you know a VM will run 24/7 for a year, reserve it. You pay upfront or monthly — huge savings vs hourly billing.
+        </div>
+        <div class="deep-explain">
+          Reserved Instances: commit to a specific VM SKU (e.g., Standard_D4s_v3) in a specific region for 1 or 3 years. Discount: 40% (1-year) or 72% (3-year) vs pay-as-you-go. Apply to VMs, AKS nodes, SQL databases, Cosmos DB, App Service, Redis, etc. Savings Plans: more flexible — commit to a $/hour spend level regardless of VM SKU/region. Covers compute across any VM, AKS, Functions, App Service. Azure Advisor recommends reservations based on your usage history. Unused reservations can be exchanged or (for 1-year) refunded.
+        </div>
+        <div class="chips">
+          <span class="chip green">Up to 72% off</span>
+          <span class="chip azure">1 or 3 year terms</span>
+          <span class="chip orange">Use for stable workloads</span>
+        </div>
+        <div class="pro-con">
+          <div class="pros">
+            <div class="pros-title">✅ PROS</div>
+            <ul>
+              <li>Massive discounts (40-72%)</li>
+              <li>Savings Plans flexible across SKUs</li>
+              <li>Applies automatically to matching resources</li>
+            </ul>
+          </div>
+          <div class="cons">
+            <div class="cons-title">❌ CONS</div>
+            <ul>
+              <li>Upfront or committed spend</li>
+              <li>Wasted if workload is decommissioned</li>
+              <li>1-3 year lock-in</li>
+            </ul>
+          </div>
+        </div>
+        <div class="devops-tip">Check Azure Advisor for reservation recommendations — it shows your top spending VMs and projected savings. Reserve production VMs after 30 days of stable operation. Use Spot VMs for dev/test (up to 90% cheaper, but can be evicted).</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">💡 Top Cost Saving Tactics for DevOps Engineers</h3>
+  <table class="compare-table">
+    <tr>
+      <th>Tactic</th>
+      <th>Potential Saving</th>
+      <th>Effort</th>
+      <th>How</th>
+    </tr>
+    <tr>
+      <td style="color:#fff">Reserved Instances</td>
+      <td style="color:var(--pro)">40-72%</td>
+      <td>Low (1 click)</td>
+      <td>Commit to 1-3 year for stable VMs/DBs</td>
+    </tr>
+    <tr>
+      <td style="color:#fff">Spot VMs for dev/test</td>
+      <td style="color:var(--pro)">Up to 90%</td>
+      <td>Medium</td>
+      <td>Dev/test workloads on Spot — accept eviction</td>
+    </tr>
+    <tr>
+      <td style="color:#fff">Auto-shutdown dev VMs</td>
+      <td style="color:var(--pro)">60-70%</td>
+      <td>Low</td>
+      <td>Azure Automation shuts down VMs at 7pm weekdays</td>
+    </tr>
+    <tr>
+      <td style="color:#fff">Rightsize VMs</td>
+      <td style="color:var(--pro)">20-40%</td>
+      <td>Medium</td>
+      <td>Azure Advisor identifies oversized VMs</td>
+    </tr>
+    <tr>
+      <td style="color:#fff">Blob lifecycle policies</td>
+      <td style="color:var(--pro)">50-90% on storage</td>
+      <td>Low</td>
+      <td>Move old blobs from Hot → Cool → Archive</td>
+    </tr>
+    <tr>
+      <td style="color:#fff">Delete unused resources</td>
+      <td style="color:var(--pro)">Variable</td>
+      <td>Low</td>
+      <td>Public IPs, disks, empty resource groups cost money</td>
+    </tr>
+    <tr>
+      <td style="color:#fff">Scale-to-zero serverless</td>
+      <td style="color:var(--pro)">Variable</td>
+      <td>High (re-arch)</td>
+      <td>Move to Functions/Container Apps vs always-on VMs</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- ARCHITECTURE PATTERNS -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="architecture">
+  <div class="section-header">
+    <div class="section-icon-big">🏗</div>
+    <div class="section-title-block">
+      <div class="section-num">BONUS // PRO LEVEL</div>
+      <h2 class="section-title">Architecture Patterns</h2>
+      <p class="section-tagline">How the pieces fit together in real-world Azure</p>
+    </div>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;">🌐 Production AKS Architecture</h3>
+  <div class="arch-box">
+    <div class="arch-title">// Production-Grade AKS on Azure (Zero-Trust, HA, GitOps)</div>
+    <div class="arch-diagram">
+<span class="hl4">[ Developer pushes code to GitHub ]</span>
+         │
+         ▼
+<span class="hl">[ GitHub Actions Pipeline ]</span>
+   ├─ Run unit tests
+   ├─ docker build → push to <span class="hl2">ACR</span> (private)
+   ├─ Run trivy scan on image
+   ├─ Update Helm chart values (new image tag)
+   └─ ArgoCD detects change → deploys to AKS
+         │
+         ▼
+<span class="hl">[ Azure Front Door + WAF ]</span>       ← Global edge, DDoS, WAF
+   │  (anycast routing from 200 PoPs)
+   ▼
+<span class="hl">[ Application Gateway + WAF ]</span>    ← Regional L7, SSL termination
+   │  (AGIC manages routing from AKS Ingress objects)
+   ▼
+<span class="hl2">[ AKS Cluster ]</span>                  ← Private cluster (no public API server)
+   ├── <span class="hl">System Node Pool</span>            (kube-system components)
+   ├── <span class="hl">App Node Pool</span>               (your pods, autoscaling 2-20)
+   └── <span class="hl">GPU Node Pool</span>               (ML workloads, optional)
+         │
+         ├─ Pods authenticate to Azure via <span class="hl4">Workload Identity</span>
+         ├─ Secrets fetched from <span class="hl4">Key Vault</span> via CSI driver
+         ├─ Images pulled from <span class="hl2">ACR</span> via Managed Identity
+         └─ Logs → <span class="hl">Container Insights</span> → <span class="hl">Log Analytics</span>
+         │
+         ▼
+<span class="hl3">[ Data Layer ]</span>                   ← All private endpoints, no public access
+   ├── <span class="hl">Azure SQL</span> (Business Critical, failover group)
+   ├── <span class="hl">Cosmos DB</span> (multi-region, consistent reads)
+   ├── <span class="hl">Redis Cache</span> (Premium, VNet integrated)
+   └── <span class="hl">Service Bus</span> (Premium, decoupled messaging)
+    </div>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;margin-top:40px;">🔄 CI/CD Pipeline Flow (Azure DevOps)</h3>
+  <div class="arch-box">
+    <div class="arch-title">// Multi-Stage Pipeline YAML Concept</div>
+    <div class="arch-diagram">
+<span class="hl">YAML Pipeline Structure:</span>
+
+trigger: [main]
+
+stages:
+  - stage: <span class="hl2">Build</span>
+    jobs:
+      - job: BuildAndTest
+        steps:
+          - dotnet test         <span class="hl4">← Unit tests (fail = stop pipeline)</span>
+          - docker build
+          - docker push to ACR
+          - trivy scan image    <span class="hl4">← Security scan (fail = stop pipeline)</span>
+
+  - stage: <span class="hl2">DeployDev</span>
+    dependsOn: Build
+    environment: dev           <span class="hl4">← Auto-deploy, no approval needed</span>
+    jobs:
+      - job: Deploy
+        steps: helm upgrade myapp --set image.tag=$(tag)
+
+  - stage: <span class="hl2">DeployStaging</span>
+    dependsOn: DeployDev
+    environment: staging       <span class="hl4">← Approval: QA lead</span>
+    jobs:
+      - job: Deploy
+        steps: helm upgrade + run integration tests
+
+  - stage: <span class="hl2">DeployProduction</span>
+    dependsOn: DeployStaging
+    environment: production    <span class="hl4">← Approval: 2 of 3 team leads</span>
+    jobs:
+      - job: Deploy
+        strategy: canary       <span class="hl4">← 10% canary → monitor → 100%</span>
+        steps: helm upgrade + monitor 15 min + full rollout
+    </div>
+  </div>
+
+  <h3 style="font-family:'Syne',sans-serif;font-size:18px;color:#fff;margin-bottom:16px;margin-top:40px;">🔵 When to Choose: VM vs AKS vs Functions vs App Service</h3>
+  <table class="compare-table">
+    <tr>
+      <th>Scenario</th>
+      <th>Choose</th>
+      <th>Reasoning</th>
+    </tr>
+    <tr><td>Legacy .NET app that needs Windows + IIS</td><td style="color:#ffd700">VM or VMSS</td><td>Can't containerize — needs Windows OS-level features</td></tr>
+    <tr><td>20+ microservices, different teams, scale independently</td><td style="color:#00ff88">AKS</td><td>Full orchestration, namespace isolation, Helm releases</td></tr>
+    <tr><td>5 microservices, small team, no K8s expertise</td><td style="color:#00d4ff">Container Apps</td><td>K8s power without K8s complexity</td></tr>
+    <tr><td>REST API, simple web app, Django/Rails/Express</td><td style="color:#00d4ff">App Service</td><td>Easiest deployment, slots for blue/green, no container needed</td></tr>
+    <tr><td>Process file uploads, send emails, run cron jobs</td><td style="color:#ff6b35">Azure Functions</td><td>Event-driven, pay per execution, scale to zero</td></tr>
+    <tr><td>Run a one-off migration script or batch job</td><td style="color:#7a9bb5">ACI or Functions</td><td>Start, run, pay per second, done</td></tr>
+    <tr><td>Global real-time app with users worldwide</td><td style="color:#00ff88">AKS + Front Door + Cosmos DB</td><td>Multi-region, globally distributed, low-latency everywhere</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- TOP 20 -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="top20">
+  <div class="section-header">
+    <div class="section-icon-big">🎯</div>
+    <div class="section-title-block">
+      <div class="section-num">FINAL CHAPTER // JOB READY</div>
+      <h2 class="section-title">Top 20 Must-Master Services</h2>
+      <p class="section-tagline">Focus on these 20 → you're job-ready as an Azure DevOps Engineer</p>
+    </div>
+  </div>
+
+  <div class="section-intro">
+    <strong style="color:#fff">Limited time? Master these 20 services deeply.</strong> They appear in 95% of real Azure DevOps job interviews and production environments. Know not just what they are — know when to use them, how to configure them securely, and how to troubleshoot them.
+  </div>
+
+  <div class="top20-grid">
+    <div class="top20-card">
+      <div class="top20-num">01</div>
+      <div class="top20-info">
+        <div class="top20-name">🌐 Virtual Network (VNet)</div>
+        <div class="top20-why">Foundation of all networking — subnets, peering, isolation</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">02</div>
+      <div class="top20-info">
+        <div class="top20-name">🛡 Network Security Groups</div>
+        <div class="top20-why">L4 firewall rules — default-deny, allow only what's needed</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">03</div>
+      <div class="top20-info">
+        <div class="top20-name">⚖️ Azure Load Balancer</div>
+        <div class="top20-why">L4 TCP load distribution — HA with health probes</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">04</div>
+      <div class="top20-info">
+        <div class="top20-name">🚪 Application Gateway + WAF</div>
+        <div class="top20-why">L7 routing, SSL termination, WAF, AKS Ingress via AGIC</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">05</div>
+      <div class="top20-info">
+        <div class="top20-name">⎈ AKS</div>
+        <div class="top20-why">Managed Kubernetes — the #1 container platform for enterprises</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">06</div>
+      <div class="top20-info">
+        <div class="top20-name">📊 VM Scale Sets</div>
+        <div class="top20-why">Auto-scaling VM fleets — for non-containerized workloads</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">07</div>
+      <div class="top20-info">
+        <div class="top20-name">🔄 Azure DevOps Pipelines</div>
+        <div class="top20-why">YAML multi-stage CI/CD — approval gates, environments</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">08</div>
+      <div class="top20-info">
+        <div class="top20-name">📦 Azure Container Registry</div>
+        <div class="top20-why">Private image store — Managed Identity auth, vulnerability scan</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">09</div>
+      <div class="top20-info">
+        <div class="top20-name">🗝 Azure Key Vault</div>
+        <div class="top20-why">Central secrets management — never hardcode credentials</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">10</div>
+      <div class="top20-info">
+        <div class="top20-name">🪪 Microsoft Entra ID</div>
+        <div class="top20-why">Cloud identity — MFA, Managed Identities, RBAC foundation</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">11</div>
+      <div class="top20-info">
+        <div class="top20-name">📈 Azure Monitor</div>
+        <div class="top20-why">Metrics, alerts, autoscale rules — visibility into everything</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">12</div>
+      <div class="top20-info">
+        <div class="top20-name">🔍 Log Analytics</div>
+        <div class="top20-why">Central log store — KQL queries, alert rules, workbooks</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">13</div>
+      <div class="top20-info">
+        <div class="top20-name">🧩 Application Insights</div>
+        <div class="top20-why">APM — traces, requests, exceptions, availability tests</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">14</div>
+      <div class="top20-info">
+        <div class="top20-name">🪣 Blob Storage</div>
+        <div class="top20-why">Object store — Terraform state, artifacts, backups, CDN origin</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">15</div>
+      <div class="top20-info">
+        <div class="top20-name">🔷 Azure SQL Database</div>
+        <div class="top20-why">Managed relational DB — failover groups, PITR, elastic pools</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">16</div>
+      <div class="top20-info">
+        <div class="top20-name">🌐 Cosmos DB</div>
+        <div class="top20-why">Global NoSQL — multi-region writes, change feed, MongoDB API</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">17</div>
+      <div class="top20-info">
+        <div class="top20-name">🚌 Azure Service Bus</div>
+        <div class="top20-why">Enterprise messaging — DLQ, topics, ordered sessions, retry</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">18</div>
+      <div class="top20-info">
+        <div class="top20-name">🦾 Bicep</div>
+        <div class="top20-why">Azure-native IaC — modules, what-if, deploy in pipelines</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">19</div>
+      <div class="top20-info">
+        <div class="top20-name">🌍 Terraform</div>
+        <div class="top20-why">Multi-cloud IaC — state management, plan/apply, modules</div>
+      </div>
+    </div>
+    <div class="top20-card">
+      <div class="top20-num">20</div>
+      <div class="top20-info">
+        <div class="top20-name">📋 Azure Policy</div>
+        <div class="top20-why">Compliance enforcement — deny non-compliant, auto-remediate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- CHEAT SHEET -->
+<!-- ═══════════════════════════════════════ -->
+<section class="section" id="cheatsheet">
+  <div class="section-header">
+    <div class="section-icon-big">📋</div>
+    <div class="section-title-block">
+      <div class="section-num">APPENDIX // QUICK REFERENCE</div>
+      <h2 class="section-title">DevOps Cheat Sheet</h2>
+      <p class="section-tagline">The one-liners you'll use in interviews and production</p>
+    </div>
+  </div>
+
+  <div class="arch-box">
+    <div class="arch-title">// Azure DevOps Engineer Mental Model — Quick Fire Q&A</div>
+    <div class="arch-diagram">
+<span class="hl">Q: User wants to upload a video file. Where do you store it?</span>
+A: <span class="hl2">Azure Blob Storage</span> (Hot tier). Use SAS URL for time-limited access.
+
+<span class="hl">Q: App needs DB password. How do you provide it securely?</span>
+A: Store in <span class="hl2">Key Vault</span>. App uses <span class="hl2">Managed Identity</span> to read it at runtime. No env vars.
+
+<span class="hl">Q: AKS pods need to write to Azure Storage. How?</span>
+A: Assign <span class="hl2">User-Assigned Managed Identity</span> to pods via <span class="hl2">Workload Identity</span>. Give it Storage Blob Data Contributor role.
+
+<span class="hl">Q: How do you deploy to AKS with zero downtime?</span>
+A: Kubernetes Rolling Update strategy (default). Or use Argo Rollouts for Canary/Blue-Green.
+
+<span class="hl">Q: New developer joined. How do you give Azure access?</span>
+A: Add them to an <span class="hl2">Entra ID Group</span>. Assign the group a <span class="hl2">RBAC role</span> at resource group level. Enable MFA.
+
+<span class="hl">Q: How do you prevent developers from creating expensive resources?</span>
+A: <span class="hl2">Azure Policy</span> — Deny policy blocking specific VM SKUs or regions.
+
+<span class="hl">Q: Production database went down. How do you recover?</span>
+A: <span class="hl2">Auto-Failover Groups</span> handle it automatically (30-60 second failover). Connection string is unchanged.
+
+<span class="hl">Q: How do you handle 10x traffic spike suddenly?</span>
+A: <span class="hl2">AKS HPA</span> (Horizontal Pod Autoscaler) scales pods. <span class="hl2">Cluster Autoscaler</span> adds nodes. Or <span class="hl2">KEDA</span> for event-driven scale.
+
+<span class="hl">Q: How do you monitor if your app is down for users globally?</span>
+A: <span class="hl2">Application Insights Availability Tests</span> — ping from 5 global regions every minute.
+
+<span class="hl">Q: Your Terraform ran and created wrong resource. How to fix?</span>
+A: Fix the .tf file, run <span class="hl2">terraform plan</span> to verify, then <span class="hl2">terraform apply</span>. State tracks the delta.
+
+<span class="hl">Q: How do you expose SSH to one VM securely?</span>
+A: <span class="hl2">Azure Bastion</span>. No public IP on VM. No port 22 in NSG. Browser-based SSH via portal.
+
+<span class="hl">Q: 500 errors spiking. How do you find the root cause?</span>
+A: <span class="hl2">Application Insights</span> → Failures → Drill into exception traces → Find which dependency failed.
+
+<span class="hl">Q: What's the difference between Service Bus and Event Hub?</span>
+A: Service Bus = guaranteed delivery, ordering, DLQ (enterprise messaging).
+   Event Hub = high-volume streaming, Kafka-compatible, replay by time (telemetry/logs).
+
+<span class="hl">Q: What is zero-trust in Azure context?</span>
+A: Verify every identity (Entra ID + MFA), least-privilege access (RBAC), assume breach (private endpoints, encryption, audit logs).
+    </div>
+  </div>
+
+  <!-- Pro Level Mindset -->
+  <div style="margin-top:40px;background:linear-gradient(135deg,rgba(0,120,212,0.1),rgba(0,212,255,0.05));border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:40px;">
+    <h3 style="font-family:'Syne',sans-serif;font-size:24px;color:#fff;margin-bottom:24px;">🧠 What Makes You PRO Level?</h3>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="color:var(--electric);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Design Thinking</div>
+        <div style="font-size:13px;color:#b0c8e0;line-height:1.7;">You don't just know services — you design systems. You can draw a 3-tier secure architecture in 5 minutes and explain every decision.</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="color:var(--neon);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Everything as Code</div>
+        <div style="font-size:13px;color:#b0c8e0;line-height:1.7;">Infrastructure (Terraform/Bicep), pipelines (YAML), security policies (OPA/Azure Policy), monitoring dashboards (Workbooks) — all in Git.</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="color:var(--gold);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Cost Ownership</div>
+        <div style="font-size:13px;color:#b0c8e0;line-height:1.7;">You tag resources, review weekly costs, and proactively rightsizes before the CTO asks why the bill went up.</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="color:var(--warn);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Security First</div>
+        <div style="font-size:13px;color:#b0c8e0;line-height:1.7;">Security is designed in from day 1, not bolted on. You say "Managed Identity" before anyone suggests service principals.</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="color:var(--electric);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">HA + DR Design</div>
+        <div style="font-size:13px;color:#b0c8e0;line-height:1.7;">You design for failure. Availability Zones, failover groups, multi-region — you've tested failover and know the RTO/RPO numbers.</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+        <div style="color:var(--neon);font-family:'Syne',sans-serif;font-weight:700;margin-bottom:8px;">Observability Expert</div>
+        <div style="font-size:13px;color:#b0c8e0;line-height:1.7;">You write KQL. You know which log table holds which data. You set up alerts that fire before users notice anything is wrong.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:60px 0 20px;">
+    <div style="font-family:'Fraunces',serif;font-style:italic;font-size:28px;color:var(--muted);margin-bottom:16px;">"Infrastructure is not a cost center. It's the backbone of everything your users experience."</div>
+    <div style="font-size:12px;color:var(--border);letter-spacing:2px;">AZURE DEVOPS MASTER GUIDE — END</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+    document.getElementById('progress').style.width = scrolled + '%';
+  });
+
+  // Active nav highlight
+  const sections = document.querySelectorAll('section[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(section => {
+      if (window.scrollY >= section.offsetTop - 200) {
+        current = section.getAttribute('id');
+      }
+    });
+    navItems.forEach(item => {
+      item.classList.remove('active');
+      if (item.getAttribute('href') === '#' + current) {
+        item.classList.add('active');
+      }
+    });
+  });
+</script>
+</body>
+</html>

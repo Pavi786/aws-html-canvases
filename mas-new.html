@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Networking Mastery Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom scrollbar for technical feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        /* Chart container constraint classes */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            height: 300px;
+            max-height: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Terminal typing effect cursor */
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Active navigation state */
+        .nav-item.active {
+            background-color: #e0f2fe; /* sky-100 */
+            border-right: 4px solid #0284c7; /* sky-600 */
+            font-weight: 600;
+            color: #0f172a;
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals & Technical Blue -->
+    <!-- Application Structure Plan: Dashboard Layout with Sidebar Navigation. 
+         - Left Sidebar: Navigation for 11 Operational Domains + "Study Path".
+         - Top Header: Global Search and Proficiency Level Filter.
+         - Main Content: Dynamic View (Dashboard Overview vs. Specific Domain Detail).
+         - Right Panel (Desktop) / Bottom (Mobile): "Interactive Terminal" context pane that explains selected commands.
+         - Rationale: Networking is vast. The 'Terminal' mimicry bridges the gap between reading and doing.
+    -->
+    <!-- Visualization & Content Choices:
+         - Progress Doughnut Chart (Chart.js): Motivation tool.
+         - Domain Complexity Bar Chart (Chart.js): Visual overview of guide density.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="bg-stone-50 text-slate-800 font-sans h-screen flex flex-col overflow-hidden">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-stone-200 shadow-sm z-10 flex-none h-16 flex items-center justify-between px-4 lg:px-8">
+        <div class="flex items-center gap-3">
+            <div class="h-8 w-8 bg-sky-600 rounded flex items-center justify-center text-white font-bold text-lg">N</div>
+            <h1 class="text-xl font-bold text-slate-800 hidden md:block">DevOps Networking Mastery</h1>
+            <h1 class="text-xl font-bold text-slate-800 md:hidden">NetMastery</h1>
+        </div>
+        
+        <div class="flex items-center gap-4 flex-1 justify-end max-w-2xl">
+            <!-- Search Bar -->
+            <div class="relative w-full max-w-md hidden sm:block">
+                <input type="text" id="searchInput" placeholder="Search commands (e.g., ip route, tcpdump)..." 
+                    class="w-full bg-stone-100 border border-stone-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5 pl-4 transition-all"
+                >
+            </div>
+            
+            <!-- Level Filter Dropdown -->
+            <select id="levelFilter" class="bg-stone-50 border border-stone-300 text-slate-700 text-sm rounded-lg focus:ring-sky-500 focus:border-sky-500 block p-2.5">
+                <option value="all">All Levels</option>
+                <option value="1">L1: The Observer</option>
+                <option value="2">L2: The Surgeon</option>
+                <option value="3">L3: The Builder</option>
+                <option value="4">L4: The Tuner</option>
+                <option value="5">L5: The Ghost</option>
+            </select>
+        </div>
+    </header>
+
+    <!-- Main Layout -->
+    <div class="flex flex-1 overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-white border-r border-stone-200 flex-col hidden lg:flex overflow-y-auto" id="sidebar">
+            <div class="p-4">
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Navigation</h3>
+                <nav class="space-y-1" id="navContainer">
+                    <!-- Nav items injected by JS -->
+                </nav>
+            </div>
+            
+            <div class="mt-auto p-4 bg-stone-50 border-t border-stone-200">
+                <h4 class="text-sm font-semibold text-slate-700 mb-2">Mastery Progress</h4>
+                <div class="w-full bg-stone-200 rounded-full h-2.5 mb-2">
+                    <div id="sidebarProgressBar" class="bg-sky-600 h-2.5 rounded-full" style="width: 0%"></div>
+                </div>
+                <p class="text-xs text-slate-500 flex justify-between">
+                    <span id="progressText">0% Mastered</span>
+                </p>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Mobile Nav Toggle (Visible only on small screens) -->
+            <div class="lg:hidden p-2 bg-stone-100 border-b border-stone-200 flex overflow-x-auto whitespace-nowrap gap-2" id="mobileNav">
+                <!-- Mobile pills injected by JS -->
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-4 lg:p-8 scroll-smooth" id="mainContent">
+                <!-- Dynamic Content Injected Here -->
+            </div>
+        </main>
+
+        <!-- Right Panel: Interactive Context (Terminal) -->
+        <aside class="w-80 bg-slate-900 border-l border-slate-700 flex-none hidden xl:flex flex-col text-slate-300">
+            <div class="p-4 bg-slate-800 border-b border-slate-700 flex justify-between items-center">
+                <h3 class="font-mono text-sm font-bold text-sky-400">root@devops-box:~#</h3>
+                <span class="text-xs px-2 py-1 bg-slate-700 rounded text-slate-400">Context</span>
+            </div>
+            <div class="flex-1 p-4 font-mono text-sm overflow-y-auto" id="terminalOutput">
+                <div class="mb-4 text-slate-500">
+                    // Select a command from the main list to see details, usage examples, and flag explanations here.
+                </div>
+                <div class="text-emerald-500">
+                    $ <span class="cursor-blink">_</span>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // --- Data Source ---
+        const appData = {
+            domains: [
+                {
+                    id: "dashboard",
+                    title: "Dashboard & Overview",
+                    icon: "📊",
+                    description: "Your central hub for tracking networking mastery progress and understanding the learning path.",
+                    content: "overview" 
+                },
+                {
+                    id: "interface",
+                    title: "1. Interface & IP Management",
+                    icon: "🏗️",
+                    level: 1,
+                    description: "The L2/L3 Foundation. Managing physical and virtual interfaces, IP assignment, and link status.",
+                    commands: [
+                        { cmd: "ip addr", desc: "View all IP addresses assigned to all interfaces.", level: 1, detailed: "Lists all network interfaces and their associated IP addresses (IPv4 & IPv6), along with scope and state." },
+                        { cmd: "ip link show", desc: "Show Layer 2 status (MAC address, MTU, State).", level: 1, detailed: "Displays the device attributes: MAC address, MTU size, and operational state (UP/DOWN)." },
+                        { cmd: "ip -brief addr", desc: "Concise summary of IPs and status.", level: 1, detailed: "A simplified table view of interfaces, their status (UP/DOWN), and assigned IP addresses." },
+                        { cmd: "ip addr add 192.168.1.50/24 dev eth0", desc: "Assign a specific IP to an interface.", level: 3, detailed: "Adds the IP 192.168.1.50 with subnet mask /24 to interface eth0. Not persistent after reboot." },
+                        { cmd: "ip link set eth0 up", desc: "Enable a network interface.", level: 1, detailed: "Brings the interface 'eth0' administratively UP." },
+                        { cmd: "ip link set eth0 promisc on", desc: "Enable Promiscuous mode (Sniffing).", level: 2, detailed: "Allows the NIC to accept all traffic passing through the wire, not just packets addressed to it. Essential for tcpdump." },
+                        { cmd: "ethtool eth0", desc: "Query hardware settings.", level: 4, detailed: "Shows supported speeds, link modes, auto-negotiation status, and current link detection." },
+                        { cmd: "ip neigh", desc: "Show ARP table (Neighbor table).", level: 1, detailed: "Displays the mapping between IP addresses and MAC addresses (Layer 3 to Layer 2 resolution)." }
+                    ]
+                },
+                {
+                    id: "routing",
+                    title: "2. Routing & Traffic Flow",
+                    icon: "🛣️",
+                    level: 3,
+                    description: "The L3/L4 Logic. Controlling how packets traverse networks using routing tables and policies.",
+                    commands: [
+                        { cmd: "ip route", desc: "View the main routing table.", level: 1, detailed: "Shows the kernel's current routing table. Look for 'default' to find your gateway." },
+                        { cmd: "ip route get 8.8.8.8", desc: "Predict which route a packet will take.", level: 3, detailed: "Simulates a routing decision for destination 8.8.8.8. Tells you which interface and source IP will be used." },
+                        { cmd: "ip route add default via 192.168.1.1", desc: "Set the Default Gateway.", level: 3, detailed: "Tells the system to send all traffic not matching other specific routes to 192.168.1.1." },
+                        { cmd: "ip rule list", desc: "View Policy Based Routing rules.", level: 4, detailed: "Lists the priority rules that determine which routing table is consulted. Used for complex multi-homed setups." }
+                    ]
+                },
+                {
+                    id: "diagnostics",
+                    title: "3. Diagnostics & Connectivity",
+                    icon: "🔎",
+                    level: 1,
+                    description: "The Troubleshooting Core. Tools to test reachability, path, and port status.",
+                    commands: [
+                        { cmd: "ping -c 4 google.com", desc: "Send 4 ICMP Echo Requests.", level: 1, detailed: "Basic connectivity test. Checks if the host is reachable and measures round-trip time (RTT)." },
+                        { cmd: "traceroute -n google.com", desc: "Trace path without DNS resolution.", level: 1, detailed: "Shows every router (hop) between you and the destination. '-n' speeds it up by skipping reverse DNS lookups." },
+                        { cmd: "ss -tulnp", desc: "Modern netstat: Show listening ports.", level: 1, detailed: "Lists all TCP (t) and UDP (u) Listening (l) sockets numerically (n) with the Process ID (p). Vital for finding what's running." },
+                        { cmd: "lsof -i :80", desc: "Find process using port 80.", level: 2, detailed: "Lists Open Files (lsof) for internet addresses (-i) on port 80. Great for 'Address already in use' errors." },
+                        { cmd: "mtr -rw google.com", desc: "Combined Ping/Traceroute report.", level: 2, detailed: "My Traceroute (mtr) in report mode (-r) wide output (-w). Shows real-time packet loss per hop." }
+                    ]
+                },
+                {
+                    id: "tools",
+                    title: "4. The Swiss Army Knives",
+                    icon: "🔌",
+                    level: 2,
+                    description: "Netcat, Curl, Socat. Versatile tools for testing data transfer and application protocols.",
+                    commands: [
+                        { cmd: "nc -zv 192.168.1.1 22", desc: "Simple port scan.", level: 2, detailed: "Netcat zero-I/O (scan) mode (-z) with verbose output (-v). Checks if port 22 is open." },
+                        { cmd: "nc -l 1234", desc: "Start listening on port 1234.", level: 2, detailed: "Opens a TCP listener on port 1234. Useful for testing firewall rules or receiving files." },
+                        { cmd: "curl -v https://google.com", desc: "Verbose HTTP request.", level: 2, detailed: "Shows the full TLS handshake, request headers, and response headers. Essential for debugging API/Web issues." },
+                        { cmd: "socat TCP4-LISTEN:80,fork ...", desc: "Port forwarder/relay.", level: 4, detailed: "Advanced relay tool. Can forward a local port to a remote server or bridge two different protocols." }
+                    ]
+                },
+                {
+                    id: "capture",
+                    title: "5. Packet Capture",
+                    icon: "📈",
+                    level: 2,
+                    description: "Deep Inspection. Analyzing the actual bits on the wire using Tcpdump and Tshark.",
+                    commands: [
+                        { cmd: "tcpdump -i any", desc: "Capture on all interfaces.", level: 2, detailed: "Dumps headers of packets from all network interfaces. Very noisy, use filters!" },
+                        { cmd: "tcpdump 'tcp[tcpflags] & (tcp-syn|tcp-ack) == (tcp-syn|tcp-ack)'", desc: "Find SYN-ACKs using filters.", level: 3, detailed: "Advanced bitwise filtering to find the second part of the TCP three-way handshake." },
+                        { cmd: "tcpdump -nS", desc: "No DNS, Absolute Sequence Numbers.", level: 3, detailed: "Disables name resolution for speed (-n) and shows actual TCP sequence numbers (-S) instead of relative offsets." },
+                        { cmd: "tcpdump -w capture.pcap", desc: "Write to .pcap file.", level: 2, detailed: "Saves raw packet data to a file for analysis in Wireshark later." },
+                        { cmd: "tcpdump -A -i eth0", desc: "Show ASCII payload.", level: 3, detailed: "Prints packet content in ASCII. Useful for seeing cleartext HTTP headers or passwords." }
+                    ]
+                },
+                {
+                    id: "firewalls",
+                    title: "6. Firewalls & Security",
+                    icon: "🧱",
+                    level: 3,
+                    description: "Iptables & Nftables. Filtering traffic, NAT, and securing the host.",
+                    commands: [
+                        { cmd: "iptables -L -v -n", desc: "List rules with packet counts.", level: 3, detailed: "Lists all current chains and rules. -v shows packet counters, -n shows IPs instead of names." },
+                        { cmd: "iptables -P INPUT DROP", desc: "Set default policy to DROP.", level: 3, detailed: "Security best practice: Drop everything by default, then allow specific traffic." },
+                        { cmd: "nft list ruleset", desc: "View nftables rules.", level: 3, detailed: "Shows the modern nftables configuration (replacing iptables)." }
+                    ]
+                },
+                {
+                    id: "infra",
+                    title: "7. Infrastructure (Bridges/NS)",
+                    icon: "🏗️",
+                    level: 3,
+                    description: "Container Tech. Network Namespaces, Bridges, and Veth pairs.",
+                    commands: [
+                        { cmd: "ip netns add blue", desc: "Create a network namespace.", level: 3, detailed: "Creates an isolated network stack named 'blue'. Basis for Docker containers." },
+                        { cmd: "brctl show", desc: "List bridges.", level: 3, detailed: "Shows Linux bridges. Used for connecting virtual machines or containers to the physical network." }
+                    ]
+                },
+                {
+                    id: "dns",
+                    title: "8. DNS & Name Resolution",
+                    icon: "🌍",
+                    level: 1,
+                    description: "Dig & Nslookup. Troubleshooting domain name resolution.",
+                    commands: [
+                        { cmd: "dig example.com", desc: "Standard DNS query.", level: 1, detailed: "Queries the configured DNS server for the A record of example.com." },
+                        { cmd: "dig +short example.com", desc: "Just the IP.", level: 1, detailed: "Returns only the IP address, no metadata. Good for scripts." },
+                        { cmd: "dig @8.8.8.8 example.com", desc: "Query specific server.", level: 2, detailed: "Bypasses system DNS and asks Google's DNS (8.8.8.8) directly." }
+                    ]
+                },
+                {
+                    id: "tuning",
+                    title: "9. Performance Tuning",
+                    icon: "🏎️",
+                    level: 4,
+                    description: "Sysctl. Optimizing kernel parameters for high throughput or low latency.",
+                    commands: [
+                        { cmd: "sysctl net.ipv4.ip_forward=1", desc: "Enable IP routing.", level: 4, detailed: "Allows the Linux box to act as a router (forward packets between interfaces)." },
+                        { cmd: "sysctl -p", desc: "Reload changes.", level: 4, detailed: "Reloads settings from /etc/sysctl.conf without rebooting." }
+                    ]
+                },
+                {
+                    id: "monitoring",
+                    title: "10. Monitoring & Bandwidth",
+                    icon: "📊",
+                    level: 1,
+                    description: "Iftop, Nload. Visualization of throughput and active flows.",
+                    commands: [
+                        { cmd: "iftop -i eth0", desc: "Real-time 'top' for network.", level: 1, detailed: "Shows bandwidth usage broken down by connection pairs." },
+                        { cmd: "speedtest-cli", desc: "Check internet speed.", level: 1, detailed: "Runs a download/upload test against a nearby server." }
+                    ]
+                },
+                {
+                    id: "advanced",
+                    title: "11. Advanced BPF & Tracing",
+                    icon: "⚡",
+                    level: 5,
+                    description: "The 'Pro' Level. Kernel tracing, Traffic Control, and eBPF.",
+                    commands: [
+                        { cmd: "tc qdisc add ... netem delay 100ms", desc: "Simulate latency.", level: 5, detailed: "Adds 100ms artificial delay to outgoing packets. Crucial for testing app resilience." },
+                        { cmd: "bpftrace -e ...", desc: "Trace TCP connections in kernel.", level: 5, detailed: "Uses eBPF to hook into kernel functions (kprobes) and print data without recompiling the kernel." }
+                    ]
+                }
+            ]
+        };
+
+        // --- State Management ---
+        let state = {
+            currentDomain: "dashboard",
+            masteredCommands: new Set(),
+            searchQuery: "",
+            levelFilter: "all"
+        };
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderNav();
+            renderContent();
+            setupEventListeners();
+            loadState();
+        });
+
+        // --- Rendering Logic ---
+
+        function renderNav() {
+            const navContainer = document.getElementById('navContainer');
+            const mobileNav = document.getElementById('mobileNav');
+            
+            navContainer.innerHTML = '';
+            mobileNav.innerHTML = '';
+
+            appData.domains.forEach(domain => {
+                const btn = document.createElement('button');
+                btn.className = `nav-item w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${state.currentDomain === domain.id ? 'active' : 'text-slate-600 hover:bg-stone-100'}`;
+                btn.innerHTML = `<span>${domain.icon}</span> <span class="truncate">${domain.title}</span>`;
+                btn.onclick = () => switchDomain(domain.id);
+                navContainer.appendChild(btn);
+
+                const pill = document.createElement('button');
+                pill.className = `flex-none px-4 py-1.5 rounded-full text-sm border ${state.currentDomain === domain.id ? 'bg-sky-600 text-white border-sky-600' : 'bg-white text-slate-600 border-stone-200'}`;
+                pill.innerText = `${domain.icon} ${domain.id === 'dashboard' ? 'Dash' : domain.id}`;
+                pill.onclick = () => switchDomain(domain.id);
+                mobileNav.appendChild(pill);
+            });
+        }
+
+        function switchDomain(domainId) {
+            state.currentDomain = domainId;
+            renderNav();
+            renderContent();
+            window.scrollTo(0,0);
+        }
+
+        function renderContent() {
+            const container = document.getElementById('mainContent');
+            const domain = appData.domains.find(d => d.id === state.currentDomain);
+            
+            if (!domain) return;
+
+            container.innerHTML = '';
+
+            const header = document.createElement('div');
+            header.className = "mb-8";
+            header.innerHTML = `
+                <div class="flex items-center gap-3 mb-2">
+                    <span class="text-3xl">${domain.icon}</span>
+                    <h2 class="text-2xl font-bold text-slate-800">${domain.title}</h2>
+                </div>
+                <p class="text-slate-600 max-w-3xl">${domain.description}</p>
+            `;
+            container.appendChild(header);
+
+            if (state.currentDomain === 'dashboard') {
+                renderDashboard(container);
+            } else {
+                renderDomainCommands(container, domain);
+            }
+        }
+
+        function renderDashboard(container) {
+            const grid = document.createElement('div');
+            grid.className = "grid grid-cols-1 md:grid-cols-2 gap-6";
+
+            const progressCard = document.createElement('div');
+            progressCard.className = "bg-white p-6 rounded-xl border border-stone-200 shadow-sm";
+            progressCard.innerHTML = `
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Mastery Progress</h3>
+                <div class="chart-container">
+                    <canvas id="progressChart"></canvas>
+                </div>
+                <p class="text-sm text-slate-500 mt-4 text-center">Track your journey from Observer to Ghost.</p>
+            `;
+            grid.appendChild(progressCard);
+
+            const distCard = document.createElement('div');
+            distCard.className = "bg-white p-6 rounded-xl border border-stone-200 shadow-sm";
+            distCard.innerHTML = `
+                <h3 class="text-lg font-bold text-slate-800 mb-4">Command Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="distChart"></canvas>
+                </div>
+                <p class="text-sm text-slate-500 mt-4 text-center">Volume of tools per operational domain.</p>
+            `;
+            grid.appendChild(distCard);
+
+            const pathCard = document.createElement('div');
+            pathCard.className = "bg-white p-6 rounded-xl border border-stone-200 shadow-sm md:col-span-2";
+            pathCard.innerHTML = `
+                <h3 class="text-lg font-bold text-slate-800 mb-4">The "Pro Way" Study Path</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                    ${[
+                        {lvl: 1, title: "Observer", tools: "ip, ss, ping", color: "bg-blue-100 text-blue-800"},
+                        {lvl: 2, title: "Surgeon", tools: "tcpdump, curl", color: "bg-green-100 text-green-800"},
+                        {lvl: 3, title: "Builder", tools: "bridge, netns", color: "bg-yellow-100 text-yellow-800"},
+                        {lvl: 4, title: "Tuner", tools: "sysctl, tc", color: "bg-orange-100 text-orange-800"},
+                        {lvl: 5, title: "Ghost", tools: "eBPF, trace", color: "bg-purple-100 text-purple-800"}
+                    ].map(step => `
+                        <div class="p-4 rounded-lg ${step.color} flex flex-col items-center text-center">
+                            <span class="text-xs font-bold uppercase mb-1">Level ${step.lvl}</span>
+                            <span class="font-bold mb-2">${step.title}</span>
+                            <span class="text-xs opacity-75">${step.tools}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            grid.appendChild(pathCard);
+
+            container.appendChild(grid);
+            setTimeout(initCharts, 0);
+        }
+
+        function renderDomainCommands(container, domain) {
+            const list = document.createElement('div');
+            list.className = "space-y-4";
+
+            const filteredCommands = domain.commands.filter(cmd => {
+                const matchesSearch = cmd.cmd.toLowerCase().includes(state.searchQuery.toLowerCase()) || 
+                                      cmd.desc.toLowerCase().includes(state.searchQuery.toLowerCase());
+                const matchesLevel = state.levelFilter === "all" || cmd.level.toString() === state.levelFilter;
+                return matchesSearch && matchesLevel;
+            });
+
+            if (filteredCommands.length === 0) {
+                list.innerHTML = `<div class="p-8 text-center text-slate-500 bg-white rounded-lg border border-dashed border-stone-300">No commands found matching filters.</div>`;
+            } else {
+                filteredCommands.forEach((cmd) => {
+                    const isMastered = state.masteredCommands.has(cmd.cmd);
+                    const item = document.createElement('div');
+                    item.className = "bg-white rounded-lg border border-stone-200 shadow-sm hover:shadow-md transition-shadow p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center";
+                    
+                    // Create components manually to avoid onclick attribute escaping issues
+                    const masteryBtn = document.createElement('button');
+                    masteryBtn.className = `w-6 h-6 rounded border flex-none ${isMastered ? 'bg-green-500 border-green-500 text-white' : 'border-stone-300 text-transparent hover:border-sky-500'} flex items-center justify-center transition-colors`;
+                    masteryBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                    masteryBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        toggleMastery(cmd.cmd);
+                    };
+
+                    const content = document.createElement('div');
+                    content.className = "flex-1 min-w-0 cursor-pointer group";
+                    content.innerHTML = `
+                        <div class="flex items-center gap-2 mb-1">
+                            <code class="font-mono text-sky-700 font-bold text-lg group-hover:underline truncate">${cmd.cmd.split(' ')[0]} <span class="text-sky-500 font-normal text-base">${cmd.cmd.split(' ').slice(1).join(' ')}</span></code>
+                            <span class="px-2 py-0.5 rounded text-xs font-semibold bg-stone-100 text-stone-500">L${cmd.level}</span>
+                        </div>
+                        <p class="text-slate-600 text-sm">${cmd.desc}</p>
+                    `;
+                    content.onclick = () => showTerminalDetail(cmd.cmd, cmd.detailed);
+
+                    const explainDiv = document.createElement('div');
+                    explainDiv.className = "hidden sm:block";
+                    const explainBtn = document.createElement('button');
+                    explainBtn.className = "text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1 rounded transition-colors";
+                    explainBtn.innerText = "Explain";
+                    explainBtn.onclick = () => showTerminalDetail(cmd.cmd, cmd.detailed);
+                    explainDiv.appendChild(explainBtn);
+
+                    item.appendChild(masteryBtn);
+                    item.appendChild(content);
+                    item.appendChild(explainDiv);
+                    list.appendChild(item);
+                });
+            }
+
+            container.appendChild(list);
+        }
+
+        // --- Interactive Logic ---
+
+        function toggleMastery(cmdId) {
+            if (state.masteredCommands.has(cmdId)) {
+                state.masteredCommands.delete(cmdId);
+            } else {
+                state.masteredCommands.add(cmdId);
+            }
+            renderContent();
+            renderNav();
+            saveState();
+        }
+
+        function showTerminalDetail(cmd, detail) {
+            const terminal = document.getElementById('terminalOutput');
+            const now = new Date().toLocaleTimeString('en-US', {hour12: false});
+            
+            terminal.innerHTML = ''; // Clear
+
+            const header = document.createElement('div');
+            header.className = "mb-4 text-slate-400 border-b border-slate-700 pb-2";
+            header.innerHTML = `<span class="text-sky-500">root@devops-box</span>:<span class="text-blue-400">~</span># `;
+            const cmdText = document.createElement('span');
+            cmdText.textContent = cmd; // Use textContent for safety
+            header.appendChild(cmdText);
+
+            const analysis = document.createElement('div');
+            analysis.className = "mb-4 text-slate-300 font-sans text-sm leading-relaxed";
+            analysis.innerHTML = `<strong class="text-emerald-400">ANALYSIS:</strong><br>${detail}`;
+
+            const ts = document.createElement('div');
+            ts.className = "mb-2 text-slate-500 text-xs";
+            ts.textContent = `[${now}] Command simulation context loaded.`;
+
+            const cursor = document.createElement('div');
+            cursor.className = "text-emerald-500 mt-4";
+            cursor.innerHTML = `$ <span class="cursor-blink">_</span>`;
+
+            terminal.appendChild(header);
+            terminal.appendChild(analysis);
+            terminal.appendChild(ts);
+            terminal.appendChild(cursor);
+        }
+
+        function setupEventListeners() {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                state.searchQuery = e.target.value;
+                if(state.currentDomain === 'dashboard') switchDomain('interface');
+                else renderContent();
+            });
+
+            document.getElementById('levelFilter').addEventListener('change', (e) => {
+                state.levelFilter = e.target.value;
+                if(state.currentDomain === 'dashboard') switchDomain('interface');
+                else renderContent();
+            });
+        }
+
+        function initCharts() {
+            const totalCommands = appData.domains.reduce((acc, d) => acc + (d.commands ? d.commands.length : 0), 0);
+            const masteredCount = state.masteredCommands.size;
+            
+            const percent = Math.round((masteredCount / totalCommands) * 100) || 0;
+            const pb = document.getElementById('sidebarProgressBar');
+            if(pb) pb.style.width = `${percent}%`;
+            const pt = document.getElementById('progressText');
+            if(pt) pt.innerText = `${percent}% Mastered (${masteredCount}/${totalCommands})`;
+
+            const ctx1 = document.getElementById('progressChart');
+            if (ctx1) {
+                new Chart(ctx1, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Mastered', 'Remaining'],
+                        datasets: [{
+                            data: [masteredCount, totalCommands - masteredCount],
+                            backgroundColor: ['#0284c7', '#e2e8f0'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+            }
+
+            const ctx2 = document.getElementById('distChart');
+            if (ctx2) {
+                const filteredDomains = appData.domains.filter(d => d.commands);
+                const labels = filteredDomains.map(d => d.title.split('.')[0].trim().slice(0, 10));
+                const data = filteredDomains.map(d => d.commands.length);
+                
+                new Chart(ctx2, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Commands',
+                            data: data,
+                            backgroundColor: '#0ea5e9',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, grid: { display: false } },
+                            x: { grid: { display: false } }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+        function saveState() {
+            localStorage.setItem('netMastery_mastered', JSON.stringify([...state.masteredCommands]));
+        }
+
+        function loadState() {
+            const saved = localStorage.getItem('netMastery_mastered');
+            if (saved) {
+                state.masteredCommands = new Set(JSON.parse(saved));
+            }
+            renderNav();
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cloud Architecture for Deep Learning & ML — AWS vs Azure</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=IBM+Plex+Mono:wght@300;400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --aws: #FF9900;
+    --aws-dark: #c47500;
+    --azure: #0078D4;
+    --azure-dark: #005a9e;
+    --bg: #0a0c10;
+    --bg2: #0f1218;
+    --bg3: #161b25;
+    --card: #12161f;
+    --border: #1e2535;
+    --text: #e2e8f0;
+    --muted: #8892a4;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --glow-aws: 0 0 20px rgba(255,153,0,0.3);
+    --glow-azure: 0 0 20px rgba(0,120,212,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: linear-gradient(90deg, var(--aws), var(--azure));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .nav-links {
+    display: flex; gap: 0.5rem; list-style: none; overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links a {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-links a:hover { color: var(--text); border-color: var(--border); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 50%, rgba(255,153,0,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 50% at 80% 50%, rgba(0,120,212,0.06) 0%, transparent 60%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.015) 40px);
+  }
+  .hero-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .hero h1 span.aws { color: var(--aws); }
+  .hero h1 span.azure { color: var(--azure); }
+  .hero-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+  .hero-pills {
+    display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .pill {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+  .pill-aws { background: rgba(255,153,0,0.12); border: 1px solid rgba(255,153,0,0.35); color: var(--aws); }
+  .pill-azure { background: rgba(0,120,212,0.12); border: 1px solid rgba(0,120,212,0.35); color: var(--azure); }
+  .pill-neutral { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: var(--muted); }
+
+  /* SECTIONS */
+  section {
+    padding: 5rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    scroll-margin-top: 56px;
+  }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(1.4rem, 3vw, 2.2rem);
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+  }
+  .section-desc {
+    color: var(--muted);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    max-width: 700px;
+    margin-bottom: 3rem;
+  }
+
+  /* COMPARISON GRID */
+  .compare-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 768px) { .compare-grid { grid-template-columns: 1fr; } }
+
+  .compare-card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 2rem;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .compare-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .compare-card.aws::before { background: linear-gradient(90deg, var(--aws), transparent); }
+  .compare-card.azure::before { background: linear-gradient(90deg, var(--azure), transparent); }
+  .compare-card:hover { transform: translateY(-3px); }
+  .compare-card.aws:hover { box-shadow: var(--glow-aws); }
+  .compare-card.azure:hover { box-shadow: var(--glow-azure); }
+
+  .card-header {
+    display: flex; align-items: center; gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-badge {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 4px;
+    letter-spacing: 0.1em;
+  }
+  .badge-aws { background: rgba(255,153,0,0.15); color: var(--aws); }
+  .badge-azure { background: rgba(0,120,212,0.15); color: var(--azure); }
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .card-subtitle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .card-explain {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: #b0bcd0;
+    margin-bottom: 1.25rem;
+  }
+
+  /* PROS/CONS */
+  .pros-cons {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .pros, .cons {
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .pros { background: rgba(34,197,94,0.06); border: 1px solid rgba(34,197,94,0.15); }
+  .cons { background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); }
+  .pros-title, .cons-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.65rem;
+    font-weight: 600;
+  }
+  .pros-title { color: var(--green); }
+  .cons-title { color: var(--red); }
+  .pros ul, .cons ul { list-style: none; }
+  .pros li, .cons li {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    color: var(--muted);
+    padding: 0.15rem 0;
+    padding-left: 1.1rem;
+    position: relative;
+  }
+  .pros li::before { content: '+'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .cons li::before { content: '−'; position: absolute; left: 0; color: var(--red); font-weight: 700; }
+
+  /* COST TAG */
+  .cost-row {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    margin-top: 0.5rem;
+  }
+  .cost-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid;
+  }
+  .cost-low { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.3); color: var(--green); }
+  .cost-mid { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--yellow); }
+  .cost-high { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: var(--red); }
+  .cost-tip {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* FULL WIDTH EXPLAINER */
+  .explainer-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+  }
+  .explainer-block h4 {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .explainer-block p {
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: #b0bcd0;
+  }
+
+  /* ANALOGY BLOCK */
+  .analogy {
+    background: rgba(255,255,255,0.03);
+    border-left: 3px solid var(--yellow);
+    border-radius: 0 8px 8px 0;
+    padding: 1rem 1.25rem;
+    margin: 1.25rem 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-style: italic;
+    line-height: 1.7;
+  }
+  .analogy strong { color: var(--yellow); font-style: normal; }
+
+  /* SERVICE MAP TABLE */
+  .service-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    margin-top: 1rem;
+  }
+  .service-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border);
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+  .service-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .service-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .td-cat { color: var(--muted); font-size: 0.72rem; }
+  .td-aws { color: var(--aws); }
+  .td-azure { color: var(--azure); }
+
+  /* VERDICT SECTION */
+  .verdict-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+  }
+  @media (max-width: 768px) { .verdict-grid { grid-template-columns: 1fr; } }
+
+  .verdict-card {
+    border-radius: 12px;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .verdict-aws {
+    background: linear-gradient(135deg, rgba(255,153,0,0.08) 0%, rgba(255,153,0,0.02) 100%);
+    border: 1px solid rgba(255,153,0,0.2);
+  }
+  .verdict-azure {
+    background: linear-gradient(135deg, rgba(0,120,212,0.08) 0%, rgba(0,120,212,0.02) 100%);
+    border: 1px solid rgba(0,120,212,0.2);
+  }
+  .verdict-logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 0.5rem;
+  }
+  .verdict-aws .verdict-logo { color: var(--aws); }
+  .verdict-azure .verdict-logo { color: var(--azure); }
+  .verdict-tagline {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .verdict-list { list-style: none; }
+  .verdict-list li {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #b0bcd0;
+    padding: 0.4rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .verdict-list li:last-child { border-bottom: none; }
+  .verdict-aws .verdict-list li::before { content: '▶'; position: absolute; left: 0; color: var(--aws); font-size: 0.5rem; top: 0.65rem; }
+  .verdict-azure .verdict-list li::before { content: '▶'; position: absolute; left: 0; color: var(--azure); font-size: 0.5rem; top: 0.65rem; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 1rem 0;
+  }
+
+  /* LIFECYCLE FLOW */
+  .lifecycle {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+  .lifecycle-step {
+    flex: 1;
+    padding: 1.75rem 1.5rem;
+    position: relative;
+  }
+  .lifecycle-step + .lifecycle-step::before {
+    content: '→';
+    position: absolute;
+    left: -12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 1.2rem;
+    z-index: 1;
+  }
+  .lifecycle-step:nth-child(1) { border-right: 1px solid var(--border); background: rgba(255,153,0,0.03); }
+  .lifecycle-step:nth-child(2) { border-right: 1px solid var(--border); }
+  .lifecycle-step:nth-child(3) { background: rgba(0,120,212,0.03); }
+  .lifecycle-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 900;
+    opacity: 0.12;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .lifecycle-step:nth-child(1) .lifecycle-num { color: var(--aws); }
+  .lifecycle-step:nth-child(3) .lifecycle-num { color: var(--azure); }
+  .lifecycle-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+  .lifecycle-desc {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 3rem 2rem;
+    border-top: 1px solid var(--border);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  footer span.aws { color: var(--aws); }
+  footer span.azure { color: var(--azure); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* HIGHLIGHT BOX */
+  .highlight-box {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    color: #d4b573;
+    line-height: 1.7;
+  }
+  .highlight-box strong { color: var(--yellow); }
+
+  /* METRIC ROW */
+  .metric-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .metric {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+  }
+  .metric-val {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+  }
+  .metric-lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+  }
+
+  /* STICKY SECTION HEADER */
+  .section-hr {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 2.5rem;
+  }
+  .section-hr-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .section-hr-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CLOUD ML ATLAS</div>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#storage">Storage</a></li>
+    <li><a href="#compute">Compute</a></li>
+    <li><a href="#containers">Containers</a></li>
+    <li><a href="#serverless">Serverless</a></li>
+    <li><a href="#networking">Network</a></li>
+    <li><a href="#identity">Identity</a></li>
+    <li><a href="#nosql">NoSQL</a></li>
+    <li><a href="#registry">Registry</a></li>
+    <li><a href="#monitoring">Monitoring</a></li>
+    <li><a href="#dr">Disaster Recovery</a></li>
+    <li><a href="#verdict">Verdict</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-tag">Deep Learning Infrastructure · Layman's Complete Guide</div>
+  <h1>
+    <span class="aws">AWS</span> vs <span class="azure">Azure</span><br>
+    Cloud ML Architecture
+  </h1>
+  <p class="hero-sub">
+    Everything you need to know about cloud infrastructure for Machine Learning — explained plainly, with costs, pros, cons, and real-world decisions. No jargon left unexplained.
+  </p>
+  <div class="hero-pills">
+    <span class="pill pill-aws">AWS · 32% Market Share</span>
+    <span class="pill pill-azure">Azure · Enterprise Champion</span>
+    <span class="pill pill-neutral">Ingestion → Training → Inference</span>
+  </div>
+</div>
+
+<!-- ─── SECTION 0: PHILOSOPHY ─── -->
+<section id="overview">
+  <div class="section-hr"><span class="section-hr-num">00 / PHILOSOPHY</span><div class="section-hr-line"></div></div>
+  <div class="section-label">The Big Picture</div>
+  <h2 class="section-title">Why Cloud for Deep Learning?</h2>
+  <p class="section-desc">Before picking AWS or Azure, understand what you're actually buying. Deep Learning is not just code — it's an infrastructure war.</p>
+
+  <div class="explainer-block fade-in">
+    <h4>🧠 What is Deep Learning Infrastructure, Simply?</h4>
+    <p>Imagine training a dog. You need a big yard (storage), lots of treats (compute power / GPUs), and a trainer (your ML code). Cloud gives you a rental yard + trainer + treats — and you only pay for what you use. When the dog is trained, you put it to work (inference/serving). The cloud handles all of this.</p>
+  </div>
+
+  <div class="lifecycle fade-in">
+    <div class="lifecycle-step">
+      <div class="lifecycle-num">01</div>
+      <div class="lifecycle-name">📥 Ingestion</div>
+      <div class="lifecycle-desc">Getting your raw data (images, text, sensor data) into the cloud cheaply and fast. Storage layer.</div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-num">02</div>
+      <div class="lifecycle-name">⚡ Training</div>
+      <div class="lifecycle-desc">Running GPU-heavy jobs to teach your model patterns. This is the expensive phase — get it right.</div>
+    </div>
+    <div class="lifecycle-step">
+      <div class="lifecycle-num">03</div>
+      <div class="lifecycle-name">🚀 Inference</div>
+      <div class="lifecycle-desc">Deploying the trained model to make real predictions. Speed and cost efficiency matter most here.</div>
+    </div>
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS</span>
+        <span class="card-title">The Builder's Cloud</span>
+      </div>
+      <p class="card-subtitle">Market leader · 200+ services · S3 is industry standard</p>
+      <p class="card-explain">
+        AWS is like a massive hardware store with every tool imaginable. You can build anything — but you need to know what you're looking for. It rewards engineers who like to customize and get granular control. Started in 2006 and has the most mature ecosystem.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Widest service choice</li>
+            <li>Best S3 object storage</li>
+            <li>Largest community & docs</li>
+            <li>Cheapest spot instances</li>
+            <li>Custom silicon (Trainium, Inferentia)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Steep learning curve</li>
+            <li>Easy to overspend accidentally</li>
+            <li>Complex IAM permissions</li>
+            <li>EKS control plane costs money</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-mid">Cost: Medium–High</span>
+        <span class="cost-tip">Spot instances can slash 90% of training costs</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure</span>
+        <span class="card-title">The Enterprise Cloud</span>
+      </div>
+      <p class="card-subtitle">Microsoft ecosystem · OpenAI exclusive · Azure Arc hybrid</p>
+      <p class="card-explain">
+        Azure is like a smart office building — fully integrated with everything Microsoft. If your company uses Office 365, Teams, or Active Directory, Azure feels like home. It also has an exclusive deal with OpenAI (GPT-4), making it the go-to for enterprises building AI products on top of large language models.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Seamless Microsoft integration</li>
+            <li>Exclusive GPT-4/OpenAI access</li>
+            <li>Free AKS control plane</li>
+            <li>Azure Arc for hybrid cloud</li>
+            <li>Windows license hybrid benefit</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Fewer services than AWS</li>
+            <li>Blob storage less mature than S3</li>
+            <li>Azure portal can be confusing</li>
+            <li>Spot VM eviction less predictable</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-mid">Cost: Medium</span>
+        <span class="cost-tip">Hybrid Benefit saves up to 40% for Windows users</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 1: STORAGE ─── -->
+<section id="storage">
+  <div class="section-hr"><span class="section-hr-num">01 / STORAGE</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Data Lake Layer</div>
+  <h2 class="section-title">S3 vs Blob Storage</h2>
+  <p class="section-desc">Your raw datasets, model checkpoints, and training artifacts need to live somewhere cheap, durable, and fast. This is the data lake layer.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> Object storage is like a giant warehouse full of numbered shelves. You drop any file (image, video, CSV, model weights) into a shelf and get a label to retrieve it later. AWS S3 is like the world's biggest IKEA warehouse — flat, enormous, globally trusted. Azure Blob is like a hierarchical filing cabinet with folders inside folders.
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS S3</span>
+        <span class="card-title">Flat Object Storage</span>
+      </div>
+      <p class="card-subtitle">Industry standard · Strong consistency · Intelligent-Tiering</p>
+      <p class="card-explain">
+        Amazon S3 (Simple Storage Service) stores your files as "objects" in "buckets." There are no real folders — just key-value pairs (filenames → file contents). When you upload a file, it's immediately readable from anywhere in the world. S3 Intelligent-Tiering automatically moves your data from hot (frequently accessed) to cold (rarely accessed) storage to save money — without you doing anything.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>11 9s durability (virtually indestructible)</li>
+            <li>Intelligent-Tiering auto-saves money</li>
+            <li>Transfer Acceleration (300% faster uploads)</li>
+            <li>Industry standard — every ML tool supports it</li>
+            <li>Strong consistency — read your own writes instantly</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Egress fees (paying to download your own data)</li>
+            <li>No native folder hierarchy</li>
+            <li>Cross-region replication costs extra</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-val" style="color:var(--aws)">$0.023</div><div class="metric-lbl">per GB/mo (Hot)</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--green)">$0.00099</div><div class="metric-lbl">per GB/mo (Deep Archive)</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--aws)">99.99%</div><div class="metric-lbl">Availability SLA</div></div>
+      </div>
+      <div class="highlight-box">
+        <strong>💡 Cost Tip:</strong> Use S3 Lifecycle Rules to auto-move training data older than 30 days to S3-IA, then to Glacier after 90 days. Lifecycle rules alone can yield a 99% cost reduction on cold archival data.
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure Blob</span>
+        <span class="card-title">Hierarchical Namespace</span>
+      </div>
+      <p class="card-subtitle">Data Lake Gen2 · Rule-based lifecycle management</p>
+      <p class="card-explain">
+        Azure Blob Storage stores files in "containers" inside your storage account. The killer feature is Data Lake Storage Gen2 — it supports real hierarchical folders (like a file system) with atomic rename operations. This is crucial for big data workloads like Spark/Hadoop, where renaming a folder of 10,000 files must be instant and atomic, not one-by-one. Azure Blob's rule-based lifecycle management is more customizable than S3 for enterprise workflows.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>True folder hierarchy (Data Lake Gen2)</li>
+            <li>Atomic directory operations</li>
+            <li>Excellent Spark/Hadoop integration</li>
+            <li>Lifecycle rules are highly configurable</li>
+            <li>Geo-redundant replication built-in</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Less ecosystem support than S3</li>
+            <li>Rehydration required for Archive tier (can take hours)</li>
+            <li>Slightly more complex setup</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-val" style="color:var(--azure)">$0.018</div><div class="metric-lbl">per GB/mo (Hot)</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--green)">$0.001</div><div class="metric-lbl">per GB/mo (Archive)</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--azure)">99.99%</div><div class="metric-lbl">Availability SLA</div></div>
+      </div>
+      <div class="highlight-box">
+        <strong>💡 Cost Tip:</strong> Enable Lifecycle Management to move data to Cool tier after 30 days and Archive after 180 days. Azure Archive is slightly cheaper than Glacier for large datasets.
+      </div>
+    </div>
+  </div>
+
+  <div class="explainer-block fade-in">
+    <h4>📊 Hot vs Cool vs Cold — Data Tiers Explained</h4>
+    <p>
+      <strong style="color:var(--red)">Hot (Training):</strong> Your current dataset you access daily during model training. Expensive per GB but cheapest per access operation.<br><br>
+      <strong style="color:var(--yellow)">Cool/Infrequent (Inference):</strong> Models deployed for inference — accessed occasionally. Cheaper storage, small retrieval fee.<br><br>
+      <strong style="color:var(--azure)">Cold/Archive:</strong> Old training runs, raw dumps, compliance data. Costs almost nothing to store, but takes hours to retrieve. Think of it as a safety deposit box vault.
+    </p>
+  </div>
+</section>
+
+<!-- ─── SECTION 2: COMPUTE ─── -->
+<section id="compute">
+  <div class="section-hr"><span class="section-hr-num">02 / COMPUTE</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Training Engine</div>
+  <h2 class="section-title">EC2 vs Virtual Machines</h2>
+  <p class="section-desc">This is where the actual model training happens. GPUs are rented by the hour. Choose wrong and you'll burn your budget in days.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> EC2/VMs are like renting a race car for a specific duration. Want a Ferrari (NVIDIA H100 GPU)? More expensive. Need to train a small model? Rent a Honda Civic (CPU instance). The 'Spot' strategy is renting the same Ferrari at 90% off because you're okay with the rental company taking it back when a full-price customer shows up — your job just checkpoints and resumes.
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS EC2</span>
+        <span class="card-title">Elastic Compute Cloud</span>
+      </div>
+      <p class="card-subtitle">P-Series NVIDIA GPUs · Trn1 Trainium · Inf2 Inferentia</p>
+      <p class="card-explain">
+        AWS EC2 lets you rent virtual servers (called instances) by the hour. For ML, you typically use P-Series instances (P3, P4, P5) which have NVIDIA V100/A100/H100 GPUs. But AWS also built custom chips: Trainium (Trn1) for training and Inferentia (Inf2) for inference — both significantly cheaper than NVIDIA options for specific workloads.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Widest GPU instance variety</li>
+            <li>Custom Trainium chips = 40% cheaper training</li>
+            <li>Inferentia for very cheap inference</li>
+            <li>Best Spot Instance market (most GPU availability)</li>
+            <li>UltraCluster for 10,000+ GPU distributed training</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>p4/p5 instances are extremely expensive on-demand</li>
+            <li>Trainium requires specific SDK setup</li>
+            <li>GPU quotas must be pre-approved by AWS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-val" style="color:var(--aws)">$3.06</div><div class="metric-lbl">p3.2xlarge/hr (V100)</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--green)">~$0.90</div><div class="metric-lbl">Spot price estimate</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--aws)">~90%</div><div class="metric-lbl">Spot savings</div></div>
+      </div>
+      <div class="highlight-box">
+        <strong>💡 The Spot Strategy:</strong> Use Spot Instances for training jobs (save 90%) + implement checkpointing every N steps so if the instance is reclaimed, you resume from the last checkpoint. Use On-Demand only for inference endpoints where you can't afford downtime.
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure VMs</span>
+        <span class="card-title">N-Series & ND-Series</span>
+      </div>
+      <p class="card-subtitle">N-Series GPU Optimized · ND-Series Deep Learning · Windows Integration</p>
+      <p class="card-explain">
+        Azure's GPU VMs are the N-Series (general GPU) and ND-Series (deep learning specific with InfiniBand networking for multi-node training). Azure's big advantage for Windows shops: deep integration with Active Directory, seamless domain-joining, and Azure Hybrid Benefit — if you have existing Windows Server licenses, you can use them on Azure VMs at a significant discount.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>ND-Series has InfiniBand (super fast multi-GPU)</li>
+            <li>Azure Hybrid Benefit (use existing Windows licenses)</li>
+            <li>Deep Active Directory / Windows integration</li>
+            <li>Reserved Instances save up to 72%</li>
+            <li>VM Scale Sets for auto-scaling training clusters</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Fewer custom silicon options vs AWS</li>
+            <li>Spot VM eviction policy: deallocate or delete (less flexible)</li>
+            <li>GPU quota requests take longer</li>
+          </ul>
+        </div>
+      </div>
+      <div class="metric-row">
+        <div class="metric"><div class="metric-val" style="color:var(--azure)">$3.06</div><div class="metric-lbl">NC6s_v3/hr (V100)</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--green)">~40%</div><div class="metric-lbl">Hybrid Benefit savings</div></div>
+        <div class="metric"><div class="metric-val" style="color:var(--azure)">99.99%</div><div class="metric-lbl">VM SLA (Avail. Sets)</div></div>
+      </div>
+      <div class="highlight-box">
+        <strong>💡 Cost Tip:</strong> If your org has Windows Server EA licenses, Azure Hybrid Benefit can knock 40% off VM costs. Combined with 1-year Reserved VM pricing, you can hit savings comparable to AWS Spot without the instability risk.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 3: CONTAINERS ─── -->
+<section id="containers">
+  <div class="section-hr"><span class="section-hr-num">03 / CONTAINERS</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Orchestration Layer</div>
+  <h2 class="section-title">EKS vs AKS — Kubernetes in the Cloud</h2>
+  <p class="section-desc">Kubernetes is the industry standard for running ML workloads at scale. Both clouds offer managed Kubernetes, but with meaningful differences.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> Kubernetes is like a smart hotel manager. You say "I need 10 rooms for GPU training jobs" and it figures out which servers to use, restarts jobs if they crash, and scales down when training ends. EKS and AKS are pre-built versions of this hotel where you don't have to wire the plumbing — you just book rooms (pods).
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS EKS</span>
+        <span class="card-title">Elastic Kubernetes Service</span>
+      </div>
+      <p class="card-subtitle">Paid control plane · Portable · Standard Kubernetes</p>
+      <p class="card-explain">
+        EKS gives you a fully managed Kubernetes cluster. AWS manages the "control plane" (the brain of the cluster) and you manage the worker nodes. EKS is highly portable — if you ever want to move to another cloud or on-premise, your Kubernetes YAML configs work everywhere. The downside: you pay $0.10/hr just for the control plane, even when idle.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Fully standard Kubernetes — zero vendor lock-in</li>
+            <li>Mix Spot + On-Demand nodes in same cluster</li>
+            <li>Karpenter auto-provisioner cuts node costs dramatically</li>
+            <li>Best GPU node support (NVIDIA device plugin)</li>
+            <li>Deep ECR integration for container images</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>$0.10/hr control plane fee (~$73/mo per cluster)</li>
+            <li>Node management complexity</li>
+            <li>More setup required vs AKS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-mid">Control Plane: $0.10/hr</span>
+        <span class="cost-tag cost-low">Spot Nodes: Up to 90% off</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure AKS</span>
+        <span class="card-title">Azure Kubernetes Service</span>
+      </div>
+      <p class="card-subtitle">FREE control plane · Deep Active Directory · VMSS-backed</p>
+      <p class="card-explain">
+        AKS gives you Kubernetes with a FREE control plane (Standard tier). This alone saves ~$876/year per cluster vs EKS. AKS deeply integrates with Microsoft Entra ID (formerly Active Directory) for authentication — so your company's IT team can manage who has access to which Kubernetes namespaces using the same system they use for Office 365. The nodes are backed by Azure VM Scale Sets for automatic horizontal scaling.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>FREE control plane (Standard tier) — saves $876+/yr</li>
+            <li>Entra ID integration for enterprise RBAC</li>
+            <li>99.99% SLA with Availability Zones</li>
+            <li>Native Azure Monitor integration</li>
+            <li>GPU node pools with auto-provisioning</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>More tightly coupled to Azure ecosystem</li>
+            <li>Spot node pools have less granular control</li>
+            <li>Slower Kubernetes version updates vs EKS</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">Control Plane: FREE</span>
+        <span class="cost-tag cost-mid">Worker Nodes: Pay as used</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 4: SERVERLESS ─── -->
+<section id="serverless">
+  <div class="section-hr"><span class="section-hr-num">04 / SERVERLESS</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Event-Driven Inference</div>
+  <h2 class="section-title">Lambda vs Azure Functions</h2>
+  <p class="section-desc">Serverless is "pay per prediction" — perfect for low-traffic ML endpoints where you don't want to pay for idle compute.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> Serverless is like a pizza delivery service where they only start making your pizza when you order — there's no chef waiting idle. You pay per pizza. If no one orders, you pay nothing. But if 1,000 people order at once, a thousand chefs appear instantly. The tradeoff: your first pizza takes a moment longer (cold start).
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS Lambda</span>
+        <span class="card-title">Serverless Functions</span>
+      </div>
+      <p class="card-subtitle">15-min max timeout · Provisioned Concurrency · 1M free requests/mo</p>
+      <p class="card-explain">
+        Lambda runs your code (Python, Node, etc.) in response to events — an API call, a file upload to S3, a scheduled trigger. For ML, this is perfect for lightweight inference: an image comes in, Lambda runs your model, returns a prediction, dies. You pay only for execution time (in milliseconds). The cold start problem: if Lambda hasn't been called recently, the first call takes 1–3 seconds to spin up. Provisioned Concurrency pre-warms instances to eliminate this.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>1M free requests per month forever</li>
+            <li>Auto-scales to thousands of concurrent calls</li>
+            <li>Provisioned Concurrency eliminates cold starts</li>
+            <li>EventBridge triggers for automated retraining</li>
+            <li>Container image support (up to 10GB — run big models)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>15-minute max timeout (long jobs can't use this)</li>
+            <li>512MB–10GB memory limit</li>
+            <li>No GPU support natively</li>
+            <li>Cold starts on infrequent traffic</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">$0.20 per 1M requests</span>
+        <span class="cost-tag cost-low">$0.0000166667 per GB-second</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure Functions</span>
+        <span class="card-title">Serverless Functions</span>
+      </div>
+      <p class="card-subtitle">Consumption + Premium + Durable · Stateful workflows</p>
+      <p class="card-explain">
+        Azure Functions offers three tiers: Consumption (pure pay-per-use, same as Lambda), Premium Plan (pre-warmed instances — no cold starts, VNet integration), and the powerful Durable Functions — which lets you write long-running, stateful ML pipelines as code. Durable Functions can orchestrate a sequence: fetch data → preprocess → call model → post-process → save results, with each step resumable if it fails.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Durable Functions for complex ML pipelines</li>
+            <li>Premium Plan for no cold-start production inference</li>
+            <li>VNet integration in Premium tier</li>
+            <li>Better long-running workflow support than Lambda</li>
+            <li>1M free executions/month (Consumption)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Premium Plan is significantly more expensive</li>
+            <li>Durable Functions learning curve</li>
+            <li>Cold starts still present on Consumption</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">$0.20 per 1M executions</span>
+        <span class="cost-tag cost-mid">Premium: ~$0.173/hr (pre-warmed)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 5: NETWORKING ─── -->
+<section id="networking">
+  <div class="section-hr"><span class="section-hr-num">05 / NETWORKING</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Network Isolation</div>
+  <h2 class="section-title">VPC vs VNet — Your Private Cloud Network</h2>
+  <p class="section-desc">Every ML workload should run inside an isolated private network. This prevents your training data from being accessible to the internet.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> A VPC/VNet is like a private office building. Public subnets are your reception lobby (accessible from outside). Private subnets are your inner offices (no direct internet access). NAT Gateway is the building's security guard who lets employees browse the web but doesn't let random internet traffic in.
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS VPC</span>
+        <span class="card-title">Virtual Private Cloud</span>
+      </div>
+      <p class="card-subtitle">Public + Private Subnets · NAT Gateway · Security Groups (Stateful)</p>
+      <p class="card-explain">
+        An AWS VPC is your isolated network slice inside AWS. You define IP address ranges (CIDR blocks), carve out subnets (public for load balancers, private for training instances and databases), and control traffic with Security Groups. Security Groups are stateful — if you allow outbound traffic, the response comes back automatically without additional rules. CloudFront with 450+ edge locations accelerates global data ingestion into S3 with Transfer Acceleration (up to 300% faster uploads).
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Extremely granular security group rules</li>
+            <li>PrivateLink for accessing AWS services without internet</li>
+            <li>Transit Gateway for multi-VPC architectures</li>
+            <li>CloudFront 450+ PoPs for global reach</li>
+            <li>VPC Flow Logs for security auditing</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>NAT Gateway is expensive ($0.045/GB processed)</li>
+            <li>Complex multi-VPC peering setup</li>
+            <li>No native firewall — need AWS Network Firewall (extra cost)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">VPC: Free</span>
+        <span class="cost-tag cost-high">NAT Gateway: $0.045/GB + $0.045/hr</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure VNet</span>
+        <span class="card-title">Virtual Network + Hub-Spoke</span>
+      </div>
+      <p class="card-subtitle">Hub-Spoke topology · Azure Firewall · Private Link</p>
+      <p class="card-explain">
+        Azure VNet supports a Hub-Spoke architecture — a central Hub VNet with Azure Firewall controls traffic to multiple Spoke VNets (one per team or application). This is the enterprise-recommended pattern. Azure Firewall is a native managed service (no third-party appliances needed). Private Link lets you ingest data directly from on-premises or other clouds without touching the public internet — critical for sensitive training data like medical records.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Hub-Spoke topology — clean enterprise segmentation</li>
+            <li>Azure Firewall fully managed (no maintenance)</li>
+            <li>Private Link for zero-internet data ingestion</li>
+            <li>Azure Front Door for global ML API acceleration</li>
+            <li>DDoS Protection Standard (enterprise-grade)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Azure Firewall Premium is expensive (~$2.50/hr)</li>
+            <li>VNet peering is still transitive — can get complex</li>
+            <li>Fewer PoPs than AWS CloudFront</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">VNet: Free</span>
+        <span class="cost-tag cost-high">Azure Firewall: ~$1.25/hr basic</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 6: IDENTITY ─── -->
+<section id="identity">
+  <div class="section-hr"><span class="section-hr-num">06 / IDENTITY</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Zero Trust Security</div>
+  <h2 class="section-title">IAM vs Managed Identity — Never Hardcode Secrets</h2>
+  <p class="section-desc">The biggest security mistake in cloud ML is hardcoding API keys in code. Both clouds solve this with keyless identity systems.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> Imagine your EC2 training instance is an employee. Instead of giving them a physical key (API key) that could be stolen or lost, you give them an employee badge (IAM Role/Managed Identity). The badge automatically grants access to exactly what they need — and nothing else. When training ends and the instance dies, the badge disappears too. No key to steal.
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS IAM</span>
+        <span class="card-title">Identity & Access Management</span>
+      </div>
+      <p class="card-subtitle">Roles · Policies · Least Privilege · Temporary Credentials</p>
+      <p class="card-explain">
+        AWS IAM lets you create Roles that EC2 instances, Lambda functions, or EKS pods can "assume." When an instance assumes a role, it automatically gets temporary short-lived credentials (rotating every 15 minutes). No secret stored anywhere. IAM Policies define exactly what actions are allowed — "this training instance can read from S3 bucket X but cannot delete anything or access bucket Y."
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Extremely granular permissions (resource-level)</li>
+            <li>Temporary credentials — no secret rotation needed</li>
+            <li>IAM Conditions for context-aware access (time, IP)</li>
+            <li>AWS Organizations for multi-account governance</li>
+            <li>SCPs (Service Control Policies) to restrict entire accounts</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>IAM policy JSON is complex and verbose</li>
+            <li>Easy to accidentally grant too much access</li>
+            <li>Debugging permission errors is painful</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">IAM: Completely Free</span>
+        <span class="cost-tip">— No cost for roles, policies, or users</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure Managed Identity</span>
+        <span class="card-title">Microsoft Entra ID</span>
+      </div>
+      <p class="card-subtitle">System-Assigned · User-Assigned · Zero Secrets in Code</p>
+      <p class="card-explain">
+        Azure Managed Identity is even simpler than IAM Roles. You enable a System-Assigned Managed Identity on a VM or Function — Azure automatically creates a service principal in Entra ID (formerly Active Directory) and rotates its credentials for you. Your code calls the Azure metadata endpoint to get a token. Zero configuration. Your ML training script never touches a password, key, or certificate. Pairs with Azure RBAC for fine-grained role assignments.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Truly zero secrets — fully automatic credential management</li>
+            <li>Entra ID integration with your company's directory</li>
+            <li>Conditional Access policies (MFA, IP range, device compliance)</li>
+            <li>Privileged Identity Management for just-in-time access</li>
+            <li>Works with both Azure resources and external APIs</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>System-Assigned identity dies with the resource</li>
+            <li>Entra ID Premium (P1/P2) features cost extra</li>
+            <li>Learning curve if unfamiliar with Entra concepts</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">Managed Identity: Free</span>
+        <span class="cost-tag cost-mid">Entra ID P1: $6/user/mo</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 7: NOSQL ─── -->
+<section id="nosql">
+  <div class="section-hr"><span class="section-hr-num">07 / NOSQL</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Metadata Store</div>
+  <h2 class="section-title">DynamoDB vs Cosmos DB — Ultra-Low Latency Metadata</h2>
+  <p class="section-desc">ML systems need fast metadata stores: model experiment tracking, feature flags, prediction logs, user profiles. NoSQL delivers millisecond reads at scale.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> Imagine you have 100 million product labels in a warehouse. SQL databases are like a librarian who sorts every label alphabetically and keeps a master index. NoSQL is like a photocopier that makes a copy of every label and distributes them across 1,000 filing cabinets. Reading is lightning-fast (it's right there), but complex queries across labels are slow.
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS DynamoDB</span>
+        <span class="card-title">Key-Value / Document NoSQL</span>
+      </div>
+      <p class="card-subtitle">Single-digit ms latency · DAX caching · On-demand capacity</p>
+      <p class="card-explain">
+        DynamoDB is AWS's flagship NoSQL database. It stores data as key-value or document (JSON) items. The primary key identifies your item; everything else is flexible. For ML, this is perfect for storing model version metadata, experiment results, feature store lookup tables, and prediction caches. DAX (DynamoDB Accelerator) is an in-memory cache in front of DynamoDB — pushing reads from single-digit milliseconds to microseconds.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Single-digit millisecond latency at ANY scale</li>
+            <li>DAX cache for microsecond reads</li>
+            <li>On-demand capacity — no pre-provisioning</li>
+            <li>DynamoDB Streams for real-time ML pipeline triggers</li>
+            <li>Global Tables for multi-region replication</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Key-Value only — complex queries require scans (expensive)</li>
+            <li>No JOINs — denormalization required</li>
+            <li>Item size limit: 400KB</li>
+            <li>Learning curve for partition key design</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">On-Demand: $1.25 per million writes</span>
+        <span class="cost-tag cost-low">$0.25 per million reads</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure Cosmos DB</span>
+        <span class="card-title">Multi-Model Global NoSQL</span>
+      </div>
+      <p class="card-subtitle">Multi-API · 5 consistency levels · Global distribution · Multi-region writes</p>
+      <p class="card-explain">
+        Cosmos DB is more ambitious than DynamoDB — it supports multiple APIs: SQL (DocumentDB), MongoDB, Cassandra, Gremlin (graph), and Table. This means you can reuse existing MongoDB or Cassandra code and just point it at Cosmos. The killer feature: 5 tunable consistency levels, from Strong (reads always see latest writes, slower) to Eventual (reads might be stale, faster). For ML, you can choose per-operation: use Strong consistency for model version lookups, Eventual for analytics reads.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Multi-API: MongoDB/Cassandra/SQL all in one</li>
+            <li>5 consistency levels for flexible tradeoffs</li>
+            <li>Multi-region writes with conflict resolution</li>
+            <li>Serverless tier for dev/test (cheap)</li>
+            <li>Built-in HTAP (Analytical store for Synapse integration)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Can be expensive with cross-region writes</li>
+            <li>RU/s (Request Unit) model is confusing to estimate</li>
+            <li>Strong consistency has latency penalty</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-mid">From $0.008/100 RU/s/hr</span>
+        <span class="cost-tag cost-low">Serverless: $0.25 per 1M RUs</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 8: REGISTRY ─── -->
+<section id="registry">
+  <div class="section-hr"><span class="section-hr-num">08 / REGISTRY</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Artifact Store</div>
+  <h2 class="section-title">ECR vs ACR — Container Image Registry</h2>
+  <p class="section-desc">Your ML model serving code lives in Docker containers. The registry is the warehouse for these container images.</p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS ECR</span>
+        <span class="card-title">Elastic Container Registry</span>
+      </div>
+      <p class="card-subtitle">Private Docker registry · Vulnerability scanning · Lifecycle policies</p>
+      <p class="card-explain">
+        ECR is AWS's private Docker registry. You push your ML model serving container here, and EKS/Lambda pulls it at deployment time. ECR has built-in vulnerability scanning (Clair-based) that automatically checks your images for known CVEs when pushed. Lifecycle policies auto-delete old image versions to manage storage costs.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Deep EKS integration — no auth config needed</li>
+            <li>Automated vulnerability scanning on push</li>
+            <li>Cross-region replication rules</li>
+            <li>Lifecycle policies clean up old images automatically</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Storage charged at $0.10/GB/mo</li>
+            <li>Cross-region replication costs data transfer fees</li>
+            <li>No built-in CI/CD build system</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">$0.10/GB/mo storage</span>
+        <span class="cost-tag cost-low">Free data transfer in-region</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure ACR</span>
+        <span class="card-title">Azure Container Registry</span>
+      </div>
+      <p class="card-subtitle">Geo-replication · ACR Tasks (cloud builds) · Premium tier</p>
+      <p class="card-explain">
+        Azure ACR's standout feature is Geo-replication — in Premium tier, your container images are automatically replicated to multiple Azure regions. When your AKS cluster in Singapore pulls an image, it comes from the Singapore registry replica (fast, no egress). ACR Tasks is a game-changer: you can build your Docker image inside Azure without a CI/CD server — just commit code, ACR detects the change and builds the new image automatically.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Geo-replication — images close to every region</li>
+            <li>ACR Tasks — build images in cloud without CI server</li>
+            <li>Free with AKS for Standard tier pulls</li>
+            <li>Content trust (image signing)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Geo-replication requires Premium SKU ($0.667/replica/day)</li>
+            <li>ACR Tasks have limited build minutes on free tier</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">Basic: $0.167/day</span>
+        <span class="cost-tag cost-mid">Premium (geo-rep): $1.667/day</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 9: MONITORING ─── -->
+<section id="monitoring">
+  <div class="section-hr"><span class="section-hr-num">09 / MONITORING</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Observability</div>
+  <h2 class="section-title">CloudWatch vs Azure Monitor — Your Control Room</h2>
+  <p class="section-desc">You can't fix what you can't see. Monitoring tells you when training is stuck, inference is slow, or your costs are spiking.</p>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header">
+        <span class="card-badge badge-aws">AWS CloudWatch</span>
+        <span class="card-title">Metrics, Logs & Alarms</span>
+      </div>
+      <p class="card-subtitle">GPU/CPU metrics · Log Insights · EventBridge automation</p>
+      <p class="card-explain">
+        CloudWatch collects metrics from every AWS service automatically — GPU utilization, CPU, memory, network throughput, training loss curves. CloudWatch Alarms trigger actions when metrics cross thresholds (e.g., "alert me when GPU utilization drops to 0% for 5 minutes — training probably crashed"). CloudWatch Logs Insights lets you query your logs with SQL-like syntax. EventBridge is the event bus — "when a new file lands in S3, automatically trigger a retraining Lambda" — the glue of automated ML pipelines.
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Automatic metrics for all AWS services (zero config)</li>
+            <li>EventBridge for automated ML pipeline triggers</li>
+            <li>Contributor Insights for finding hot partition keys</li>
+            <li>Cross-account observability with Organizations</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Log storage gets expensive at scale ($0.50/GB ingested)</li>
+            <li>Custom metrics cost extra ($0.30/metric/mo)</li>
+            <li>Dashboard UI is dated and complex</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">Basic Metrics: Free (5-min resolution)</span>
+        <span class="cost-tag cost-mid">Log Ingestion: $0.50/GB</span>
+      </div>
+    </div>
+
+    <div class="compare-card azure">
+      <div class="card-header">
+        <span class="card-badge badge-azure">Azure Monitor</span>
+        <span class="card-title">Full-Stack Observability</span>
+      </div>
+      <p class="card-subtitle">App Insights · Log Analytics (KQL) · Sentinel SIEM</p>
+      <p class="card-explain">
+        Azure Monitor is a broader ecosystem. Application Insights is a deep APM tool — it traces every function call, HTTP request, and dependency inside your ML serving code, giving you end-to-end request tracing (which code line is slow?). Log Analytics Workspace uses KQL (Kusto Query Language) — a powerful query language for analyzing billions of log lines. Microsoft Sentinel is an AI-powered SIEM — it analyzes all your Azure logs and flags security anomalies, like "someone is exfiltrating training data at 3am."
+      </p>
+      <div class="pros-cons">
+        <div class="pros">
+          <div class="pros-title">✓ PROS</div>
+          <ul>
+            <li>Application Insights for deep code-level tracing</li>
+            <li>KQL is extremely powerful for log analysis</li>
+            <li>Sentinel AI-powered security monitoring</li>
+            <li>Better dashboards (Azure Workbooks)</li>
+            <li>Integration with Grafana natively</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <div class="cons-title">✗ CONS</div>
+          <ul>
+            <li>Log Analytics can get very expensive at scale</li>
+            <li>KQL learning curve</li>
+            <li>Sentinel is a significant added cost</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cost-row">
+        <span class="cost-tag cost-low">Basic Metrics: Free (1-min resolution)</span>
+        <span class="cost-tag cost-mid">Log Analytics: $2.76/GB ingested</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── SECTION 10: DISASTER RECOVERY ─── -->
+<section id="dr">
+  <div class="section-hr"><span class="section-hr-num">10 / DISASTER RECOVERY</span><div class="section-hr-line"></div></div>
+  <div class="section-label">Resilience Design</div>
+  <h2 class="section-title">Designing for Failure — The Pilot Light Strategy</h2>
+  <p class="section-desc">Everything will fail eventually. Your ML training job must survive server crashes. Your inference endpoint must survive regional outages.</p>
+
+  <div class="analogy fade-in">
+    <strong>Layman Analogy:</strong> The Pilot Light strategy is like a sleeping backup generator. It's always connected to fuel (your data is replicated), the engine is ready (configs are stored), but it only runs when the main power fails. You don't pay to run two full data centers — just to keep one ready to ignite quickly.
+  </div>
+
+  <div class="explainer-block fade-in">
+    <h4>🔑 RTO vs RPO — Know These Two Numbers</h4>
+    <p>
+      <strong style="color:var(--yellow)">RTO (Recovery Time Objective):</strong> How long can your system be DOWN before it costs you too much? A real-time fraud detection model might have RTO = 5 minutes. A batch training pipeline might be RTO = 24 hours.<br><br>
+      <strong style="color:var(--azure)">RPO (Recovery Point Objective):</strong> How much DATA can you lose? RPO = 0 means every transaction must be replicated in real-time. RPO = 1 hour means you can afford to lose the last hour of predictions/logs.
+    </p>
+  </div>
+
+  <div class="explainer-block fade-in">
+    <h4>⚡ The 3-Step Pilot Light for ML</h4>
+    <p>
+      <strong style="color:var(--aws)">Step 1 — Replicate:</strong> Cross-region replicate your S3 (AWS) or Blob (Azure) training data and model weights to a secondary region. Both clouds support asynchronous replication with near-zero additional cost.<br><br>
+      <strong style="color:var(--yellow)">Step 2 — Back Up Model Weights:</strong> Every training checkpoint and final model artifact should be in both regions. Models can take weeks to train — losing them to a regional failure is catastrophic.<br><br>
+      <strong style="color:var(--azure)">Step 3 — Scale Up On Disaster:</strong> Keep minimal compute running in the secondary region (1 small instance for health checks). When disaster strikes, auto-scale to full capacity within minutes using launch templates (AWS) or VM Scale Set configurations (Azure).
+    </p>
+  </div>
+
+  <div class="compare-grid fade-in">
+    <div class="compare-card aws">
+      <div class="card-header"><span class="card-badge badge-aws">AWS DR</span><span class="card-title">Multi-Region Resilience</span></div>
+      <p class="card-explain">S3 Cross-Region Replication + Route53 health checks + Auto Scaling Group with Launch Templates = full regional failover in under 10 minutes. AWS Global Accelerator provides anycast IPs that automatically route to the healthy region.</p>
+      <div class="cost-row"><span class="cost-tag cost-low">CRR: ~$0.015/GB replicated</span></div>
+    </div>
+    <div class="compare-card azure">
+      <div class="card-header"><span class="card-badge badge-azure">Azure DR</span><span class="card-title">Paired Regions Strategy</span></div>
+      <p class="card-explain">Azure Blob geo-redundant storage (GRS/GZRS) + Azure Site Recovery for VMs + Azure Traffic Manager for global DNS failover. Azure has pre-defined region pairs (e.g., East US ↔ West US) that are never updated simultaneously.</p>
+      <div class="cost-row"><span class="cost-tag cost-mid">GRS Storage: ~1.6× price of LRS</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── VERDICT ─── -->
+<section id="verdict">
+  <div class="section-hr"><span class="section-hr-num">FINAL / VERDICT</span><div class="section-hr-line"></div></div>
+  <div class="section-label">The Decision Matrix</div>
+  <h2 class="section-title">When to Choose Which Cloud</h2>
+  <p class="section-desc">There is no universally correct answer. The best cloud is the one that aligns with your team, your stack, and your goals.</p>
+
+  <div class="verdict-grid fade-in">
+    <div class="verdict-card verdict-aws">
+      <div class="verdict-logo">AWS</div>
+      <div class="verdict-tagline">// The Builder's Cloud · 32% Market Share</div>
+      <ul class="verdict-list">
+        <li>You want maximum flexibility and the widest service choice</li>
+        <li>Your team is cloud-native and comfortable with complexity</li>
+        <li>You need S3 as the primary data lake (industry standard)</li>
+        <li>You want granular Spot Instance control to slash training costs</li>
+        <li>You're building a cloud-native startup from scratch</li>
+        <li>You need custom silicon: Trainium for training, Inferentia for inference</li>
+        <li>You need 450+ CloudFront PoPs for global ML API delivery</li>
+      </ul>
+    </div>
+    <div class="verdict-card verdict-azure">
+      <div class="verdict-logo">Azure</div>
+      <div class="verdict-tagline">// The Enterprise Cloud · Microsoft Ecosystem</div>
+      <ul class="verdict-list">
+        <li>You need Azure OpenAI (exclusive GPT-4/GPT-4o access)</li>
+        <li>Your org runs on Microsoft: Office 365, Teams, Active Directory</li>
+        <li>You have existing Windows Server licenses (Hybrid Benefit = 40% off)</li>
+        <li>You need strong hybrid cloud support via Azure Arc</li>
+        <li>You want a free AKS control plane (saves $876+/year vs EKS)</li>
+        <li>Security team requires Sentinel AI-powered SIEM</li>
+        <li>You're in a heavily regulated industry (Azure compliance certifications)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="explainer-block fade-in" style="margin-top:2rem; border-color: rgba(245,158,11,0.3);">
+    <h4 style="color:var(--yellow)">🏆 The Universal Rules (Both Clouds)</h4>
+    <p>
+      1. <strong style="color:var(--text)">Never hardcode secrets</strong> — use IAM Roles (AWS) or Managed Identity (Azure).<br>
+      2. <strong style="color:var(--text)">Use Spot/Spot VMs for training, On-Demand for inference</strong> — 90% cost savings on training.<br>
+      3. <strong style="color:var(--text)">Implement lifecycle rules on all storage</strong> — archival tiers can cut storage costs 99%.<br>
+      4. <strong style="color:var(--text)">Keep compute next to storage</strong> — same region/AZ eliminates egress fees and latency.<br>
+      5. <strong style="color:var(--text)">Design for failure from day one</strong> — checkpoint training jobs, replicate data, test your DR plan.<br>
+      6. <strong style="color:var(--text)">Don't just lift and shift — Refactor</strong> — cloud-native architectures are 3–5× cheaper than "lift and shift."
+    </p>
+  </div>
+
+  <!-- Service Map Table -->
+  <div style="margin-top: 3rem;" class="fade-in">
+    <div class="section-label" style="margin-bottom:0.5rem">Quick Reference</div>
+    <h3 style="font-family:'Orbitron',monospace; font-size:1.2rem; margin-bottom:1.5rem">The Rosetta Stone: Service Mapping</h3>
+    <table class="service-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th style="color:var(--aws)">AWS Service</th>
+          <th style="color:var(--azure)">Azure Service</th>
+          <th>Cost Winner</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="td-cat">Compute (GPU)</td><td class="td-aws">EC2 P/Trn/Inf Series</td><td class="td-azure">N-Series / ND-Series</td><td style="color:var(--aws)">AWS (custom silicon)</td></tr>
+        <tr><td class="td-cat">Object Storage</td><td class="td-aws">S3</td><td class="td-azure">Blob Storage</td><td style="color:var(--azure)">Azure (slightly cheaper)</td></tr>
+        <tr><td class="td-cat">Containers</td><td class="td-aws">EKS</td><td class="td-azure">AKS</td><td style="color:var(--azure)">Azure (free control plane)</td></tr>
+        <tr><td class="td-cat">Serverless</td><td class="td-aws">Lambda</td><td class="td-azure">Functions</td><td style="color:var(--muted)">Tie</td></tr>
+        <tr><td class="td-cat">Container Registry</td><td class="td-aws">ECR</td><td class="td-azure">ACR</td><td style="color:var(--aws)">AWS (simpler pricing)</td></tr>
+        <tr><td class="td-cat">NoSQL Database</td><td class="td-aws">DynamoDB + DAX</td><td class="td-azure">Cosmos DB</td><td style="color:var(--aws)">AWS (simpler cost model)</td></tr>
+        <tr><td class="td-cat">Networking</td><td class="td-aws">VPC + CloudFront</td><td class="td-azure">VNet + Front Door</td><td style="color:var(--muted)">Tie</td></tr>
+        <tr><td class="td-cat">Identity</td><td class="td-aws">IAM Roles</td><td class="td-azure">Managed Identity</td><td style="color:var(--azure)">Azure (simpler UX)</td></tr>
+        <tr><td class="td-cat">Monitoring</td><td class="td-aws">CloudWatch + EventBridge</td><td class="td-azure">Monitor + App Insights</td><td style="color:var(--azure)">Azure (App Insights depth)</td></tr>
+        <tr><td class="td-cat">Infra-as-Code</td><td class="td-aws">CloudFormation / CDK</td><td class="td-azure">ARM / Bicep</td><td style="color:var(--muted)">Terraform on both</td></tr>
+        <tr><td class="td-cat">LLM API Access</td><td class="td-aws">Bedrock (Claude, Llama)</td><td class="td-azure">Azure OpenAI (GPT-4)</td><td style="color:var(--azure)">Azure (exclusive GPT-4)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  Built as a reference canvas for Cloud ML Architecture. 
+  <span class="aws">AWS</span> & <span class="azure">Azure</span> — choose what serves your team.
+  <br style="margin-bottom:0.5rem">
+  <span style="opacity:0.4">The cloud is not the strategy; it is the engine.</span>
+</footer>
+
+<script>
+  // Fade-in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        // Stagger children
+        const kids = e.target.querySelectorAll('.compare-card, .explainer-block, .verdict-card');
+        kids.forEach((k, i) => {
+          k.style.transitionDelay = (i * 0.08) + 's';
+        });
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>

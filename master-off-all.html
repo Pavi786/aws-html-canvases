@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux Master Canvas — DevOps Pro Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Oxanium:wght@300;400;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060a10;
+    --panel: #0b1120;
+    --panel2: #0f1929;
+    --border: #1a2d4a;
+    --accent: #00d4ff;
+    --accent2: #00ff9d;
+    --accent3: #ff6b35;
+    --accent4: #c678dd;
+    --accent5: #e5c07b;
+    --danger: #e06c75;
+    --text: #abb2bf;
+    --text-bright: #e6edf3;
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+    --glow2: 0 0 20px rgba(0,255,157,0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Oxanium', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID SCANLINES */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,212,255,0.015) 2px, rgba(0,212,255,0.015) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1600px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+
+  /* HEADER */
+  .hero {
+    text-align: center;
+    padding: 50px 20px 40px;
+    position: relative;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #00d4ff22, #00ff9d22);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 4px 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+  .hero h1 {
+    font-size: clamp(2.2rem, 5vw, 4.5rem);
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, #00d4ff 40%, #00ff9d 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .hero p {
+    color: var(--text);
+    font-size: 1rem;
+    max-width: 700px;
+    margin: 0 auto 30px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 36px;
+    padding: 0 20px;
+  }
+  .tab-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Oxanium', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    position: relative;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .tab-btn:hover, .tab-btn.active {
+    background: linear-gradient(135deg, #00d4ff22, #00ff9d11);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow);
+  }
+  .tab-btn.active { color: var(--accent2); border-color: var(--accent2); }
+
+  /* SECTIONS */
+  .section { display: none; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-icon { font-size: 2rem; }
+  .section-title { font-size: 1.8rem; font-weight: 700; color: var(--text-bright); }
+  .section-sub { font-size: 12px; font-family: 'Share Tech Mono', monospace; color: var(--accent); letter-spacing: 2px; margin-top: 2px; }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(700px, 1fr)); gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+  /* COMMAND CARD */
+  .cmd-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .cmd-card::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 60px; height: 60px;
+    background: radial-gradient(circle at top right, rgba(0,212,255,0.06), transparent);
+    pointer-events: none;
+  }
+  .cmd-card:hover { border-color: var(--accent); box-shadow: var(--glow); transform: translateY(-2px); }
+  .cmd-card.green { border-left-color: var(--accent2); }
+  .cmd-card.green:hover { border-color: var(--accent2); box-shadow: var(--glow2); }
+  .cmd-card.orange { border-left-color: var(--accent3); }
+  .cmd-card.orange:hover { border-color: var(--accent3); box-shadow: 0 0 20px rgba(255,107,53,0.3); }
+  .cmd-card.purple { border-left-color: var(--accent4); }
+  .cmd-card.yellow { border-left-color: var(--accent5); }
+  .cmd-card.red { border-left-color: var(--danger); }
+
+  .cmd-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-bright);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cmd-title .icon { font-size: 16px; }
+  .cmd-desc { font-size: 12px; color: var(--text); margin-bottom: 12px; line-height: 1.6; }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #060a10;
+    border: 1px solid #1a2d4a;
+    padding: 10px 14px;
+    margin: 6px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    position: relative;
+    border-radius: 2px;
+  }
+  .code-block .comment { color: #5c6370; }
+  .code-block .flag { color: var(--accent5); }
+  .code-block .arg { color: var(--accent); }
+  .code-block .danger { color: var(--danger); }
+  .code-block .success { color: var(--accent2); }
+
+  .copy-btn {
+    position: absolute;
+    top: 6px; right: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 9px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* TAGS */
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+  .tag {
+    font-size: 9px;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 2px 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: 1px solid;
+  }
+  .tag.pro { border-color: var(--accent2); color: var(--accent2); }
+  .tag.warn { border-color: var(--accent5); color: var(--accent5); }
+  .tag.danger { border-color: var(--danger); color: var(--danger); }
+  .tag.info { border-color: var(--accent); color: var(--accent); }
+  .tag.devops { border-color: var(--accent4); color: var(--accent4); }
+
+  /* PROS CONS */
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+  .pros, .cons {
+    background: #060a10;
+    border: 1px solid;
+    padding: 10px 12px;
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    line-height: 1.7;
+  }
+  .pros { border-color: rgba(0,255,157,0.3); color: var(--accent2); }
+  .cons { border-color: rgba(224,108,117,0.3); color: var(--danger); }
+  .pros::before { content: '✓ PROS'; display: block; font-weight: 700; margin-bottom: 4px; font-size: 10px; letter-spacing: 2px; }
+  .cons::before { content: '✗ CONS'; display: block; font-weight: 700; margin-bottom: 4px; font-size: 10px; letter-spacing: 2px; }
+
+  /* DO DONT */
+  .do-dont { margin-top: 12px; }
+  .do-item { background: rgba(0,255,157,0.05); border-left: 2px solid var(--accent2); padding: 6px 10px; margin: 4px 0; font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--accent2); }
+  .dont-item { background: rgba(224,108,117,0.05); border-left: 2px solid var(--danger); padding: 6px 10px; margin: 4px 0; font-size: 11px; font-family: 'Share Tech Mono', monospace; color: var(--danger); }
+  .do-item::before { content: '✅ DO: '; }
+  .dont-item::before { content: '❌ DON\'T: '; }
+
+  /* ALERT */
+  .alert {
+    padding: 10px 14px;
+    margin: 10px 0;
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    border-left: 3px solid;
+    line-height: 1.6;
+  }
+  .alert.warn { border-color: var(--accent5); background: rgba(229,192,123,0.05); color: var(--accent5); }
+  .alert.danger { border-color: var(--danger); background: rgba(224,108,117,0.05); color: var(--danger); }
+  .alert.info { border-color: var(--accent); background: rgba(0,212,255,0.05); color: var(--accent); }
+  .alert.success { border-color: var(--accent2); background: rgba(0,255,157,0.05); color: var(--accent2); }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 24px 0; }
+
+  /* CATEGORY LABEL */
+  .cat-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    margin-top: 28px;
+  }
+
+  /* FULL WIDTH CARD */
+  .full-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .full-card.green { border-top-color: var(--accent2); }
+  .full-card.orange { border-top-color: var(--accent3); }
+
+  /* TABLE */
+  .cmd-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+  .cmd-table th {
+    background: #060a10;
+    color: var(--accent);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    text-align: left;
+    font-family: 'Share Tech Mono', monospace;
+    border-bottom: 1px solid var(--border);
+  }
+  .cmd-table td {
+    padding: 8px 12px;
+    font-size: 11px;
+    font-family: 'Share Tech Mono', monospace;
+    border-bottom: 1px solid rgba(26,45,74,0.5);
+    vertical-align: top;
+  }
+  .cmd-table tr:hover td { background: rgba(0,212,255,0.03); }
+  .cmd-table .cmd-cell { color: var(--accent2); }
+  .cmd-table .desc-cell { color: var(--text); line-height: 1.5; }
+  .cmd-table .flag-cell { color: var(--accent5); }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .pros-cons { grid-template-columns: 1fr; }
+  }
+
+  /* STAT BOXES */
+  .stat-row { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+  .stat-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 14px 20px;
+    flex: 1; min-width: 160px;
+    text-align: center;
+  }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; font-family: 'Share Tech Mono', monospace; color: var(--text); margin-top: 4px; }
+
+  /* HIGHLIGHT */
+  .hl-blue { color: var(--accent); }
+  .hl-green { color: var(--accent2); }
+  .hl-orange { color: var(--accent3); }
+  .hl-yellow { color: var(--accent5); }
+  .hl-red { color: var(--danger); }
+  .hl-purple { color: var(--accent4); }
+
+  /* MINI CMD */
+  .mini-cmd {
+    display: inline-block;
+    background: #060a10;
+    border: 1px solid var(--border);
+    color: var(--accent2);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    padding: 1px 6px;
+    margin: 1px;
+  }
+
+  /* PIPELINE */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    background: #060a10;
+    border: 1px solid var(--border);
+    padding: 12px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    margin: 8px 0;
+  }
+  .pipe-step { color: var(--accent2); }
+  .pipe-arrow { color: var(--accent5); }
+
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">⚡ DevOps Pro Edition — Ultra Deep Dive</div>
+    <h1>Linux Master Canvas</h1>
+    <p>// SECURITY · NETWORKING · STORAGE · DISK · MONITORING · SERVER · CACHE — Every Command, Every Concept, Every Pro Tip</p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('security')">🔐 Security</button>
+    <button class="tab-btn" onclick="showTab('networking')">🌐 Networking</button>
+    <button class="tab-btn" onclick="showTab('storage')">💾 Storage & Disk</button>
+    <button class="tab-btn" onclick="showTab('monitoring')">📊 Monitoring</button>
+    <button class="tab-btn" onclick="showTab('server')">🖥️ Server Mgmt</button>
+    <button class="tab-btn" onclick="showTab('cache')">⚡ Cache</button>
+    <button class="tab-btn" onclick="showTab('processes')">⚙️ Processes</button>
+    <button class="tab-btn" onclick="showTab('users')">👤 Users & Perms</button>
+    <button class="tab-btn" onclick="showTab('logs')">📋 Logs</button>
+    <button class="tab-btn" onclick="showTab('devops')">🚀 DevOps Toolkit</button>
+  </div>
+
+  <!-- =============================== SECURITY =============================== -->
+  <div id="security" class="section active">
+    <div class="section-header">
+      <div class="section-icon">🔐</div>
+      <div>
+        <div class="section-title">Security Mastery</div>
+        <div class="section-sub">// FIREWALL · SSH · AUDIT · ENCRYPTION · INTRUSION DETECTION</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num hl-blue">iptables</div><div class="stat-label">Firewall Engine</div></div>
+      <div class="stat-box"><div class="stat-num hl-green">nftables</div><div class="stat-label">Modern FW</div></div>
+      <div class="stat-box"><div class="stat-num hl-orange">fail2ban</div><div class="stat-label">Intrusion Block</div></div>
+      <div class="stat-box"><div class="stat-num hl-purple">auditd</div><div class="stat-label">Audit Daemon</div></div>
+      <div class="stat-box"><div class="stat-num hl-yellow">SELinux</div><div class="stat-label">MAC Policy</div></div>
+    </div>
+
+    <!-- FIREWALL -->
+    <div class="cat-label">🔥 Firewall — iptables / nftables / ufw</div>
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">🔥</span>iptables — The Classic Firewall</div>
+        <div class="cmd-desc">iptables is the traditional Linux packet filter. Works with chains (INPUT, OUTPUT, FORWARD) and rules processed top-to-bottom. Every packet is checked against rules until a match or default policy applies.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># View all rules with line numbers</span><br>
+          iptables <span class="flag">-L</span> <span class="flag">-n</span> <span class="flag">-v</span> <span class="flag">--line-numbers</span><br><br>
+          <span class="comment"># Block an IP permanently</span><br>
+          iptables <span class="flag">-A</span> INPUT <span class="flag">-s</span> <span class="arg">192.168.1.100</span> <span class="flag">-j</span> DROP<br><br>
+          <span class="comment"># Allow SSH only from specific IP</span><br>
+          iptables <span class="flag">-A</span> INPUT <span class="flag">-s</span> <span class="arg">10.0.0.0/8</span> <span class="flag">-p</span> tcp <span class="flag">--dport</span> 22 <span class="flag">-j</span> ACCEPT<br><br>
+          <span class="comment"># Rate limit to prevent brute force (max 3/min)</span><br>
+          iptables <span class="flag">-A</span> INPUT <span class="flag">-p</span> tcp <span class="flag">--dport</span> 22 <span class="flag">-m</span> state <span class="flag">--state</span> NEW <span class="flag">-m</span> recent <span class="flag">--set</span><br>
+          iptables <span class="flag">-A</span> INPUT <span class="flag">-p</span> tcp <span class="flag">--dport</span> 22 <span class="flag">-m</span> state <span class="flag">--state</span> NEW <span class="flag">-m</span> recent <span class="flag">--update</span> <span class="flag">--seconds</span> 60 <span class="flag">--hitcount</span> 4 <span class="flag">-j</span> DROP<br><br>
+          <span class="comment"># Save rules (Ubuntu/Debian)</span><br>
+          iptables-save > /etc/iptables/rules.v4<br><br>
+          <span class="comment"># Flush ALL rules (DANGER!)</span><br>
+          iptables <span class="flag">-F</span>  <span class="danger"># ← Removes ALL firewall rules!</span>
+        </div>
+        <div class="alert warn">⚠️ Always set a default DROP policy AFTER adding your ACCEPT rules. Never set DROP first or you'll lock yourself out!</div>
+        <div class="pros-cons">
+          <div class="pros">Works on all old/new kernels<br>Huge documentation<br>Precise packet control<br>Stateful inspection</div>
+          <div class="cons">Syntax complex & verbose<br>Rules not persistent by default<br>IPv4/IPv6 separate tools<br>Being replaced by nftables</div>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always backup rules before changes: iptables-save > backup.rules</div>
+          <div class="do-item">Test rules before making default DROP policy</div>
+          <div class="dont-item">Never run iptables -F on a live server without a recovery plan</div>
+          <div class="dont-item">Never allow port 0 or wildcard opens on public interfaces</div>
+        </div>
+        <div class="tags"><span class="tag pro">Production Safe</span><span class="tag devops">DevOps Essential</span></div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🛡️</span>UFW — Uncomplicated Firewall (Ubuntu Friendly)</div>
+        <div class="cmd-desc">UFW is a frontend for iptables that makes firewall management human-readable. Perfect for servers where you want simple allow/deny without complex rule syntax. Behind scenes it still uses iptables.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Enable UFW</span><br>
+          ufw enable<br><br>
+          <span class="comment"># Default deny everything incoming</span><br>
+          ufw default deny incoming<br>
+          ufw default allow outgoing<br><br>
+          <span class="comment"># Allow specific services</span><br>
+          ufw allow ssh          <span class="comment"># port 22</span><br>
+          ufw allow 80/tcp       <span class="comment"># HTTP</span><br>
+          ufw allow 443/tcp      <span class="comment"># HTTPS</span><br>
+          ufw allow from <span class="arg">10.0.0.0/8</span> to any port 5432  <span class="comment"># Postgres from LAN</span><br><br>
+          <span class="comment"># Rate limit SSH (6 attempts in 30 sec = block)</span><br>
+          ufw limit ssh/tcp<br><br>
+          <span class="comment"># Check status verbose</span><br>
+          ufw status verbose<br>
+          ufw status numbered  <span class="comment"># see rule numbers</span><br><br>
+          <span class="comment"># Delete rule by number</span><br>
+          ufw delete <span class="arg">3</span>
+        </div>
+        <div class="alert info">💡 Use `ufw app list` to see available pre-defined app profiles (Nginx, Apache, OpenSSH etc.)</div>
+        <div class="do-dont">
+          <div class="do-item">Run ufw allow ssh BEFORE enabling ufw to avoid lockout</div>
+          <div class="do-item">Use `ufw limit` on SSH instead of just allow</div>
+          <div class="dont-item">Don't use UFW and another firewall manager simultaneously</div>
+        </div>
+        <div class="tags"><span class="tag pro">Best for Ubuntu</span><span class="tag info">Beginner Friendly</span></div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">🔒</span>SSH Hardening — Pro-Level Security</div>
+        <div class="cmd-desc">SSH is the most attacked surface on any Linux server. Proper hardening eliminates brute-force attacks, unauthorized access, and man-in-the-middle risks. Every DevOps engineer MUST know this.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># /etc/ssh/sshd_config — KEY SETTINGS</span><br>
+          Port <span class="arg">2222</span>              <span class="comment"># Change from default 22</span><br>
+          PermitRootLogin <span class="arg">no</span>   <span class="comment"># NEVER allow root SSH</span><br>
+          PasswordAuthentication <span class="arg">no</span>  <span class="comment"># Keys only!</span><br>
+          PubkeyAuthentication <span class="arg">yes</span><br>
+          MaxAuthTries <span class="arg">3</span>         <span class="comment"># 3 attempts max</span><br>
+          LoginGraceTime <span class="arg">20</span>      <span class="comment"># 20 sec to login</span><br>
+          AllowUsers <span class="arg">ubuntu deploy</span> <span class="comment"># Whitelist users</span><br>
+          ClientAliveInterval <span class="arg">300</span> <span class="comment"># 5 min timeout</span><br>
+          ClientAliveCountMax <span class="arg">2</span><br>
+          X11Forwarding <span class="arg">no</span><br>
+          Banner <span class="arg">/etc/issue.net</span>  <span class="comment"># Legal warning banner</span><br><br>
+          <span class="comment"># Generate ED25519 key (stronger than RSA)</span><br>
+          ssh-keygen <span class="flag">-t</span> ed25519 <span class="flag">-C</span> "devops@company.com"<br><br>
+          <span class="comment"># Test config before restart!</span><br>
+          sshd <span class="flag">-t</span>  <span class="comment"># Config test — always do this!</span><br>
+          systemctl restart sshd
+        </div>
+        <div class="alert danger">🚨 ALWAYS test sshd -t before restarting SSH. A bad config = permanent lockout if no console access!</div>
+        <div class="pros-cons">
+          <div class="pros">Eliminates password attacks<br>ED25519 is quantum-resistant<br>WhitelistUsers = zero leakage</div>
+          <div class="cons">Lost private key = no access<br>Port change = update firewalls<br>Team key management needed</div>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Use ED25519 keys, not RSA-2048</div>
+          <div class="do-item">Always have out-of-band access (console/VNC) before hardening</div>
+          <div class="dont-item">Never commit private keys to Git repos EVER</div>
+          <div class="dont-item">Never allow PermitRootLogin yes on any production server</div>
+        </div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">🚫</span>fail2ban — Automatic IP Banning</div>
+        <div class="cmd-desc">fail2ban monitors log files for patterns (failed logins, port scans etc.) and automatically bans offending IPs using iptables/nftables. Essential for any internet-facing server.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Install</span><br>
+          apt install fail2ban<br><br>
+          <span class="comment"># /etc/fail2ban/jail.local — Custom config</span><br>
+          [DEFAULT]<br>
+          bantime  = 3600     <span class="comment"># Ban for 1 hour</span><br>
+          findtime = 600      <span class="comment"># Within 10 minutes</span><br>
+          maxretry = 3        <span class="comment"># 3 failures = ban</span><br>
+          ignoreip = 127.0.0.1/8 <span class="arg">10.0.0.0/8</span>  <span class="comment"># Never ban these</span><br><br>
+          [sshd]<br>
+          enabled = true<br>
+          port    = 2222      <span class="comment"># Your custom SSH port</span><br>
+          logpath = /var/log/auth.log<br><br>
+          <span class="comment"># Check status</span><br>
+          fail2ban-client status<br>
+          fail2ban-client status sshd<br><br>
+          <span class="comment"># Unban an IP</span><br>
+          fail2ban-client set sshd unbanip <span class="arg">203.0.113.10</span><br><br>
+          <span class="comment"># See banned IPs</span><br>
+          fail2ban-client get sshd banlist
+        </div>
+        <div class="alert success">✅ Pro tip: Set bantime = -1 for permanent bans on repeat offenders. Use recidive jail for this!</div>
+        <div class="do-dont">
+          <div class="do-item">Always add your IP to ignoreip to avoid self-lockout</div>
+          <div class="do-item">Monitor /var/log/fail2ban.log regularly</div>
+          <div class="dont-item">Don't set maxretry = 1 — causes legitimate user lockouts</div>
+        </div>
+        <div class="tags"><span class="tag devops">Auto Defense</span><span class="tag pro">Must Have</span></div>
+      </div>
+
+      <div class="cmd-card yellow">
+        <div class="cmd-title"><span class="icon">🔍</span>auditd — Linux Audit System</div>
+        <div class="cmd-desc">auditd tracks every security-relevant action: file access, user logins, sudo usage, network connections, system calls. Required for PCI-DSS, HIPAA, SOC2 compliance. Creates tamper-evident audit trail.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># /etc/audit/rules.d/audit.rules</span><br>
+          <span class="comment"># Watch /etc/passwd for writes</span><br>
+          -w /etc/passwd <span class="flag">-p</span> wa <span class="flag">-k</span> identity<br><br>
+          <span class="comment"># Track all sudo commands</span><br>
+          -w /usr/bin/sudo <span class="flag">-p</span> x <span class="flag">-k</span> privilege_escalation<br><br>
+          <span class="comment"># Monitor SSH config changes</span><br>
+          -w /etc/ssh/sshd_config <span class="flag">-p</span> rwxa <span class="flag">-k</span> ssh_config<br><br>
+          <span class="comment"># Detect unauthorized file opens</span><br>
+          -a always,exit <span class="flag">-F</span> arch=b64 <span class="flag">-S</span> open <span class="flag">-F</span> success=0 <span class="flag">-k</span> failed_access<br><br>
+          <span class="comment"># Search audit logs</span><br>
+          ausearch <span class="flag">-k</span> identity        <span class="comment"># by key</span><br>
+          ausearch <span class="flag">-ua</span> 1000           <span class="comment"># by UID</span><br>
+          ausearch <span class="flag">-ts</span> today          <span class="comment"># today's events</span><br><br>
+          <span class="comment"># Generate report</span><br>
+          aureport <span class="flag">--summary</span><br>
+          aureport <span class="flag">--failed</span>          <span class="comment"># all failures</span><br>
+          aureport <span class="flag">--auth</span>            <span class="comment"># authentication events</span>
+        </div>
+        <div class="tags"><span class="tag warn">Compliance</span><span class="tag devops">HIPAA/PCI</span></div>
+      </div>
+
+      <div class="cmd-card red">
+        <div class="cmd-title"><span class="icon">🦠</span>Malware Scanning & Intrusion Detection</div>
+        <div class="cmd-desc">Scan for rootkits, backdoors, and suspicious file changes. Essential after any suspected breach or as scheduled audits in production.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># rkhunter — Rootkit Hunter</span><br>
+          apt install rkhunter<br>
+          rkhunter <span class="flag">--update</span><br>
+          rkhunter <span class="flag">--check</span> <span class="flag">--skip-keypress</span><br><br>
+          <span class="comment"># chkrootkit — Check for rootkits</span><br>
+          chkrootkit<br><br>
+          <span class="comment"># ClamAV — Antivirus</span><br>
+          freshclam                         <span class="comment"># Update definitions</span><br>
+          clamscan <span class="flag">-r</span> <span class="flag">--bell</span> /var/www      <span class="comment"># Scan web dir</span><br>
+          clamscan <span class="flag">-r</span> <span class="flag">--remove</span> /tmp       <span class="comment"># Scan+delete infected</span><br><br>
+          <span class="comment"># AIDE — File Integrity Monitor (init database first)</span><br>
+          aide <span class="flag">--init</span>                     <span class="comment"># Create baseline</span><br>
+          mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db<br>
+          aide <span class="flag">--check</span>                    <span class="comment"># Compare against baseline</span><br><br>
+          <span class="comment"># Find SUID/SGID files (potential privilege escalation)</span><br>
+          find / <span class="flag">-perm</span> /4000 <span class="flag">-type</span> f 2>/dev/null<br>
+          find / <span class="flag">-perm</span> /2000 <span class="flag">-type</span> f 2>/dev/null
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Run AIDE check weekly via cron and email results</div>
+          <div class="do-item">Store baseline AIDE database offline/read-only</div>
+          <div class="dont-item">Never trust a compromised system's binaries to check itself</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILE PERMISSIONS -->
+    <div class="cat-label">🔑 File Permissions & ACLs</div>
+    <div class="grid-3">
+      <div class="cmd-card">
+        <div class="cmd-title">chmod — Change Permissions</div>
+        <div class="cmd-desc">Controls who can read, write, execute files. Uses numeric (octal) or symbolic notation. Core to Linux security model.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Octal notation: r=4, w=2, x=1</span><br>
+          chmod <span class="arg">755</span> script.sh   <span class="comment"># rwxr-xr-x</span><br>
+          chmod <span class="arg">644</span> config.conf  <span class="comment"># rw-r--r--</span><br>
+          chmod <span class="arg">600</span> id_rsa       <span class="comment"># rw------- (private key!)</span><br>
+          chmod <span class="arg">000</span> secret.txt   <span class="comment"># No access</span><br><br>
+          <span class="comment"># Symbolic notation</span><br>
+          chmod u+x script.sh  <span class="comment"># Add execute for user</span><br>
+          chmod go-w file.txt  <span class="comment"># Remove write from group+other</span><br>
+          chmod a+r readme.md  <span class="comment"># Add read for all</span><br><br>
+          <span class="comment"># Recursive</span><br>
+          chmod <span class="flag">-R</span> 755 /var/www/html<br>
+          find /var/www -type f -exec chmod 644 {} \;<br>
+          find /var/www -type d -exec chmod 755 {} \;
+        </div>
+        <div class="alert warn">⚠️ 777 = everyone can write! NEVER use on servers. Max 755 for dirs, 644 for files.</div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title">chown + ACLs — Advanced Ownership</div>
+        <div class="cmd-desc">chown changes file ownership. ACLs (setfacl) extend Unix permissions to allow per-user/per-group fine-grained access beyond the owner/group/other model.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Change owner and group</span><br>
+          chown <span class="arg">www-data:www-data</span> /var/www/html<br>
+          chown <span class="flag">-R</span> <span class="arg">deploy:deploy</span> /opt/app<br><br>
+          <span class="comment"># ACL — Give user read without changing owner</span><br>
+          setfacl <span class="flag">-m</span> u:alice:r /etc/config<br><br>
+          <span class="comment"># Give group write access via ACL</span><br>
+          setfacl <span class="flag">-m</span> g:developers:rwx /opt/project<br><br>
+          <span class="comment"># Set default ACL (applies to new files)</span><br>
+          setfacl <span class="flag">-d</span> <span class="flag">-m</span> g:developers:rwx /opt/project<br><br>
+          <span class="comment"># View ACLs</span><br>
+          getfacl /opt/project<br><br>
+          <span class="comment"># Remove ACL</span><br>
+          setfacl <span class="flag">-x</span> u:alice /etc/config
+        </div>
+        <div class="tags"><span class="tag pro">Advanced</span><span class="tag devops">Multi-Team</span></div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title">OpenSSL — Encryption & Certificates</div>
+        <div class="cmd-desc">OpenSSL handles TLS/SSL, encrypting files, generating keys, signing certificates. Every server admin needs these commands.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Generate self-signed cert</span><br>
+          openssl req <span class="flag">-x509</span> <span class="flag">-nodes</span> <span class="flag">-days</span> 365 <span class="flag">-newkey</span> rsa:2048 \<br>
+            <span class="flag">-keyout</span> server.key <span class="flag">-out</span> server.crt<br><br>
+          <span class="comment"># Check certificate expiry</span><br>
+          openssl x509 <span class="flag">-in</span> cert.pem <span class="flag">-noout</span> <span class="flag">-dates</span><br><br>
+          <span class="comment"># Verify remote cert</span><br>
+          openssl s_client <span class="flag">-connect</span> example.com:443<br><br>
+          <span class="comment"># Encrypt a file (AES-256)</span><br>
+          openssl enc <span class="flag">-aes-256-cbc</span> <span class="flag">-in</span> secret.txt <span class="flag">-out</span> secret.enc<br><br>
+          <span class="comment"># Decrypt</span><br>
+          openssl enc <span class="flag">-d</span> <span class="flag">-aes-256-cbc</span> <span class="flag">-in</span> secret.enc <span class="flag">-out</span> secret.txt<br><br>
+          <span class="comment"># Check cert expiry (one-liner for monitoring)</span><br>
+          echo | openssl s_client <span class="flag">-connect</span> example.com:443 2>/dev/null | openssl x509 <span class="flag">-noout</span> <span class="flag">-enddate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== NETWORKING =============================== -->
+  <div id="networking" class="section">
+    <div class="section-header">
+      <div class="section-icon">🌐</div>
+      <div>
+        <div class="section-title">Networking Mastery</div>
+        <div class="section-sub">// DNS · TCP/IP · ROUTING · INTERFACES · TRAFFIC ANALYSIS</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📡</span>ip — Modern Network Configuration (Replaces ifconfig)</div>
+        <div class="cmd-desc">The `ip` command is the modern replacement for ifconfig, route, and arp. Controls interfaces, routing tables, ARP cache, namespaces. Part of iproute2 package.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Show all interfaces</span><br>
+          ip addr show  <span class="comment"># or: ip a</span><br>
+          ip link show  <span class="comment"># just link state</span><br><br>
+          <span class="comment"># Add IP to interface</span><br>
+          ip addr add <span class="arg">192.168.1.100/24</span> dev eth0<br><br>
+          <span class="comment"># Bring interface up/down</span><br>
+          ip link set eth0 up<br>
+          ip link set eth0 down<br><br>
+          <span class="comment"># Routing table</span><br>
+          ip route show<br>
+          ip route add <span class="arg">10.0.0.0/8</span> via <span class="arg">192.168.1.1</span><br>
+          ip route del <span class="arg">10.0.0.0/8</span><br>
+          ip route add default via <span class="arg">192.168.1.1</span>  <span class="comment"># default GW</span><br><br>
+          <span class="comment"># ARP cache</span><br>
+          ip neigh show<br>
+          ip neigh flush all  <span class="comment"># flush ARP cache</span><br><br>
+          <span class="comment"># Network namespaces (containers/VMs)</span><br>
+          ip netns list<br>
+          ip netns add myns<br>
+          ip netns exec myns bash
+        </div>
+        <div class="pros-cons">
+          <div class="pros">Unified tool (replaces 3+ old tools)<br>Supports namespaces<br>JSON output: ip -j addr<br>Available everywhere</div>
+          <div class="cons">Verbose compared to ifconfig<br>Changes not persistent (use netplan/systemd-networkd)</div>
+        </div>
+        <div class="alert warn">⚠️ Changes made with `ip` are NOT persistent. Use /etc/netplan/*.yaml or /etc/network/interfaces for permanent config.</div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🔍</span>ss / netstat — Socket Statistics</div>
+        <div class="cmd-desc">ss (socket statistics) is the modern replacement for netstat. Shows open ports, established connections, listening services. Critical for security audits and debugging.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># All listening ports (TCP+UDP)</span><br>
+          ss <span class="flag">-tulnp</span><br>
+          <span class="comment"># t=TCP u=UDP l=listening n=numeric p=process</span><br><br>
+          <span class="comment"># All established connections</span><br>
+          ss <span class="flag">-tnp</span> state established<br><br>
+          <span class="comment"># Filter by port</span><br>
+          ss <span class="flag">-tnp</span> dport :80<br>
+          ss <span class="flag">-tnp</span> sport :443<br><br>
+          <span class="comment"># Show connections to specific IP</span><br>
+          ss dst <span class="arg">203.0.113.10</span><br><br>
+          <span class="comment"># Count connections per state</span><br>
+          ss <span class="flag">-s</span><br><br>
+          <span class="comment"># Which process is using port 8080?</span><br>
+          ss <span class="flag">-tulnp</span> | grep :8080<br><br>
+          <span class="comment"># Watch for TIME_WAIT buildup (DDoS indicator)</span><br>
+          ss <span class="flag">-tn</span> state time-wait | wc -l<br><br>
+          <span class="comment"># Show Unix sockets</span><br>
+          ss <span class="flag">-x</span>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Use ss -tulnp as first step in any security audit</div>
+          <div class="do-item">Monitor TIME_WAIT count as DDoS early warning</div>
+          <div class="dont-item">Don't ignore LISTEN ports you don't recognize — investigate immediately</div>
+        </div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">🕵️</span>tcpdump — Packet Capture (Wireshark for CLI)</div>
+        <div class="cmd-desc">tcpdump captures and analyzes network packets at the lowest level. Essential for debugging network issues, analyzing protocols, detecting attacks, and understanding exactly what traffic passes through your server.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Capture on interface eth0</span><br>
+          tcpdump <span class="flag">-i</span> eth0<br><br>
+          <span class="comment"># Capture HTTP traffic only</span><br>
+          tcpdump <span class="flag">-i</span> eth0 <span class="flag">-n</span> port 80<br><br>
+          <span class="comment"># Capture and save to file</span><br>
+          tcpdump <span class="flag">-i</span> eth0 <span class="flag">-w</span> capture.pcap<br><br>
+          <span class="comment"># Filter by source IP</span><br>
+          tcpdump <span class="flag">-i</span> eth0 src <span class="arg">203.0.113.10</span><br><br>
+          <span class="comment"># Show HTTP GET requests</span><br>
+          tcpdump <span class="flag">-i</span> eth0 <span class="flag">-A</span> port 80 | grep "GET "<br><br>
+          <span class="comment"># Full verbose with hex dump</span><br>
+          tcpdump <span class="flag">-i</span> eth0 <span class="flag">-XX</span> <span class="flag">-v</span> port 443<br><br>
+          <span class="comment"># Complex filter: TCP SYN only (port scans!)</span><br>
+          tcpdump <span class="flag">-i</span> eth0 'tcp[tcpflags] & tcp-syn != 0 and tcp[tcpflags] & tcp-ack == 0'<br><br>
+          <span class="comment"># DNS queries</span><br>
+          tcpdump <span class="flag">-i</span> eth0 <span class="flag">-n</span> port 53
+        </div>
+        <div class="alert info">💡 Use -w to save pcap, then open in Wireshark for GUI analysis. Always get approval before capturing traffic in production.</div>
+        <div class="tags"><span class="tag warn">Root Required</span><span class="tag devops">Incident Response</span></div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">🗺️</span>DNS Tools — dig, nslookup, host</div>
+        <div class="cmd-desc">DNS troubleshooting is 80% of "why can't I connect" issues. These tools query DNS servers directly, trace resolution paths, and verify DNS propagation.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># dig — Most powerful DNS tool</span><br>
+          dig google.com              <span class="comment"># A record</span><br>
+          dig google.com MX          <span class="comment"># Mail records</span><br>
+          dig google.com NS          <span class="comment"># Name servers</span><br>
+          dig google.com TXT         <span class="comment"># TXT records (SPF/DKIM)</span><br>
+          dig <span class="flag">+short</span> google.com      <span class="comment"># Just the IP</span><br><br>
+          <span class="comment"># Query specific DNS server</span><br>
+          dig @<span class="arg">8.8.8.8</span> google.com<br>
+          dig @<span class="arg">1.1.1.1</span> google.com      <span class="comment"># Cloudflare DNS</span><br><br>
+          <span class="comment"># Trace full DNS resolution path</span><br>
+          dig <span class="flag">+trace</span> google.com<br><br>
+          <span class="comment"># Reverse DNS lookup</span><br>
+          dig <span class="flag">-x</span> 8.8.8.8<br>
+          host 8.8.8.8<br><br>
+          <span class="comment"># Check DNS propagation</span><br>
+          dig @<span class="arg">8.8.8.8</span> mysite.com && dig @<span class="arg">1.1.1.1</span> mysite.com<br><br>
+          <span class="comment"># DNSSEC validation</span><br>
+          dig <span class="flag">+dnssec</span> google.com
+        </div>
+      </div>
+
+      <div class="cmd-card yellow">
+        <div class="cmd-title"><span class="icon">🏓</span>Connectivity Testing — ping, traceroute, mtr</div>
+        <div class="cmd-desc">Diagnose network path issues, latency, packet loss. mtr combines ping + traceroute in real-time — the ultimate network path diagnostic tool.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># ping with count</span><br>
+          ping <span class="flag">-c</span> 10 google.com<br>
+          ping <span class="flag">-c</span> 100 <span class="flag">-i</span> 0.2 target.com  <span class="comment"># fast ping</span><br><br>
+          <span class="comment"># Traceroute (shows each hop)</span><br>
+          traceroute google.com<br>
+          traceroute <span class="flag">-T</span> <span class="flag">-p</span> 443 google.com  <span class="comment"># TCP traceroute</span><br><br>
+          <span class="comment"># mtr — Real-time path analysis</span><br>
+          mtr google.com             <span class="comment"># Interactive</span><br>
+          mtr <span class="flag">--report</span> <span class="flag">-n</span> google.com  <span class="comment"># Generate report</span><br><br>
+          <span class="comment"># nc — Test port connectivity</span><br>
+          nc <span class="flag">-zv</span> google.com 443     <span class="comment"># Is port open?</span><br>
+          nc <span class="flag">-zv</span> db.internal 5432  <span class="comment"># Test DB connectivity</span><br><br>
+          <span class="comment"># curl — HTTP connectivity test</span><br>
+          curl <span class="flag">-I</span> https://api.example.com<br>
+          curl <span class="flag">-v</span> <span class="flag">--connect-timeout</span> 5 api.example.com
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📊</span>nmap — Network Scanner & Port Mapper</div>
+        <div class="cmd-desc">nmap is the industry standard port scanner. Discover hosts, open ports, running services, OS fingerprinting. Used for security audits, inventory, and penetration testing.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Scan single host</span><br>
+          nmap <span class="arg">192.168.1.1</span><br><br>
+          <span class="comment"># Scan top 1000 ports + version detection</span><br>
+          nmap <span class="flag">-sV</span> <span class="arg">192.168.1.1</span><br><br>
+          <span class="comment"># Full scan: OS + version + scripts</span><br>
+          nmap <span class="flag">-A</span> <span class="arg">192.168.1.1</span><br><br>
+          <span class="comment"># Scan all 65535 ports</span><br>
+          nmap <span class="flag">-p-</span> <span class="arg">192.168.1.1</span><br><br>
+          <span class="comment"># Scan entire subnet</span><br>
+          nmap <span class="arg">192.168.1.0/24</span><br><br>
+          <span class="comment"># Stealth scan (SYN scan)</span><br>
+          nmap <span class="flag">-sS</span> <span class="arg">192.168.1.1</span><br><br>
+          <span class="comment"># UDP scan</span><br>
+          nmap <span class="flag">-sU</span> <span class="arg">192.168.1.1</span><br><br>
+          <span class="comment"># Check for vulnerabilities</span><br>
+          nmap <span class="flag">--script</span> vuln <span class="arg">192.168.1.1</span>
+        </div>
+        <div class="alert danger">🚨 ONLY scan networks you own or have explicit written permission to scan. Unauthorized scanning is illegal in many jurisdictions!</div>
+        <div class="do-dont">
+          <div class="do-item">Use nmap regularly on your own infrastructure for security audits</div>
+          <div class="dont-item">Never scan cloud providers (AWS/GCP/Azure) without permission — your account will be suspended</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== STORAGE & DISK =============================== -->
+  <div id="storage" class="section">
+    <div class="section-header">
+      <div class="section-icon">💾</div>
+      <div>
+        <div class="section-title">Storage & Disk Mastery</div>
+        <div class="section-sub">// LVM · RAID · FILESYSTEMS · PARTITIONING · MOUNTING · QUOTAS</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📊</span>Disk Usage — df, du, ncdu</div>
+        <div class="cmd-desc">Monitor disk space before it fills up. Full disks crash databases, stop logs, cause data loss. These commands show you where space is used.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Disk filesystem usage (human readable)</span><br>
+          df <span class="flag">-h</span><br>
+          df <span class="flag">-hT</span>              <span class="comment"># Include filesystem type</span><br><br>
+          <span class="comment"># Show inode usage (can fill up too!)</span><br>
+          df <span class="flag">-i</span>              <span class="comment"># Critical: full inodes = no new files</span><br><br>
+          <span class="comment"># Directory sizes</span><br>
+          du <span class="flag">-sh</span> /var/log/*  <span class="comment"># Size of each log</span><br>
+          du <span class="flag">-sh</span> /*          <span class="comment"># Root level sizes</span><br><br>
+          <span class="comment"># Find top 10 largest files</span><br>
+          du <span class="flag">-ah</span> / 2>/dev/null | sort <span class="flag">-rh</span> | head -10<br><br>
+          <span class="comment"># ncdu — Interactive disk usage (install it!)</span><br>
+          ncdu /var         <span class="comment"># Navigate with arrow keys</span><br><br>
+          <span class="comment"># Find large files (>100MB)</span><br>
+          find / <span class="flag">-size</span> +100M <span class="flag">-type</span> f <span class="flag">-exec</span> ls <span class="flag">-lh</span> {} \; 2>/dev/null
+        </div>
+        <div class="alert danger">🚨 When / partition hits 95%: databases corrupt, SSH may fail, cron stops. Set alerts at 80%!</div>
+        <div class="do-dont">
+          <div class="do-item">Set up disk monitoring alerts at 80% threshold</div>
+          <div class="do-item">Check df -i (inode usage) regularly — often overlooked</div>
+          <div class="dont-item">Don't wait for 100% to investigate. 95% is emergency territory.</div>
+        </div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🏗️</span>LVM — Logical Volume Manager</div>
+        <div class="cmd-desc">LVM adds a virtualization layer over physical disks. Allows dynamic resizing of volumes, snapshots, and spanning across multiple physical disks. ESSENTIAL for production servers.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># LVM Hierarchy: PV → VG → LV</span><br>
+          <span class="comment"># Physical Volume → Volume Group → Logical Volume</span><br><br>
+          <span class="comment"># Create PV from disk/partition</span><br>
+          pvcreate /dev/sdb<br>
+          pvdisplay          <span class="comment"># show PVs</span><br>
+          pvs                <span class="comment"># brief summary</span><br><br>
+          <span class="comment"># Create Volume Group</span><br>
+          vgcreate <span class="arg">data_vg</span> /dev/sdb<br>
+          vgs                <span class="comment"># show VGs</span><br><br>
+          <span class="comment"># Create Logical Volume (50GB)</span><br>
+          lvcreate <span class="flag">-L</span> 50G <span class="flag">-n</span> <span class="arg">data_lv</span> <span class="arg">data_vg</span><br><br>
+          <span class="comment"># Format and mount</span><br>
+          mkfs.ext4 /dev/data_vg/data_lv<br>
+          mount /dev/data_vg/data_lv /data<br><br>
+          <span class="comment"># EXTEND volume (online, no downtime!)</span><br>
+          lvextend <span class="flag">-L</span> +20G /dev/data_vg/data_lv<br>
+          resize2fs /dev/data_vg/data_lv    <span class="comment"># ext4</span><br>
+          xfs_growfs /data                   <span class="comment"># xfs</span><br><br>
+          <span class="comment"># Create snapshot (for backup/testing)</span><br>
+          lvcreate <span class="flag">-s</span> <span class="flag">-n</span> snap_backup <span class="flag">-L</span> 10G /dev/data_vg/data_lv<br><br>
+          <span class="comment"># Add new disk to existing VG</span><br>
+          pvcreate /dev/sdc<br>
+          vgextend data_vg /dev/sdc
+        </div>
+        <div class="pros-cons">
+          <div class="pros">Online resize (no downtime)<br>Snapshots for backup<br>Span multiple disks<br>Thin provisioning</div>
+          <div class="cons">Complexity overhead<br>Recovery harder than raw disk<br>Snapshot performance impact</div>
+        </div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">⚡</span>fdisk / parted — Disk Partitioning</div>
+        <div class="cmd-desc">Partition management for physical and virtual disks. fdisk for MBR disks (max 2TB), parted/gdisk for GPT (supports >2TB). Required when adding new storage.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># List all disks and partitions</span><br>
+          lsblk <span class="flag">-f</span>            <span class="comment"># Tree view with FS info</span><br>
+          fdisk <span class="flag">-l</span>            <span class="comment"># Detailed partition tables</span><br>
+          blkid              <span class="comment"># UUIDs and FS types</span><br><br>
+          <span class="comment"># Interactive partition editor</span><br>
+          fdisk /dev/sdb     <span class="comment"># n=new, d=delete, p=print, w=write</span><br><br>
+          <span class="comment"># parted — GPT support (>2TB)</span><br>
+          parted /dev/sdb<br>
+          (parted) mklabel gpt<br>
+          (parted) mkpart primary ext4 0% 100%<br>
+          (parted) quit<br><br>
+          <span class="comment"># Format partitions</span><br>
+          mkfs.ext4 /dev/sdb1       <span class="comment"># ext4</span><br>
+          mkfs.xfs /dev/sdb1        <span class="comment"># XFS (better for large files)</span><br>
+          mkfs.btrfs /dev/sdb1      <span class="comment"># btrfs (snapshots built-in)</span><br>
+          mkswap /dev/sdb1          <span class="comment"># swap partition</span>
+        </div>
+        <div class="alert danger">🚨 fdisk/parted operations on wrong device = DATA LOSS. Triple-check device names with lsblk before ANY write operations!</div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">🔗</span>Mounting & /etc/fstab</div>
+        <div class="cmd-desc">Mounting makes filesystems accessible. /etc/fstab makes mounts persistent across reboots. A misconfigured fstab can prevent server from booting — handle with care.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Manual mount</span><br>
+          mount /dev/sdb1 /mnt/data<br>
+          mount <span class="flag">-t</span> ext4 /dev/sdb1 /mnt/data<br>
+          mount <span class="flag">-o</span> ro /dev/sdb1 /mnt/data     <span class="comment"># Read-only</span><br><br>
+          <span class="comment"># Mount NFS share</span><br>
+          mount <span class="flag">-t</span> nfs <span class="arg">server.local:/exports</span> /mnt/nfs<br><br>
+          <span class="comment"># /etc/fstab entry (format: device mountpoint fstype options dump pass)</span><br>
+          UUID=<span class="arg">abc123</span> /data ext4 defaults,noatime 0 2<br>
+          <span class="comment"># Always use UUID not /dev/sdX (device names change!)</span><br><br>
+          <span class="comment"># Get UUID</span><br>
+          blkid /dev/sdb1<br><br>
+          <span class="comment"># Test fstab SAFELY (before reboot!)</span><br>
+          mount <span class="flag">-a</span>      <span class="comment"># Mount all from fstab — test it!</span><br><br>
+          <span class="comment"># Unmount</span><br>
+          umount /mnt/data<br>
+          umount <span class="flag">-l</span> /mnt/data   <span class="comment"># Lazy unmount (when busy)</span><br>
+          fuser <span class="flag">-m</span> /mnt/data    <span class="comment"># See who's using mount</span>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always use UUID in fstab, never /dev/sdX</div>
+          <div class="do-item">Add "nofail" option for non-critical mounts to prevent boot failure</div>
+          <div class="dont-item">Never edit fstab without testing with mount -a first</div>
+        </div>
+      </div>
+
+      <div class="cmd-card yellow">
+        <div class="cmd-title"><span class="icon">💽</span>RAID — Redundant Array of Independent Disks</div>
+        <div class="cmd-desc">RAID provides redundancy and/or performance using multiple disks. Software RAID with mdadm is reliable and free. Understanding RAID levels prevents data loss scenarios.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># RAID Levels Summary:</span><br>
+          <span class="comment"># RAID 0: Stripe (speed, NO redundancy)</span><br>
+          <span class="comment"># RAID 1: Mirror (redundancy, 50% usable)</span><br>
+          <span class="comment"># RAID 5: Stripe+Parity (min 3 disks, 1 can fail)</span><br>
+          <span class="comment"># RAID 6: Dual parity (min 4 disks, 2 can fail)</span><br>
+          <span class="comment"># RAID 10: Mirror+Stripe (best performance+redundancy)</span><br><br>
+          <span class="comment"># Create RAID 1 (mirror)</span><br>
+          mdadm <span class="flag">--create</span> /dev/md0 <span class="flag">--level=1</span> <span class="flag">--raid-devices=2</span> /dev/sdb /dev/sdc<br><br>
+          <span class="comment"># Check RAID status</span><br>
+          cat /proc/mdstat<br>
+          mdadm <span class="flag">--detail</span> /dev/md0<br><br>
+          <span class="comment"># Add spare disk</span><br>
+          mdadm /dev/md0 <span class="flag">--add</span> /dev/sdd<br><br>
+          <span class="comment"># Simulate disk failure</span><br>
+          mdadm /dev/md0 <span class="flag">--fail</span> /dev/sdb<br>
+          mdadm /dev/md0 <span class="flag">--remove</span> /dev/sdb<br>
+          mdadm /dev/md0 <span class="flag">--add</span> /dev/sde    <span class="comment"># Replace with new disk</span>
+        </div>
+        <div class="tags"><span class="tag warn">RAID ≠ Backup</span><span class="tag devops">HA Storage</span></div>
+      </div>
+
+      <div class="cmd-card red">
+        <div class="cmd-title"><span class="icon">🏃</span>Disk I/O Performance — iostat, iotop, fio</div>
+        <div class="cmd-desc">Diagnose disk bottlenecks. Slow disks kill application performance. These tools identify if disk I/O is your bottleneck and which processes are causing it.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># iostat — Disk I/O statistics</span><br>
+          iostat <span class="flag">-x</span> 1          <span class="comment"># Extended stats every 1 sec</span><br>
+          iostat <span class="flag">-xz</span> 2 10     <span class="comment"># 10 samples, 2 sec interval</span><br>
+          <span class="comment"># Look for: await>10ms, %util>80%, await spike = problem</span><br><br>
+          <span class="comment"># iotop — per-process I/O (like top for disk)</span><br>
+          iotop <span class="flag">-o</span>             <span class="comment"># Show only active I/O</span><br>
+          iotop <span class="flag">-a</span>             <span class="comment"># Accumulated totals</span><br><br>
+          <span class="comment"># fio — Benchmark disk performance</span><br>
+          fio <span class="flag">--name</span>=randwrite <span class="flag">--ioengine</span>=libaio \<br>
+            <span class="flag">--iodepth</span>=1 <span class="flag">--rw</span>=randwrite <span class="flag">--bs</span>=4k \<br>
+            <span class="flag">--direct</span>=1 <span class="flag">--size</span>=1G <span class="flag">--numjobs</span>=1 \<br>
+            <span class="flag">--runtime</span>=60 <span class="flag">--group_reporting</span><br><br>
+          <span class="comment"># Quick disk speed test</span><br>
+          dd if=/dev/zero of=/tmp/test bs=1G count=1 oflag=dsync<br>
+          dd if=/tmp/test of=/dev/null bs=1G count=1
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== MONITORING =============================== -->
+  <div id="monitoring" class="section">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-title">Monitoring & Observability</div>
+        <div class="section-sub">// CPU · MEMORY · PROCESSES · SYSTEM HEALTH · PERFORMANCE</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📈</span>top / htop — Process Monitor</div>
+        <div class="cmd-desc">Real-time process monitoring. top is always available, htop is the superior interactive version. Shows CPU, memory, load average, and per-process stats.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># top — Built-in process monitor</span><br>
+          top<br>
+          top <span class="flag">-u</span> www-data     <span class="comment"># Filter by user</span><br>
+          top <span class="flag">-p</span> <span class="arg">1234,5678</span>   <span class="comment"># Watch specific PIDs</span><br><br>
+          <span class="comment"># top keyboard shortcuts:</span><br>
+          <span class="comment"># M = sort by memory</span><br>
+          <span class="comment"># P = sort by CPU</span><br>
+          <span class="comment"># k = kill process</span><br>
+          <span class="comment"># 1 = per-CPU view</span><br>
+          <span class="comment"># H = show threads</span><br><br>
+          <span class="comment"># htop — Enhanced interactive monitor</span><br>
+          htop<br>
+          htop <span class="flag">-u</span> deploy       <span class="comment"># Filter user</span><br>
+          htop <span class="flag">-p</span> <span class="arg">PID</span>          <span class="comment"># Watch specific process</span><br><br>
+          <span class="comment"># Understanding Load Average: (1min 5min 15min)</span><br>
+          <span class="comment"># Load < CPU count = healthy</span><br>
+          <span class="comment"># Load = CPU count = 100% utilized</span><br>
+          <span class="comment"># Load > CPU count = overloaded!</span><br><br>
+          uptime             <span class="comment"># Quick load average check</span>
+        </div>
+        <div class="alert info">💡 htop tip: F4=filter, F5=tree view, F6=sort, Space=tag process for bulk kill. Install it: apt install htop</div>
+        <div class="do-dont">
+          <div class="do-item">Check load average trend (1/5/15 min) to see if problem is getting worse</div>
+          <div class="dont-item">Don't panic at high %CPU single-core — check if it's sustained over 15 min</div>
+        </div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">💾</span>Memory Monitoring — free, vmstat, /proc/meminfo</div>
+        <div class="cmd-desc">Linux memory management is different from Windows — Linux uses all RAM for caching. Understanding available vs free memory prevents false alarms and catches real issues.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># free — Memory overview</span><br>
+          free <span class="flag">-h</span>           <span class="comment"># Human readable</span><br>
+          free <span class="flag">-h</span> <span class="flag">-s</span> 2      <span class="comment"># Refresh every 2s</span><br>
+          <span class="comment"># KEY: Look at "available" column, NOT "free"!</span><br>
+          <span class="comment"># "free" = unused | "available" = what apps can use</span><br><br>
+          <span class="comment"># vmstat — Virtual Memory Statistics</span><br>
+          vmstat 1           <span class="comment"># Every 1 second</span><br>
+          vmstat <span class="flag">-s</span>          <span class="comment"># Summary stats</span><br>
+          <span class="comment"># si/so columns = swap in/out. Non-zero = memory pressure!</span><br><br>
+          <span class="comment"># Detailed memory info</span><br>
+          cat /proc/meminfo<br><br>
+          <span class="comment"># Find memory-hungry processes</span><br>
+          ps aux <span class="flag">--sort</span>=-%mem | head -10<br><br>
+          <span class="comment"># Clear page cache (dev/test only, NOT production!)</span><br>
+          echo 3 > /proc/sys/vm/drop_caches  <span class="danger"># NEVER on production!</span><br><br>
+          <span class="comment"># Check swap usage</span><br>
+          swapon <span class="flag">-s</span><br>
+          cat /proc/swaps
+        </div>
+        <div class="alert warn">⚠️ If vmstat shows si/so (swap in/out) consistently > 0, you need more RAM or you have a memory leak!</div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">📉</span>sar — System Activity Reporter (Historical Data)</div>
+        <div class="cmd-desc">sar (from sysstat package) records historical system performance data. Unlike top/htop which only show NOW, sar shows what happened 2 hours ago when the server slowed down. INVALUABLE for post-incident analysis.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Install sysstat</span><br>
+          apt install sysstat<br>
+          systemctl enable sysstat && systemctl start sysstat<br><br>
+          <span class="comment"># CPU usage history</span><br>
+          sar <span class="flag">-u</span>             <span class="comment"># Today's CPU data</span><br>
+          sar <span class="flag">-u</span> <span class="flag">-f</span> /var/log/sysstat/sa20  <span class="comment"># Specific day</span><br><br>
+          <span class="comment"># Memory history</span><br>
+          sar <span class="flag">-r</span>             <span class="comment"># RAM usage over time</span><br><br>
+          <span class="comment"># Disk I/O history</span><br>
+          sar <span class="flag">-d</span> <span class="flag">-p</span>          <span class="comment"># Disk activity</span><br><br>
+          <span class="comment"># Network history</span><br>
+          sar <span class="flag">-n</span> DEV         <span class="comment"># Network interface stats</span><br>
+          sar <span class="flag">-n</span> TCP,ETCP    <span class="comment"># TCP errors</span><br><br>
+          <span class="comment"># Load average history</span><br>
+          sar <span class="flag">-q</span>             <span class="comment"># Load/queue history</span><br><br>
+          <span class="comment"># Real-time (like iostat)</span><br>
+          sar <span class="flag">-u</span> 1 10        <span class="comment"># CPU: 1s interval, 10 times</span>
+        </div>
+        <div class="tags"><span class="tag devops">Post-Incident</span><span class="tag pro">Must Install</span></div>
+        <div class="do-dont">
+          <div class="do-item">Install sysstat on EVERY server from day one</div>
+          <div class="do-item">Use sar during post-mortems to reconstruct what happened</div>
+        </div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">🔬</span>strace / lsof — Deep Process Inspection</div>
+        <div class="cmd-desc">strace shows every system call a process makes. lsof shows every open file/socket. Together they reveal exactly what a misbehaving process is doing — essential for debugging hung processes.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># strace — Trace system calls</span><br>
+          strace <span class="arg">ls</span>           <span class="comment"># Trace command</span><br>
+          strace <span class="flag">-p</span> <span class="arg">1234</span>      <span class="comment"># Attach to running process</span><br>
+          strace <span class="flag">-p</span> <span class="arg">1234</span> <span class="flag">-e</span> trace=network  <span class="comment"># Only network calls</span><br>
+          strace <span class="flag">-p</span> <span class="arg">1234</span> <span class="flag">-e</span> trace=file     <span class="comment"># Only file calls</span><br>
+          strace <span class="flag">-c</span> <span class="arg">python app.py</span>  <span class="comment"># Summarize syscall counts</span><br><br>
+          <span class="comment"># lsof — List open files</span><br>
+          lsof <span class="flag">-p</span> <span class="arg">1234</span>        <span class="comment"># All open files by PID</span><br>
+          lsof <span class="flag">-i</span>             <span class="comment"># All open network connections</span><br>
+          lsof <span class="flag">-i</span> :<span class="arg">8080</span>       <span class="comment"># Who's using port 8080</span><br>
+          lsof <span class="flag">-i</span> TCP         <span class="comment"># All TCP connections</span><br>
+          lsof /var/log/nginx  <span class="comment"># Who has this file open</span><br>
+          lsof <span class="flag">-u</span> www-data     <span class="comment"># All files by user</span><br><br>
+          <span class="comment"># Find deleted files still held open (consuming disk!)</span><br>
+          lsof | grep deleted
+        </div>
+        <div class="alert success">✅ "lsof | grep deleted" finds files deleted but still held by a process — common cause of "disk full" when df shows space used</div>
+      </div>
+
+      <div class="cmd-card yellow">
+        <div class="cmd-title"><span class="icon">⚙️</span>perf — Linux Performance Profiling</div>
+        <div class="cmd-desc">perf is the Linux profiling Swiss Army knife. Identifies CPU hotspots, cache misses, branch mispredictions. Used by kernel developers and performance engineers for deep analysis.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Record CPU profile of command</span><br>
+          perf record <span class="flag">-g</span> <span class="arg">./my_app</span><br><br>
+          <span class="comment"># View flamegraph-style report</span><br>
+          perf report<br><br>
+          <span class="comment"># Attach to running process</span><br>
+          perf top <span class="flag">-p</span> <span class="arg">1234</span><br><br>
+          <span class="comment"># System-wide stats (60 seconds)</span><br>
+          perf stat <span class="flag">-a</span> sleep 60<br><br>
+          <span class="comment"># Count specific events</span><br>
+          perf stat <span class="flag">-e</span> cache-misses,cache-references <span class="arg">./app</span><br><br>
+          <span class="comment"># watch — Repeat command, show output</span><br>
+          watch <span class="flag">-n</span> 1 'df -h'           <span class="comment"># Disk every 1 sec</span><br>
+          watch <span class="flag">-n</span> 2 'ss -s'            <span class="comment"># Socket stats</span><br>
+          watch <span class="flag">-d</span> <span class="flag">-n</span> 1 'cat /proc/net/dev'  <span class="comment"># -d highlights changes</span>
+        </div>
+      </div>
+
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📟</span>dmesg & System Journals</div>
+        <div class="cmd-desc">dmesg shows kernel ring buffer — hardware events, driver errors, OOM kills, disk errors. journalctl queries systemd journal for all service logs. First tools to check after any system problem.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># dmesg — Kernel messages</span><br>
+          dmesg                    <span class="comment"># All kernel messages</span><br>
+          dmesg <span class="flag">-T</span>               <span class="comment"># Human-readable timestamps</span><br>
+          dmesg <span class="flag">-T</span> <span class="flag">--level</span>=err,warn  <span class="comment"># Only errors/warnings</span><br>
+          dmesg | tail <span class="flag">-50</span>         <span class="comment"># Last 50 messages</span><br>
+          dmesg | grep -i 'oom\|kill'  <span class="comment"># OOM killer events</span><br>
+          dmesg | grep -i 'error\|fail'  <span class="comment"># Hardware errors</span><br><br>
+          <span class="comment"># journalctl — systemd journal</span><br>
+          journalctl <span class="flag">-xe</span>           <span class="comment"># Recent errors, jump to end</span><br>
+          journalctl <span class="flag">-u</span> nginx       <span class="comment"># Single service logs</span><br>
+          journalctl <span class="flag">-f</span>            <span class="comment"># Follow (like tail -f)</span><br>
+          journalctl <span class="flag">--since</span> "1 hour ago"<br>
+          journalctl <span class="flag">--since</span> "2024-01-15 10:00" <span class="flag">--until</span> "2024-01-15 11:00"<br>
+          journalctl <span class="flag">-p</span> err <span class="flag">-n</span> 50  <span class="comment"># Last 50 errors</span><br>
+          journalctl <span class="flag">--disk-usage</span>   <span class="comment"># How much space logs use</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== SERVER =============================== -->
+  <div id="server" class="section">
+    <div class="section-header">
+      <div class="section-icon">🖥️</div>
+      <div>
+        <div class="section-title">Server Management</div>
+        <div class="section-sub">// SYSTEMD · SERVICES · CRON · SYSTEM INFO · PACKAGE MGMT</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">⚙️</span>systemctl — Service & System Control</div>
+        <div class="cmd-desc">systemd is the init system and service manager for modern Linux. systemctl controls all services, system state, and boot targets. Master this — you'll use it every single day.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Service control</span><br>
+          systemctl start nginx<br>
+          systemctl stop nginx<br>
+          systemctl restart nginx<br>
+          systemctl reload nginx       <span class="comment"># Graceful reload (no downtime)</span><br>
+          systemctl status nginx       <span class="comment"># Detailed status + recent logs</span><br><br>
+          <span class="comment"># Enable/disable at boot</span><br>
+          systemctl enable nginx       <span class="comment"># Start on boot</span><br>
+          systemctl disable nginx      <span class="comment"># Don't start on boot</span><br>
+          systemctl enable --now nginx <span class="comment"># Enable + start immediately</span><br><br>
+          <span class="comment"># List services</span><br>
+          systemctl list-units <span class="flag">--type</span>=service<br>
+          systemctl list-units <span class="flag">--type</span>=service <span class="flag">--state</span>=failed<br><br>
+          <span class="comment"># System control</span><br>
+          systemctl reboot<br>
+          systemctl poweroff<br>
+          systemctl suspend<br><br>
+          <span class="comment"># Analyze boot time</span><br>
+          systemd-analyze<br>
+          systemd-analyze blame        <span class="comment"># Which services slow boot</span><br>
+          systemd-analyze critical-chain
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Use reload instead of restart when possible (zero-downtime)</div>
+          <div class="do-item">Always check `systemctl status service` after changes</div>
+          <div class="dont-item">Don't restart critical services (DB, load balancer) during peak hours without a plan</div>
+        </div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">📅</span>cron & systemd timers — Scheduled Tasks</div>
+        <div class="cmd-desc">cron runs commands on schedules. Critical for backups, cleanup, health checks, report generation. Systemd timers are the modern alternative with better logging.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Edit current user's crontab</span><br>
+          crontab <span class="flag">-e</span><br><br>
+          <span class="comment"># Cron syntax: min hour day month weekday command</span><br>
+          <span class="comment"># *    *    *   *     *      command</span><br>
+          0 2 * * * /backup/run.sh        <span class="comment"># Daily 2am backup</span><br>
+          */5 * * * * /check/health.sh    <span class="comment"># Every 5 minutes</span><br>
+          0 9 * * 1 /reports/weekly.sh    <span class="comment"># Mondays at 9am</span><br>
+          @reboot /opt/startup.sh         <span class="comment"># On every reboot</span><br><br>
+          <span class="comment"># List crontabs</span><br>
+          crontab <span class="flag">-l</span><br>
+          crontab <span class="flag">-l</span> <span class="flag">-u</span> www-data     <span class="comment"># Other user's crontab</span><br>
+          ls /etc/cron.d/               <span class="comment"># System cron files</span><br><br>
+          <span class="comment"># System-wide cron directories</span><br>
+          /etc/cron.hourly/<br>
+          /etc/cron.daily/<br>
+          /etc/cron.weekly/<br>
+          /etc/cron.monthly/<br><br>
+          <span class="comment"># Always redirect output (or emails will queue!)</span><br>
+          0 2 * * * /backup.sh >> /var/log/backup.log 2>&1
+        </div>
+        <div class="alert warn">⚠️ Cron jobs with no output redirection can cause mail queue buildup. Always redirect: >> log.txt 2>&1</div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">📦</span>Package Management — apt, yum, dnf</div>
+        <div class="cmd-desc">Package managers install, update, remove software. Understanding repositories, dependencies, and pinning versions is critical for reproducible infrastructure.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment">### Debian/Ubuntu — apt ###</span><br>
+          apt update                    <span class="comment"># Refresh package lists</span><br>
+          apt upgrade                   <span class="comment"># Upgrade packages</span><br>
+          apt install nginx -y<br>
+          apt remove nginx<br>
+          apt purge nginx               <span class="comment"># Remove + config files</span><br>
+          apt autoremove               <span class="comment"># Remove orphaned packages</span><br>
+          apt search keyword<br>
+          apt show nginx               <span class="comment"># Package info</span><br>
+          apt list --installed          <span class="comment"># All installed</span><br>
+          apt list --upgradeable<br><br>
+          <span class="comment">### RHEL/CentOS/Amazon Linux — dnf ###</span><br>
+          dnf update<br>
+          dnf install nginx<br>
+          dnf remove nginx<br>
+          dnf search nginx<br>
+          dnf info nginx<br><br>
+          <span class="comment"># Pin package version (prevent auto-upgrade)</span><br>
+          apt-mark hold nginx          <span class="comment"># Lock nginx version</span><br>
+          apt-mark unhold nginx
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Run apt update before apt install on fresh servers</div>
+          <div class="do-item">Use apt-mark hold for critical packages (kernel, DB) before OS upgrades</div>
+          <div class="dont-item">Never run apt upgrade on production without testing in staging first</div>
+        </div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">💻</span>System Information Commands</div>
+        <div class="cmd-desc">Quickly gather server specs, OS info, hardware details. Essential when troubleshooting, scaling, or inventorying infrastructure.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># OS and kernel info</span><br>
+          uname <span class="flag">-a</span>              <span class="comment"># Kernel version</span><br>
+          cat /etc/os-release   <span class="comment"># OS details</span><br>
+          lsb_release <span class="flag">-a</span>       <span class="comment"># Distro info</span><br><br>
+          <span class="comment"># CPU info</span><br>
+          nproc                 <span class="comment"># CPU count</span><br>
+          lscpu                 <span class="comment"># Detailed CPU info</span><br>
+          cat /proc/cpuinfo | grep "model name" | head -1<br><br>
+          <span class="comment"># Memory</span><br>
+          free <span class="flag">-h</span><br>
+          cat /proc/meminfo | grep MemTotal<br><br>
+          <span class="comment"># Hardware overview</span><br>
+          lshw <span class="flag">-short</span>          <span class="comment"># Hardware summary</span><br>
+          dmidecode <span class="flag">-t</span> system   <span class="comment"># DMI/SMBIOS info</span><br>
+          inxi <span class="flag">-F</span>              <span class="comment"># Full system info</span><br><br>
+          <span class="comment"># System uptime & load</span><br>
+          uptime<br>
+          w                     <span class="comment"># Who's logged in + their processes</span><br>
+          last                  <span class="comment"># Login history</span><br>
+          lastb                 <span class="comment"># Failed logins</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== CACHE =============================== -->
+  <div id="cache" class="section">
+    <div class="section-header">
+      <div class="section-icon">⚡</div>
+      <div>
+        <div class="section-title">Cache Management</div>
+        <div class="section-sub">// REDIS · MEMCACHED · VARNISH · NGINX CACHE · PAGE CACHE</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">🔴</span>Redis — In-Memory Data Store</div>
+        <div class="cmd-desc">Redis is the most popular caching layer. Stores data in RAM for microsecond access. Supports strings, hashes, lists, sets, sorted sets, streams. Used for sessions, queues, rate limiting, pub/sub, leaderboards.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Connect to Redis</span><br>
+          redis-cli                    <span class="comment"># Local default</span><br>
+          redis-cli <span class="flag">-h</span> redis.host <span class="flag">-p</span> 6379 <span class="flag">-a</span> password<br><br>
+          <span class="comment"># Basic operations</span><br>
+          SET mykey "hello"<br>
+          GET mykey<br>
+          SET session:user1 "data" EX 3600   <span class="comment"># Expire in 1 hour</span><br>
+          TTL session:user1                  <span class="comment"># Check remaining TTL</span><br>
+          DEL mykey<br>
+          EXISTS mykey<br><br>
+          <span class="comment"># List all keys (NEVER in production!)</span><br>
+          KEYS *     <span class="danger"># Blocks server! Use SCAN instead:</span><br>
+          SCAN 0 MATCH "session:*" COUNT 100<br><br>
+          <span class="comment"># Server info & stats</span><br>
+          INFO server<br>
+          INFO memory<br>
+          INFO stats<br>
+          DBSIZE                            <span class="comment"># Total keys</span><br>
+          MONITOR                           <span class="comment"># Live command stream (dev only!)</span><br><br>
+          <span class="comment"># Flush cache (WARNING!)</span><br>
+          FLUSHDB   <span class="danger"># Clear current database</span><br>
+          FLUSHALL  <span class="danger"># Clear ALL databases</span>
+        </div>
+        <div class="alert danger">🚨 Never use KEYS * on production Redis. It's O(N) and will block all other commands! Use SCAN with COUNT.</div>
+        <div class="pros-cons">
+          <div class="pros">Sub-millisecond response<br>Rich data structures<br>Persistence options<br>Pub/sub built-in<br>Clustering support</div>
+          <div class="cons">All data in RAM (expensive)<br>RAM limit = cache size limit<br>Not for complex queries<br>Cache invalidation complexity</div>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always set TTL on cache keys — never store forever without reason</div>
+          <div class="do-item">Use SCAN not KEYS for production key scanning</div>
+          <div class="do-item">Enable maxmemory with eviction policy (allkeys-lru for cache)</div>
+          <div class="dont-item">Don't store sensitive PII in Redis without encryption</div>
+          <div class="dont-item">Don't use Redis as primary database — it's a cache layer</div>
+        </div>
+        <div class="tags"><span class="tag pro">Most Popular</span><span class="tag devops">Session Cache</span></div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🐘</span>Redis CLI — Advanced Operations</div>
+        <div class="cmd-desc">Advanced Redis patterns used in production: persistence config, memory analysis, slow log, replication status, cluster management.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Memory analysis</span><br>
+          MEMORY USAGE mykey           <span class="comment"># Bytes used by key</span><br>
+          MEMORY DOCTOR               <span class="comment"># Memory health report</span><br>
+          OBJECT ENCODING mykey       <span class="comment"># Internal encoding type</span><br><br>
+          <span class="comment"># Slow log (commands > 10ms)</span><br>
+          SLOWLOG GET 25              <span class="comment"># Last 25 slow commands</span><br>
+          SLOWLOG LEN                 <span class="comment"># Count of slow commands</span><br>
+          SLOWLOG RESET<br><br>
+          <span class="comment"># Persistence</span><br>
+          BGSAVE                      <span class="comment"># Async RDB snapshot</span><br>
+          BGREWRITEAOF                <span class="comment"># Compact AOF log</span><br>
+          SAVE                        <span class="comment"># Sync save (blocks!)</span><br>
+          LASTSAVE                    <span class="comment"># Last save timestamp</span><br><br>
+          <span class="comment"># Replication</span><br>
+          INFO replication<br>
+          REPLICAOF host 6379         <span class="comment"># Set as replica</span><br>
+          REPLICAOF NO ONE            <span class="comment"># Promote to master</span><br><br>
+          <span class="comment"># Pipeline (batch commands)</span><br>
+          redis-cli <span class="flag">--pipe</span> < commands.txt<br><br>
+          <span class="comment"># Benchmark</span><br>
+          redis-benchmark <span class="flag">-n</span> 100000 <span class="flag">-c</span> 50
+        </div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">🌪️</span>Varnish — HTTP Cache (Reverse Proxy Cache)</div>
+        <div class="cmd-desc">Varnish sits in front of web servers and caches HTTP responses. Can serve thousands of req/sec from cache that would otherwise hit your app server. Key tool for high-traffic web applications.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Varnish admin CLI</span><br>
+          varnishadm<br><br>
+          <span class="comment"># Statistics</span><br>
+          varnishstat                  <span class="comment"># Real-time stats</span><br>
+          varnishstat <span class="flag">-1</span>              <span class="comment"># One-shot snapshot</span><br>
+          varnishstat <span class="flag">-f</span> MAIN.cache_hit,MAIN.cache_miss<br><br>
+          <span class="comment"># Watch live HTTP transactions</span><br>
+          varnishlog<br>
+          varnishtop                   <span class="comment"># Top requests</span><br>
+          varnishhist                  <span class="comment"># Response time histogram</span><br><br>
+          <span class="comment"># Purge cache (invalidate)</span><br>
+          varnishadm "ban req.url ~ /api"<br>
+          varnishadm "ban obj.http.Host == example.com"<br><br>
+          <span class="comment"># Check hit rate</span><br>
+          varnishstat <span class="flag">-1</span> | grep hit_rate<br><br>
+          <span class="comment"># VCL — Varnish Configuration Language</span><br>
+          <span class="comment"># /etc/varnish/default.vcl</span><br>
+          sub vcl_recv {<br>
+            if (req.method == "POST") {<br>
+              return(pass);    <span class="comment"># Never cache POSTs</span><br>
+            }<br>
+          }
+        </div>
+        <div class="tags"><span class="tag pro">High Traffic</span><span class="tag info">CDN Alternative</span></div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">⚙️</span>Nginx Caching — Proxy Cache</div>
+        <div class="cmd-desc">Nginx can cache backend responses, serving repeat requests without hitting your app. Simpler than Varnish but very effective for API caching and static content.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># nginx.conf — Cache zone setup</span><br>
+          proxy_cache_path /var/cache/nginx<br>
+            levels=1:2<br>
+            keys_zone=my_cache:10m<br>
+            max_size=10g<br>
+            inactive=60m<br>
+            use_temp_path=off;<br><br>
+          <span class="comment"># In server block:</span><br>
+          location /api/ {<br>
+            proxy_pass http://backend;<br>
+            proxy_cache my_cache;<br>
+            proxy_cache_valid 200 10m;  <span class="comment"># Cache 200 for 10 min</span><br>
+            proxy_cache_valid 404 1m;<br>
+            proxy_cache_use_stale error timeout;<br>
+            add_header X-Cache-Status $upstream_cache_status;<br>
+          }<br><br>
+          <span class="comment"># Check cache status in response headers</span><br>
+          curl <span class="flag">-I</span> https://example.com/api/users<br>
+          <span class="comment"># X-Cache-Status: HIT / MISS / BYPASS / EXPIRED</span><br><br>
+          <span class="comment"># Purge cache (requires ngx_cache_purge module)</span><br>
+          curl <span class="flag">-X</span> PURGE https://example.com/api/users
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Add X-Cache-Status header to debug cache hits/misses</div>
+          <div class="do-item">Use proxy_cache_use_stale to serve stale on backend failure</div>
+          <div class="dont-item">Never cache responses containing user-specific data without Vary headers</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== PROCESSES =============================== -->
+  <div id="processes" class="section">
+    <div class="section-header">
+      <div class="section-icon">⚙️</div>
+      <div>
+        <div class="section-title">Process Management</div>
+        <div class="section-sub">// SIGNALS · JOBS · PRIORITY · BACKGROUND · NAMESPACES</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">🎯</span>ps — Process Status (Deep Dive)</div>
+        <div class="cmd-desc">ps shows running processes. Mastering ps with format options gives you complete visibility into process state, resource usage, ancestry, and timing.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># All processes, all users, full format</span><br>
+          ps aux<br><br>
+          <span class="comment"># Full format with process hierarchy</span><br>
+          ps auxf                        <span class="comment"># Forest view (parent-child)</span><br>
+          ps <span class="flag">-ejH</span>                      <span class="comment"># Tree format</span><br><br>
+          <span class="comment"># Custom output columns</span><br>
+          ps <span class="flag">-eo</span> pid,ppid,user,cmd,mem,cpu,stat --sort=-%cpu | head -20<br><br>
+          <span class="comment"># Find process by name</span><br>
+          ps aux | grep nginx<br>
+          pgrep nginx                    <span class="comment"># Returns PIDs only</span><br>
+          pgrep <span class="flag">-a</span> nginx               <span class="comment"># With command</span><br>
+          pgrep <span class="flag">-u</span> www-data            <span class="comment"># By user</span><br><br>
+          <span class="comment"># Watch process continuously</span><br>
+          watch <span class="flag">-n</span> 1 'ps aux --sort=-%cpu | head -10'<br><br>
+          <span class="comment"># Process states explained:</span><br>
+          <span class="comment"># R = Running  S = Sleeping  D = Uninterruptible sleep</span><br>
+          <span class="comment"># Z = Zombie   T = Stopped   I = Idle</span><br>
+          <span class="comment"># D state = usually waiting for I/O (disk/network)</span>
+        </div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">⚡</span>kill, signals, nice — Process Control</div>
+        <div class="cmd-desc">Signals communicate with processes. SIGTERM asks nicely, SIGKILL forces termination, SIGHUP reloads config. Nice values control CPU priority (-20=highest, 19=lowest).</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Kill signals</span><br>
+          kill <span class="arg">1234</span>              <span class="comment"># SIGTERM (15) — graceful</span><br>
+          kill <span class="flag">-9</span> <span class="arg">1234</span>          <span class="comment"># SIGKILL — force kill</span><br>
+          kill <span class="flag">-HUP</span> <span class="arg">1234</span>        <span class="comment"># Reload config</span><br>
+          kill <span class="flag">-STOP</span> <span class="arg">1234</span>       <span class="comment"># Pause process</span><br>
+          kill <span class="flag">-CONT</span> <span class="arg">1234</span>       <span class="comment"># Resume paused</span><br><br>
+          <span class="comment"># Kill by name</span><br>
+          pkill nginx               <span class="comment"># Kill by name</span><br>
+          pkill <span class="flag">-9</span> <span class="flag">-u</span> baduser     <span class="comment"># Kill all user's processes</span><br>
+          killall nginx             <span class="comment"># Kill all matching</span><br><br>
+          <span class="comment"># Priority (nice value)</span><br>
+          nice <span class="flag">-n</span> 10 ./cpu_job.sh  <span class="comment"># Start with low priority</span><br>
+          renice <span class="flag">-n</span> 5 <span class="flag">-p</span> 1234      <span class="comment"># Change running process</span><br>
+          renice <span class="flag">-n</span> 19 <span class="flag">-u</span> backupuser  <span class="comment"># Low priority for user</span><br><br>
+          <span class="comment"># Limit resources with ulimit</span><br>
+          ulimit <span class="flag">-n</span> 65536          <span class="comment"># Max open files</span><br>
+          ulimit <span class="flag">-a</span>               <span class="comment"># Show all limits</span>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always try SIGTERM first, wait 30s, then SIGKILL if needed</div>
+          <div class="dont-item">Never use kill -9 on databases — it skips cleanup and causes corruption</div>
+        </div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">🏃</span>Background Jobs & Screen/tmux</div>
+        <div class="cmd-desc">Run long processes in background, detach from terminal, manage multiple sessions. Essential for running jobs on remote servers that must survive SSH disconnection.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Background jobs</span><br>
+          ./long_job.sh &              <span class="comment"># Run in background</span><br>
+          jobs                        <span class="comment"># List background jobs</span><br>
+          fg                          <span class="comment"># Bring to foreground</span><br>
+          bg                          <span class="comment"># Send to background</span><br>
+          nohup ./job.sh &            <span class="comment"># Survive logout</span><br>
+          disown %1                   <span class="comment"># Detach from shell</span><br><br>
+          <span class="comment"># tmux — Terminal multiplexer (MUST LEARN)</span><br>
+          tmux new -s mysession       <span class="comment"># New named session</span><br>
+          tmux attach -t mysession    <span class="comment"># Reattach</span><br>
+          tmux ls                     <span class="comment"># List sessions</span><br>
+          <span class="comment"># Ctrl+b d = detach</span><br>
+          <span class="comment"># Ctrl+b c = new window</span><br>
+          <span class="comment"># Ctrl+b % = split vertical</span><br>
+          <span class="comment"># Ctrl+b " = split horizontal</span><br>
+          <span class="comment"># Ctrl+b [ = scroll mode</span><br><br>
+          <span class="comment"># screen — Alternative to tmux</span><br>
+          screen <span class="flag">-S</span> deploy<br>
+          screen <span class="flag">-r</span> deploy           <span class="comment"># Reattach</span><br>
+          screen <span class="flag">-ls</span>                <span class="comment"># List</span><br>
+          <span class="comment"># Ctrl+a d = detach</span>
+        </div>
+        <div class="alert success">✅ Always use tmux for long-running tasks on remote servers. SSH disconnect won't kill your process!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== USERS & PERMS =============================== -->
+  <div id="users" class="section">
+    <div class="section-header">
+      <div class="section-icon">👤</div>
+      <div>
+        <div class="section-title">Users, Groups & Permissions</div>
+        <div class="section-sub">// USER MGMT · SUDO · PAM · GROUPS · PRIVILEGE ESCALATION</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">👥</span>User & Group Management</div>
+        <div class="cmd-desc">Managing users, groups, and privileges. Core to server security — least privilege principle means users only get what they need, nothing more.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Create user</span><br>
+          useradd <span class="flag">-m</span> <span class="flag">-s</span> /bin/bash <span class="flag">-c</span> "Deploy User" deploy<br>
+          useradd <span class="flag">-r</span> <span class="flag">-s</span> /sbin/nologin nginx  <span class="comment"># System user</span><br>
+          passwd deploy                    <span class="comment"># Set password</span><br><br>
+          <span class="comment"># Modify user</span><br>
+          usermod <span class="flag">-aG</span> sudo deploy          <span class="comment"># Add to sudo group</span><br>
+          usermod <span class="flag">-aG</span> docker deploy         <span class="comment"># Add to docker group</span><br>
+          usermod <span class="flag">-L</span> username               <span class="comment"># Lock account</span><br>
+          usermod <span class="flag">-U</span> username               <span class="comment"># Unlock account</span><br>
+          usermod <span class="flag">-e</span> 2024-12-31 contractor   <span class="comment"># Set expiry date</span><br><br>
+          <span class="comment"># Group management</span><br>
+          groupadd developers<br>
+          groupdel developers<br>
+          gpasswd <span class="flag">-a</span> alice developers        <span class="comment"># Add to group</span><br>
+          gpasswd <span class="flag">-d</span> alice developers        <span class="comment"># Remove from group</span><br>
+          groups alice                      <span class="comment"># Show user's groups</span><br>
+          id alice                          <span class="comment"># UID/GID details</span><br><br>
+          <span class="comment"># Delete user</span><br>
+          userdel <span class="flag">-r</span> username              <span class="comment"># -r removes home dir</span>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Use system users (useradd -r) for service accounts — no shell, no home dir</div>
+          <div class="do-item">Set account expiry for contractors and temporary access</div>
+          <div class="dont-item">Never add service accounts to sudo group</div>
+        </div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🔐</span>sudo — Privilege Escalation Done Right</div>
+        <div class="cmd-desc">sudo allows controlled privilege escalation. The /etc/sudoers file (edited with visudo) defines exactly who can run what as whom — the gold standard for server access control.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># /etc/sudoers — Edit with: visudo (validates syntax!)</span><br><br>
+          <span class="comment"># Allow user to run all as root</span><br>
+          alice ALL=(ALL:ALL) ALL<br><br>
+          <span class="comment"># Allow without password (for automation)</span><br>
+          deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx<br><br>
+          <span class="comment"># Allow specific commands only</span><br>
+          developer ALL=(ALL) /usr/bin/journalctl, /usr/bin/tail<br><br>
+          <span class="comment"># Alias for cleaner rules</span><br>
+          Cmnd_Alias DOCKER = /usr/bin/docker *<br>
+          devteam ALL=(ALL) NOPASSWD: DOCKER<br><br>
+          <span class="comment"># Check sudo access</span><br>
+          sudo <span class="flag">-l</span>                      <span class="comment"># List my sudo permissions</span><br>
+          sudo <span class="flag">-l</span> <span class="flag">-U</span> alice            <span class="comment"># Check another user</span><br><br>
+          <span class="comment"># Run as different user</span><br>
+          sudo <span class="flag">-u</span> www-data <span class="arg">ls /var/www</span><br>
+          sudo <span class="flag">-i</span>                       <span class="comment"># Root shell (with root env)</span><br>
+          sudo <span class="flag">-s</span>                       <span class="comment"># Root shell (current env)</span>
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always use visudo to edit sudoers — it validates before saving</div>
+          <div class="do-item">Prefer specific commands over ALL in sudo rules</div>
+          <div class="dont-item">Never add NOPASSWD ALL — always restrict to specific commands</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== LOGS =============================== -->
+  <div id="logs" class="section">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <div>
+        <div class="section-title">Log Management</div>
+        <div class="section-sub">// SYSLOG · JOURNALD · LOGROTATE · ANALYSIS · AGGREGATION</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📜</span>Essential Log Files</div>
+        <div class="cmd-desc">Knowing where logs are is half the battle. Linux has standardized log locations. Each service also has its own logs. These are the first places to look during incidents.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># System logs</span><br>
+          /var/log/syslog              <span class="comment"># General system (Debian)</span><br>
+          /var/log/messages            <span class="comment"># General system (RHEL)</span><br>
+          /var/log/auth.log            <span class="comment"># Auth/login (Debian)</span><br>
+          /var/log/secure              <span class="comment"># Auth/login (RHEL)</span><br>
+          /var/log/kern.log            <span class="comment"># Kernel messages</span><br>
+          /var/log/dmesg               <span class="comment"># Boot/hardware messages</span><br>
+          /var/log/faillog             <span class="comment"># Failed logins</span><br>
+          /var/log/lastlog             <span class="comment"># Last login times</span><br><br>
+          <span class="comment"># Service logs</span><br>
+          /var/log/nginx/access.log<br>
+          /var/log/nginx/error.log<br>
+          /var/log/apache2/access.log<br>
+          /var/log/mysql/error.log<br>
+          /var/log/postgresql/postgresql-*.log<br>
+          /var/log/redis/redis-server.log<br><br>
+          <span class="comment"># Real-time monitoring</span><br>
+          tail <span class="flag">-f</span> /var/log/nginx/error.log<br>
+          tail <span class="flag">-f</span> /var/log/syslog | grep ERROR<br>
+          multitail /var/log/nginx/error.log /var/log/syslog
+        </div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🔎</span>Log Analysis — grep, awk, sed, cut</div>
+        <div class="cmd-desc">Power-user log analysis on the command line. No need for ELK stack for quick investigations — these tools extract insights from millions of log lines in seconds.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Find all 500 errors in nginx</span><br>
+          grep " 500 " /var/log/nginx/access.log<br><br>
+          <span class="comment"># Count occurrences</span><br>
+          grep <span class="flag">-c</span> "ERROR" /var/log/app.log<br><br>
+          <span class="comment"># Show context around match</span><br>
+          grep <span class="flag">-B2</span> <span class="flag">-A5</span> "CRITICAL" /var/log/app.log<br><br>
+          <span class="comment"># Top 10 IPs hitting your site</span><br>
+          awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10<br><br>
+          <span class="comment"># Top requested URLs</span><br>
+          awk '{print $7}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -20<br><br>
+          <span class="comment"># HTTP status code distribution</span><br>
+          awk '{print $9}' /var/log/nginx/access.log | sort | uniq -c | sort -rn<br><br>
+          <span class="comment"># Errors in last hour</span><br>
+          awk -v d="$(date -d '1 hour ago' '+%d/%b/%Y:%H')" '$4 > "["d' /var/log/nginx/access.log | grep " 5"<br><br>
+          <span class="comment"># Parse JSON logs with jq</span><br>
+          cat app.log | jq '.level == "error"' | jq '.message'
+        </div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">♻️</span>logrotate — Log Rotation</div>
+        <div class="cmd-desc">logrotate automatically rotates, compresses, and deletes old logs. Without it, /var/log fills up and crashes your server. Every production server must have this configured.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># /etc/logrotate.d/myapp</span><br>
+          /var/log/myapp/*.log {<br>
+            daily               <span class="comment"># Rotate daily</span><br>
+            rotate 14           <span class="comment"># Keep 14 days</span><br>
+            compress            <span class="comment"># Gzip old logs</span><br>
+            delaycompress       <span class="comment"># Don't compress latest</span><br>
+            missingok           <span class="comment"># OK if log missing</span><br>
+            notifempty          <span class="comment"># Don't rotate if empty</span><br>
+            sharedscripts<br>
+            postrotate<br>
+              systemctl reload nginx  <span class="comment"># Re-open log file</span><br>
+            endscript<br>
+          }<br><br>
+          <span class="comment"># Test your config</span><br>
+          logrotate <span class="flag">--debug</span> /etc/logrotate.d/myapp<br><br>
+          <span class="comment"># Force rotation</span><br>
+          logrotate <span class="flag">--force</span> /etc/logrotate.d/myapp<br><br>
+          <span class="comment"># View rotation status</span><br>
+          cat /var/lib/logrotate/status
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always include postrotate to signal app to reopen log files</div>
+          <div class="do-item">Set up logrotate for every custom application log</div>
+          <div class="dont-item">Don't keep logs forever — storage fills up. 14-30 days is typical.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =============================== DEVOPS TOOLKIT =============================== -->
+  <div id="devops" class="section">
+    <div class="section-header">
+      <div class="section-icon">🚀</div>
+      <div>
+        <div class="section-title">DevOps Power Toolkit</div>
+        <div class="section-sub">// BASH SCRIPTING · AUTOMATION · PIPELINES · BEST PRACTICES</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="cmd-card">
+        <div class="cmd-title"><span class="icon">📝</span>Bash Scripting — Pro Patterns</div>
+        <div class="cmd-desc">Professional bash scripts with error handling, logging, argument parsing. The difference between a script that breaks silently and one that alerts you when something goes wrong.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment">#!/bin/bash</span><br>
+          <span class="comment"># Pro bash script template</span><br>
+          set <span class="flag">-euo</span> pipefail      <span class="comment"># Exit on error, undefined vars, pipe failures</span><br>
+          IFS=$'\n\t'            <span class="comment"># Safer word splitting</span><br><br>
+          <span class="comment"># Logging function</span><br>
+          log() { echo "[$(date +'%Y-%m-%d %H:%M:%S')] $*" | tee <span class="flag">-a</span> "$LOGFILE"; }<br>
+          error() { log "ERROR: $*" >&2; exit 1; }<br><br>
+          <span class="comment"># Check dependencies</span><br>
+          command -v docker >/dev/null || error "docker not found"<br><br>
+          <span class="comment"># Argument parsing</span><br>
+          ENVIRONMENT="${1:-production}"<br>
+          [[ "$ENVIRONMENT" =~ ^(staging|production)$ ]] || error "Invalid env"<br><br>
+          <span class="comment"># Trap for cleanup on exit</span><br>
+          cleanup() { log "Cleaning up..."; rm -f /tmp/deploy.lock; }<br>
+          trap cleanup EXIT<br><br>
+          <span class="comment"># Lock file (prevent concurrent runs)</span><br>
+          LOCKFILE=/tmp/deploy.lock<br>
+          ( flock <span class="flag">-n</span> 200 || error "Another deploy running!" ) 200>$LOCKFILE<br><br>
+          <span class="comment"># Health check function</span><br>
+          health_check() {<br>
+            local url="$1" retries=5<br>
+            for i in $(seq 1 $retries); do<br>
+              curl <span class="flag">-sf</span> "$url" && return 0<br>
+              sleep 5<br>
+            done<br>
+            return 1<br>
+          }
+        </div>
+        <div class="do-dont">
+          <div class="do-item">Always use set -euo pipefail at the top of every script</div>
+          <div class="do-item">Use trap for cleanup to handle unexpected exits</div>
+          <div class="dont-item">Never write scripts without error handling — silent failures cause data loss</div>
+        </div>
+        <div class="tags"><span class="tag devops">Automation</span><span class="tag pro">Pro Pattern</span></div>
+      </div>
+
+      <div class="cmd-card green">
+        <div class="cmd-title"><span class="icon">🔧</span>Text Processing — awk, sed, grep, jq</div>
+        <div class="cmd-desc">The Swiss Army knife of DevOps. Parse configs, transform data, extract fields from logs and API responses. Master these and you can automate almost anything from the command line.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment">### awk — Field processing ###</span><br>
+          awk '{print $1, $3}' file.txt         <span class="comment"># Print fields 1 and 3</span><br>
+          awk -F: '{print $1}' /etc/passwd       <span class="comment"># Custom delimiter</span><br>
+          awk 'NR>1' file.txt                    <span class="comment"># Skip first line</span><br>
+          awk '/ERROR/ {count++} END {print count}' app.log<br>
+          awk '{sum += $3} END {print sum/NR}' data.txt  <span class="comment"># Average of col 3</span><br><br>
+          <span class="comment">### sed — Stream editor ###</span><br>
+          sed 's/old/new/g' file.txt             <span class="comment"># Replace all</span><br>
+          sed <span class="flag">-i</span> 's/old/new/g' file.txt       <span class="comment"># In-place edit</span><br>
+          sed <span class="flag">-i</span>.bak 's/old/new/g' file.txt  <span class="comment"># Backup first!</span><br>
+          sed '/^#/d' config.txt                 <span class="comment"># Delete comment lines</span><br>
+          sed '5,10d' file.txt                   <span class="comment"># Delete lines 5-10</span><br><br>
+          <span class="comment">### jq — JSON processor ###</span><br>
+          echo '{"name":"alice"}' | jq '.name'<br>
+          curl api/users | jq '.[].email'        <span class="comment"># Extract emails</span><br>
+          curl api/data | jq 'map(select(.active == true))'<br>
+          jq <span class="flag">-r</span> '.[] | "\(.name): \(.role)"' users.json
+        </div>
+      </div>
+
+      <div class="cmd-card orange">
+        <div class="cmd-title"><span class="icon">🔁</span>Useful DevOps One-Liners</div>
+        <div class="cmd-desc">Production-tested one-liners that solve common DevOps problems instantly. Copy-paste ready patterns for daily use.</div>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">COPY</button>
+          <span class="comment"># Find files modified in last 30 minutes</span><br>
+          find /app <span class="flag">-mmin</span> -30 <span class="flag">-type</span> f<br><br>
+          <span class="comment"># Watch log for specific pattern</span><br>
+          tail <span class="flag">-f</span> app.log | grep <span class="flag">--line-buffered</span> "ERROR"<br><br>
+          <span class="comment"># Bulk rename files</span><br>
+          for f in *.txt; do mv "$f" "${f%.txt}.log"; done<br><br>
+          <span class="comment"># Check all running docker containers resources</span><br>
+          docker stats --no-stream<br><br>
+          <span class="comment"># Find open file descriptor leaks</span><br>
+          ls /proc/$(pgrep myapp)/fd | wc -l<br><br>
+          <span class="comment"># Check TLS cert expiry for multiple domains</span><br>
+          for domain in site1.com site2.com; do<br>
+            echo -n "$domain: "<br>
+            echo | openssl s_client -connect $domain:443 2>/dev/null | openssl x509 -noout -enddate<br>
+          done<br><br>
+          <span class="comment"># Generate random password</span><br>
+          openssl rand -base64 24<br><br>
+          <span class="comment"># Recursive string replace in files</span><br>
+          grep <span class="flag">-rl</span> "old_string" /app | xargs sed <span class="flag">-i</span> 's/old_string/new_string/g'<br><br>
+          <span class="comment"># Sync directory to remote server</span><br>
+          rsync <span class="flag">-avz</span> <span class="flag">--progress</span> /local/dir/ user@server:/remote/dir/
+        </div>
+      </div>
+
+      <div class="cmd-card purple">
+        <div class="cmd-title"><span class="icon">✅</span>DevOps Do's & Don'ts — Golden Rules</div>
+        <div class="cmd-desc">Hard-won lessons from production incidents. These rules prevent outages, data loss, and 3am emergency calls.</div>
+        <div class="do-dont">
+          <div class="do-item">Test in staging BEFORE production. Always.</div>
+          <div class="do-item">Take a snapshot/backup before destructive operations</div>
+          <div class="do-item">Use `--dry-run` flags when available before real execution</div>
+          <div class="do-item">Use configuration management (Ansible, Terraform) — no manual snowflakes</div>
+          <div class="do-item">Monitor everything: CPU, memory, disk, network, application errors</div>
+          <div class="do-item">Set up alerting BEFORE you need it, not after the incident</div>
+          <div class="do-item">Keep runbooks updated with step-by-step procedures</div>
+          <div class="do-item">Use tmux on remote servers — SSH drops kill unprotected sessions</div>
+          <div class="do-item">Rotate and monitor TLS certificates (use Let's Encrypt + auto-renew)</div>
+          <div class="do-item">Principle of least privilege: minimum permissions always</div>
+          <div class="dont-item">Never run `rm -rf` without echo dry-run first</div>
+          <div class="dont-item">Never store secrets in environment variables in plain text</div>
+          <div class="dont-item">Never ignore "disk 80% full" warnings — act at 80%, not 99%</div>
+          <div class="dont-item">Never restart a database without knowing recovery plan</div>
+          <div class="dont-item">Never use root for daily operations — use sudo</div>
+          <div class="dont-item">Never commit credentials, private keys, or passwords to git</div>
+          <div class="dont-item">Never deploy on Fridays unless you enjoy weekend on-call</div>
+          <div class="dont-item">Never skip the backups "just this once"</div>
+        </div>
+        <div class="tags"><span class="tag danger">Life Saving</span><span class="tag devops">Career Essential</span></div>
+      </div>
+    </div>
+
+    <!-- QUICK REFERENCE TABLE -->
+    <div class="cat-label">⚡ Quick Reference — Most Used Commands</div>
+    <div class="full-card">
+      <table class="cmd-table">
+        <tr>
+          <th>Category</th>
+          <th>Command</th>
+          <th>What It Does</th>
+          <th>Key Flags</th>
+        </tr>
+        <tr><td class="hl-blue">Disk</td><td class="cmd-cell">df -h</td><td class="desc-cell">Show filesystem disk usage</td><td class="flag-cell">-i (inodes) -T (type)</td></tr>
+        <tr><td class="hl-blue">Disk</td><td class="cmd-cell">du -sh /*</td><td class="desc-cell">Directory sizes</td><td class="flag-cell">-a (all files) -c (total)</td></tr>
+        <tr><td class="hl-green">Net</td><td class="cmd-cell">ss -tulnp</td><td class="desc-cell">All listening ports + processes</td><td class="flag-cell">-t (tcp) -u (udp) -p (process)</td></tr>
+        <tr><td class="hl-green">Net</td><td class="cmd-cell">ip addr show</td><td class="desc-cell">Network interfaces & IPs</td><td class="flag-cell">-br (brief) -j (json)</td></tr>
+        <tr><td class="hl-orange">Process</td><td class="cmd-cell">ps auxf</td><td class="desc-cell">All processes tree view</td><td class="flag-cell">--sort=-%cpu --sort=-%mem</td></tr>
+        <tr><td class="hl-orange">Process</td><td class="cmd-cell">lsof -i :80</td><td class="desc-cell">What's using port 80</td><td class="flag-cell">-p (pid) -u (user)</td></tr>
+        <tr><td class="hl-purple">Security</td><td class="cmd-cell">last / lastb</td><td class="desc-cell">Login history / failed logins</td><td class="flag-cell">-n 20 (last 20)</td></tr>
+        <tr><td class="hl-purple">Security</td><td class="cmd-cell">find / -perm /4000</td><td class="desc-cell">SUID files (priv escalation risk)</td><td class="flag-cell">-type f -exec ls -la {} \;</td></tr>
+        <tr><td class="hl-yellow">Logs</td><td class="cmd-cell">journalctl -xe</td><td class="desc-cell">Recent system errors</td><td class="flag-cell">-u (unit) -f (follow) -p err</td></tr>
+        <tr><td class="hl-yellow">Logs</td><td class="cmd-cell">dmesg -T | grep -i err</td><td class="desc-cell">Kernel errors with timestamps</td><td class="flag-cell">--level=err,warn</td></tr>
+        <tr><td class="hl-red">Memory</td><td class="cmd-cell">free -h</td><td class="desc-cell">RAM usage overview</td><td class="flag-cell">-s 2 (refresh 2s)</td></tr>
+        <tr><td class="hl-red">Memory</td><td class="cmd-cell">vmstat 1</td><td class="desc-cell">CPU/memory/io stats per sec</td><td class="flag-cell">-s (summary) -d (disk)</td></tr>
+        <tr><td class="hl-blue">Service</td><td class="cmd-cell">systemctl status X</td><td class="desc-cell">Service status + recent logs</td><td class="flag-cell">--no-pager -l (full)</td></tr>
+        <tr><td class="hl-green">File</td><td class="cmd-cell">find / -mtime -1 -type f</td><td class="desc-cell">Files modified in last 24h</td><td class="flag-cell">-size +100M -name "*.log"</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="footer">
+    ⚡ LINUX MASTER CANVAS — DevOps Pro Edition &nbsp;·&nbsp; Every command, every concept &nbsp;·&nbsp; Built for production engineers
+  </div>
+</div>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo({top: 0, behavior: 'smooth'});
+  }
+
+  function copyCode(btn) {
+    const block = btn.parentElement;
+    const text = Array.from(block.childNodes)
+      .filter(n => n.nodeType === Node.TEXT_NODE || (n.nodeType === Node.ELEMENT_NODE && n.tagName !== 'BUTTON'))
+      .map(n => n.textContent)
+      .join('').trim();
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'COPIED!';
+      btn.style.color = 'var(--accent2)';
+      btn.style.borderColor = 'var(--accent2)';
+      setTimeout(() => { btn.textContent = 'COPY'; btn.style.color = ''; btn.style.borderColor = ''; }, 2000);
+    });
+  }
+
+  // Active tab highlight on load
+  document.querySelector('.tab-btn').classList.add('active');
+</script>
+
+</body>
+</html>

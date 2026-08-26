@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Deep Dive — Complete Learning Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050A14;
+  --surface: #0D1B2A;
+  --surface2: #112136;
+  --border: #1E3A5F;
+  --accent: #00D4FF;
+  --accent2: #FF6B35;
+  --accent3: #7C3AED;
+  --accent4: #10B981;
+  --accent5: #F59E0B;
+  --text: #E2EAF4;
+  --muted: #6B8CAE;
+  --heading: #FFFFFF;
+  --pro: #10B981;
+  --con: #EF4444;
+  --cost: #F59E0B;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Lato', sans-serif;
+  overflow-x: hidden;
+}
+
+/* NAV */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  background: rgba(5,10,20,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+nav::-webkit-scrollbar { height: 3px; }
+nav::-webkit-scrollbar-track { background: transparent; }
+nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.nav-brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  color: var(--accent);
+  white-space: nowrap;
+  margin-right: 16px;
+  letter-spacing: -0.5px;
+}
+
+.nav-btn {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover, .nav-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(0,212,255,0.08);
+}
+
+/* PAGES */
+.page {
+  display: none;
+  min-height: 100vh;
+  padding: 72px 24px 48px;
+  max-width: 1300px;
+  margin: 0 auto;
+  animation: fadeIn 0.4s ease;
+}
+
+.page.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* HERO */
+.hero {
+  text-align: center;
+  padding: 60px 0 48px;
+  position: relative;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.3);
+  color: var(--accent);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  letter-spacing: 1px;
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent3) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+}
+
+.hero p {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 560px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+.topic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 40px;
+}
+
+.topic-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.25s;
+  text-align: left;
+}
+
+.topic-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,212,255,0.15);
+}
+
+.topic-card .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.topic-card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--heading);
+  line-height: 1.3;
+}
+
+/* PAGE TITLES */
+.page-header {
+  margin-bottom: 36px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.page-header .tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent2);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.page-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  color: var(--heading);
+  line-height: 1.1;
+}
+
+.page-header p {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 10px;
+  max-width: 700px;
+  line-height: 1.6;
+}
+
+/* CARDS */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.card-icon {
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.card h3 {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--heading);
+}
+
+.card p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.layman {
+  background: rgba(0,212,255,0.06);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+  margin: 12px 0;
+}
+
+.layman strong { color: var(--accent); font-style: normal; }
+
+/* PRO CON COST */
+.pcc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+@media (max-width: 600px) {
+  .pcc-grid { grid-template-columns: 1fr; }
+  .arch-grid { grid-template-columns: 1fr !important; }
+  .two-col { grid-template-columns: 1fr !important; }
+}
+
+.pcc-box {
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.pcc-box.pros { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); }
+.pcc-box.cons { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); }
+.pcc-box.cost { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); }
+
+.pcc-box h4 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.pcc-box.pros h4 { color: var(--pro); }
+.pcc-box.cons h4 { color: var(--con); }
+.pcc-box.cost h4 { color: var(--cost); }
+
+.pcc-box ul { list-style: none; }
+.pcc-box ul li {
+  font-size: 12px;
+  padding: 4px 0;
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+.pcc-box.pros ul li::before { content: "✓"; position: absolute; left: 0; color: var(--pro); }
+.pcc-box.cons ul li::before { content: "✗"; position: absolute; left: 0; color: var(--con); }
+.pcc-box.cost ul li::before { content: "$"; position: absolute; left: 0; color: var(--cost); }
+
+/* ARCH DIAGRAM */
+.arch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.arch-box {
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid;
+}
+
+.arch-box.control {
+  border-color: rgba(124,58,237,0.4);
+  background: rgba(124,58,237,0.06);
+}
+
+.arch-box.worker {
+  border-color: rgba(0,212,255,0.4);
+  background: rgba(0,212,255,0.06);
+}
+
+.arch-box h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+
+.arch-box.control h4 { color: var(--accent3); }
+.arch-box.worker h4 { color: var(--accent); }
+
+.component-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.component-item .name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--heading);
+  font-weight: 700;
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+.component-item .desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* TWO COL */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* CODE BLOCK */
+.code-block {
+  background: #020810;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+.code-block .key { color: #7DD3FC; }
+.code-block .val { color: #86EFAC; }
+.code-block .comment { color: #475569; }
+.code-block .str { color: #FCA5A5; }
+
+/* BADGE */
+.badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin: 2px;
+  font-weight: 700;
+}
+
+.badge-blue { background: rgba(0,212,255,0.15); color: var(--accent); border: 1px solid rgba(0,212,255,0.3); }
+.badge-purple { background: rgba(124,58,237,0.15); color: #A78BFA; border: 1px solid rgba(124,58,237,0.3); }
+.badge-green { background: rgba(16,185,129,0.15); color: #34D399; border: 1px solid rgba(16,185,129,0.3); }
+.badge-orange { background: rgba(255,107,53,0.15); color: var(--accent2); border: 1px solid rgba(255,107,53,0.3); }
+.badge-yellow { background: rgba(245,158,11,0.15); color: var(--accent5); border: 1px solid rgba(245,158,11,0.3); }
+
+/* FLOW DIAGRAM */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 16px;
+  background: var(--surface2);
+  border-radius: 8px;
+  margin: 12px 0;
+}
+
+.flow-step {
+  background: rgba(0,212,255,0.1);
+  border: 1px solid rgba(0,212,255,0.3);
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+.flow-arrow {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin: 12px 0;
+}
+
+th {
+  background: var(--surface2);
+  padding: 10px 14px;
+  text-align: left;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(30,58,95,0.5);
+  color: var(--text);
+  vertical-align: top;
+}
+
+tr:hover td { background: rgba(255,255,255,0.02); }
+
+/* SECTION DIVIDER */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--heading);
+  margin: 32px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* GRID 3 */
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.mini-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+  transition: border-color 0.2s;
+}
+
+.mini-card:hover { border-color: var(--accent); }
+
+.mini-card h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--heading);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mini-card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* HIGHLIGHT BOX */
+.highlight {
+  background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(124,58,237,0.08));
+  border: 1px solid rgba(0,212,255,0.2);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 16px 0;
+}
+
+.highlight h4 {
+  font-family: 'Syne', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.highlight p {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">⎈ K8s Canvas</div>
+  <button class="nav-btn active" onclick="showPage('home')">🏠 Home</button>
+  <button class="nav-btn" onclick="showPage('basics')">01 · Basics</button>
+  <button class="nav-btn" onclick="showPage('architecture')">02 · Architecture</button>
+  <button class="nav-btn" onclick="showPage('objects')">03 · Core Objects</button>
+  <button class="nav-btn" onclick="showPage('networking')">04 · Networking</button>
+  <button class="nav-btn" onclick="showPage('storage')">05 · Storage</button>
+  <button class="nav-btn" onclick="showPage('config')">06 · Config & Secrets</button>
+  <button class="nav-btn" onclick="showPage('scheduling')">07 · Scheduling</button>
+  <button class="nav-btn" onclick="showPage('scaling')">08 · Scaling</button>
+  <button class="nav-btn" onclick="showPage('health')">09 · Health Checks</button>
+  <button class="nav-btn" onclick="showPage('security')">10 · Security</button>
+  <button class="nav-btn" onclick="showPage('observability')">11 · Observability</button>
+  <button class="nav-btn" onclick="showPage('tools')">12 · CLI & Tools</button>
+  <button class="nav-btn" onclick="showPage('deployments')">13 · Deployments</button>
+  <button class="nav-btn" onclick="showPage('yaml')">14 · YAML</button>
+</nav>
+
+<!-- HOME PAGE -->
+<div class="page active" id="home">
+  <div class="hero">
+    <div class="hero-badge">COMPLETE LEARNING CANVAS · 15 TOPICS</div>
+    <h1>Kubernetes<br>Deep Dive</h1>
+    <p>From zero to production — every concept explained in plain English with pros, cons, and real costs.</p>
+  </div>
+  <div class="topic-grid">
+    <div class="topic-card" onclick="showPage('basics')"><div class="num">01</div><h3>Containers & Basics</h3></div>
+    <div class="topic-card" onclick="showPage('architecture')"><div class="num">02</div><h3>Architecture</h3></div>
+    <div class="topic-card" onclick="showPage('objects')"><div class="num">03</div><h3>Core Objects</h3></div>
+    <div class="topic-card" onclick="showPage('networking')"><div class="num">04</div><h3>Services & Networking</h3></div>
+    <div class="topic-card" onclick="showPage('storage')"><div class="num">05</div><h3>Storage</h3></div>
+    <div class="topic-card" onclick="showPage('config')"><div class="num">06</div><h3>Config & Secrets</h3></div>
+    <div class="topic-card" onclick="showPage('scheduling')"><div class="num">07</div><h3>Scheduling & Resources</h3></div>
+    <div class="topic-card" onclick="showPage('scaling')"><div class="num">08</div><h3>Scaling & Auto-Scaling</h3></div>
+    <div class="topic-card" onclick="showPage('health')"><div class="num">09</div><h3>Health Checks</h3></div>
+    <div class="topic-card" onclick="showPage('security')"><div class="num">10</div><h3>Security & RBAC</h3></div>
+    <div class="topic-card" onclick="showPage('observability')"><div class="num">11</div><h3>Monitoring & Logging</h3></div>
+    <div class="topic-card" onclick="showPage('tools')"><div class="num">12</div><h3>kubectl & Tools</h3></div>
+    <div class="topic-card" onclick="showPage('deployments')"><div class="num">13</div><h3>Deploy Strategies</h3></div>
+    <div class="topic-card" onclick="showPage('yaml')"><div class="num">14</div><h3>YAML Reference</h3></div>
+    <div class="topic-card" style="border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.04);">
+      <div class="num">⎈</div><h3 style="color: var(--accent)">Start from Topic 01 →</h3>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 01: BASICS -->
+<div class="page" id="basics">
+  <div class="page-header">
+    <div class="tag">TOPIC 01</div>
+    <h2>Containers & K8s Basics</h2>
+    <p>Understanding what Kubernetes is, why it exists, and the foundation you need before diving deeper.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background: rgba(0,212,255,0.15);">🐳</div>
+      <h3>What is Kubernetes?</h3>
+    </div>
+    <p>Kubernetes (K8s) is an open-source platform that <strong>automates deploying, scaling, and managing containerized applications</strong>. Originally built by Google, now maintained by CNCF.</p>
+    <div class="layman"><strong>Layman:</strong> Imagine you have 100 restaurant branches. Instead of hiring a manager for each, you hire ONE super-manager who watches all branches, fixes problems automatically, and scales staff during rush hours. That's Kubernetes for your apps.</div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Self-healing — restarts crashed apps</li><li>Auto-scales on demand</li><li>Zero-downtime deployments</li><li>Works across cloud providers</li><li>Massive community support</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Steep learning curve</li><li>Over-engineered for small apps</li><li>Complex networking setup</li><li>Debugging is hard initially</li><li>Needs dedicated expertise</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>EKS (AWS): ~$0.10/hr per cluster</li><li>GKE (Google): Free control plane</li><li>AKS (Azure): Free control plane</li><li>Node VMs: $50–500+/mo</li><li>DevOps engineer: $80k–150k/yr</li></ul></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(124,58,237,0.15);">📦</div>
+        <h3>Containers</h3>
+      </div>
+      <p>A container packages your app + all its dependencies (libraries, configs) into one portable unit. It runs the same everywhere.</p>
+      <div class="layman"><strong>Layman:</strong> A shipping container. Everything needed for your app is packed inside — wherever it lands (AWS, Azure, your laptop), it runs identically.</div>
+      <div class="code-block">
+        <span class="comment"># Build a container image</span><br>
+        <span class="key">docker build</span> <span class="val">-t myapp:1.0 .</span><br><br>
+        <span class="comment"># Run a container</span><br>
+        <span class="key">docker run</span> <span class="val">-p 8080:80 myapp:1.0</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255,107,53,0.15);">💻</div>
+        <h3>VM vs Container</h3>
+      </div>
+      <table>
+        <tr><th>Feature</th><th>VM</th><th>Container</th></tr>
+        <tr><td>Boot time</td><td>Minutes</td><td>Seconds</td></tr>
+        <tr><td>Size</td><td>GBs</td><td>MBs</td></tr>
+        <tr><td>OS</td><td>Full OS</td><td>Shares host OS</td></tr>
+        <tr><td>Isolation</td><td>Strong</td><td>Process-level</td></tr>
+        <tr><td>Density</td><td>~10/host</td><td>100s/host</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background: rgba(16,185,129,0.15);">🗂️</div>
+      <h3>Container Registry</h3>
+    </div>
+    <p>A registry stores container images — like GitHub but for Docker images. You push images here, Kubernetes pulls from here.</p>
+    <div style="margin-top: 12px;">
+      <span class="badge badge-blue">Docker Hub</span>
+      <span class="badge badge-orange">AWS ECR</span>
+      <span class="badge badge-green">Google GCR</span>
+      <span class="badge badge-purple">Azure ACR</span>
+      <span class="badge badge-yellow">Harbor (self-hosted)</span>
+    </div>
+    <div class="pcc-grid" style="margin-top:16px;">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Centralized image storage</li><li>Version tagging</li><li>Access controls</li><li>Vulnerability scanning</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Docker Hub rate limits</li><li>Private repos cost money</li><li>Pull latency in some regions</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>Docker Hub Free: 1 private repo</li><li>Docker Pro: $5/mo</li><li>ECR: $0.10/GB/month</li><li>Harbor: Free (self-host)</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 02: ARCHITECTURE -->
+<div class="page" id="architecture">
+  <div class="page-header">
+    <div class="tag">TOPIC 02</div>
+    <h2>Kubernetes Architecture</h2>
+    <p>How a K8s cluster is structured — the brain (Control Plane) and the workers (Nodes).</p>
+  </div>
+
+  <div class="highlight">
+    <h4>🏗️ Big Picture</h4>
+    <p>A Kubernetes cluster has two main parts: <strong>Control Plane</strong> (the brain — decides what runs where) and <strong>Worker Nodes</strong> (the muscles — actually run your apps). You talk to K8s via <code style="color:var(--accent)">kubectl</code> which hits the API Server.</p>
+  </div>
+
+  <div class="flow">
+    <div class="flow-step">You / kubectl</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">API Server</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">etcd (stores state)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Scheduler</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Worker Node</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">Kubelet → Pod</div>
+  </div>
+
+  <div class="arch-grid">
+    <div class="arch-box control">
+      <h4>🧠 Control Plane (Master Node)</h4>
+      <div class="component-item">
+        <div class="name">API Server</div>
+        <div class="desc">Entry point. All kubectl commands hit here. The "front desk" of K8s.</div>
+      </div>
+      <div class="component-item">
+        <div class="name">Scheduler</div>
+        <div class="desc">Decides WHICH node a new Pod runs on, based on resources & rules.</div>
+      </div>
+      <div class="component-item">
+        <div class="name">Controller Mgr</div>
+        <div class="desc">Watches cluster state. If 3 pods needed but only 2 running, it creates 1 more.</div>
+      </div>
+      <div class="component-item">
+        <div class="name">etcd</div>
+        <div class="desc">Distributed key-value database. Stores ALL cluster data. The single source of truth.</div>
+      </div>
+      <div class="layman" style="margin-top:12px;"><strong>Layman:</strong> The Control Plane is like a hospital's admin office — it tracks every patient (pod), decides which ward (node) they go to, and keeps all records (etcd).</div>
+    </div>
+
+    <div class="arch-box worker">
+      <h4>💪 Worker Node</h4>
+      <div class="component-item">
+        <div class="name">Kubelet</div>
+        <div class="desc">Agent on each node. Talks to API Server. Ensures containers are running as expected.</div>
+      </div>
+      <div class="component-item">
+        <div class="name">Kube-proxy</div>
+        <div class="desc">Manages network rules on each node. Enables communication between Pods and Services.</div>
+      </div>
+      <div class="component-item">
+        <div class="name">Container Runtime</div>
+        <div class="desc">Actually runs containers. Can be containerd, CRI-O, or Docker (deprecated in newer K8s).</div>
+      </div>
+      <div class="component-item">
+        <div class="name">Pods</div>
+        <div class="desc">Your actual app containers running here. One or more per pod.</div>
+      </div>
+      <div class="layman" style="margin-top:12px;"><strong>Layman:</strong> Worker nodes are like hospital wards — they actually house the patients (pods). Kubelet is the ward nurse who reports status back to admin.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background: rgba(245,158,11,0.15);">💰</div>
+      <h3>Architecture Cost & Trade-offs</h3>
+    </div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Highly available control plane (managed)</li><li>Nodes can scale independently</li><li>etcd ensures no data loss</li><li>Multi-zone fault tolerance</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>etcd is a single point of failure if not HA</li><li>Control plane needs 3+ masters for HA</li><li>Complex networking between components</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>Self-managed: 3 master VMs (~$100-300/mo)</li><li>EKS managed: $0.10/hr = ~$73/mo</li><li>GKE Autopilot: pay per pod only</li><li>Single node (dev): free with minikube</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 03: CORE OBJECTS -->
+<div class="page" id="objects">
+  <div class="page-header">
+    <div class="tag">TOPIC 03</div>
+    <h2>Core Kubernetes Objects</h2>
+    <p>The fundamental building blocks — Pod, ReplicaSet, Deployment, StatefulSet, DaemonSet.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background: rgba(0,212,255,0.15);">🟦</div>
+      <h3>Pod — The Smallest Unit</h3>
+    </div>
+    <p>A Pod is the smallest deployable unit in K8s. It wraps one or more containers that share the same network (IP) and storage. Containers in a pod talk to each other via <code style="color:var(--accent)">localhost</code>.</p>
+    <div class="layman"><strong>Layman:</strong> A Pod is like a hotel room. The containers are roommates — they share the same address (IP) and bathroom (storage volumes), but do their own thing.</div>
+    <div class="code-block">
+      <span class="key">apiVersion:</span> <span class="val">v1</span><br>
+      <span class="key">kind:</span> <span class="val">Pod</span><br>
+      <span class="key">metadata:</span><br>
+      &nbsp;&nbsp;<span class="key">name:</span> <span class="val">my-app-pod</span><br>
+      <span class="key">spec:</span><br>
+      &nbsp;&nbsp;<span class="key">containers:</span><br>
+      &nbsp;&nbsp;<span class="val">- name: app</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">image:</span> <span class="val">nginx:1.21</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">ports:</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="val">- containerPort: 80</span>
+    </div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Simple unit of deployment</li><li>Shared network namespace</li><li>Co-location of related containers</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Ephemeral — dies and loses data</li><li>No auto-restart by itself</li><li>Not meant to be used alone</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>Cost depends on node type</li><li>Idle pod: still uses memory</li><li>GKE Autopilot: pay per pod resource</li></ul></div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(124,58,237,0.15);">🔁</div>
+        <h3>ReplicaSet</h3>
+      </div>
+      <p>Ensures a specified number of identical Pod replicas are always running. If a pod dies, it creates a new one.</p>
+      <div class="layman"><strong>Layman:</strong> You say "I always want 3 waiters on the floor." If one quits, ReplicaSet hires a new one automatically.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>High availability</li><li>Auto-healing</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>No rolling updates</li><li>Use Deployment instead</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(16,185,129,0.15);">🚀</div>
+        <h3>Deployment</h3>
+      </div>
+      <p>Manages ReplicaSets. Enables rolling updates (update pods one by one), rollbacks, and version tracking. <strong>Most common workload type.</strong></p>
+      <div class="layman"><strong>Layman:</strong> The Deployment is the head chef. It manages the kitchen staff (ReplicaSet), trains new staff (rolling update), and can fire everyone and rehire from last week's roster (rollback).</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Rolling updates</li><li>Easy rollback</li><li>Self-healing</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Not for stateful apps</li><li>Pods have random names</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(245,158,11,0.15);">🗄️</div>
+        <h3>StatefulSet</h3>
+      </div>
+      <p>Like a Deployment but for <strong>stateful applications</strong> (databases, Kafka, Zookeeper). Pods get stable, predictable names (pod-0, pod-1) and dedicated persistent storage.</p>
+      <div class="layman"><strong>Layman:</strong> Like hotel rooms with permanent numbers. Room 101 always belongs to the same guest. Even if they leave and come back, their stuff is still in Room 101.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Stable pod names (pod-0, pod-1)</li><li>Ordered deployment/scaling</li><li>Each pod gets its own PVC</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Complex to manage</li><li>Slower rolling updates</li><li>Requires persistent storage setup</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(255,107,53,0.15);">📡</div>
+        <h3>DaemonSet</h3>
+      </div>
+      <p>Ensures ONE pod runs on EVERY node (or selected nodes). Used for cluster-wide tools like log collectors, monitoring agents, network plugins.</p>
+      <div class="layman"><strong>Layman:</strong> Like a security guard required in every branch of a bank. No matter how many branches open, one guard is always assigned to each.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Automatic on new nodes</li><li>Perfect for infrastructure tools</li><li>No manual scheduling needed</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Consumes resources on every node</li><li>Can't scale below 1-per-node</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 04: NETWORKING -->
+<div class="page" id="networking">
+  <div class="page-header">
+    <div class="tag">TOPIC 04</div>
+    <h2>Services & Networking</h2>
+    <p>How traffic flows in Kubernetes — from inside the cluster to the outside world.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background: rgba(0,212,255,0.15);">🌐</div>
+      <h3>Service — Stable Networking</h3>
+    </div>
+    <p>Pods are temporary and get new IPs when restarted. A <strong>Service</strong> provides a stable IP and DNS name that always routes to the right Pods using label selectors.</p>
+    <div class="layman"><strong>Layman:</strong> Pods are like taxi drivers who change their car every day. A Service is like calling "Taxi" — you don't care which driver comes, you just need a ride. The Service finds the right pod for you.</div>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>🔒 ClusterIP</h4>
+      <p>Default. Exposes service only INSIDE the cluster. Other pods can reach it via DNS name. Not accessible from outside.</p>
+      <div style="margin-top:8px;"><span class="badge badge-green">Internal Only</span></div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; font-size:11px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Secure</li><li>Simple</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>No external access</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🔌 NodePort</h4>
+      <p>Exposes service on a static port on EACH node's IP (30000-32767). External traffic can hit any node IP + that port.</p>
+      <div style="margin-top:8px;"><span class="badge badge-yellow">Dev/Testing</span></div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; font-size:11px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Simple external access</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Exposes node IP</li><li>Port range limited</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>⚖️ LoadBalancer</h4>
+      <p>Creates a cloud load balancer (AWS ALB/ELB, GCP LB). Gets a public IP. Best for production external services.</p>
+      <div style="margin-top:8px;"><span class="badge badge-blue">Production</span></div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; font-size:11px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Production ready</li><li>Cloud-native</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>1 IP per service</li><li>$$$ expensive</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🔗 ExternalName</h4>
+      <p>Maps a Service to an external DNS name. Used to access services outside the cluster (like a database hosted on RDS).</p>
+      <div style="margin-top:8px;"><span class="badge badge-purple">External DNS</span></div>
+    </div>
+    <div class="mini-card">
+      <h4>🚦 Ingress</h4>
+      <p>HTTP/HTTPS routing rules. One entry point for multiple services. Routes by domain name or URL path. Needs an Ingress Controller (NGINX, Traefik).</p>
+      <div style="margin-top:8px;"><span class="badge badge-orange">HTTP Routing</span></div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px; font-size:11px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>1 LB for many services</li><li>TLS termination</li><li>Cost efficient</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>HTTP only (L7)</li><li>Needs controller</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🕸️ CNI Plugins</h4>
+      <p>Container Network Interface — handles pod-to-pod networking. Popular options: Calico (security policies), Flannel (simple), Cilium (eBPF-based).</p>
+      <div style="margin-top:8px;"><span class="badge badge-green">Calico</span><span class="badge badge-blue">Flannel</span><span class="badge badge-purple">Cilium</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon" style="background:rgba(245,158,11,0.15);">💰</div><h3>Networking Cost Summary</h3></div>
+    <table>
+      <tr><th>Service Type</th><th>Best For</th><th>Cost</th></tr>
+      <tr><td>ClusterIP</td><td>Internal microservices</td><td>Free (no external resources)</td></tr>
+      <tr><td>NodePort</td><td>Dev/testing</td><td>Free (uses existing nodes)</td></tr>
+      <tr><td>LoadBalancer</td><td>Production external APIs</td><td>~$15–50/mo per LB on AWS/GCP</td></tr>
+      <tr><td>Ingress (NGINX)</td><td>Multiple services, one entry</td><td>1 LB shared = saves 80%</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 05: STORAGE -->
+<div class="page" id="storage">
+  <div class="page-header">
+    <div class="tag">TOPIC 05</div>
+    <h2>Storage in Kubernetes</h2>
+    <p>How K8s handles data that needs to survive pod restarts — Volumes, PV, PVC, StorageClass.</p>
+  </div>
+
+  <div class="highlight">
+    <h4>🗄️ The Storage Problem</h4>
+    <p>Pods are temporary. When a pod dies, its data is gone. To persist data (databases, file uploads, logs), you need <strong>Volumes</strong>. The K8s storage system separates "what storage exists" (PV) from "what storage is needed" (PVC).</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>📁 Volume</h4>
+      <p>Temporary storage tied to a pod's lifetime. Types: emptyDir (temp), hostPath (node disk), configMap, secret, nfs, etc. Dies with the pod (emptyDir) or persists on node (hostPath).</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a whiteboard in a meeting room — erased when the meeting ends (pod dies).</div>
+    </div>
+    <div class="mini-card">
+      <h4>💾 PersistentVolume (PV)</h4>
+      <p>A piece of actual storage provisioned in the cluster — an AWS EBS disk, NFS share, or cloud file system. Created by admins or dynamically. Independent of any pod.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a locker available at the gym. It exists whether anyone uses it or not.</div>
+    </div>
+    <div class="mini-card">
+      <h4>📋 PersistentVolumeClaim (PVC)</h4>
+      <p>A request for storage by a user/pod. "I need 10GB of SSD storage." K8s matches it to a suitable PV and binds them together.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like submitting a form requesting locker #42. K8s assigns a matching available locker.</div>
+    </div>
+    <div class="mini-card">
+      <h4>⚡ StorageClass</h4>
+      <p>Defines how storage is dynamically provisioned. You say "I want gp2 (SSD) storage" and K8s creates a new PV automatically when a PVC is made.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like selecting a hotel room category (Standard/Deluxe/Suite) — the hotel auto-assigns the right room.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>PV ↔ PVC Lifecycle</h3></div>
+    <div class="flow">
+      <div class="flow-step">Admin creates PV</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Dev creates PVC</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">K8s binds PVC→PV</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Pod mounts PVC</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Data persists ✓</div>
+    </div>
+    <div class="code-block">
+      <span class="comment"># PVC example</span><br>
+      <span class="key">apiVersion:</span> <span class="val">v1</span><br>
+      <span class="key">kind:</span> <span class="val">PersistentVolumeClaim</span><br>
+      <span class="key">spec:</span><br>
+      &nbsp;&nbsp;<span class="key">accessModes:</span> <span class="val">["ReadWriteOnce"]</span><br>
+      &nbsp;&nbsp;<span class="key">resources:</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">requests:</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">storage:</span> <span class="val">10Gi</span><br>
+      &nbsp;&nbsp;<span class="key">storageClassName:</span> <span class="val">gp2</span>
+    </div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Data survives pod restarts</li><li>Dynamic provisioning</li><li>Works with cloud storage (EBS, GCS)</li><li>Access modes: RWO, RWX, ROX</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Complex setup</li><li>PV/PVC binding can fail</li><li>Storage reclaim policies tricky</li><li>No built-in backup</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>AWS EBS gp3: ~$0.08/GB/mo</li><li>AWS EFS: ~$0.30/GB/mo</li><li>GCP Persistent Disk: ~$0.04/GB/mo</li><li>Azure Disk: ~$0.10/GB/mo</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 06: CONFIG & SECRETS -->
+<div class="page" id="config">
+  <div class="page-header">
+    <div class="tag">TOPIC 06</div>
+    <h2>ConfigMap & Secrets</h2>
+    <p>Decoupling configuration and sensitive data from your container images.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(16,185,129,0.15);">⚙️</div>
+        <h3>ConfigMap</h3>
+      </div>
+      <p>Stores <strong>non-sensitive</strong> configuration data as key-value pairs — app settings, environment variables, config files. Injected into pods as env vars or files.</p>
+      <div class="layman"><strong>Layman:</strong> Like a notice board in an office — everyone reads the same settings (working hours, meeting room rules). Change the board once, everyone sees the update.</div>
+      <div class="code-block">
+        <span class="key">kind:</span> <span class="val">ConfigMap</span><br>
+        <span class="key">data:</span><br>
+        &nbsp;&nbsp;<span class="key">DB_HOST:</span> <span class="val">mysql-service</span><br>
+        &nbsp;&nbsp;<span class="key">APP_ENV:</span> <span class="val">production</span><br>
+        &nbsp;&nbsp;<span class="key">MAX_CONNECTIONS:</span> <span class="val">"100"</span>
+      </div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Decouple config from code</li><li>Easy to update</li><li>Human-readable</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Not for secrets</li><li>1MB size limit</li><li>Changes need pod restart</li></ul></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background: rgba(239,68,68,0.15);">🔐</div>
+        <h3>Secret</h3>
+      </div>
+      <p>Stores <strong>sensitive data</strong> — passwords, API keys, TLS certificates, tokens. Values are Base64 encoded (NOT encrypted by default — use encryption at rest!).</p>
+      <div class="layman"><strong>Layman:</strong> Like a sealed envelope given to each employee — they can open it to read the WiFi password, but it's not posted on the notice board for everyone to see.</div>
+      <div class="code-block">
+        <span class="key">kind:</span> <span class="val">Secret</span><br>
+        <span class="key">type:</span> <span class="val">Opaque</span><br>
+        <span class="key">data:</span><br>
+        &nbsp;&nbsp;<span class="comment"># base64 encoded values</span><br>
+        &nbsp;&nbsp;<span class="key">DB_PASSWORD:</span> <span class="val">cGFzc3dvcmQxMjM=</span><br>
+        &nbsp;&nbsp;<span class="key">API_KEY:</span> <span class="val">c2VjcmV0a2V5MTIz</span>
+      </div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Separate from code</li><li>RBAC controlled access</li><li>Multiple secret types</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Base64 ≠ encryption</li><li>Stored in etcd (encrypt it!)</li><li>Needs Vault for enterprise</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>⚠️ Secret Security Best Practices</h3></div>
+    <div class="grid3">
+      <div class="highlight"><h4>Enable Encryption at Rest</h4><p>By default, Secrets in etcd are NOT encrypted. Enable <code style="color:var(--accent)">EncryptionConfiguration</code> in kube-apiserver.</p></div>
+      <div class="highlight"><h4>Use External Secret Managers</h4><p>Use HashiCorp Vault, AWS Secrets Manager, or GCP Secret Manager for production secrets.</p></div>
+      <div class="highlight"><h4>Restrict with RBAC</h4><p>Only grant <code style="color:var(--accent)">get</code>/<code style="color:var(--accent)">list</code> on Secrets to service accounts that actually need them.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 07: SCHEDULING -->
+<div class="page" id="scheduling">
+  <div class="page-header">
+    <div class="tag">TOPIC 07</div>
+    <h2>Scheduling & Resource Management</h2>
+    <p>How K8s decides WHERE pods run and HOW MUCH compute they get.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><div class="card-icon" style="background:rgba(0,212,255,0.15);">🎯</div><h3>Requests & Limits</h3></div>
+    <p><strong>Requests</strong>: What the pod is guaranteed. Used by scheduler to find a node with enough capacity.<br><strong>Limits</strong>: Maximum the pod can use. If exceeded, CPU is throttled; if memory exceeds limit, pod is OOMKilled.</p>
+    <div class="layman"><strong>Layman:</strong> Requests = the seat you reserved at a restaurant (guaranteed). Limits = maximum number of dishes you're allowed to order. Exceed it and the waiter stops serving you.</div>
+    <div class="code-block">
+      <span class="key">resources:</span><br>
+      &nbsp;&nbsp;<span class="key">requests:</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">memory:</span> <span class="val">"128Mi"</span>  <span class="comment"># guaranteed</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">cpu:</span>    <span class="val">"250m"</span>   <span class="comment"># 0.25 core</span><br>
+      &nbsp;&nbsp;<span class="key">limits:</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">memory:</span> <span class="val">"256Mi"</span>  <span class="comment"># max allowed</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">cpu:</span>    <span class="val">"500m"</span>   <span class="comment"># 0.5 core max</span>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>🏷️ NodeSelector</h4>
+      <p>Simplest way to constrain pods to nodes with specific labels. "Only run on nodes labeled <code style="color:var(--accent)">gpu=true</code>."</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Only send heavy machinery workers to the factory floor, not the office floor.</div>
+    </div>
+    <div class="mini-card">
+      <h4>🧲 Node Affinity</h4>
+      <p>Advanced version of NodeSelector. Supports required (hard) and preferred (soft) rules. "Must be in us-east-1, prefer SSD nodes."</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Must be a non-smoking room (hard rule), prefer high floor (soft preference).</div>
+    </div>
+    <div class="mini-card">
+      <h4>🔗 Pod Affinity/Anti-Affinity</h4>
+      <p>Schedule pods near (affinity) or away from (anti-affinity) other pods. Spread replicas across zones for HA.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Anti-affinity = don't put all your eggs in one basket. Spread DB replicas across racks.</div>
+    </div>
+    <div class="mini-card">
+      <h4>🚫 Taints & Tolerations</h4>
+      <p>Taints REPEL pods from nodes unless pods have matching Tolerations. Used to dedicate nodes for specific workloads (GPU, production-only).</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Taint = "No Entry" sign on a VIP lounge. Toleration = your VIP pass to enter.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>💰 Resource Management Cost Impact</h3></div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ With Proper Limits</h4><ul><li>Predictable costs</li><li>No one pod starves others</li><li>Better bin-packing (use nodes fully)</li><li>Autoscaler works accurately</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Without Limits</h4><ul><li>One pod can hog entire node</li><li>OOMKilled crashes in production</li><li>Unpredictable cloud bills</li><li>Noisy neighbor problems</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Savings Tips</h4><ul><li>Right-size requests = fewer nodes</li><li>VPA auto-adjusts requests</li><li>LimitRange enforces defaults</li><li>ResourceQuota per namespace</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 08: SCALING -->
+<div class="page" id="scaling">
+  <div class="page-header">
+    <div class="tag">TOPIC 08</div>
+    <h2>Scaling & Auto-Scaling</h2>
+    <p>From manual scaling to intelligent auto-scaling — handling traffic spikes without wasting money.</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>📊 Manual Scaling</h4>
+      <p>Directly set the number of replicas. Simple, predictable, but requires human intervention.</p>
+      <div class="code-block" style="margin-top:8px;font-size:11px;">
+        <span class="key">kubectl scale</span> deployment/app \<br>
+        &nbsp;&nbsp;<span class="val">--replicas=5</span>
+      </div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Simple</li><li>Predictable</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Manual work</li><li>Wastes or lacks capacity</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>⚡ HPA — Horizontal Pod Autoscaler</h4>
+      <p>Automatically scales the NUMBER of pods based on CPU, memory, or custom metrics. The most common autoscaler.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a call center — when call volume goes up, more agents are called in. When quiet, some go home.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Handles traffic spikes</li><li>Cost efficient</li><li>Custom metrics support</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Cold start delay</li><li>Needs metrics-server</li><li>Not for stateful apps</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>📏 VPA — Vertical Pod Autoscaler</h4>
+      <p>Automatically adjusts CPU/memory REQUESTS of pods. Makes pods bigger or smaller, not more or fewer. Requires pod restart.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Instead of hiring more workers, give each worker a bigger desk and better tools when workload increases.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Right-sizes pods</li><li>Reduces over-provisioning</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Restarts pods</li><li>Conflicts with HPA</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🖥️ Cluster Autoscaler</h4>
+      <p>Adds or removes NODES from the cluster. When pods can't be scheduled (insufficient resources), it adds a node. When nodes are underutilized, it removes them.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> If the office is full, rent another floor. If half the floors are empty, terminate the lease.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Massive cost savings</li><li>Works with HPA</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Node spin-up takes 2–5 min</li><li>Cloud-provider specific</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>💰 Scaling Cost Strategy</h3></div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ Best Practice</h4><ul><li>HPA + Cluster Autoscaler combo</li><li>Use Spot/Preemptible nodes (70% cheaper)</li><li>Set min replicas = 1 for non-critical</li><li>KEDA for event-driven scaling</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Avoid</h4><ul><li>Always-on large fleets</li><li>High min replicas when not needed</li><li>Not setting scale-down delays</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Savings</h4><ul><li>Cluster Autoscaler: 40–60% savings</li><li>Spot nodes: 60–70% off on-demand</li><li>HPA prevents over-provisioning</li><li>GKE Autopilot: pay per pod only</li></ul></div>
+    </div>
+    <div class="code-block" style="margin-top:16px;">
+      <span class="comment"># HPA example — scale when CPU > 70%</span><br>
+      <span class="key">kubectl autoscale</span> deployment/app \<br>
+      &nbsp;&nbsp;<span class="val">--cpu-percent=70</span> \<br>
+      &nbsp;&nbsp;<span class="val">--min=2</span> <span class="val">--max=20</span>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 09: HEALTH CHECKS -->
+<div class="page" id="health">
+  <div class="page-header">
+    <div class="tag">TOPIC 09</div>
+    <h2>Health Checks & Probes</h2>
+    <p>How Kubernetes knows your application is alive, ready to serve traffic, and started successfully.</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>❤️ Liveness Probe</h4>
+      <p><strong>Question it answers:</strong> "Is the app still alive? If not, restart it."<br><br>Detects deadlocks or frozen processes. If it fails, K8s kills and restarts the container.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a guard checking if the security monitor is still on. If the screen is frozen, he reboots it.</div>
+      <div class="code-block" style="margin-top:8px; font-size:11px;">
+        <span class="key">livenessProbe:</span><br>
+        &nbsp;&nbsp;<span class="key">httpGet:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">path:</span> <span class="val">/healthz</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">port:</span> <span class="val">8080</span><br>
+        &nbsp;&nbsp;<span class="key">initialDelaySeconds:</span> <span class="val">30</span><br>
+        &nbsp;&nbsp;<span class="key">periodSeconds:</span> <span class="val">10</span>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>✅ Readiness Probe</h4>
+      <p><strong>Question it answers:</strong> "Is the app ready to receive traffic?"<br><br>If it fails, the pod is removed from the Service endpoints. Traffic stops routing to it — but it's NOT restarted.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a restaurant that opens the doors only when the kitchen is fully set up. K8s doesn't send customers (traffic) until "Ready" signal.</div>
+      <div class="code-block" style="margin-top:8px; font-size:11px;">
+        <span class="key">readinessProbe:</span><br>
+        &nbsp;&nbsp;<span class="key">httpGet:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">path:</span> <span class="val">/ready</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">port:</span> <span class="val">8080</span><br>
+        &nbsp;&nbsp;<span class="key">failureThreshold:</span> <span class="val">3</span><br>
+        &nbsp;&nbsp;<span class="key">periodSeconds:</span> <span class="val">5</span>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🚀 Startup Probe</h4>
+      <p><strong>Question it answers:</strong> "Has the app finished starting up?"<br><br>Disables liveness/readiness checks until startup succeeds. For slow-starting apps (Java Spring Boot, etc.).</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a slow old computer — don't keep checking if it crashed during boot. Give it time to fully start up, THEN begin monitoring.</div>
+      <div class="code-block" style="margin-top:8px; font-size:11px;">
+        <span class="key">startupProbe:</span><br>
+        &nbsp;&nbsp;<span class="key">httpGet:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">path:</span> <span class="val">/healthz</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">port:</span> <span class="val">8080</span><br>
+        &nbsp;&nbsp;<span class="key">failureThreshold:</span> <span class="val">30</span><br>
+        &nbsp;&nbsp;<span class="key">periodSeconds:</span> <span class="val">10</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>🔍 Probe Types & When to Use</h3></div>
+    <table>
+      <tr><th>Probe Type</th><th>Check Method</th><th>Use Case</th></tr>
+      <tr><td>HTTP GET</td><td>Calls an HTTP endpoint — 2xx/3xx = healthy</td><td>Web servers, REST APIs</td></tr>
+      <tr><td>TCP Socket</td><td>Tries to open TCP connection to a port</td><td>Databases, non-HTTP services</td></tr>
+      <tr><td>Exec Command</td><td>Runs a command inside container — exit 0 = healthy</td><td>Custom logic, scripts</td></tr>
+      <tr><td>gRPC</td><td>Calls gRPC health check protocol (K8s 1.24+)</td><td>gRPC microservices</td></tr>
+    </table>
+    <div class="pcc-grid" style="margin-top:16px;">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Zero-downtime deployments</li><li>Auto-recovery from crashes</li><li>No stale pods in load balancer</li><li>Graceful startup for slow apps</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Wrong config causes restart loops</li><li>Probe endpoint must be lightweight</li><li>initialDelaySeconds must be tuned</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>Prevents costly cascading failures</li><li>Reduces mean time to recovery</li><li>Free feature — just YAML config</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 10: SECURITY -->
+<div class="page" id="security">
+  <div class="page-header">
+    <div class="tag">TOPIC 10</div>
+    <h2>Security in Kubernetes</h2>
+    <p>RBAC, Service Accounts, Network Policies, and Pod Security — protecting your cluster.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(239,68,68,0.15);">🔐</div>
+      <h3>RBAC — Role-Based Access Control</h3>
+    </div>
+    <p>Controls WHO can do WHAT in K8s. Defines Roles (set of permissions) and binds them to users or service accounts.</p>
+    <div class="layman"><strong>Layman:</strong> Like a hospital: Doctors can prescribe medicine (create/delete pods), Nurses can check charts (read pods), Janitors can only clean (no cluster access). Everyone has their lane.</div>
+    <div class="flow">
+      <div class="flow-step">User / ServiceAccount</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">RoleBinding</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Role / ClusterRole</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Permissions (verbs)</div>
+    </div>
+    <div class="code-block">
+      <span class="comment"># Role: read-only pod access</span><br>
+      <span class="key">kind:</span> <span class="val">Role</span><br>
+      <span class="key">rules:</span><br>
+      <span class="val">- apiGroups: [""]</span><br>
+      &nbsp;&nbsp;<span class="key">resources:</span> <span class="val">["pods"]</span><br>
+      &nbsp;&nbsp;<span class="key">verbs:</span> <span class="val">["get", "list", "watch"]</span>
+    </div>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>👤 Service Accounts</h4>
+      <p>Identity for pods/processes within the cluster. Pods use service accounts to call the K8s API. Default SA exists in every namespace.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a staff badge. Each pod wears a badge that determines what rooms (APIs) it can access.</div>
+    </div>
+    <div class="mini-card">
+      <h4>🕸️ Network Policies</h4>
+      <p>Firewall rules for pods. By default ALL pods can talk to ALL pods. Network Policies restrict this — "only frontend can talk to backend, not to database."</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Office floor plan rules — the receptionist can talk to anyone, but the server room is only accessible to IT staff.</div>
+    </div>
+    <div class="mini-card">
+      <h4>🛡️ Pod Security Standards</h4>
+      <p>Three levels: <strong>Privileged</strong> (unrestricted), <strong>Baseline</strong> (minimal restrictions), <strong>Restricted</strong> (hardened, no root). Applied per namespace.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like building security levels — lobby (privileged), employee areas (baseline), server room (restricted).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>🔒 Security Checklist</h3></div>
+    <div class="pcc-grid">
+      <div class="pcc-box pros"><h4>✅ Must Do</h4><ul><li>Enable RBAC (on by default)</li><li>Encrypt etcd at rest</li><li>Use Network Policies</li><li>Run non-root containers</li><li>Scan images for CVEs</li><li>Rotate credentials regularly</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Common Mistakes</h4><ul><li>Too permissive RBAC</li><li>Secrets not encrypted</li><li>Privileged containers</li><li>No network isolation</li><li>Default service account overuse</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Security Tools</h4><ul><li>Falco: Free (runtime security)</li><li>OPA/Gatekeeper: Free</li><li>Aqua Security: $$$</li><li>Prisma Cloud: $$$</li><li>Trivy (image scan): Free</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 11: OBSERVABILITY -->
+<div class="page" id="observability">
+  <div class="page-header">
+    <div class="tag">TOPIC 11</div>
+    <h2>Observability — Monitoring & Logging</h2>
+    <p>Seeing what's happening inside your cluster — metrics, logs, and traces.</p>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(255,107,53,0.15);">📈</div>
+        <h3>Prometheus — Metrics</h3>
+      </div>
+      <p>Pull-based metrics collection system. Scrapes metrics from pods and K8s components at regular intervals. Stores time-series data.</p>
+      <div class="layman"><strong>Layman:</strong> Like a fitness tracker that every 15 seconds records your heart rate, steps, calories. Later you can query "what was my heart rate at 3pm yesterday?"</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>CNCF standard</li><li>Powerful query (PromQL)</li><li>Huge ecosystem</li><li>Alertmanager built-in</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Short-term storage only</li><li>PromQL learning curve</li><li>Not for logs</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(245,158,11,0.15);">📊</div>
+        <h3>Grafana — Visualization</h3>
+      </div>
+      <p>Beautiful dashboards for metrics from Prometheus, Loki, and other sources. Pre-built Kubernetes dashboards available.</p>
+      <div class="layman"><strong>Layman:</strong> If Prometheus is the raw data from the fitness tracker, Grafana is the beautiful app that shows graphs, trends, and alerts on your phone.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Beautiful dashboards</li><li>Free & open source</li><li>Multi-datasource</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Just visualization</li><li>Alert fatigue risk</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(16,185,129,0.15);">📜</div>
+      <h3>EFK / ELK Stack — Logging</h3>
+    </div>
+    <p>Centralized logging for all pods across all nodes. <strong>EFK</strong>: Elasticsearch + Fluentd + Kibana. <strong>ELK</strong>: Elasticsearch + Logstash + Kibana.</p>
+    <div class="flow">
+      <div class="flow-step">Pod writes logs</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Fluentd/Logstash collects</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Elasticsearch stores</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Kibana visualizes</div>
+    </div>
+    <div class="layman" style="margin-top:12px;"><strong>Layman:</strong> Like a hotel CCTV system — every room (pod) has a camera (log stream). All recordings go to a central archive (Elasticsearch). Security can search any incident (Kibana).</div>
+    <div class="pcc-grid" style="margin-top:16px;">
+      <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Centralized search across all pods</li><li>Correlation of events</li><li>Long-term retention</li><li>Full-text log search</li></ul></div>
+      <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Elasticsearch is resource-heavy</li><li>Complex to operate</li><li>Expensive at scale</li></ul></div>
+      <div class="pcc-box cost"><h4>💰 Cost</h4><ul><li>Self-hosted EFK: $200–2000+/mo</li><li>Elastic Cloud: from $95/mo</li><li>Datadog Logs: $0.10/GB/day</li><li>Loki (Grafana): much cheaper</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 12: TOOLS -->
+<div class="page" id="tools">
+  <div class="page-header">
+    <div class="tag">TOPIC 12</div>
+    <h2>kubectl, Helm & Tools</h2>
+    <p>The essential tools every K8s engineer uses daily.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(0,212,255,0.15);">⌨️</div>
+      <h3>kubectl — The K8s CLI</h3>
+    </div>
+    <p>The main command-line tool for interacting with K8s clusters. Everything you do in K8s, kubectl can do.</p>
+    <div class="code-block">
+      <span class="comment"># Most used commands</span><br>
+      <span class="key">kubectl get</span> <span class="val">pods -n production</span>        <span class="comment"># List pods</span><br>
+      <span class="key">kubectl describe</span> <span class="val">pod my-pod</span>          <span class="comment"># Detailed info</span><br>
+      <span class="key">kubectl logs</span> <span class="val">my-pod -f</span>              <span class="comment"># Stream logs</span><br>
+      <span class="key">kubectl exec</span> <span class="val">-it my-pod -- /bin/bash</span> <span class="comment"># Shell into pod</span><br>
+      <span class="key">kubectl apply</span> <span class="val">-f deployment.yaml</span>     <span class="comment"># Deploy/update</span><br>
+      <span class="key">kubectl delete</span> <span class="val">pod my-pod</span>            <span class="comment"># Delete pod</span><br>
+      <span class="key">kubectl port-forward</span> <span class="val">svc/app 8080:80</span>  <span class="comment"># Local tunnel</span><br>
+      <span class="key">kubectl rollout</span> <span class="val">undo deployment/app</span>  <span class="comment"># Rollback</span>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(124,58,237,0.15);">⛵</div>
+        <h3>Helm — Package Manager</h3>
+      </div>
+      <p>The "apt/npm" for Kubernetes. Packages K8s YAML files into reusable Charts. Install complex apps (Nginx, Prometheus, databases) with one command.</p>
+      <div class="layman"><strong>Layman:</strong> Like installing an app on your phone from the App Store — you don't manually configure each setting. Just <code style="color:var(--accent)">helm install</code> and it's done.</div>
+      <div class="code-block">
+        <span class="comment"># Install Nginx Ingress Controller</span><br>
+        <span class="key">helm repo add</span> <span class="val">ingress-nginx \</span><br>
+        &nbsp;&nbsp;<span class="val">https://kubernetes.github.io/ingress-nginx</span><br>
+        <span class="key">helm install</span> <span class="val">nginx ingress-nginx/ingress-nginx</span>
+      </div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:8px; margin-top:12px;">
+        <div class="pcc-box pros"><h4>✅ Pros</h4><ul><li>Templating (DRY YAML)</li><li>Version management</li><li>Easy rollbacks</li></ul></div>
+        <div class="pcc-box cons"><h4>❌ Cons</h4><ul><li>Complex chart debugging</li><li>Template syntax learning</li></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(16,185,129,0.15);">🔧</div>
+        <h3>Other Essential Tools</h3>
+      </div>
+      <table>
+        <tr><th>Tool</th><th>Purpose</th></tr>
+        <tr><td><span class="badge badge-blue">k9s</span></td><td>Terminal UI for K8s — visual kubectl</td></tr>
+        <tr><td><span class="badge badge-purple">Kustomize</span></td><td>YAML customization without templates</td></tr>
+        <tr><td><span class="badge badge-green">Lens</span></td><td>Desktop IDE for Kubernetes</td></tr>
+        <tr><td><span class="badge badge-orange">Skaffold</span></td><td>Dev workflow — auto-rebuild & redeploy</td></tr>
+        <tr><td><span class="badge badge-yellow">ArgoCD</span></td><td>GitOps — deploy from Git automatically</td></tr>
+        <tr><td><span class="badge badge-blue">Flux</span></td><td>GitOps alternative to ArgoCD</td></tr>
+        <tr><td><span class="badge badge-purple">Velero</span></td><td>Backup & restore cluster resources</td></tr>
+        <tr><td><span class="badge badge-green">Stern</span></td><td>Multi-pod log tailing</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 13: DEPLOYMENT STRATEGIES -->
+<div class="page" id="deployments">
+  <div class="page-header">
+    <div class="tag">TOPIC 13</div>
+    <h2>Deployment Strategies</h2>
+    <p>How to ship new versions of your app safely — zero downtime, instant rollback.</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini-card">
+      <h4>🔄 Rolling Update</h4>
+      <p>Replace pods one by one. New pods start before old ones stop. <strong>Default K8s strategy.</strong> Zero downtime.</p>
+      <div class="flow" style="flex-direction:column; align-items:flex-start; padding:10px;">
+        <div style="font-size:11px; color:var(--muted);">v1 v1 v1 v1 → v2 v1 v1 v1 → v2 v2 v1 v1 → v2 v2 v2 v2</div>
+      </div>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Renovating a hotel one room at a time — guests always have somewhere to stay.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Zero downtime</li><li>Built-in K8s</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Both versions live simultaneously</li><li>Rollback takes time</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🔵🟢 Blue-Green</h4>
+      <p>Run two identical environments (Blue=current, Green=new). Switch traffic all at once. Instant rollback by switching back.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like having a spare fully-equipped kitchen. Cook the new menu there, then swap the sign from "Blue Kitchen" to "Green Kitchen" in one second.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Instant rollback</li><li>Full testing before switch</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Double infrastructure cost</li><li>DB migrations complex</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>🐤 Canary</h4>
+      <p>Send a small % of traffic (5-10%) to new version first. Monitor for errors. Gradually increase to 100% if healthy.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Like a restaurant testing a new dish — give it to 10% of tables first. If nobody complains, add it to the full menu.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Minimal blast radius</li><li>Real user testing</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Complex traffic splitting</li><li>Needs monitoring</li></ul></div>
+      </div>
+    </div>
+    <div class="mini-card">
+      <h4>💥 Recreate</h4>
+      <p>Kill ALL old pods first, then start new pods. Causes downtime. Use only for dev/staging or when you can't run two versions simultaneously.</p>
+      <div class="layman" style="margin-top:8px;"><strong>Layman:</strong> Closing the restaurant completely for renovations. Customers have to wait until it reopens.</div>
+      <div class="pcc-grid" style="grid-template-columns:1fr 1fr; gap:6px; margin-top:10px;">
+        <div class="pcc-box pros"><h4>✅</h4><ul><li>Simple</li><li>No version conflicts</li></ul></div>
+        <div class="pcc-box cons"><h4>❌</h4><ul><li>Downtime guaranteed</li><li>Never for production</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header"><h3>📊 Strategy Comparison</h3></div>
+    <table>
+      <tr><th>Strategy</th><th>Downtime</th><th>Rollback Speed</th><th>Cost</th><th>Best For</th></tr>
+      <tr><td>Rolling Update</td><td>Zero</td><td>Minutes</td><td>Low (normal)</td><td>Most services</td></tr>
+      <tr><td>Blue-Green</td><td>Zero</td><td>Instant</td><td>High (2x infra)</td><td>Critical services</td></tr>
+      <tr><td>Canary</td><td>Zero</td><td>Minutes</td><td>Slight overhead</td><td>High-risk releases</td></tr>
+      <tr><td>Recreate</td><td>Yes</td><td>Fast (redeploy)</td><td>None</td><td>Dev/staging only</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 14: YAML -->
+<div class="page" id="yaml">
+  <div class="page-header">
+    <div class="tag">TOPIC 14</div>
+    <h2>Kubernetes YAML Reference</h2>
+    <p>The language of Kubernetes — every resource is defined in YAML. Master this and you master K8s.</p>
+  </div>
+
+  <div class="highlight">
+    <h4>📋 Every K8s YAML has 4 core fields</h4>
+    <div class="code-block" style="margin-top:12px;">
+      <span class="key">apiVersion:</span> <span class="val">apps/v1</span>   <span class="comment"># Which API to use (v1, apps/v1, networking.k8s.io/v1...)</span><br>
+      <span class="key">kind:</span>       <span class="val">Deployment</span>  <span class="comment"># What resource type (Pod, Service, Ingress...)</span><br>
+      <span class="key">metadata:</span>              <span class="comment"># Name, namespace, labels</span><br>
+      &nbsp;&nbsp;<span class="key">name:</span> <span class="val">my-app</span><br>
+      &nbsp;&nbsp;<span class="key">namespace:</span> <span class="val">production</span><br>
+      &nbsp;&nbsp;<span class="key">labels:</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">app:</span> <span class="val">my-app</span><br>
+      <span class="key">spec:</span>                  <span class="comment"># The actual desired state / configuration</span><br>
+      &nbsp;&nbsp;<span class="val">...</span>
+    </div>
+  </div>
+
+  <div class="section-title">Complete Examples</div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif; margin-bottom:12px; color:var(--accent);">deployment.yaml</h3>
+      <div class="code-block">
+        <span class="key">apiVersion:</span> <span class="val">apps/v1</span><br>
+        <span class="key">kind:</span> <span class="val">Deployment</span><br>
+        <span class="key">metadata:</span><br>
+        &nbsp;&nbsp;<span class="key">name:</span> <span class="val">web-app</span><br>
+        <span class="key">spec:</span><br>
+        &nbsp;&nbsp;<span class="key">replicas:</span> <span class="val">3</span><br>
+        &nbsp;&nbsp;<span class="key">selector:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">matchLabels:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">app:</span> <span class="val">web-app</span><br>
+        &nbsp;&nbsp;<span class="key">template:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">metadata:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">labels:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">app:</span> <span class="val">web-app</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">spec:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">containers:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">- name: web</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">image:</span> <span class="val">nginx:1.21</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">ports:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">- containerPort: 80</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">resources:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">requests:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">cpu:</span> <span class="val">"100m"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">memory:</span> <span class="val">"128Mi"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">limits:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">cpu:</span> <span class="val">"500m"</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">memory:</span> <span class="val">"256Mi"</span>
+      </div>
+    </div>
+    <div class="card">
+      <h3 style="font-family:'Syne',sans-serif; margin-bottom:12px; color:var(--accent2);">service.yaml + ingress.yaml</h3>
+      <div class="code-block">
+        <span class="key">apiVersion:</span> <span class="val">v1</span><br>
+        <span class="key">kind:</span> <span class="val">Service</span><br>
+        <span class="key">metadata:</span><br>
+        &nbsp;&nbsp;<span class="key">name:</span> <span class="val">web-service</span><br>
+        <span class="key">spec:</span><br>
+        &nbsp;&nbsp;<span class="key">selector:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">app:</span> <span class="val">web-app</span><br>
+        &nbsp;&nbsp;<span class="key">ports:</span><br>
+        &nbsp;&nbsp;<span class="val">- port: 80</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">targetPort:</span> <span class="val">80</span><br>
+        &nbsp;&nbsp;<span class="key">type:</span> <span class="val">ClusterIP</span><br>
+        <span class="comment">---</span><br>
+        <span class="key">apiVersion:</span> <span class="val">networking.k8s.io/v1</span><br>
+        <span class="key">kind:</span> <span class="val">Ingress</span><br>
+        <span class="key">metadata:</span><br>
+        &nbsp;&nbsp;<span class="key">name:</span> <span class="val">web-ingress</span><br>
+        <span class="key">spec:</span><br>
+        &nbsp;&nbsp;<span class="key">rules:</span><br>
+        &nbsp;&nbsp;<span class="val">- host: myapp.example.com</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="key">http:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">paths:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="val">- path: /</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">pathType:</span> <span class="val">Prefix</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">backend:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">service:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">name:</span> <span class="val">web-service</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">port:</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="key">number:</span> <span class="val">80</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <div class="card-header"><h3>📖 apiVersion Quick Reference</h3></div>
+    <table>
+      <tr><th>Resource</th><th>apiVersion</th><th>Description</th></tr>
+      <tr><td>Pod, Service, ConfigMap, Secret, PV, PVC</td><td><span class="badge badge-blue">v1</span></td><td>Core API group</td></tr>
+      <tr><td>Deployment, ReplicaSet, StatefulSet, DaemonSet</td><td><span class="badge badge-purple">apps/v1</span></td><td>Workloads</td></tr>
+      <tr><td>Ingress</td><td><span class="badge badge-green">networking.k8s.io/v1</span></td><td>Networking</td></tr>
+      <tr><td>HPA</td><td><span class="badge badge-orange">autoscaling/v2</span></td><td>Scaling</td></tr>
+      <tr><td>Job, CronJob</td><td><span class="badge badge-yellow">batch/v1</span></td><td>Batch workloads</td></tr>
+      <tr><td>Role, RoleBinding</td><td><span class="badge badge-purple">rbac.authorization.k8s.io/v1</span></td><td>Access control</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const btns = document.querySelectorAll('.nav-btn');
+  btns.forEach(b => {
+    if (b.getAttribute('onclick').includes(id)) b.classList.add('active');
+  });
+  window.scrollTo(0, 0);
+}
+</script>
+</body>
+</html>

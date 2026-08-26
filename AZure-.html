@@ -1,0 +1,1592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Azure Mastery — Ultra-Deep Pro Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --azure:#0078D4; --azure2:#106EBE; --azure-light:#50A5F5; --azure-pale:#A8D4FF;
+  --electric:#00D4FF; --neon:#00FFB3; --neon2:#39FF9D;
+  --warn:#FFB400; --warn2:#FF8C00; --danger:#FF4757; --danger2:#FF6B81;
+  --purple:#9B59F5; --pink:#FF6BCB;
+  --bg:#04080F; --bg2:#070D19; --surface:#0B1622; --surface2:#0F1F30; --surface3:#132840;
+  --border:rgba(0,120,212,0.18); --border2:rgba(0,212,255,0.12);
+  --text:#DFF0FF; --text2:#A8C8E8; --muted:#5A8AAA; --dim:#2A4A6A;
+  --grid:rgba(0,120,212,0.04);
+  --font-mono:'Space Mono',monospace;
+  --font-body:'Syne',sans-serif;
+  --font-code:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:15px}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);overflow-x:hidden;cursor:default;line-height:1.6}
+
+/* ─── BG ─── */
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:0}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);opacity:.1;pointer-events:none;z-index:0;animation:drift 25s ease-in-out infinite}
+.o1{width:600px;height:600px;background:var(--azure);top:-200px;right:-150px;animation-delay:0s}
+.o2{width:500px;height:500px;background:var(--electric);bottom:0;left:-200px;animation-delay:-10s}
+.o3{width:350px;height:350px;background:var(--purple);top:40%;right:5%;animation-delay:-18s}
+.o4{width:250px;height:250px;background:var(--neon);top:20%;left:20%;animation-delay:-5s;opacity:.05}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(40px,-50px) scale(1.08)}75%{transform:translate(-30px,30px) scale(.94)}}
+
+/* ─── NAV ─── */
+nav{position:sticky;top:0;z-index:200;background:rgba(4,8,15,0.9);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 40px;max-width:1200px;margin:0 auto;gap:20px}
+.nav-brand{font-family:var(--font-mono);font-size:12px;color:var(--azure-light);letter-spacing:.15em;text-transform:uppercase;white-space:nowrap}
+.nav-brand span{color:var(--electric)}
+.nav-links{display:flex;gap:4px;flex-wrap:wrap}
+.nav-links a{font-family:var(--font-mono);font-size:10px;color:var(--muted);text-decoration:none;letter-spacing:.05em;padding:5px 10px;border:1px solid transparent;transition:all .2s;white-space:nowrap;border-radius:2px}
+.nav-links a:hover{color:var(--electric);border-color:var(--border2);background:rgba(0,212,255,0.05)}
+.nav-progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--azure),var(--electric),var(--neon));z-index:300;transition:width .1s;width:0%}
+
+/* ─── LAYOUT ─── */
+.wrap{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 40px}
+
+/* ─── HERO ─── */
+.hero{padding:80px 0 60px;position:relative}
+.eyebrow{font-family:var(--font-mono);font-size:10px;color:var(--electric);letter-spacing:.25em;text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.eyebrow::before{content:'';width:32px;height:1px;background:var(--electric)}
+.hero h1{font-size:clamp(40px,7vw,90px);font-weight:800;line-height:.92;letter-spacing:-.03em;margin-bottom:28px}
+.h1-azure{color:var(--azure-light);display:block}
+.h1-white{color:var(--text);display:block}
+.h1-sub{display:block;font-size:.42em;font-weight:600;color:var(--muted);letter-spacing:.01em;line-height:1.4;margin-top:8px}
+.hero-desc{font-size:15px;color:var(--text2);line-height:1.8;max-width:600px;margin-bottom:40px}
+.tags{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:50px}
+.tag{padding:5px 14px;border:1px solid var(--border);font-family:var(--font-mono);font-size:10px;color:var(--muted);background:rgba(0,120,212,0.05);transition:all .2s;cursor:default;letter-spacing:.04em}
+.tag:hover{border-color:var(--azure);color:var(--azure-light);background:rgba(0,120,212,0.12)}
+
+/* ─── PILLAR MAP ─── */
+.pillars{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:80px}
+.pillar{background:var(--surface);padding:20px 16px;transition:background .2s;position:relative;overflow:hidden;cursor:default}
+.pillar::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--azure),transparent);transform:scaleX(0);transition:transform .4s}
+.pillar:hover::before{transform:scaleX(1)}
+.pillar:hover{background:var(--surface2)}
+.p-num{font-family:var(--font-mono);font-size:9px;color:var(--dim);letter-spacing:.15em;margin-bottom:8px}
+.p-icon{font-size:20px;margin-bottom:8px;display:block}
+.p-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px}
+.p-svcs{font-size:10px;color:var(--muted);line-height:1.5}
+
+/* ─── SECTION HEADERS ─── */
+.s-wrap{padding:64px 0;border-top:1px solid var(--border)}
+.s-head{display:flex;align-items:center;gap:20px;margin-bottom:48px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.s-num{font-family:var(--font-mono);font-size:56px;font-weight:700;color:rgba(0,120,212,.15);line-height:1;min-width:80px}
+.s-icon{font-size:28px}
+.s-title{font-family:var(--font-body);font-size:28px;font-weight:800;color:var(--text)}
+.s-desc{font-size:13px;color:var(--muted);line-height:1.7;max-width:700px;margin-top:6px}
+
+/* ─── SERVICE CARD ─── */
+.svc{margin-bottom:72px}
+.svc-title{font-size:18px;font-weight:700;color:var(--azure-light);display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.badge{font-family:var(--font-mono);font-size:9px;letter-spacing:.1em;padding:3px 10px;border:1px solid;white-space:nowrap}
+.badge-blue{border-color:var(--azure);color:var(--azure-light);background:rgba(0,120,212,.1)}
+.badge-green{border-color:var(--neon);color:var(--neon);background:rgba(0,255,179,.06)}
+.badge-yellow{border-color:var(--warn);color:var(--warn);background:rgba(255,180,0,.06)}
+.badge-purple{border-color:var(--purple);color:var(--purple);background:rgba(155,89,245,.06)}
+
+/* ─── TWO-COL ─── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.info-box{padding:20px;border:1px solid var(--border);background:var(--surface);position:relative}
+.ib-label{font-family:var(--font-mono);font-size:9px;color:var(--electric);letter-spacing:.2em;text-transform:uppercase;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.ib-label::before{content:'';width:16px;height:1px;background:var(--electric)}
+.info-box p,.info-box li{font-size:13px;color:var(--text2);line-height:1.75}
+.info-box ul{list-style:none;padding:0}
+.info-box li{padding:3px 0;padding-left:16px;position:relative}
+.info-box li::before{content:'›';position:absolute;left:0;color:var(--azure-light)}
+.info-box strong{color:var(--text)}
+
+/* ─── TABLES ─── */
+.tbl-wrap{overflow-x:auto;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:rgba(0,120,212,.08);border-bottom:1px solid rgba(0,120,212,.3)}
+th{padding:9px 14px;text-align:left;font-family:var(--font-mono);font-size:9px;color:var(--electric);letter-spacing:.1em;font-weight:400;text-transform:uppercase;white-space:nowrap}
+td{padding:9px 14px;border-bottom:1px solid rgba(0,120,212,.07);color:var(--text2);line-height:1.5;vertical-align:top}
+tr:hover td{background:rgba(0,120,212,.04);color:var(--text)}
+td:first-child{color:var(--text);font-weight:600}
+.td-green{color:var(--neon)!important}
+.td-yellow{color:var(--warn)!important}
+.td-red{color:var(--danger)!important}
+.td-blue{color:var(--azure-light)!important}
+.td-purple{color:var(--purple)!important}
+
+/* ─── CALLOUTS ─── */
+.tip{border-left:3px solid var(--warn);background:rgba(255,180,0,.04);padding:16px 20px;margin-bottom:16px}
+.tip::before{content:'🎯 PRO TIP';font-family:var(--font-mono);font-size:9px;color:var(--warn);letter-spacing:.2em;display:block;margin-bottom:6px}
+.tip p,.tip li{font-size:13px;color:var(--text2);line-height:1.7}
+.tip strong{color:var(--text)}
+.tip ul{list-style:none;padding:0;margin-top:6px}
+.tip li{padding:2px 0;padding-left:16px;position:relative}
+.tip li::before{content:'✦';position:absolute;left:0;color:var(--warn);font-size:10px}
+
+.insight{border-left:3px solid var(--azure);background:rgba(0,120,212,.04);padding:16px 20px;margin-bottom:16px}
+.insight::before{content:'💡 KEY INSIGHT';font-family:var(--font-mono);font-size:9px;color:var(--azure-light);letter-spacing:.2em;display:block;margin-bottom:6px}
+.insight p,.insight li{font-size:13px;color:var(--text2);line-height:1.7}
+.insight strong{color:var(--text)}
+
+.warn-box{border-left:3px solid var(--danger);background:rgba(255,71,87,.04);padding:16px 20px;margin-bottom:16px}
+.warn-box::before{content:'⚠️ WARNING';font-family:var(--font-mono);font-size:9px;color:var(--danger);letter-spacing:.2em;display:block;margin-bottom:6px}
+.warn-box p{font-size:13px;color:var(--text2);line-height:1.7}
+.warn-box strong{color:var(--text)}
+
+.exam-box{border:1px solid rgba(155,89,245,.4);background:rgba(155,89,245,.04);padding:20px;margin-bottom:16px}
+.exam-box::before{content:'🎓 EXAM / INTERVIEW';font-family:var(--font-mono);font-size:9px;color:var(--purple);letter-spacing:.2em;display:block;margin-bottom:8px}
+.exam-box p,.exam-box li{font-size:13px;color:var(--text2);line-height:1.7}
+.exam-box ul{list-style:none;padding:0;margin-top:6px}
+.exam-box li{padding:3px 0;padding-left:16px;position:relative}
+.exam-box li::before{content:'?';position:absolute;left:0;color:var(--purple);font-family:var(--font-mono);font-size:10px}
+.exam-box strong{color:var(--text)}
+
+/* ─── DO / DON'T ─── */
+.dos-donts{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.dos{padding:20px;border:1px solid rgba(0,255,179,.25);background:rgba(0,255,179,.03)}
+.donts{padding:20px;border:1px solid rgba(255,71,87,.25);background:rgba(255,71,87,.03)}
+.dos-lbl,.donts-lbl{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;font-weight:700;margin-bottom:12px}
+.dos-lbl{color:var(--neon)}
+.donts-lbl{color:var(--danger)}
+.dos ul,.donts ul{list-style:none;padding:0}
+.dos li,.donts li{padding:5px 0;font-size:12.5px;color:var(--text2);line-height:1.5;display:flex;gap:8px;border-bottom:1px solid rgba(255,255,255,.04)}
+.dos li::before{content:'✓';color:var(--neon);flex-shrink:0;font-weight:700}
+.donts li::before{content:'✗';color:var(--danger);flex-shrink:0;font-weight:700}
+
+/* ─── CODE ─── */
+.code{background:#030810;border:1px solid var(--border);border-left:3px solid var(--azure);padding:22px 24px;margin-bottom:20px;overflow-x:auto;position:relative}
+.code-title{font-family:var(--font-mono);font-size:9px;letter-spacing:.15em;color:var(--muted);margin-bottom:14px;text-transform:uppercase}
+.code pre{font-family:var(--font-code);font-size:12px;line-height:1.85;white-space:pre;color:#7EC8E3}
+.cm{color:#2D5A7A} .ck{color:var(--electric)} .cv{color:var(--neon)} .cs{color:#E5B56B} .cf{color:var(--warn)} .co{color:var(--text)}
+
+/* ─── COST BOX ─── */
+.cost{background:linear-gradient(135deg,rgba(0,120,212,.07),rgba(0,212,255,.03));border:1px solid rgba(0,120,212,.35);padding:22px;margin-bottom:20px}
+.cost-title{font-family:var(--font-mono);font-size:9px;color:var(--warn);letter-spacing:.2em;text-transform:uppercase;margin-bottom:12px}
+.cost p,.cost li{font-size:13px;color:var(--text2);line-height:1.8}
+.cost ul{list-style:none;padding:0}
+.cost li{padding:3px 0}
+.cost li::before{content:'$ ';color:var(--warn);font-family:var(--font-mono)}
+.cost strong{color:var(--text)}
+
+/* ─── ARCH DIAGRAM ─── */
+.arch{background:var(--surface);border:1px solid var(--border);padding:24px;margin-bottom:20px;overflow-x:auto}
+.arch-title{font-family:var(--font-mono);font-size:9px;color:var(--electric);letter-spacing:.2em;margin-bottom:16px}
+.arch pre{font-family:var(--font-code);font-size:11px;color:var(--text2);line-height:1.8;white-space:pre}
+
+/* ─── SCENARIO BOX ─── */
+.scenario{border:1px solid rgba(0,255,179,.2);background:rgba(0,255,179,.02);padding:22px;margin-bottom:20px}
+.scenario-title{font-family:var(--font-mono);font-size:9px;color:var(--neon);letter-spacing:.2em;margin-bottom:12px}
+.scenario p,.scenario li{font-size:13px;color:var(--text2);line-height:1.75}
+.scenario ul{list-style:none;padding:0;margin-top:8px}
+.scenario li{padding:4px 0;padding-left:20px;position:relative;border-bottom:1px solid rgba(0,255,179,.06)}
+.scenario li::before{content:'→';position:absolute;left:0;color:var(--neon);font-family:var(--font-mono)}
+.scenario strong{color:var(--text)}
+
+/* ─── COMPARISON ─── */
+.vs-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.vs-azure{border:1px solid rgba(0,120,212,.3);background:rgba(0,120,212,.04);padding:20px}
+.vs-aws{border:1px solid rgba(255,153,0,.3);background:rgba(255,153,0,.03);padding:20px}
+.vs-title{font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;margin-bottom:12px;font-weight:700}
+.vs-azure .vs-title{color:var(--azure-light)}
+.vs-aws .vs-title{color:var(--warn)}
+
+/* ─── QUICK REF GRID ─── */
+.ref-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.ref-item{background:var(--surface);border:1px solid var(--border);padding:16px;transition:border-color .2s}
+.ref-item:hover{border-color:var(--azure)}
+.ref-num{font-family:var(--font-mono);font-size:9px;color:var(--azure-light);margin-bottom:6px;letter-spacing:.1em}
+.ref-fact{font-size:12.5px;color:var(--text);line-height:1.5;font-weight:600;margin-bottom:4px}
+.ref-why{font-size:11.5px;color:var(--muted);line-height:1.4}
+
+/* ─── STICKY TOC ─── */
+.toc{position:fixed;right:20px;top:50%;transform:translateY(-50%);z-index:100;display:flex;flex-direction:column;gap:6px}
+.toc-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:all .3s;cursor:pointer;position:relative}
+.toc-dot:hover,.toc-dot.active{background:var(--electric);width:8px;height:8px}
+.toc-dot::after{content:attr(data-label);position:absolute;right:14px;top:50%;transform:translateY(-50%);font-family:var(--font-mono);font-size:9px;color:var(--muted);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.toc-dot:hover::after{opacity:1}
+
+/* ─── REVEAL ─── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.vis{opacity:1;transform:none}
+
+/* ─── FOOTER ─── */
+footer{border-top:1px solid var(--border);padding:48px 40px;text-align:center;position:relative;z-index:1;margin-top:40px}
+.footer-badge{display:inline-block;border:1px solid var(--border);padding:8px 24px;font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:.1em;margin-bottom:16px}
+footer p{font-family:var(--font-mono);font-size:10px;color:var(--dim);letter-spacing:.08em}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){.pillars{grid-template-columns:repeat(3,1fr)}.two-col,.three-col,.dos-donts,.vs-grid{grid-template-columns:1fr}.ref-grid{grid-template-columns:1fr 1fr}.toc{display:none}.nav-links{display:none}.wrap{padding:0 20px}}
+@media(max-width:600px){.pillars{grid-template-columns:1fr 1fr}.ref-grid{grid-template-columns:1fr}.hero h1{font-size:36px}}
+
+/* scanline */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.025) 2px,rgba(0,0,0,.025) 4px);pointer-events:none;z-index:9999}
+</style>
+</head>
+<body>
+<div class="nav-progress" id="progress"></div>
+<div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div>
+
+<!-- TOC DOTS -->
+<nav class="toc" aria-label="Sections">
+  <div class="toc-dot" data-label="Hero" onclick="scrollTo('#hero')"></div>
+  <div class="toc-dot" data-label="Compute" onclick="location.href='#compute'"></div>
+  <div class="toc-dot" data-label="Storage" onclick="location.href='#storage'"></div>
+  <div class="toc-dot" data-label="Networking" onclick="location.href='#networking'"></div>
+  <div class="toc-dot" data-label="Databases" onclick="location.href='#databases'"></div>
+  <div class="toc-dot" data-label="DevOps" onclick="location.href='#devops'"></div>
+  <div class="toc-dot" data-label="Security" onclick="location.href='#security'"></div>
+  <div class="toc-dot" data-label="Azure vs AWS" onclick="location.href='#compare'"></div>
+  <div class="toc-dot" data-label="Cost Mastery" onclick="location.href='#cost'"></div>
+  <div class="toc-dot" data-label="Quick Ref" onclick="location.href='#ref'"></div>
+</nav>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">☁ Azure <span>Mastery</span></span>
+    <div class="nav-links">
+      <a href="#compute">⚡ Compute</a>
+      <a href="#storage">💾 Storage</a>
+      <a href="#networking">🌐 Networking</a>
+      <a href="#databases">🗃️ Databases</a>
+      <a href="#devops">🔧 DevOps</a>
+      <a href="#security">🔐 Security</a>
+      <a href="#compare">⚔️ vs AWS</a>
+      <a href="#cost">💰 Cost</a>
+      <a href="#ref">🏆 Quick Ref</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section id="hero" class="hero reveal">
+  <div class="eyebrow">DevOps Edition · Mastery-Level · Ultra-Deep Pro Course</div>
+  <h1>
+    <span class="h1-azure">Azure Services</span>
+    <span class="h1-white">Complete Mastery</span>
+    <span class="h1-sub">Layman → Pro Level &nbsp;·&nbsp; CLI + Terraform &nbsp;·&nbsp; Cost Analysis &nbsp;·&nbsp; Azure vs AWS &nbsp;·&nbsp; Exam & Interview Prep</span>
+  </h1>
+  <p class="hero-desc">6 complete pillars — Compute, Storage, Networking, Databases, DevOps, Security & Identity — covered from first principles to production architecture patterns, real CLI commands, cost models, and interview-ready insights.</p>
+  <div class="tags">
+    <span class="tag">🏠 Layman Way</span><span class="tag">🏗️ Pro Architecture</span>
+    <span class="tag">💻 CLI + Terraform</span><span class="tag">✅ Do's &amp; Don'ts</span>
+    <span class="tag">💰 Cost Deep Dive</span><span class="tag">🌍 Real-World Scenarios</span>
+    <span class="tag">🔐 Security Patterns</span><span class="tag">🎓 Exam Prep</span>
+    <span class="tag">⚔️ Azure vs AWS</span><span class="tag">🏆 Top 25 Facts</span>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar"><div class="p-num">01</div><span class="p-icon">⚡</span><div class="p-name">Compute</div><div class="p-svcs">VMs · Functions · AKS · App Service · ACI · VMSS</div></div>
+    <div class="pillar"><div class="p-num">02</div><span class="p-icon">💾</span><div class="p-name">Storage</div><div class="p-svcs">Blob · Disk · File · Data Lake · Queue Storage</div></div>
+    <div class="pillar"><div class="p-num">03</div><span class="p-icon">🌐</span><div class="p-name">Networking</div><div class="p-svcs">VNet · Load Balancer · App Gateway · DNS · CDN · Firewall</div></div>
+    <div class="pillar"><div class="p-num">04</div><span class="p-icon">🗃️</span><div class="p-name">Databases</div><div class="p-svcs">Azure SQL · Cosmos DB · PostgreSQL · Redis Cache</div></div>
+    <div class="pillar"><div class="p-num">05</div><span class="p-icon">🔧</span><div class="p-name">DevOps</div><div class="p-svcs">Azure DevOps · Monitor · Log Analytics · Key Vault · Automation</div></div>
+    <div class="pillar"><div class="p-num">06</div><span class="p-icon">🔐</span><div class="p-name">Security</div><div class="p-svcs">Entra ID · Policy · Defender · Bastion · Sentinel</div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION 1: COMPUTE ═══════════════════ -->
+<section id="compute" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">01</span><span class="s-icon">⚡</span>
+    <div><div class="s-title">Compute Services</div><div class="s-desc">Compute is the brain of your cloud architecture — where code runs, apps are hosted, and logic executes. The single most impactful architectural decision you'll make is choosing the right compute service.</div></div>
+  </div>
+
+  <!-- ── VM ── -->
+  <div class="svc">
+    <div class="svc-title">🖥️ Virtual Machines (VMs) <span class="badge badge-blue">IaaS</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like renting a fully equipped computer inside Microsoft's data center. You pick the size (CPU/RAM), choose the OS (Windows or Linux), and you have full control — install any software, configure any settings, run any workload. It's your computer, just hosted in the cloud.</p></div>
+      <div class="info-box"><div class="ib-label">Pro Architecture — IaaS Responsibility Split</div>
+        <ul>
+          <li><strong>You manage:</strong> OS, runtime, middleware, application, data</li>
+          <li><strong>Azure manages:</strong> hardware, physical host, networking fabric, storage backend</li>
+          <li><strong>Hypervisor:</strong> Azure uses custom Hyper-V hypervisor on bare metal hosts</li>
+          <li><strong>VM Generation:</strong> Gen2 VMs support UEFI boot, larger OS disk, more RAM. Always prefer Gen2 for new workloads</li>
+          <li><strong>Accelerated Networking:</strong> SR-IOV bypasses hypervisor for NIC — reduces latency by 70%, use always in prod</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>VM Series</th><th>Optimized For</th><th>vCPU Range</th><th>RAM/vCPU</th><th>Best Use Case</th></tr></thead>
+      <tbody>
+        <tr><td>B-series (Burstable)</td><td>Cost-efficient baseline</td><td>1–32 vCPU</td><td>Varies</td><td>Dev/test, low-traffic websites, CI runners — earns credits when idle, spends on bursts</td></tr>
+        <tr><td>D-series v5 (General Purpose)</td><td>Balanced CPU/memory</td><td>2–96 vCPU</td><td>4 GB/vCPU</td><td>Web servers, app servers, mid-size DBs — the default choice</td></tr>
+        <tr><td>E-series v5 (Memory Optimized)</td><td>High RAM workloads</td><td>2–104 vCPU</td><td>8 GB/vCPU</td><td>In-memory DBs, SAP HANA, Redis, large-scale analytics</td></tr>
+        <tr><td>F-series v2 (Compute Optimized)</td><td>High CPU throughput</td><td>2–72 vCPU</td><td>2 GB/vCPU</td><td>Batch processing, game servers, ML inference</td></tr>
+        <tr><td>N-series (GPU)</td><td>GPU workloads</td><td>6–32 vCPU + GPU</td><td>Varies</td><td>ML training (NC), rendering (NV), HPC (ND)</td></tr>
+        <tr><td>L-series v2 (Storage Optimized)</td><td>High NVMe throughput</td><td>8–80 vCPU</td><td>8 GB/vCPU</td><td>NoSQL DBs, Elasticsearch, Cassandra — direct attached SSD</td></tr>
+        <tr><td>M-series (Massive Memory)</td><td>Extreme RAM</td><td>8–416 vCPU</td><td>Up to 24 TB RAM</td><td>SAP HANA, large in-memory analytics, OLAP</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Pricing Model</th><th>Discount vs PAYG</th><th>Commitment</th><th>Evictable?</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td>Pay-As-You-Go</td><td class="td-yellow">Baseline (0%)</td><td>None</td><td>No</td><td>Dev/test, unpredictable workloads</td></tr>
+        <tr><td>Reserved Instances (1yr)</td><td class="td-green">Up to 40%</td><td>1 year</td><td>No</td><td>Steady production workloads</td></tr>
+        <tr><td>Reserved Instances (3yr)</td><td class="td-green">Up to 66%</td><td>3 years</td><td>No</td><td>Long-running stable infrastructure</td></tr>
+        <tr><td>Azure Savings Plan</td><td class="td-green">Up to 65%</td><td>1 or 3 years ($/hr)</td><td>No</td><td>Flexible — covers VMs, AKS, App Service together</td></tr>
+        <tr><td>Spot VMs</td><td class="td-green">Up to 90%</td><td>None — evictable</td><td class="td-red">Yes — 30 sec notice</td><td>Batch jobs, ML training, fault-tolerant tasks only</td></tr>
+        <tr><td>Azure Hybrid Benefit</td><td class="td-green">Up to 49% additional</td><td>Own Windows/RHEL license</td><td>No</td><td>Bring existing on-premise licenses to cloud</td></tr>
+        <tr><td>Dev/Test Pricing</td><td class="td-green">Up to 55%</td><td>PAYG</td><td>No</td><td>Non-production — requires Visual Studio subscription</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="exam-box"><p><strong>Availability Deep Dive:</strong></p><ul>
+      <li><strong>Availability Set:</strong> Protects against hardware failures in SAME datacenter. Fault domains (different racks) + Update domains (rolling patches). SLA 99.95%</li>
+      <li><strong>Availability Zone:</strong> Protects against ENTIRE datacenter failure. Physically separate buildings with own power/cooling/networking in same region. SLA 99.99%</li>
+      <li><strong>VMSS (Scale Set):</strong> Auto-scale identical VMs based on metrics. Supports AZs + Spot VMs + Load Balancer integration. Orchestration modes: Flexible (mix VM types) vs Uniform (identical)</li>
+      <li><strong>Rule:</strong> For max HA → Availability Zones. For same-AZ redundancy → Availability Sets. For auto-scaling → VMSS. For absolute max → VMSS across AZs</li>
+      <li><strong>SLA Stacking:</strong> 2 VMs in different AZs = 99.99%. 1 VM with Premium SSD = 99.9%. 1 VM with Standard SSD = 99.5%. Never run single VMs in prod</li>
+    </ul></div>
+
+    <div class="scenario"><div class="scenario-title">🌍 REAL-WORLD DEVOPS SCENARIO — Java Spring Boot with Variable Traffic</div>
+      <ul>
+        <li><strong>Problem:</strong> Java Spring Boot app must handle variable traffic (10x spikes), high availability, cost-efficient</li>
+        <li>Create a VM Scale Set (VMSS) with custom VM image (app pre-installed via Packer + CI/CD)</li>
+        <li>Set min=2, max=20 instances across 3 Availability Zones</li>
+        <li>Configure auto-scale: CPU &gt; 70% → add 2 VMs; CPU &lt; 30% → remove 1 VM (with 5-min cooldown)</li>
+        <li>Put Azure Application Gateway in front for load balancing + SSL termination + WAF</li>
+        <li>Use Spot VMs for 30% of the fleet to reduce cost (with eviction policy: delete)</li>
+        <li><strong>Result: HA app, auto-scaling, ~40% cost reduction vs all on-demand, zero manual intervention</strong></li>
+      </ul>
+    </div>
+
+    <div class="code"><div class="code-title">Azure CLI — VM & VMSS with Auto-Scale</div>
+<pre><span class="cm"># Create a Linux VM (no public IP, uses Bastion for access)</span>
+<span class="ck">az vm create</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> \
+  <span class="cf">--name</span> <span class="cs">myVM</span> \
+  <span class="cf">--image</span> <span class="cs">Ubuntu2204</span> \
+  <span class="cf">--size</span> <span class="cs">Standard_D4s_v5</span> \
+  <span class="cf">--admin-username</span> <span class="cs">azureuser</span> \
+  <span class="cf">--ssh-key-values</span> <span class="cs">~/.ssh/id_rsa.pub</span> \
+  <span class="cf">--vnet-name</span> <span class="cs">myVNet</span> \
+  <span class="cf">--subnet</span> <span class="cs">AppSubnet</span> \
+  <span class="cf">--public-ip-address</span> <span class="cs">''</span> \
+  <span class="cf">--nsg</span> <span class="cs">AppNSG</span> \
+  <span class="cf">--zone</span> <span class="cs">1</span> \
+  <span class="cf">--enable-agent</span> \
+  <span class="cf">--enable-auto-update</span>
+
+<span class="cm"># Create VMSS across 3 AZs</span>
+<span class="ck">az vmss create</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> \
+  <span class="cf">--name</span> <span class="cs">myVMSS</span> \
+  <span class="cf">--image</span> <span class="cs">Ubuntu2204</span> \
+  <span class="cf">--instance-count</span> <span class="cs">3</span> \
+  <span class="cf">--vm-sku</span> <span class="cs">Standard_D4s_v5</span> \
+  <span class="cf">--zones</span> <span class="cs">1 2 3</span> \
+  <span class="cf">--load-balancer</span> <span class="cs">myALB</span> \
+  <span class="cf">--orchestration-mode</span> <span class="cs">Flexible</span>
+
+<span class="cm"># Autoscale: scale out on CPU > 70%</span>
+<span class="ck">az monitor autoscale create</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> --resource <span class="cs">myVMSS</span> \
+  <span class="cf">--resource-type</span> <span class="cs">Microsoft.Compute/virtualMachineScaleSets</span> \
+  <span class="cf">--name</span> <span class="cs">autoscale-config</span> \
+  <span class="cf">--min-count</span> <span class="cs">2</span> <span class="cf">--max-count</span> <span class="cs">20</span> <span class="cf">--count</span> <span class="cs">3</span>
+
+<span class="cm"># Add scale-out rule</span>
+<span class="ck">az monitor autoscale rule create</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> --autoscale-name <span class="cs">autoscale-config</span> \
+  <span class="cf">--condition</span> <span class="cs">"Percentage CPU > 70 avg 5m"</span> \
+  <span class="cf">--scale</span> <span class="cs">out 2</span> --cooldown <span class="cs">5</span>
+
+<span class="cm"># Terraform VMSS</span>
+<span class="cf">resource</span> <span class="cs">"azurerm_linux_virtual_machine_scale_set"</span> <span class="cs">"app"</span> {
+  name                = <span class="cs">"app-vmss"</span>
+  resource_group_name = azurerm_resource_group.main.name
+  location            = <span class="cs">"eastus"</span>
+  sku                 = <span class="cs">"Standard_D4s_v5"</span>
+  instances           = <span class="cv">3</span>
+  zones               = [<span class="cs">"1"</span>, <span class="cs">"2"</span>, <span class="cs">"3"</span>]
+  admin_username      = <span class="cs">"azureuser"</span>
+  upgrade_mode        = <span class="cs">"Rolling"</span>
+
+  admin_ssh_key {
+    username   = <span class="cs">"azureuser"</span>
+    public_key = file(<span class="cs">"~/.ssh/id_rsa.pub"</span>)
+  }
+  source_image_reference {
+    publisher = <span class="cs">"Canonical"</span>
+    offer     = <span class="cs">"0001-com-ubuntu-server-jammy"</span>
+    sku       = <span class="cs">"22_04-lts-gen2"</span>
+    version   = <span class="cs">"latest"</span>
+  }
+  os_disk { caching = <span class="cs">"ReadWrite"</span>; storage_account_type = <span class="cs">"Premium_LRS"</span> }
+}</pre></div>
+
+    <div class="dos-donts">
+      <div class="dos"><div class="dos-lbl">✅ VM DO's</div><ul>
+        <li>Always deploy across multiple Availability Zones for prod</li>
+        <li>Use Managed Disks (Premium SSD) for OS and data disks</li>
+        <li>Enable Accelerated Networking (SR-IOV) on supported VMs</li>
+        <li>Use VM Extensions to automate agent installs (OMS, AMA, custom scripts)</li>
+        <li>Enable Azure Backup with appropriate retention policy</li>
+        <li>Tag every VM: Environment, Team, Project, CostCenter</li>
+        <li>Use Bastion instead of public IP for SSH/RDP access</li>
+        <li>Enable boot diagnostics and guest OS diagnostics</li>
+        <li>Apply Just-in-Time (JIT) VM Access for admin ports</li>
+        <li>Use Azure Monitor Agent (AMA) — replaces old MMA/OMS agents</li>
+      </ul></div>
+      <div class="donts"><div class="donts-lbl">❌ VM DON'Ts</div><ul>
+        <li>NEVER expose port 22 (SSH) or 3389 (RDP) to 0.0.0.0/0</li>
+        <li>NEVER run single VM in prod without zone redundancy</li>
+        <li>AVOID storing app data on OS disk — use data disks or Blob</li>
+        <li>AVOID paying On-Demand for VMs running 24/7 — use Reserved</li>
+        <li>NEVER leave unused VMs running — Stop = Deallocate, not just Stop</li>
+        <li>AVOID unmanaged disks (deprecated, management overhead)</li>
+        <li>NEVER ignore VM patch status — enable automatic VM guest patching</li>
+        <li>AVOID oversizing — review Azure Advisor recommendations weekly</li>
+      </ul></div>
+    </div>
+
+    <div class="cost"><div class="cost-title">💰 VM COST BREAKDOWN — Standard_D4s_v5 (4 vCPU, 16 GB RAM, East US)</div>
+      <ul>
+        <li><strong>Pay-As-You-Go:</strong> ~$0.192/hour = ~$140/month</li>
+        <li><strong>1-Year Reserved:</strong> ~$0.108/hour = ~$79/month (44% savings)</li>
+        <li><strong>3-Year Reserved:</strong> ~$0.072/hour = ~$53/month (63% savings)</li>
+        <li><strong>Spot VM:</strong> ~$0.036/hour = ~$26/month (81% savings!) — but evictable anytime</li>
+        <li><strong>Azure Hybrid Benefit:</strong> Additional 40% savings if you own Windows Server licenses</li>
+      </ul>
+      <p style="margin-top:10px"><strong>Hidden costs to watch:</strong> Managed disks ($), outbound bandwidth ($), public IP ($3.65/month), Azure Monitor ingestion ($), Azure Backup ($)</p>
+      <p style="margin-top:6px"><strong>💡 Critical:</strong> Deallocate (not just Stop) VMs when not needed. A 'Stopped' VM still charges for compute!</p>
+    </div>
+  </div>
+
+  <!-- ── AZURE FUNCTIONS ── -->
+  <div class="svc">
+    <div class="svc-title">λ Azure Functions <span class="badge badge-green">Serverless</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like hiring a worker who only shows up when there's work to do and leaves the moment it's done. Write a small piece of code, upload it, Azure handles everything — servers, scaling, OS, runtime. You pay ONLY for exact milliseconds your code runs. 100 users hit your app? 100 function instances start simultaneously, automatically.</p></div>
+      <div class="info-box"><div class="ib-label">Triggers & Bindings</div>
+        <ul>
+          <li><strong>Triggers:</strong> HTTP, Timer, Blob, Queue, Event Hub, Service Bus, Cosmos DB, Event Grid, IoT Hub, SignalR</li>
+          <li><strong>Input Bindings:</strong> Read data declaratively — no boilerplate connection code</li>
+          <li><strong>Output Bindings:</strong> Write to Blob, Queue, Cosmos DB, SignalR without SDK calls</li>
+          <li><strong>Durable Functions:</strong> Orchestrator + Activity pattern for stateful workflows</li>
+          <li><strong>Cold Start:</strong> Consumption plan only. First invocation has 1-3 sec latency. Eliminate with Premium plan's pre-warmed instances</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Hosting Plan</th><th>Cold Start</th><th>VNet Integration</th><th>Max Timeout</th><th>Scale</th><th>Pricing</th></tr></thead>
+      <tbody>
+        <tr><td>Consumption</td><td class="td-red">Yes (1–3 sec)</td><td>Outbound only (VNET integration add-on)</td><td>10 min</td><td>To 200 instances</td><td>~$0.000016/GB-sec + $0.20/1M executions</td></tr>
+        <tr><td>Premium (EP1-EP3)</td><td class="td-green">No (pre-warmed)</td><td class="td-green">Full VNet</td><td>Unlimited</td><td>Unlimited</td><td>~$0.173/vCPU-hour (always-on instance)</td></tr>
+        <tr><td>Dedicated (App Service)</td><td class="td-green">No</td><td class="td-green">Full VNet</td><td>Unlimited</td><td>Manual/auto-scale</td><td>Same as App Service plan</td></tr>
+        <tr><td>Container Apps</td><td class="td-green">No</td><td class="td-green">Full VNet</td><td>Unlimited</td><td>KEDA event-driven</td><td>Pay per vCPU/memory consumed</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="three-col">
+      <div class="info-box"><div class="ib-label">Durable Functions Patterns</div><ul>
+        <li><strong>Function Chaining:</strong> A → B → C sequentially with output passing</li>
+        <li><strong>Fan-out/Fan-in:</strong> Spawn many parallel activities, aggregate results</li>
+        <li><strong>Human Approval:</strong> Wait days for external event (approval click)</li>
+        <li><strong>Monitoring:</strong> Stateful polling loop with custom backoff</li>
+        <li><strong>Aggregator:</strong> Accumulate events over time into single entity</li>
+      </ul></div>
+      <div class="info-box"><div class="ib-label">Language Support</div><ul>
+        <li>C# (in-process &amp; isolated worker)</li>
+        <li>JavaScript / TypeScript (Node.js)</li>
+        <li>Python (3.7–3.11)</li>
+        <li>Java (8, 11, 17, 21)</li>
+        <li>PowerShell (7.2, 7.4)</li>
+        <li>Go, Rust (custom handlers)</li>
+      </ul></div>
+      <div class="info-box"><div class="ib-label">5 Production Patterns</div><ul>
+        <li>Image resize pipeline on Blob upload</li>
+        <li>Timer-triggered scheduled reports via SendGrid</li>
+        <li>Service Bus → Cosmos DB order processing</li>
+        <li>HTTP API backend that scales to zero</li>
+        <li>Human approval workflow (days-long wait)</li>
+      </ul></div>
+    </div>
+
+    <div class="code"><div class="code-title">Azure CLI + Terraform — Function App</div>
+<pre><span class="cm"># Create storage (required for Functions)</span>
+<span class="ck">az storage account create</span> \
+  <span class="cf">--name</span> <span class="cs">myfuncstore</span> <span class="cf">--resource-group</span> <span class="cs">myRG</span> <span class="cf">--sku</span> <span class="cs">Standard_LRS</span>
+
+<span class="cm"># Create Function App (Python, Consumption)</span>
+<span class="ck">az functionapp create</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> \
+  <span class="cf">--consumption-plan-location</span> <span class="cs">eastus</span> \
+  <span class="cf">--runtime</span> <span class="cs">python</span> --runtime-version <span class="cs">3.11</span> \
+  <span class="cf">--functions-version</span> <span class="cs">4</span> \
+  <span class="cf">--name</span> <span class="cs">myFunctionApp</span> \
+  <span class="cf">--storage-account</span> <span class="cs">myfuncstore</span> \
+  <span class="cf">--assign-identity</span> <span class="cs">[system]</span>   <span class="cm"># Enable managed identity</span>
+
+<span class="cm"># Deploy function code</span>
+<span class="ck">func azure functionapp publish</span> myFunctionApp
+
+<span class="cm"># Terraform: Premium Function App with VNet Integration</span>
+<span class="cf">resource</span> <span class="cs">"azurerm_linux_function_app"</span> <span class="cs">"main"</span> {
+  name                       = <span class="cs">"my-premium-function-app"</span>
+  resource_group_name        = azurerm_resource_group.main.name
+  location                   = <span class="cs">"eastus"</span>
+  service_plan_id            = azurerm_service_plan.premium.id
+  storage_account_name       = azurerm_storage_account.main.name
+  storage_account_access_key = azurerm_storage_account.main.primary_access_key
+
+  identity { type = <span class="cs">"SystemAssigned"</span> }
+
+  site_config {
+    pre_warmed_instance_count = <span class="cv">2</span>
+    application_stack { python_version = <span class="cs">"3.11"</span> }
+    vnet_route_all_enabled = <span class="cv">true</span>
+  }
+
+  app_settings = {
+    FUNCTIONS_WORKER_RUNTIME       = <span class="cs">"python"</span>
+    AzureWebJobsStorage            = azurerm_storage_account.main.primary_connection_string
+    APPINSIGHTS_INSTRUMENTATIONKEY = azurerm_application_insights.main.instrumentation_key
+    KEY_VAULT_URI                  = azurerm_key_vault.main.vault_uri
+  }
+
+  virtual_network_subnet_id = azurerm_subnet.functions.id
+}</pre></div>
+
+    <div class="dos-donts">
+      <div class="dos"><div class="dos-lbl">✅ Functions DO's</div><ul>
+        <li>Use Premium plan for VNet integration (access private resources)</li>
+        <li>Use Managed Identity to access Key Vault, Storage, SQL — no connection strings</li>
+        <li>Enable Application Insights for distributed tracing + live metrics</li>
+        <li>Use Durable Functions for stateful workflows or tasks &gt;10 min</li>
+        <li>Configure retry policies for queue/event triggers</li>
+        <li>Use output bindings instead of SDK calls — simpler, less code</li>
+        <li>Keep cold start manageable: small packages, no heavy imports at module level</li>
+      </ul></div>
+      <div class="donts"><div class="donts-lbl">❌ Functions DON'Ts</div><ul>
+        <li>AVOID Consumption plan for latency-sensitive APIs — cold start kills UX</li>
+        <li>NEVER store state in function memory between invocations — stateless by design</li>
+        <li>AVOID long-running tasks (&gt;10 min) without Durable Functions</li>
+        <li>NEVER hardcode connection strings — use Key Vault references or Managed Identity</li>
+        <li>AVOID large deployment packages — bloats cold start time</li>
+        <li>NEVER use Functions for CPU-intensive workloads — use AKS or VMs instead</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <!-- ── AKS ── -->
+  <div class="svc">
+    <div class="svc-title">🐳 AKS — Azure Kubernetes Service <span class="badge badge-blue">Container Orchestration</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like a sophisticated shipping port manager. Ships (containers) arrive, the port manager decides which dock (node/server) each ship goes to, makes sure the right number of ships are always at port, replaces broken ships automatically, and manages all traffic routing. AKS is this port manager — Azure manages the control tower (control plane) for FREE, you only pay for dock workers (nodes/VMs).</p></div>
+      <div class="info-box"><div class="ib-label">AKS Networking Modes — Critical Choice</div>
+        <ul>
+          <li><strong>kubenet (basic):</strong> Pods get private IPs behind NAT. Simpler, no VNet IP exhaustion, but limited: no network policies by default, no private peering from outside VNet</li>
+          <li><strong>Azure CNI:</strong> Each pod gets a real VNet IP. Better for prod: full NSG support, VNet peering works natively, Private Endpoints reachable. Requires IP planning — runs out fast</li>
+          <li><strong>Azure CNI Overlay:</strong> Pods use private overlay IPs but Azure CNI features. Best of both — choose this for new clusters</li>
+          <li><strong>Network Policy:</strong> Calico (cross-platform) or Azure NPM. Always enable in prod</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>AKS Component</th><th>Analogy</th><th>Technical Role &amp; Key Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Control Plane</td><td>Airport HQ managed by Azure (FREE)</td><td>API server, scheduler, etcd, controller manager. Azure SLA 99.95% (99.99% with AZs)</td></tr>
+        <tr><td>System Node Pool</td><td>Essential cargo planes</td><td>Runs AKS system components (CoreDNS, kube-proxy, tunnelfront). Cannot be removed. Taint: CriticalAddonsOnly. Use D4s_v3 minimum</td></tr>
+        <tr><td>User Node Pool</td><td>Passenger planes (your apps)</td><td>Runs app workloads. Can scale to 0. Can use Spot VMs. Create separate pools per workload type</td></tr>
+        <tr><td>HPA</td><td>Adding more planes when demand spikes</td><td>Auto-scales pod count based on CPU/memory/custom metrics (Prometheus). Requires metrics-server</td></tr>
+        <tr><td>KEDA</td><td>Smart demand-based scheduler</td><td>Event-driven autoscaler. Scale pods to 0 based on queue depth, HTTP RPS, Azure Monitor metrics</td></tr>
+        <tr><td>Cluster Autoscaler</td><td>Adding more docks when all planes are full</td><td>Adds/removes nodes based on pending pods. Set min/max per pool. Works with HPA</td></tr>
+        <tr><td>VPA (Vertical Pod Autoscaler)</td><td>Upgrading plane size mid-flight</td><td>Adjusts CPU/memory requests for pods. Useful for right-sizing in prod</td></tr>
+        <tr><td>Ingress Controller</td><td>Airport entry gates with security</td><td>HTTP/HTTPS routing to multiple services. SSL termination. Path/host routing. NGINX or Application Gateway Ingress Controller (AGIC)</td></tr>
+        <tr><td>Workload Identity</td><td>Robot workers with specific clearances</td><td>Replaces pod identity. Federated credentials + Managed Identity. No secrets needed for Azure service access</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="arch"><div class="arch-title">AKS PRODUCTION ARCHITECTURE</div>
+<pre>
+ ┌─────────────────────────────────────────────────────────────────┐
+ │  AZURE FRONT DOOR / TRAFFIC MANAGER (Global Load Balancing)     │
+ └────────────────────────┬────────────────────────────────────────┘
+                          │
+ ┌────────────────────────▼────────────────────────────────────────┐
+ │  APPLICATION GATEWAY v2 + WAF (Regional Layer 7 LB + SSL)       │
+ └────────────────────────┬────────────────────────────────────────┘
+                          │ (AGIC — Application Gateway Ingress Controller)
+ ┌────────────────────────▼────────────────────────────────────────┐
+ │  AKS CLUSTER                                                    │
+ │  ┌─────────────────┐   ┌─────────────────┐  ┌───────────────┐  │
+ │  │ System Node Pool │   │ App Node Pool   │  │ Spot Node Pool│  │
+ │  │ (D4s_v3 × 3 AZ) │   │ (D8s_v5 × 3 AZ) │  │ (D4s × 0-50) │  │
+ │  │ CoreDNS, etc.   │   │ Microservices   │  │ Batch Jobs    │  │
+ │  └─────────────────┘   └─────────────────┘  └───────────────┘  │
+ │                                                                 │
+ │  [HPA] [KEDA] [Cluster Autoscaler] [VPA]                        │
+ │  [Azure Monitor] [Container Insights] [Prometheus + Grafana]    │
+ └─────────────────────────────────────────────────────────────────┘
+        │                        │                    │
+ ┌──────▼──────┐     ┌──────────▼──────────┐  ┌────▼────────────┐
+ │ Azure SQL   │     │ Azure Cache/Redis   │  │ Azure Blob      │
+ │ (Private EP)│     │ (Private Endpoint)  │  │ (Private EP)    │
+ └─────────────┘     └─────────────────────┘  └─────────────────┘
+</pre></div>
+
+    <div class="code"><div class="code-title">AKS — Production-Ready Cluster Creation</div>
+<pre><span class="cm"># Create production AKS cluster</span>
+<span class="ck">az aks create</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> \
+  <span class="cf">--name</span> <span class="cs">myAKSCluster</span> \
+  <span class="cf">--node-count</span> <span class="cv">3</span> \
+  <span class="cf">--node-vm-size</span> <span class="cs">Standard_D4s_v5</span> \
+  <span class="cf">--zones</span> <span class="cs">1 2 3</span> \
+  <span class="cf">--network-plugin</span> <span class="cs">azure</span> \
+  <span class="cf">--network-plugin-mode</span> <span class="cs">overlay</span> \
+  <span class="cf">--network-policy</span> <span class="cs">calico</span> \
+  <span class="cf">--enable-cluster-autoscaler</span> \
+  <span class="cf">--min-count</span> <span class="cs">2</span> --max-count <span class="cs">20</span> \
+  <span class="cf">--enable-managed-identity</span> \
+  <span class="cf">--enable-addons</span> <span class="cs">monitoring,azure-keyvault-secrets-provider</span> \
+  <span class="cf">--enable-oidc-issuer</span> \
+  <span class="cf">--enable-workload-identity</span> \
+  <span class="cf">--enable-private-cluster</span> \
+  <span class="cf">--auto-upgrade-channel</span> <span class="cs">stable</span> \
+  <span class="cf">--generate-ssh-keys</span>
+
+<span class="cm"># Add Spot node pool for batch workloads</span>
+<span class="ck">az aks nodepool add</span> \
+  <span class="cf">--resource-group</span> <span class="cs">myRG</span> --cluster-name <span class="cs">myAKSCluster</span> \
+  <span class="cf">--name</span> <span class="cs">spotpool</span> \
+  <span class="cf">--node-vm-size</span> <span class="cs">Standard_D4s_v5</span> \
+  <span class="cf">--priority</span> <span class="cs">Spot</span> \
+  <span class="cf">--eviction-policy</span> <span class="cs">Delete</span> \
+  <span class="cf">--spot-max-price</span> <span class="cs">-1</span> \
+  <span class="cf">--enable-cluster-autoscaler</span> \
+  <span class="cf">--min-count</span> <span class="cs">0</span> --max-count <span class="cs">50</span> \
+  <span class="cf">--node-taints</span> <span class="cs">kubernetes.azure.com/scalesetpriority=spot:NoSchedule</span> \
+  <span class="cf">--labels</span> <span class="cs">workload=batch</span>
+
+<span class="cm"># Get kubeconfig and check cluster</span>
+<span class="ck">az aks get-credentials</span> --resource-group <span class="cs">myRG</span> --name <span class="cs">myAKSCluster</span>
+<span class="ck">kubectl get nodes</span> -o wide
+<span class="ck">kubectl get pods</span> -A</pre></div>
+  </div>
+
+  <!-- ── APP SERVICE ── -->
+  <div class="svc">
+    <div class="svc-title">🌐 Azure App Service <span class="badge badge-blue">PaaS</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like a furnished apartment — with a VM (house) you build from scratch. With App Service, just move in with your code (suitcase). Azure provides: OS, runtime, load balancing, auto-scale, SSL certificates, custom domains, and CI/CD. Zero server management.</p></div>
+      <div class="info-box"><div class="ib-label">Deployment Slots — Zero-Downtime Magic</div>
+        <ul>
+          <li>Staging and production environments on the SAME App Service Plan</li>
+          <li>Swap staging → production with zero downtime (traffic swap is instant)</li>
+          <li>Slot settings can be "sticky" — don't swap with deployment</li>
+          <li>Auto-swap: swap automatically when staging is healthy</li>
+          <li>Roll back: swap back to previous version in seconds</li>
+          <li>Standard: 5 slots, Premium v3: 30 slots per app</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Feature</th><th>What It Does</th><th>Why It Matters</th></tr></thead>
+      <tbody>
+        <tr><td>Deployment Slots</td><td>Staging/prod environments on same plan, swap with zero downtime</td><td>Blue/green deployments. Roll back instantly by swapping back</td></tr>
+        <tr><td>Auto-Scale</td><td>Scale out (more instances) or up (bigger VMs) based on CPU, memory, custom metrics</td><td>Handle traffic spikes without manual intervention. Pay for what you use</td></tr>
+        <tr><td>Custom Domains + SSL</td><td>Map your domain, get free SSL via App Service Managed Cert</td><td>Professional URL with HTTPS in minutes, no cert management</td></tr>
+        <tr><td>Health Check</td><td>Ping endpoint every 2 min, remove unhealthy instances from rotation</td><td>Self-healing — bad instances auto-removed, new ones added</td></tr>
+        <tr><td>App Service Environment (ASE)</td><td>Dedicated isolated environment inside your VNet</td><td>Maximum isolation, compliance, max scale (200+ instances)</td></tr>
+        <tr><td>Hybrid Connections</td><td>Connect to on-premise resources without VPN via Relay service</td><td>Access on-prem SQL Server, internal APIs from App Service</td></tr>
+        <tr><td>Key Vault References</td><td>Reference secrets directly in App Settings — @Microsoft.KeyVault(...)</td><td>No code change needed, secrets auto-rotate, never in config files</td></tr>
+        <tr><td>WebJobs</td><td>Background tasks run alongside your app (triggered or continuous)</td><td>Scheduled jobs, message processors without a separate service</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Plan Tier</th><th>Features</th><th>Instances</th><th>Deployment Slots</th><th>Cost (East US)</th></tr></thead>
+      <tbody>
+        <tr><td>Free (F1)</td><td>Basic hosting, no custom domain, 60 min/day compute</td><td>Shared</td><td>0</td><td>Free</td></tr>
+        <tr><td>Basic (B1–B3)</td><td>Custom domain, SSL, manual scale up to 3 instances</td><td>Dedicated</td><td>0</td><td>$13–$73/month</td></tr>
+        <tr><td>Standard (S1–S3)</td><td>Auto-scale, daily backups, Traffic Manager</td><td>Dedicated</td><td>5</td><td>$56–$300/month</td></tr>
+        <tr><td>Premium v3 (P1v3–P3v3)</td><td>Faster hardware, VNet integration, zone redundancy</td><td>Dedicated</td><td>30</td><td>$117–$870/month</td></tr>
+        <tr><td>Isolated v2 (I1v2–I3v2)</td><td>ASE — fully isolated VNet, max compliance, FIPS 140-2</td><td>Dedicated</td><td>30</td><td>$300–$2800/month</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION 2: STORAGE ═══════════════════ -->
+<section id="storage" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">02</span><span class="s-icon">💾</span>
+    <div><div class="s-title">Storage Services</div><div class="s-desc">Azure storage covers every data type — files, blobs, disks, tables, queues, and massive data lakes. The right storage service directly impacts performance, cost, and architectural simplicity.</div></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🗄️ Azure Blob Storage <span class="badge badge-blue">Object Storage</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>A massive, infinitely scalable hard drive in the cloud. 'Blob' = Binary Large Object. Store anything: images, videos, backups, log files, ML models, app artifacts, static website files. Fractions of a penny per GB, scales to exabytes automatically, no server to manage.</p></div>
+      <div class="info-box"><div class="ib-label">Blob Types — When to Use Each</div>
+        <ul>
+          <li><strong>Block Blobs:</strong> Files, data, documents, images, videos — 99% of use cases. Up to 4.77 TB. Optimized for sequential reads/writes</li>
+          <li><strong>Page Blobs:</strong> VM disks (VHD format). Random read/write at page (512-byte) granularity. Up to 8 TB</li>
+          <li><strong>Append Blobs:</strong> Logs — append-only operations. Cannot update previous blocks. Perfect for logging, audit trails</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Access Tier</th><th>Access Pattern</th><th>Storage Cost</th><th>Access Cost</th><th>Early Deletion Penalty</th><th>Retrieval Latency</th></tr></thead>
+      <tbody>
+        <tr><td>Hot</td><td>Frequently accessed</td><td class="td-yellow">$0.018/GB/month</td><td class="td-green">~Free reads</td><td>None</td><td class="td-green">Milliseconds</td></tr>
+        <tr><td>Cool</td><td>Infrequently (30+ days)</td><td class="td-green">$0.01/GB/month</td><td>$0.01/10,000 reads</td><td>30 days</td><td class="td-green">Milliseconds</td></tr>
+        <tr><td>Cold</td><td>Rarely (90+ days)</td><td class="td-green">$0.004/GB/month</td><td>$0.05/10,000 reads</td><td>90 days</td><td class="td-green">Milliseconds</td></tr>
+        <tr><td>Archive</td><td>Long-term (180+ days)</td><td class="td-green">$0.00099/GB/month</td><td class="td-red">$5/10,000 reads</td><td>180 days</td><td class="td-red">Hours (rehydrate first!)</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tip"><p><strong>Lifecycle Management — Auto-Tiering (Set It &amp; Forget It):</strong><br>
+    Create rules to automatically move blobs between tiers based on age:<br>
+    <strong>Example:</strong> Move to Cool after 30 days → Cold after 90 days → Archive after 365 days → Delete after 7 years<br>
+    <strong>Business Impact:</strong> 1TB of logs/day: ~$18/day in Hot → ~$0.18/day in Archive after 1 year = <strong>99% cost reduction!</strong><br>
+    <strong>Tool:</strong> Portal → Storage Account → Data Management → Lifecycle Management → Add Rule (or use ARM/Terraform JSON policy)</p></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Feature</th><th>What It Does</th><th>When to Use</th></tr></thead>
+      <tbody>
+        <tr><td>Versioning</td><td>Auto-keep all versions of every blob. Restore accidentally deleted/overwritten files</td><td>Always enable in prod — object-level version history</td></tr>
+        <tr><td>Soft Delete</td><td>Deleted blobs retained for X days before permanent deletion</td><td>Enable everywhere — your safety net against accidents</td></tr>
+        <tr><td>Immutable Storage (WORM)</td><td>Write-Once-Read-Many. Time-based retention or legal hold. Cannot be deleted or modified</td><td>SEC Rule 17a-4, FINRA, HIPAA, financial compliance</td></tr>
+        <tr><td>Static Website Hosting</td><td>Serve HTML/CSS/JS directly from Blob. No server needed. index.html + 404.html</td><td>Combine with Azure CDN for global performance — costs pennies</td></tr>
+        <tr><td>Shared Access Signatures (SAS)</td><td>Time-limited, permission-scoped URLs. Service SAS, Account SAS, User Delegation SAS</td><td>Share private blobs securely without exposing account keys</td></tr>
+        <tr><td>Private Endpoints</td><td>Access Blob over private VNet IP — traffic never traverses public internet</td><td>Sensitive data, compliance-sensitive workloads</td></tr>
+        <tr><td>Azure Data Lake Gen2</td><td>Hierarchical namespace on top of Blob. Directory structure with POSIX ACLs</td><td>Big data analytics — Azure Synapse, Databricks, HDInsight</td></tr>
+        <tr><td>Object Replication</td><td>Async replicate blobs to another storage account/region</td><td>DR strategy, CDN warm-up, cross-region compliance</td></tr>
+        <tr><td>Change Feed</td><td>Ordered, durable log of all create/update/delete events on blobs</td><td>Event-driven processing, audit trail, data sync</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Redundancy Option</th><th>Copies</th><th>Protection</th><th>Cost</th><th>When to Use</th></tr></thead>
+      <tbody>
+        <tr><td>LRS (Locally Redundant)</td><td>3 copies in 1 datacenter</td><td>Hardware failure in same rack</td><td class="td-green">Cheapest</td><td>Dev/test, easily recreatable data</td></tr>
+        <tr><td>ZRS (Zone Redundant)</td><td>3 copies across 3 AZs in 1 region</td><td>Single datacenter failure</td><td>Mid</td><td>High-availability in-region workloads</td></tr>
+        <tr><td>GRS (Geo Redundant)</td><td>6 copies: 3 primary + 3 secondary region</td><td>Region-wide disaster</td><td>High</td><td>Standard DR for prod data</td></tr>
+        <tr><td>GZRS (Geo+Zone Redundant)</td><td>6 copies: ZRS primary + 3 secondary region</td><td>Zone failure + regional disaster</td><td class="td-red">Highest</td><td>Mission-critical, max durability</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="code"><div class="code-title">Blob Storage — Key CLI Operations</div>
+<pre><span class="cm"># Create storage account with ZRS and security hardened</span>
+<span class="ck">az storage account create</span> \
+  <span class="cf">--name</span> <span class="cs">myblobaccount</span> <span class="cf">--resource-group</span> <span class="cs">myRG</span> \
+  <span class="cf">--sku</span> <span class="cs">Standard_ZRS</span> --kind <span class="cs">StorageV2</span> \
+  <span class="cf">--access-tier</span> <span class="cs">Hot</span> \
+  <span class="cf">--https-only</span> <span class="cs">true</span> \
+  <span class="cf">--min-tls-version</span> <span class="cs">TLS1_2</span> \
+  <span class="cf">--allow-blob-public-access</span> <span class="cs">false</span> \
+  <span class="cf">--enable-hierarchical-namespace</span> <span class="cs">true</span>   <span class="cm"># ADLS Gen2</span>
+
+<span class="cm"># Enable versioning + soft delete</span>
+<span class="ck">az storage account blob-service-properties update</span> \
+  <span class="cf">--account-name</span> <span class="cs">myblobaccount</span> --resource-group <span class="cs">myRG</span> \
+  <span class="cf">--enable-versioning</span> <span class="cs">true</span> \
+  <span class="cf">--enable-delete-retention</span> <span class="cs">true</span> --delete-retention-days <span class="cs">30</span>
+
+<span class="cm"># Generate User Delegation SAS (more secure than account key SAS)</span>
+<span class="ck">az storage blob generate-sas</span> \
+  <span class="cf">--account-name</span> <span class="cs">myblobaccount</span> \
+  <span class="cf">--container-name</span> <span class="cs">mycontainer</span> \
+  <span class="cf">--name</span> <span class="cs">myfile.txt</span> \
+  <span class="cf">--permissions</span> <span class="cs">r</span> \
+  <span class="cf">--expiry</span> <span class="cs">$(date -u -d '+1 hour' '+%Y-%m-%dT%H:%MZ')</span> \
+  <span class="cf">--auth-mode</span> <span class="cs">login</span> <span class="cf">--as-user</span> \
+  <span class="cf">--output</span> <span class="cs">tsv</span></pre></div>
+
+    <div class="dos-donts">
+      <div class="dos"><div class="dos-lbl">✅ Blob Storage DO's</div><ul>
+        <li>Use Lifecycle Management to auto-tier blobs by age</li>
+        <li>Disable public blob access at storage account level</li>
+        <li>Use Private Endpoints for sensitive data (production)</li>
+        <li>Enable versioning + soft delete everywhere</li>
+        <li>Use User Delegation SAS over Account Key SAS (more secure)</li>
+        <li>Use ZRS minimum for production, GZRS for critical data</li>
+        <li>Enable Defender for Storage for malware scanning + anomaly detection</li>
+        <li>Use Managed Identity for app-to-blob access (no account keys in code)</li>
+      </ul></div>
+      <div class="donts"><div class="donts-lbl">❌ Blob Storage DON'Ts</div><ul>
+        <li>NEVER allow public blob access without SAS tokens</li>
+        <li>NEVER store account keys in code, config files, or environment variables</li>
+        <li>AVOID Archive tier for data needed within minutes (hours to rehydrate)</li>
+        <li>NEVER use HTTP — always enforce HTTPS-only</li>
+        <li>AVOID TLS 1.0/1.1 — enforce TLS 1.2 minimum</li>
+        <li>NEVER use LRS for production critical data</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION 3: NETWORKING ═══════════════════ -->
+<section id="networking" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">03</span><span class="s-icon">🌐</span>
+    <div><div class="s-title">Networking Services</div><div class="s-desc">Networking is the invisible glue connecting every Azure service. A poorly designed network means security breaches, high latency, and unreachable services. A well-designed network means secure, fast, highly available connections between everything.</div></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🏙️ Azure Virtual Network (VNet) <span class="badge badge-blue">Core Network Foundation</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like building your own private city inside Azure. You decide the streets (subnets), the neighborhoods (IP address ranges), the gated communities (NSGs), the highways to other cities (VNet peering), and the tunnels to your home office (VPN Gateway / ExpressRoute). Nobody enters your city unless you specifically open the gate.</p></div>
+      <div class="info-box"><div class="ib-label">IP Planning — Critical to Get Right</div>
+        <ul>
+          <li><strong>VNet CIDR:</strong> Use RFC 1918 — /8, /16, /24. Pick large enough range (e.g. 10.0.0.0/16 = 65,534 IPs)</li>
+          <li><strong>No overlapping:</strong> If VNets peer, their CIDRs cannot overlap. Plan before deploying</li>
+          <li><strong>Reserved per subnet:</strong> Azure reserves 5 IPs per subnet (first 4 + last)</li>
+          <li><strong>AKS Azure CNI:</strong> Each pod consumes a VNet IP — plan for max_pods × max_nodes additional IPs</li>
+          <li><strong>Service Endpoint vs Private Endpoint:</strong> Service Endpoint = optimized route, still uses public IP of PaaS. Private Endpoint = private IP in your VNet, traffic fully private</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>VNet Component</th><th>Analogy</th><th>Technical Role</th></tr></thead>
+      <tbody>
+        <tr><td>VNet</td><td>Your private city</td><td>Isolated network with CIDR range (e.g. 10.0.0.0/16). Resources inside cannot be reached from internet by default</td></tr>
+        <tr><td>Subnet</td><td>City district</td><td>Sub-division of VNet. Each service type in appropriate subnet. NSGs apply at subnet level</td></tr>
+        <tr><td>NSG</td><td>Neighbourhood checkpoint</td><td>Stateful firewall rules. Allow/Deny by IP, port, protocol. Applied at NIC or subnet. Default: deny all inbound</td></tr>
+        <tr><td>Azure Firewall</td><td>Military border control</td><td>Fully stateful managed firewall. FQDN filtering, threat intelligence, DNAT, SNAT. Central hub in Hub-Spoke</td></tr>
+        <tr><td>VNet Peering</td><td>Highway between cities</td><td>Connect two VNets privately (same or cross-region). Traffic stays on Microsoft backbone. NOT transitive</td></tr>
+        <tr><td>VPN Gateway</td><td>Private tunnel to office</td><td>IPsec/IKE VPN to on-premise. Site-to-Site (S2S) or Point-to-Site (P2S). Up to 10 Gbps</td></tr>
+        <tr><td>ExpressRoute</td><td>Dedicated private highway</td><td>Private connection from on-prem via partner. Up to 100 Gbps. SLA. Traffic never traverses internet</td></tr>
+        <tr><td>Azure Bastion</td><td>Secure visitor entry</td><td>Browser-based SSH/RDP to VMs without public IP. Logs all sessions to Azure Monitor</td></tr>
+        <tr><td>Private Endpoint</td><td>Secret back-door to Azure services</td><td>Access PaaS (Storage, SQL, AKS API) via private IP in your VNet. Traffic never leaves Microsoft network</td></tr>
+        <tr><td>Azure NAT Gateway</td><td>One-way exit door</td><td>Outbound internet for private subnet VMs. Static public IP. More scalable than individual public IPs</td></tr>
+        <tr><td>User Defined Routes (UDR)</td><td>Custom GPS override</td><td>Force traffic through Azure Firewall or NVA. Override default Azure routing</td></tr>
+        <tr><td>Azure DDoS Protection</td><td>Military anti-air defense</td><td>Standard tier: always-on traffic monitoring, automatic attack mitigation, adaptive tuning. ~$2,944/month</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="arch"><div class="arch-title">HUB-SPOKE NETWORK ARCHITECTURE — ENTERPRISE STANDARD</div>
+<pre>
+                    ┌──────────────────────────────────────┐
+                    │        ON-PREMISES / CORPORATE       │
+                    │     (via ExpressRoute / VPN GW)      │
+                    └─────────────────┬────────────────────┘
+                                      │
+                    ┌─────────────────▼────────────────────┐
+                    │           HUB VNET (10.0.0.0/16)     │
+                    │  ┌─────────────────────────────────┐  │
+                    │  │ Azure Firewall (10.0.0.4)        │  │
+                    │  │ VPN Gateway / ExpressRoute GW    │  │
+                    │  │ Azure Bastion                    │  │
+                    │  │ Private DNS Zone                 │  │
+                    │  └─────────────────────────────────┘  │
+                    └───┬──────────────┬──────────────┬─────┘
+          VNet Peering  │              │              │  VNet Peering
+    ┌─────────────────▼─┐    ┌────────▼────────┐  ┌──▼──────────────────┐
+    │ SPOKE: Production  │    │ SPOKE: Staging  │  │ SPOKE: Data / ML    │
+    │ (10.1.0.0/16)      │    │ (10.2.0.0/16)   │  │ (10.3.0.0/16)       │
+    │ AKS, App Service   │    │ AKS, Functions  │  │ Synapse, Databricks │
+    └───────────────────┘    └─────────────────┘  └────────────────────┘
+
+KEY RULES:
+• VNet Peering is NOT transitive — Spoke-A → Hub → Spoke-B requires Azure Firewall or Route Server in Hub
+• All spoke-to-spoke traffic routes through Hub Firewall (UDR: 0.0.0.0/0 → Firewall Private IP)
+• Each spoke team manages their own NSGs
+• Azure Virtual WAN: managed hub-spoke for 50+ locations — auto-connects branches/VNets/S2S VPNs
+</pre></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Load Balancer Type</th><th>OSI Layer</th><th>Best For</th><th>Key Features</th><th>Typical Cost</th></tr></thead>
+      <tbody>
+        <tr><td>Azure Load Balancer</td><td>Layer 4 (TCP/UDP)</td><td>Internal VM-to-VM, ultra-low latency</td><td>Zone redundant, health probes, port forwarding, SNAT</td><td>$0.008/hr + data</td></tr>
+        <tr><td>Application Gateway v2</td><td>Layer 7 (HTTP/HTTPS)</td><td>Web apps, microservices, SSL termination</td><td>Path/host routing, WAF, SSL offload, cookie affinity, URL redirects, AKS AGIC</td><td>$0.254/hr + CU</td></tr>
+        <tr><td>Azure Front Door</td><td>Layer 7 (Global)</td><td>Global web apps, multi-region</td><td>Global load balance, WAF, CDN caching, anycast, latency routing, Origin Groups</td><td>$0.01/GB + rules</td></tr>
+        <tr><td>Traffic Manager</td><td>DNS-level (Global)</td><td>Multi-region failover/routing</td><td>Priority, Weighted, Performance, Geographic, MultiValue, Subnet routing policies</td><td>$0.36/1M queries</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="exam-box"><p><strong>Which Load Balancer to Choose — Decision Tree:</strong></p><ul>
+      <li>Internal microservices (same VNet)? → <strong>Azure Load Balancer</strong> (internal, Standard SKU)</li>
+      <li>Web app needing path-based routing (/api, /images, /static)? → <strong>Application Gateway v2</strong></li>
+      <li>Need WAF to block SQL injection + XSS? → <strong>Application Gateway with WAF_v2 SKU</strong></li>
+      <li>Global users, route to nearest healthy region? → <strong>Azure Front Door</strong></li>
+      <li>Route based on user's country (geo compliance)? → <strong>Traffic Manager (Geographic)</strong></li>
+      <li>Complete enterprise setup: <strong>Front Door (global) → App Gateway (regional WAF) → App Service/AKS/VMs</strong></li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION 4: DATABASES ═══════════════════ -->
+<section id="databases" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">04</span><span class="s-icon">🗃️</span>
+    <div><div class="s-title">Database Services</div><div class="s-desc">Every application needs to store data. Azure offers managed databases for every paradigm: relational, NoSQL, in-memory cache, time series, and graph. The right choice determines your app's performance ceiling, cost floor, and operational burden.</div></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🔵 Azure SQL Database <span class="badge badge-blue">Managed Relational SQL</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like hiring a world-class DBA who works 24/7. They install SQL Server, patch it, back it up every 5-12 minutes, replicate it to another region for DR, auto-tune queries, and scale as needed — you never think about any of it. You just write SQL.</p></div>
+      <div class="info-box"><div class="ib-label">Deployment Options at a Glance</div>
+        <ul>
+          <li><strong>Single Database:</strong> Own resources, own billing. Full SQL Server feature set. Serverless option available</li>
+          <li><strong>Elastic Pool:</strong> Multiple DBs share DTU/vCore pool. Perfect for SaaS — 10 DBs share 1 pool, idle DBs use no resources</li>
+          <li><strong>SQL Managed Instance:</strong> Near 100% SQL Server compatibility. VNet injection. Cross-DB queries, SQL Agent, linked servers</li>
+          <li><strong>SQL Server on VM:</strong> Full OS+SQL control. Azure Hybrid Benefit eligible. Best for old SQL Server versions (2012, 2014)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Service Tier</th><th>Best For</th><th>Storage</th><th>Max vCores</th><th>Key Characteristic</th></tr></thead>
+      <tbody>
+        <tr><td>General Purpose (vCore)</td><td>Balanced production workloads</td><td>Up to 4 TB</td><td>80</td><td>Remote SSD. Separate compute/storage billing. Azure Hybrid Benefit eligible. 5.1 GB RAM/vCore</td></tr>
+        <tr><td>Business Critical (vCore)</td><td>Mission-critical, low latency (&lt;1ms)</td><td>Up to 4 TB</td><td>80</td><td>Local SSD, 3 HA replicas (Always On AG), 1 free readable secondary. In-memory OLTP</td></tr>
+        <tr><td>Hyperscale (vCore)</td><td>Massive scale (100TB+), large OLTP</td><td>Up to 100 TB</td><td>80</td><td>Distributed architecture, fast backups (seconds!), horizontal read scale via secondary replicas</td></tr>
+        <tr><td>Serverless (General Purpose)</td><td>Unpredictable/intermittent usage</td><td>Up to 4 TB</td><td>40</td><td>Auto-pause after inactivity (configurable). Auto-scale 0.5–40 vCores. Pay per second. Cold start 60s</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>HA &amp; DR Feature</th><th>RPO</th><th>RTO</th><th>How It Works</th></tr></thead>
+      <tbody>
+        <tr><td>Zone Redundant Deployment</td><td>0</td><td>~30 sec</td><td>Replicas across 3 AZs. Automatic failover within same region</td></tr>
+        <tr><td>Active Geo-Replication</td><td>~5 sec</td><td>~30 sec (manual)</td><td>Up to 4 readable secondary replicas in different regions. Manual failover. Best for read scaling + DR</td></tr>
+        <tr><td>Auto Failover Groups</td><td>~5 sec</td><td>~30 sec (auto)</td><td>Single connection string listener always points to primary. Automatic failover on outage. Covers multiple DBs</td></tr>
+        <tr><td>Point-in-Time Restore</td><td>~5-12 min</td><td>Minutes</td><td>Restore to ANY second within 7-35 day retention period. Saves you from accidental DELETEs</td></tr>
+        <tr><td>Long-Term Retention</td><td>~5-12 min</td><td>Minutes</td><td>Store backups up to 10 years in Blob storage. Required for compliance (HIPAA, ISO, PCI)</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="three-col">
+      <div class="info-box"><div class="ib-label">Security Features</div><ul>
+        <li><strong>Always Encrypted:</strong> Client-side encryption — DBAs can't see sensitive data. For PII/financial data</li>
+        <li><strong>Transparent Data Encryption (TDE):</strong> At-rest encryption — on by default</li>
+        <li><strong>Dynamic Data Masking:</strong> Mask sensitive columns for non-admin users</li>
+        <li><strong>SQL Audit:</strong> Log all queries to Storage/Log Analytics</li>
+        <li><strong>Advanced Threat Protection:</strong> Detects SQL injection attempts</li>
+        <li><strong>Ledger Tables:</strong> Cryptographically verified history — cannot be altered</li>
+      </ul></div>
+      <div class="info-box"><div class="ib-label">Performance Features</div><ul>
+        <li><strong>Automatic Tuning:</strong> AI creates/drops indexes, fixes query plans — 10x query improvement</li>
+        <li><strong>Query Store:</strong> Track query regressions, force good execution plans</li>
+        <li><strong>In-Memory OLTP:</strong> Business Critical tier. Memory-optimized tables for high-throughput transactions</li>
+        <li><strong>Read Scale-Out:</strong> Route read-only queries to secondary replicas for free</li>
+        <li><strong>Intelligent Query Processing:</strong> Adaptive joins, batch mode corrections, etc.</li>
+      </ul></div>
+      <div class="info-box"><div class="ib-label">Cost Optimization Tips</div><ul>
+        <li><strong>Elastic Pools:</strong> For SaaS with many DBs — 10+ DBs with variable load benefit most</li>
+        <li><strong>Serverless:</strong> For dev/test or intermittent workloads — auto-pauses after idle minutes</li>
+        <li><strong>Azure Hybrid Benefit:</strong> Bring SQL Server licenses — up to 55% savings</li>
+        <li><strong>Reserved Capacity:</strong> 1 or 3-year commitment — up to 38% savings on compute</li>
+        <li><strong>Right-size vCores:</strong> Use Automatic Tuning insights + Azure Advisor</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🌌 Azure Cosmos DB <span class="badge badge-purple">NoSQL · Global Distribution</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Like a magical database that exists simultaneously in every city in the world. A user in Tokyo reads data from Tokyo. A user in New York writes data in New York. Both see each other's changes within milliseconds. Scales to millions of operations/second automatically, never goes down, no server to manage.</p></div>
+      <div class="info-box"><div class="ib-label">Core Concepts</div>
+        <ul>
+          <li><strong>Account:</strong> Top-level resource. Up to 25 databases per account</li>
+          <li><strong>Container:</strong> Where data lives. You set throughput (RU/s). Partitioned horizontally</li>
+          <li><strong>Partition Key:</strong> CRITICAL design decision. High cardinality = even spread = best performance. Wrong choice = hot partition = throttling = 429 errors</li>
+          <li><strong>Request Units (RU/s):</strong> Currency of Cosmos DB. 1 RU = 1 KB read. Writes ~5 RU. You pay for RU/s, not per query</li>
+          <li><strong>Multi-Region Writes:</strong> Active-active global. Writes succeed with lowest latency worldwide. Conflict resolution policies</li>
+          <li><strong>Change Feed:</strong> Sorted log of inserts/updates per partition. Enables real-time event-driven processing</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>API Mode</th><th>Data Model</th><th>Wire Protocol</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td>NoSQL (Core)</td><td>JSON documents</td><td>Cosmos DB native</td><td>Modern apps, flexible schema, Azure native integration</td></tr>
+        <tr><td>MongoDB</td><td>BSON documents</td><td>MongoDB protocol</td><td>Lift-shift from MongoDB apps with minimal code changes</td></tr>
+        <tr><td>Cassandra</td><td>Wide-column</td><td>CQL (Cassandra)</td><td>Lift-shift from Apache Cassandra or time-series data</td></tr>
+        <tr><td>Gremlin</td><td>Graph (vertices + edges)</td><td>Gremlin traversal</td><td>Social networks, recommendation engines, fraud detection</td></tr>
+        <tr><td>Table</td><td>Key-value</td><td>Azure Table Storage</td><td>Simple key-value lookups, lift-shift from Azure Table Storage</td></tr>
+        <tr><td>PostgreSQL (Citus)</td><td>Relational + distributed</td><td>PostgreSQL wire</td><td>Distributed PostgreSQL workloads at scale</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Consistency Level</th><th>Guarantee</th><th>Latency</th><th>Throughput</th><th>Use Case</th></tr></thead>
+      <tbody>
+        <tr><td>Strong</td><td>Always reads latest write. No staleness. Linearizability</td><td class="td-red">Highest (waits for all regions)</td><td class="td-red">Lowest</td><td>Financial transactions, inventory, seats booking</td></tr>
+        <tr><td>Bounded Staleness</td><td>Data max K versions or T seconds old. Ordered reads</td><td class="td-yellow">High</td><td class="td-yellow">Medium</td><td>Leader boards, gaming scores where slight lag acceptable</td></tr>
+        <tr><td>Session (DEFAULT)</td><td>Consistent for YOUR session — reads your own writes</td><td class="td-green">Moderate</td><td class="td-green">Good</td><td>Shopping carts, user profiles, personalized content</td></tr>
+        <tr><td>Consistent Prefix</td><td>No out-of-order reads. Data can be stale but in order</td><td class="td-green">Low</td><td class="td-green">High</td><td>Social media feeds, comment threads, chat history</td></tr>
+        <tr><td>Eventual</td><td>Maximum performance. Data eventually converges. Possible out-of-order</td><td class="td-green">Lowest</td><td class="td-green">Highest</td><td>Like/view counters, analytics, non-critical metrics</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="cost"><div class="cost-title">💰 COSMOS DB COST MODEL — UNDERSTAND BEFORE YOU USE</div>
+      <ul>
+        <li><strong>Provisioned Throughput:</strong> Pay for RU/s reserved 24/7. Min 400 RU/s per container = ~$23/month. Predictable but potentially wasteful</li>
+        <li><strong>Autoscale:</strong> Set max RU/s, Cosmos scales between 10%–100% automatically. ~10-25% more per RU than provisioned but great for variable traffic</li>
+        <li><strong>Serverless:</strong> Pay per actual RU consumed. No minimum. Perfect for dev/test or very bursty workloads (&lt;5M RU/month)</li>
+        <li><strong>Storage:</strong> $0.25/GB/month regardless of tier</li>
+      </ul>
+      <p style="margin-top:10px"><strong>⚠️ CRITICAL COST TRAP:</strong> Each container needs minimum RU/s. 100 containers × 400 RU/s = $2,300/month minimum! Use shared throughput at database level — up to 25 containers share the pool.</p>
+      <p style="margin-top:6px"><strong>💡 Best Practice:</strong> Use Serverless for dev/test. Autoscale with shared database throughput for production. Only use per-container provisioned RU for high-traffic isolated containers.</p>
+    </div>
+
+    <div class="exam-box"><p><strong>Partition Key Selection — Make or Break Decision:</strong></p><ul>
+      <li><strong>Good choices (high cardinality):</strong> userId, orderId, deviceId, productId — millions of unique values</li>
+      <li><strong>Bad choices (low cardinality):</strong> country (200 values), status (3 values), date (limited) — creates hot partitions</li>
+      <li><strong>Hot partition symptoms:</strong> 429 "TooManyRequests" errors on specific partition, uneven RU consumption</li>
+      <li><strong>Synthetic partition key:</strong> Combine multiple fields when single field isn't selective enough (e.g., userId + month)</li>
+      <li><strong>Hierarchical partition keys:</strong> Cosmos DB now supports up to 3-level partition key for sub-partitioning (e.g., tenantId/userId/sessionId)</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION 5: DEVOPS ═══════════════════ -->
+<section id="devops" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">05</span><span class="s-icon">🔧</span>
+    <div><div class="s-title">DevOps &amp; Monitoring</div><div class="s-desc">DevOps combines Development and Operations into one fluid process. In Azure, DevOps services cover everything from source code to deployment pipelines, log collection to automated alerting, secret management to infrastructure-as-code.</div></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🚀 Azure DevOps (ADO) <span class="badge badge-blue">Complete DevOps Platform</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>ADO Module</th><th>What It Is</th><th>Real-World Usage</th></tr></thead>
+      <tbody>
+        <tr><td>Azure Repos</td><td>Git / TFVC code repository</td><td>Private Git hosting, branch policies (require PR, min reviewers, build passing), pull request reviews, code search, semantic versioning</td></tr>
+        <tr><td>Azure Pipelines</td><td>CI/CD automation engine (YAML or Classic)</td><td>Build, test, containerize, and deploy any language to any target. Supports GitHub, Bitbucket, Azure Repos as source</td></tr>
+        <tr><td>Azure Boards</td><td>Agile work tracking</td><td>Scrum/Kanban boards, sprints, backlogs, epics, user stories, bug tracking. Integrates with GitHub Issues</td></tr>
+        <tr><td>Azure Test Plans</td><td>Manual + automated testing</td><td>Test case management, exploratory testing sessions, automated test runs, load testing via Azure Load Testing</td></tr>
+        <tr><td>Azure Artifacts</td><td>Package registry</td><td>Private npm, NuGet, pip, Maven, Cargo packages. Upstream proxy for public registries (cache + security scan). Internal library sharing</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Deployment Strategy</th><th>How It Works</th><th>Downtime Risk</th><th>Rollback Speed</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td>Rolling</td><td>Deploy to N servers at a time. Old version serves while new deploys</td><td class="td-yellow">Brief mixed versions</td><td>Slow (redeploy)</td><td>Web apps with backward-compatible changes</td></tr>
+        <tr><td>Blue/Green</td><td>Deploy to identical new environment. Switch traffic instantly. Keep old for rollback</td><td class="td-green">Zero downtime</td><td class="td-green">Instant (swap)</td><td>Major releases, critical apps — App Service slots are perfect</td></tr>
+        <tr><td>Canary</td><td>Send X% traffic to new version. Monitor. Increase gradually to 100%</td><td class="td-green">Minimal (X% affected)</td><td>Fast (reroute)</td><td>High-risk releases, validate with real traffic</td></tr>
+        <tr><td>Feature Flags</td><td>Deploy code disabled. Enable for specific users/regions/percentage via config</td><td class="td-green">None (deployment separate from release)</td><td class="td-green">Instant (toggle)</td><td>Controlled rollout without redeployment</td></tr>
+        <tr><td>Shadow</td><td>New version receives real traffic copy but responses discarded. Compare behavior logs</td><td class="td-green">None for users</td><td>N/A (pre-release)</td><td>Test new version behavior with production traffic</td></tr>
+        <tr><td>A/B Testing</td><td>Route % of traffic to variant A vs variant B, measure business metrics</td><td class="td-green">None</td><td>Fast (reroute)</td><td>Product experiments, UX optimization</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="code"><div class="code-title">azure-pipelines.yml — Production CI/CD Pipeline</div>
+<pre><span class="co">trigger:</span>
+  <span class="co">branches:</span>
+    <span class="co">include:</span> [main, develop]
+  <span class="co">paths:</span>
+    <span class="co">exclude:</span> [docs/*, README.md]
+
+<span class="co">variables:</span>
+  <span class="co">containerRegistry:</span> <span class="cs">myacr.azurecr.io</span>
+  <span class="co">imageRepository:</span> <span class="cs">myapp</span>
+  <span class="co">tag:</span> <span class="cs">$(Build.BuildId)</span>
+
+<span class="co">stages:</span>
+<span class="cm">  # Stage 1: Build, Test, Security Scan, Push to ACR</span>
+<span class="co">  - stage:</span> Build
+    <span class="co">jobs:</span>
+    <span class="co">- job:</span> BuildAndTest
+      <span class="co">pool:</span> { <span class="co">vmImage:</span> ubuntu-latest }
+      <span class="co">steps:</span>
+      <span class="cm">      # Install dependencies and run unit tests</span>
+      <span class="co">      - script:</span> pip install -r requirements.txt && pytest tests/ --junitxml=junit.xml
+        <span class="co">displayName:</span> <span class="cs">Run Unit Tests</span>
+      <span class="cm">      # Publish test results</span>
+      <span class="co">      - task:</span> PublishTestResults@2
+        <span class="co">inputs:</span> { <span class="co">testResultsFiles:</span> <span class="cs">junit.xml</span>, <span class="co">mergeTestResults:</span> <span class="cv">true</span> }
+      <span class="cm">      # Security scan (SAST)</span>
+      <span class="co">      - task:</span> MicrosoftSecurityDevOps@1
+      <span class="cm">      # Build + push Docker image to ACR</span>
+      <span class="co">      - task:</span> Docker@2
+        <span class="co">inputs:</span>
+          <span class="co">command:</span> buildAndPush
+          <span class="co">repository:</span> <span class="cs">$(imageRepository)</span>
+          <span class="co">containerRegistry:</span> <span class="cs">myACRServiceConnection</span>
+          <span class="co">tags:</span> <span class="cs">$(tag)</span>
+
+<span class="cm">  # Stage 2: Deploy to Staging AKS</span>
+<span class="co">  - stage:</span> Staging
+    <span class="co">dependsOn:</span> Build
+    <span class="co">condition:</span> <span class="cs">and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))</span>
+    <span class="co">jobs:</span>
+    <span class="co">    - deployment:</span> DeployToStaging
+      <span class="co">environment:</span> staging      <span class="cm"># Environment with approval gates</span>
+      <span class="co">strategy:</span>
+        <span class="co">runOnce:</span>
+          <span class="co">deploy:</span>
+            <span class="co">steps:</span>
+            <span class="co">            - task:</span> KubernetesManifest@0
+              <span class="co">inputs:</span>
+                <span class="co">action:</span> deploy
+                <span class="co">kubernetesServiceConnection:</span> <span class="cs">aks-staging</span>
+                <span class="co">manifests:</span> <span class="cs">k8s/*.yaml</span>
+                <span class="co">containers:</span> <span class="cs">$(containerRegistry)/$(imageRepository):$(tag)</span>
+
+<span class="cm">  # Stage 3: Canary Deploy to Production (25% → 50% → 100%)</span>
+<span class="co">  - stage:</span> Production
+    <span class="co">dependsOn:</span> Staging
+    <span class="co">jobs:</span>
+    <span class="co">    - deployment:</span> DeployToProd
+      <span class="co">environment:</span> production  <span class="cm"># Requires manual approval</span>
+      <span class="co">strategy:</span>
+        <span class="co">canary:</span>
+          <span class="co">increments:</span> [25, 50, 100]
+          <span class="co">deploy:</span>
+            <span class="co">steps:</span>
+            <span class="co">              - script:</span> echo "Deploying canary $(strategy.name) increment $(strategy.increment)"</pre></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">📊 Azure Monitor + Log Analytics + Application Insights <span class="badge badge-green">Full Observability</span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Monitor Component</th><th>Analogy</th><th>What It Does</th><th>Retention</th></tr></thead>
+      <tbody>
+        <tr><td>Metrics</td><td>Heart rate monitor</td><td>Time-series numbers: CPU%, memory, requests/sec, latency. Near real-time (1 min granularity)</td><td>93 days free</td></tr>
+        <tr><td>Log Analytics Workspace</td><td>Detective's case file cabinet</td><td>Central repository for all logs from any source. Query with KQL. Multi-source correlation</td><td>30-730 days configurable</td></tr>
+        <tr><td>Application Insights</td><td>X-ray for your app</td><td>Full APM: request tracing, dependency tracking, exceptions, performance profiling, user analytics, live metrics, availability tests</td><td>90 days default</td></tr>
+        <tr><td>Alerts</td><td>Alarm system + autoresponder</td><td>Trigger when metric/log/activity condition met. Smart detection. Alert processing rules</td><td>N/A</td></tr>
+        <tr><td>Action Groups</td><td>Emergency contact list</td><td>Reusable list: Email, SMS, Voice, Webhook, ITSM, Logic App, Azure Function, Push notification, Azure Runbook</td><td>N/A</td></tr>
+        <tr><td>Diagnostic Settings</td><td>Installing CCTV everywhere</td><td>Route platform logs/metrics from ANY resource to Log Analytics, Storage, Event Hub, Partner solutions</td><td>N/A</td></tr>
+        <tr><td>Workbooks</td><td>Interactive dashboard builder</td><td>Rich parameterized visualizations. Share team insights in Azure Portal. Gallery templates for common scenarios</td><td>N/A</td></tr>
+        <tr><td>Azure Monitor Agent (AMA)</td><td>Smart sensor on VMs</td><td>Replaces old MMA/OMS agents. DCR-based config. Collects OS metrics, event logs, custom logs from VMs</td><td>N/A</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="code"><div class="code-title">KQL — Kusto Query Language Mastery Queries</div>
+<pre><span class="cm">// ── Find all errors in last 1 hour, grouped by endpoint ──</span>
+<span class="ck">AppExceptions</span>
+<span class="cf">| where</span> TimeGenerated <span class="cv">> ago(1h)</span>
+<span class="cf">| where</span> SeverityLevel == <span class="cs">'Error'</span>
+<span class="cf">| summarize</span> ErrorCount = count() <span class="cf">by</span> AppRoleName, Type, bin(TimeGenerated, 5m)
+<span class="cf">| order by</span> ErrorCount desc
+
+<span class="cm">// ── P95/P99 response time by endpoint (last 24h) ──</span>
+<span class="ck">AppRequests</span>
+<span class="cf">| where</span> TimeGenerated <span class="cv">> ago(24h)</span>
+<span class="cf">| summarize</span> 
+    avg_ms = avg(DurationMs),
+    p95_ms = percentile(DurationMs, <span class="cv">95</span>),
+    p99_ms = percentile(DurationMs, <span class="cv">99</span>),
+    total  = count(),
+    failed = countif(Success == <span class="cv">false</span>)
+  <span class="cf">by</span> Name
+<span class="cf">| extend</span> failure_rate = <span class="cv">100.0</span> * failed / total
+<span class="cf">| order by</span> p95_ms desc
+
+<span class="cm">// ── Distributed trace — find slow requests end-to-end ──</span>
+<span class="ck">AppRequests</span>
+<span class="cf">| where</span> DurationMs <span class="cv">> 2000</span> <span class="cf">and</span> TimeGenerated <span class="cv">> ago(6h)</span>
+<span class="cf">| join kind=leftouter</span> (
+    <span class="ck">AppDependencies</span>
+    <span class="cf">| where</span> Success == <span class="cv">false</span>
+  ) <span class="cf">on</span> OperationId
+<span class="cf">| project</span> TimeGenerated, Name, DurationMs, OperationId, DependencyType, Target
+
+<span class="cm">// ── VM CPU heat map across all machines ──</span>
+<span class="ck">Perf</span>
+<span class="cf">| where</span> ObjectName == <span class="cs">'Processor'</span> <span class="cf">and</span> CounterName == <span class="cs">'% Processor Time'</span>
+<span class="cf">| where</span> TimeGenerated <span class="cv">> ago(4h)</span>
+<span class="cf">| summarize</span> avg(CounterValue) <span class="cf">by</span> Computer, bin(TimeGenerated, <span class="cv">5m</span>)
+<span class="cf">| render</span> heatmap
+
+<span class="cm">// ── Security: Failed logins by IP (brute force detection) ──</span>
+<span class="ck">SigninLogs</span>
+<span class="cf">| where</span> ResultType != <span class="cs">'0'</span>
+<span class="cf">| where</span> TimeGenerated <span class="cv">> ago(1d)</span>
+<span class="cf">| summarize</span> FailedAttempts = count(), 
+            UserList = make_set(UserPrincipalName),
+            AppList  = make_set(AppDisplayName)
+  <span class="cf">by</span> IPAddress, Location
+<span class="cf">| where</span> FailedAttempts <span class="cv">> 10</span>
+<span class="cf">| order by</span> FailedAttempts desc
+
+<span class="cm">// ── Container Insights: OOMKilled pods ──</span>
+<span class="ck">KubeEvents</span>
+<span class="cf">| where</span> TimeGenerated <span class="cv">> ago(1d)</span>
+<span class="cf">| where</span> Reason == <span class="cs">"OOMKilling"</span>
+<span class="cf">| project</span> TimeGenerated, Namespace, Name, Message
+<span class="cf">| order by</span> TimeGenerated desc</pre></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🔑 Azure Key Vault <span class="badge badge-yellow">Secrets · Keys · Certificates</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Your bank's safe deposit box in the cloud. Store three types: Secrets (passwords, connection strings, API keys), Keys (cryptographic keys for encryption), and Certificates (SSL/TLS certs). Apps access via API without anyone seeing raw values. Not even Microsoft can read what's in your vault (HSM-backed keys).</p></div>
+      <div class="info-box"><div class="ib-label">Access Control — RBAC vs Access Policies</div>
+        <ul>
+          <li><strong>Access Policies (Legacy):</strong> Grant service principals access to secrets/keys/certs. Per-vault. Less flexible</li>
+          <li><strong>RBAC (Recommended):</strong> Azure RBAC roles — Key Vault Secrets Officer, Secrets User, Crypto Officer, Reader. Granular, auditable, follows Azure RBAC pattern. Prefer this</li>
+          <li><strong>Key Vault Secrets User role:</strong> Read secret values — for apps and managed identities</li>
+          <li><strong>Key Vault Administrator role:</strong> Manage vault — for ops teams</li>
+          <li><strong>Never use Global Admin/Owner:</strong> Over-permissioned. Use least privilege</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Key Vault Concept</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Secrets</td><td>Key-value pairs: DB password, API key, connection string. Version-controlled. Up to 25KB per secret. 90-day rotation reminder with auto-rotation via Event Grid</td></tr>
+        <tr><td>Keys</td><td>Cryptographic keys (RSA 2048/4096, EC P-256/P-384). Operations happen INSIDE vault (key never leaves). Supports Bring Your Own Key (BYOK)</td></tr>
+        <tr><td>Certificates</td><td>Store and auto-renew SSL/TLS certs. Integrates with DigiCert, GlobalSign, or custom CAs. Auto-renewal 30 days before expiry</td></tr>
+        <tr><td>Soft Delete</td><td>Deleted items retained 7–90 days before permanent deletion. Protection against accidents</td></tr>
+        <tr><td>Purge Protection</td><td>Prevents purging for retention period even by vault owners. Required for compliance workloads. Once enabled, cannot be disabled</td></tr>
+        <tr><td>Private Endpoint</td><td>Access Key Vault over private VNet IP. Traffic never traverses internet. Disable public access for compliance</td></tr>
+        <tr><td>Key Vault References</td><td>App Service/Functions reference secrets in App Settings: @Microsoft.KeyVault(VaultName=x;SecretName=y). No code change, auto-refreshes on rotation</td></tr>
+        <tr><td>Managed HSM</td><td>Dedicated single-tenant HSM. FIPS 140-2 Level 3. For highly regulated workloads (banking, government)</td></tr>
+        <tr><td>Firewall + VNet Rules</td><td>Restrict access to specific IP ranges or VNet subnets. Trusted Azure services bypass: App Service, Functions, VMs with managed identity</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="code"><div class="code-title">Key Vault — Full Production Setup + Python App Access</div>
+<pre><span class="cm"># Create Key Vault with all security features enabled</span>
+<span class="ck">az keyvault create</span> \
+  <span class="cf">--name</span> <span class="cs">myKeyVault</span> <span class="cf">--resource-group</span> <span class="cs">myRG</span> <span class="cf">--location</span> <span class="cs">eastus</span> \
+  <span class="cf">--enable-rbac-authorization</span> <span class="cs">true</span> \
+  <span class="cf">--enable-soft-delete</span> <span class="cs">true</span> --retention-days <span class="cs">90</span> \
+  <span class="cf">--enable-purge-protection</span> <span class="cs">true</span> \
+  <span class="cf">--public-network-access</span> <span class="cs">Disabled</span>
+
+<span class="cm"># Store a secret with expiration and content type</span>
+<span class="ck">az keyvault secret set</span> \
+  <span class="cf">--vault-name</span> <span class="cs">myKeyVault</span> \
+  <span class="cf">--name</span> <span class="cs">DatabasePassword</span> \
+  <span class="cf">--value</span> <span class="cs">'SuperSecurePassword123!'</span> \
+  <span class="cf">--expires</span> <span class="cs">2025-12-31</span> \
+  <span class="cf">--content-type</span> <span class="cs">text/plain</span>
+
+<span class="cm"># Grant Managed Identity 'Secrets User' role (least privilege)</span>
+<span class="ck">az role assignment create</span> \
+  <span class="cf">--role</span> <span class="cs">'Key Vault Secrets User'</span> \
+  <span class="cf">--assignee</span> &lt;managed-identity-principal-id&gt; \
+  <span class="cf">--scope</span> /subscriptions/&lt;sub-id&gt;/resourceGroups/myRG/providers/Microsoft.KeyVault/vaults/myKeyVault
+
+<span class="cm"># Python app — read secrets with Managed Identity (ZERO credentials in code!)</span>
+<span class="cm"># pip install azure-identity azure-keyvault-secrets</span>
+<span class="cf">from</span> azure.identity <span class="cf">import</span> DefaultAzureCredential
+<span class="cf">from</span> azure.keyvault.secrets <span class="cf">import</span> SecretClient
+
+credential = DefaultAzureCredential()  <span class="cm"># Auto-uses Managed Identity in Azure</span>
+client = SecretClient(
+    vault_url=<span class="cs">'https://myKeyVault.vault.azure.net'</span>,
+    credential=credential
+)
+db_password = client.get_secret(<span class="cs">'DatabasePassword'</span>).value
+<span class="cm"># Works locally too: uses az login credentials via DefaultAzureCredential chain</span></pre></div>
+  </div>
+</section>
+
+<!-- ═══════════════════ SECTION 6: SECURITY ═══════════════════ -->
+<section id="security" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">06</span><span class="s-icon">🔐</span>
+    <div><div class="s-title">Security &amp; Identity</div><div class="s-desc">Security is not a feature — it's a foundation. Azure's security model is built on Zero Trust: "Never trust, always verify." Every access request must be authenticated, authorized, and verified regardless of origin.</div></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">👤 Microsoft Entra ID <span class="badge badge-blue">formerly Azure Active Directory</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Layman Way</div><p>Microsoft's identity platform — the bouncer and membership card system for everything Microsoft. It decides if you can log in to Office 365, Azure Portal, your company's custom apps, or partner portals. Not just usernames and passwords — it's MFA, conditional access, single sign-on, and much more. Every human and every application in your Azure tenant has an identity here.</p></div>
+      <div class="info-box"><div class="ib-label">Managed Identity — The Right Way to Authenticate Services</div>
+        <ul>
+          <li><strong>System-Assigned:</strong> Tied to ONE resource. Auto-created. Dies with the resource. Simple</li>
+          <li><strong>User-Assigned:</strong> Standalone resource. Assign to MULTIPLE resources. Persists independently. Best for shared identity across many services</li>
+          <li><strong>Rule:</strong> 1 app = System-Assigned. Shared across many services = User-Assigned</li>
+          <li><strong>Use Case:</strong> VM needs to read Key Vault + write to Blob + query SQL → Assign Managed Identity → Grant RBAC roles → Zero passwords anywhere!</li>
+          <li><strong>Workload Identity (AKS):</strong> Federated credentials — pods get managed identity via OIDC. Replaces AAD Pod Identity</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Entra ID Concept</th><th>Analogy</th><th>Technical Detail</th></tr></thead>
+      <tbody>
+        <tr><td>User</td><td>Employee with badge</td><td>Person who can authenticate. Has UPN (email), group memberships, assigned RBAC roles, MFA registered</td></tr>
+        <tr><td>Service Principal</td><td>Robot worker with ID card</td><td>Application identity for apps/services/scripts. Has client ID + secret/certificate. Used for automation, CI/CD pipelines</td></tr>
+        <tr><td>Managed Identity</td><td>Robot with auto-renewing badge</td><td>Azure-managed service principal. No password/certificate to rotate. Auto-renews. Best for Azure-to-Azure auth</td></tr>
+        <tr><td>RBAC Role Assignment</td><td>Job title with specific clearances</td><td>Owner, Contributor, Reader or 400+ built-in roles. Assigned at subscription/RG/resource scope. Additive permissions</td></tr>
+        <tr><td>App Registration</td><td>App gets its own ID card</td><td>Register external apps to use Entra ID for authentication. OAuth 2.0 / OIDC flows. Defines permissions/scopes</td></tr>
+        <tr><td>Conditional Access</td><td>Smart security checkpoint</td><td>Require MFA if logging in from new country/unknown device. Block if device non-compliant. Allow only from corporate IPs. Requires P1 license</td></tr>
+        <tr><td>MFA / Passwordless</td><td>Two-factor ID check</td><td>SMS (avoid), Authenticator app, FIDO2 security key, Windows Hello for Business. Blocks 99.9% of credential attacks</td></tr>
+        <tr><td>PIM (Privileged Identity Management)</td><td>Temporary VIP promotion</td><td>Just-in-time privileged access. Request → Approve → Time-limited → Auto-expire. Requires P2 license</td></tr>
+        <tr><td>Access Reviews</td><td>Periodic security audit</td><td>Regular review of who has access to what. Auto-remove access if not reviewed. Requires P2 license</td></tr>
+        <tr><td>Identity Protection</td><td>Anomaly detection system</td><td>Detects risky sign-ins (impossible travel, anonymized IPs, leaked credentials). Auto-block or require MFA remediation</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="exam-box"><p><strong>Zero Trust Principles — Memorize These:</strong></p><ul>
+      <li><strong>Verify explicitly:</strong> Always authenticate and authorize based on all available data points (identity, location, device, service, workload, data classification)</li>
+      <li><strong>Use least privilege access:</strong> Limit user access with just-in-time and just-enough-access (JIT/JEA), risk-based adaptive policies, and data protection</li>
+      <li><strong>Assume breach:</strong> Minimize blast radius. Segment access. Encrypt everything. Verify end-to-end. Use analytics to get visibility, drive threat detection, improve defenses</li>
+      <li><strong>Entra ID Licenses:</strong> Free (basic SSO) → Office 365 (MFA) → P1 (Conditional Access, Hybrid) → P2 (Identity Protection, PIM, Access Reviews)</li>
+    </ul></div>
+  </div>
+
+  <div class="svc">
+    <div class="svc-title">🛡️ Defender for Cloud + Microsoft Sentinel <span class="badge badge-blue">CSPM · CWPP · SIEM · SOAR</span></div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">Defender for Cloud — CSPM + CWPP</div>
+        <p><strong>Cloud Security Posture Management (CSPM):</strong> Continuously scans your environment and gives a Secure Score (0-100%). Tells you: 'Your storage accounts have public access enabled (high risk)' — with one-click remediation.</p>
+        <p style="margin-top:8px"><strong>Cloud Workload Protection Platform (CWPP):</strong> Real-time threat detection for active attacks across servers, containers, SQL, storage, Key Vault, DNS, Resource Manager.</p>
+        <ul style="margin-top:8px">
+          <li>Secure Score: Quantifies posture 0-100. Target: &gt;80%</li>
+          <li>Regulatory Compliance: PCI-DSS, SOC 2, ISO 27001, NIST dashboards</li>
+          <li>Attack Path Analysis: Visualize how attackers can reach your crown jewels</li>
+          <li>Just-in-Time VM Access: Lock down port 22/3389, approve temporary 3-hour access</li>
+          <li>Adaptive Application Control: ML-based allowlisting of safe processes on VMs</li>
+        </ul>
+      </div>
+      <div class="info-box"><div class="ib-label">Microsoft Sentinel — Cloud-Native SIEM + SOAR</div>
+        <p>AI-powered security operations center. Ingests logs from everything (Azure, AWS, GCP, on-premise, 300+ connectors), uses ML to detect threats, automates responses.</p>
+        <ul style="margin-top:8px">
+          <li><strong>Data Connectors:</strong> M365, Azure AD, Defender, AWS CloudTrail, Palo Alto, CrowdStrike, etc.</li>
+          <li><strong>Analytics Rules:</strong> Scheduled KQL queries that create incidents. ML Fusion rules detect multi-stage attacks</li>
+          <li><strong>Incidents:</strong> Correlated alerts grouped into actionable investigations. Track MTTR</li>
+          <li><strong>Playbooks (Logic Apps):</strong> Automated response: block IP, disable account, create JIRA ticket</li>
+          <li><strong>UEBA:</strong> User/Entity Behavior Analytics. Detect impossible travel, unusual login hours</li>
+          <li><strong>Threat Hunting:</strong> Proactive KQL notebooks — find threats before they trigger alerts</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="svc-title" style="margin-top:24px">📋 Azure Policy — Governance at Scale</div>
+    <div class="two-col">
+      <div class="info-box"><div class="ib-label">What Azure Policy Does</div>
+        <p>Defines rules that Azure evaluates against every resource. Rules: 'All storage must use HTTPS only', 'VMs deployed only in approved regions', 'Every resource must have an Environment tag'.</p>
+        <ul style="margin-top:8px">
+          <li><strong>Deny:</strong> Block resource creation/update that violates policy</li>
+          <li><strong>Audit:</strong> Allow but mark as non-compliant (report only)</li>
+          <li><strong>AuditIfNotExists:</strong> Audit if a related resource doesn't exist</li>
+          <li><strong>DeployIfNotExists:</strong> Auto-deploy remediation resource if missing (e.g. auto-deploy Log Analytics agent)</li>
+          <li><strong>Modify:</strong> Auto-add/change tags or properties on resources</li>
+          <li><strong>Append:</strong> Add additional fields to resource definition</li>
+        </ul>
+      </div>
+      <div class="info-box"><div class="ib-label">Azure Bastion — Secure VM Access Without Public IP</div>
+        <p>Browser-based SSH/RDP to VMs through the Azure Portal WITHOUT a public IP on the VM.</p>
+        <ul style="margin-top:8px">
+          <li><strong>Standard Tier:</strong> Host scaling, shareable link, IP-based connection, file upload/download</li>
+          <li><strong>Premium Tier:</strong> Session recording, private-only deployment</li>
+          <li><strong>Developer Tier:</strong> Cheapest — single VM, no dedicated VNet deployment</li>
+          <li>Eliminates public IP exposure for VMs</li>
+          <li>No NSG rule needed for port 22/3389</li>
+          <li>All sessions logged to Azure Monitor (audit trail)</li>
+          <li>Protects against brute force and port scanning attacks</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ AZURE vs AWS ═══════════════════ -->
+<section id="compare" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">⚔️</span><span class="s-icon"></span>
+    <div><div class="s-title">Azure vs AWS — Complete Side-by-Side</div><div class="s-desc">The two dominant cloud platforms compared service-by-service, with honest assessment of where each wins.</div></div>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Category</th><th>Azure Service</th><th>AWS Equivalent</th><th>Key Difference &amp; Honest Take</th></tr></thead>
+    <tbody>
+      <tr><td>Virtual Machine</td><td>Azure VM + VMSS</td><td>EC2 + Auto Scaling Group</td><td>Azure has better Windows VM integration + Hybrid Benefit. AWS has more instance families (400+ types vs ~200)</td></tr>
+      <tr><td>Serverless Functions</td><td>Azure Functions</td><td>AWS Lambda</td><td>Lambda has larger ecosystem, more triggers, bigger community. Functions better for .NET/Windows workloads and Durable Functions pattern</td></tr>
+      <tr><td>Kubernetes</td><td>AKS</td><td>EKS</td><td>Both excellent. AKS free control plane historically. EKS free control plane since 2024. AKS simpler Workload Identity setup</td></tr>
+      <tr><td>Container Serverless</td><td>Azure Container Apps</td><td>AWS Fargate / App Runner</td><td>Container Apps has KEDA built-in, simpler. Fargate more mature, more predictable pricing</td></tr>
+      <tr><td>PaaS Web App</td><td>App Service</td><td>Elastic Beanstalk / App Runner</td><td>App Service more polished developer experience, better deployment slots. Beanstalk more flexible but complex</td></tr>
+      <tr><td>Object Storage</td><td>Azure Blob Storage</td><td>Amazon S3</td><td>S3 more mature ecosystem (more tools, wider adoption). Blob better Azure integration and lifecycle tiering UI. Both comparable at scale</td></tr>
+      <tr><td>Block Storage</td><td>Azure Managed Disks</td><td>Amazon EBS</td><td>Both similar. EBS slightly more options (io2 Block Express). Managed Disks simpler billing model</td></tr>
+      <tr><td>CDN</td><td>Azure CDN / Front Door</td><td>Amazon CloudFront</td><td>CloudFront larger PoP network (600+ vs ~130). Front Door better for global routing + WAF combo</td></tr>
+      <tr><td>Private Network</td><td>Azure VNet</td><td>Amazon VPC</td><td>VPC more feature-rich (Transit Gateway, VPC Lattice, VPC Endpoints more mature). VNet simpler peering setup</td></tr>
+      <tr><td>SQL DB (Managed)</td><td>Azure SQL Database</td><td>Amazon RDS</td><td>Azure SQL more AI features (Automatic Tuning, Query Store insights). RDS supports more engines (MySQL, PostgreSQL, Oracle, SQL Server, MariaDB)</td></tr>
+      <tr><td>NoSQL</td><td>Cosmos DB</td><td>Amazon DynamoDB</td><td>DynamoDB simpler pricing model and more mature. Cosmos DB more API options (Mongo, Cassandra, Gremlin, Table, SQL) — unique multi-model approach</td></tr>
+      <tr><td>In-Memory Cache</td><td>Azure Cache for Redis</td><td>Amazon ElastiCache</td><td>Both run Redis and Memcached. Very similar. Azure adds Redis Enterprise tier with active-active geo-replication</td></tr>
+      <tr><td>Data Warehouse</td><td>Azure Synapse Analytics</td><td>Amazon Redshift</td><td>Synapse more integrated (Spark + SQL + Pipelines + Power BI in one). Redshift faster for pure SQL OLAP at scale</td></tr>
+      <tr><td>Event Streaming</td><td>Azure Event Hubs</td><td>Amazon Kinesis</td><td>Both Kafka-compatible. Event Hubs cheaper at small scale. Kinesis better tooling in AWS ecosystem</td></tr>
+      <tr><td>Message Queue</td><td>Azure Service Bus</td><td>Amazon SQS + SNS</td><td>Service Bus more features (sessions, topics, ordering, dead letter, message lock). SQS simpler and cheaper for basic queuing</td></tr>
+      <tr><td>Identity/IAM</td><td>Microsoft Entra ID</td><td>Amazon IAM + Cognito</td><td>IAM simpler for cloud-only auth. Entra ID far better for hybrid enterprise (integrates with on-prem AD). Cognito for end-user auth = Entra External ID</td></tr>
+      <tr><td>Secret Management</td><td>Azure Key Vault</td><td>AWS Secrets Manager + KMS</td><td>Key Vault manages HSM keys, secrets, AND certs in one place. AWS splits between Secrets Manager + KMS — more granular but more services to manage</td></tr>
+      <tr><td>SIEM/SOC</td><td>Microsoft Sentinel</td><td>Security Lake + GuardDuty + Security Hub</td><td>Sentinel more complete SIEM in one product. AWS has more detection services but fragmented across many services</td></tr>
+      <tr><td>IaC</td><td>Bicep / ARM Templates</td><td>AWS CloudFormation / CDK</td><td>CDK (code-first) is arguably better than Bicep. Both have Terraform as the cross-cloud alternative — preferred in multi-cloud</td></tr>
+      <tr><td>CI/CD</td><td>Azure DevOps / GitHub Actions</td><td>AWS CodePipeline + CodeBuild</td><td>Azure DevOps most complete all-in-one platform. GitHub Actions more popular in OSS community. CodePipeline limited compared to ADO</td></tr>
+      <tr><td>Monitoring</td><td>Azure Monitor + App Insights</td><td>CloudWatch + X-Ray + Contributor Insights</td><td>Application Insights more powerful APM than X-Ray. CloudWatch simpler metrics/logs setup. Both have KQL/SQL querying</td></tr>
+      <tr><td>AI/ML Platform</td><td>Azure OpenAI + Azure ML</td><td>Amazon Bedrock + SageMaker</td><td>Azure OpenAI has exclusive enterprise access to GPT-4/o1. Bedrock has more model providers (Anthropic, Mistral, Llama). SageMaker more mature MLOps</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="vs-grid">
+    <div class="vs-azure">
+      <div class="vs-title">☁️ WHERE AZURE WINS</div>
+      <ul style="list-style:none;padding:0">
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🏢 <strong>Enterprise Microsoft Integration:</strong> Office 365, Teams, Active Directory, Exchange, Dynamics 365 — Azure is the natural home</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🔗 <strong>Hybrid Cloud:</strong> Azure Arc extends Azure management to on-prem, edge, other clouds. Best hybrid story by far</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🪟 <strong>Windows Workloads:</strong> Better Windows VM licensing (Hybrid Benefit), SQL Server integration, .NET performance</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🔑 <strong>Identity (Entra ID):</strong> Most enterprises already use Azure AD. Seamless for hybrid enterprise apps</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">📋 <strong>Compliance:</strong> 90+ certifications. Strong in EU (GDPR), government, healthcare (HIPAA, FedRAMP)</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🤖 <strong>AI/Copilot:</strong> OpenAI partnership. Exclusive enterprise GPT-4/o1 access via Azure OpenAI Service</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2)">🌌 <strong>Cosmos DB Multi-API:</strong> Single DB supporting SQL, MongoDB, Cassandra, Gremlin, Table APIs — AWS has no equivalent</li>
+      </ul>
+    </div>
+    <div class="vs-aws">
+      <div class="vs-title">⚡ WHERE AWS WINS</div>
+      <ul style="list-style:none;padding:0">
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">📊 <strong>Market Share &amp; Maturity:</strong> ~32% vs Azure ~22%. More services (200+ vs 100+), longer track record (since 2006 vs 2010)</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🌍 <strong>Global Reach:</strong> More regions (30+ vs 60+). CloudFront 600+ PoPs. Lower latency in more countries</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">⚡ <strong>Spot Reliability:</strong> AWS Spot more predictable interruption patterns. Spot Instance Advisor for interruption frequency data</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🗄️ <strong>DynamoDB:</strong> Simpler pricing, more mature, better for pure key-value at massive scale vs Cosmos DB</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">λ <strong>Serverless Maturity:</strong> Lambda more triggers, better tooling (SAM, Powertools), larger community than Functions</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2);border-bottom:1px solid var(--border)">🔓 <strong>Open Source:</strong> AWS contributes more to open source tools. Larger community ecosystem for tooling</li>
+        <li style="padding:5px 0;font-size:12.5px;color:var(--text2)">🧩 <strong>Service Breadth:</strong> AWS Wavelength (5G edge), Outposts (on-prem), Local Zones — Azure catching up</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ COST MASTERY ═══════════════════ -->
+<section id="cost" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">💰</span><span class="s-icon"></span>
+    <div><div class="s-title">Cost Mastery — The 7 Pillars</div><div class="s-desc">Cloud costs spiral out of control without discipline. Master these 7 pillars and you'll save 40-80% on typical Azure bills while maintaining performance and reliability.</div></div>
+  </div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>#</th><th>Pillar</th><th>Strategy</th><th>Estimated Savings</th><th>Effort Level</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Right-Size Compute</td><td>Use Azure Advisor recommendations. Downsize over-provisioned VMs. Check CPU &lt; 20% average consistently. Use Automatic VM Optimizations</td><td class="td-green">20–40%</td><td>Low</td></tr>
+      <tr><td>2</td><td>Reserved Instances</td><td>Commit 1-3 years for predictable VMs, SQL, AKS nodes, Cosmos DB. Use Cost Analysis to identify candidates (steady-state resources)</td><td class="td-green">40–66%</td><td>Low</td></tr>
+      <tr><td>3</td><td>Spot VMs / Spot Nodes</td><td>Batch jobs, dev/test, non-critical workloads on Spot. AKS Spot node pools with proper tolerations. CI/CD runners on Spot save massively</td><td class="td-green">Up to 90%</td><td>Medium</td></tr>
+      <tr><td>4</td><td>Azure Hybrid Benefit</td><td>Bring existing Windows Server / SQL Server / RHEL licenses. Apply to VMs, SQL Database, SQL MI, AKS nodes</td><td class="td-green">40–55%</td><td>Low</td></tr>
+      <tr><td>5</td><td>Storage Lifecycle Rules</td><td>Auto-tier Blob data: Hot → Cool (30d) → Cold (90d) → Archive (365d). Enable on EVERY storage account</td><td class="td-green">Up to 94% on storage</td><td>Low</td></tr>
+      <tr><td>6</td><td>Delete Unused Resources</td><td>Orphaned disks (biggest hidden cost!), unused public IPs ($3.65/mo each), empty resource groups, old snapshots, idle VMs. Use Azure Advisor</td><td class="td-yellow">Varies, often 10–20%</td><td>Low</td></tr>
+      <tr><td>7</td><td>Serverless for Variable Load</td><td>Functions/Container Apps for bursty workloads. Pay per execution vs 24/7 VM cost. Even 50% utilization = 50% waste on PAYG VMs</td><td class="td-green">Up to 80% for bursty</td><td>Medium</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Tool</th><th>What It Does</th><th>When to Use</th><th>Key Action</th></tr></thead>
+    <tbody>
+      <tr><td>Azure Cost Management + Billing</td><td>Visualize spending, forecast, analyze by service/tag/resource group/subscription</td><td>Monthly review, budget tracking, anomaly investigation</td><td>Set budgets on Day 1 for every subscription</td></tr>
+      <tr><td>Azure Advisor</td><td>AI recommendations: right-size VMs, buy RIs, delete idle resources, security, reliability</td><td>Weekly — implement all 'High Impact' recommendations immediately</td><td>Review Cost tab every Monday morning</td></tr>
+      <tr><td>Azure Budgets</td><td>Set spending limits. Email/Teams/webhook alert when threshold reached (50%, 75%, 90%, 100%)</td><td>Set up Day 1 for every subscription AND resource group</td><td>Budget alert + Action Group → Teams notification</td></tr>
+      <tr><td>Cost Allocation Tags</td><td>Tag every resource: Environment, Team, Project, CostCenter. Filter costs by tag in Cost Management</td><td>Enforce with Azure Policy at deployment — deny untagged resources</td><td>Tag strategy before first resource deployment</td></tr>
+      <tr><td>Azure Pricing Calculator</td><td>Estimate cost before deploying any architecture. Compare configurations side-by-side</td><td>Pre-deployment planning, architecture comparison</td><td>Always price before you provision</td></tr>
+      <tr><td>Total Cost of Ownership (TCO)</td><td>Compare on-premise vs Azure costs for migration decisions. Accounts for hardware, staff, power, colocation</td><td>Business case for cloud migration. Executive presentations</td><td>Use TCO calculator at azure.microsoft.com/tco</td></tr>
+      <tr><td>Azure Savings Plan</td><td>Commit to $/hour compute spend (not specific VM types). Applies across VMs, AKS, App Service, Functions</td><td>When Reserved Instances too rigid — portfolio changes frequently</td><td>1-year commitment, 10% higher savings vs 3-year</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="warn-box"><p><strong>Top 5 Biggest Azure Cost Mistakes:</strong><br>
+  1. <strong>Stopped (not deallocated) VMs:</strong> 'Stopped' VMs STILL charge for compute. Always Deallocate<br>
+  2. <strong>Orphaned managed disks:</strong> When you delete a VM, the OS disk often remains. Check for disks with no owner<br>
+  3. <strong>Log Analytics over-ingestion:</strong> Too many verbose logs → $2.30/GB/day adds up fast. Use sampling and exclusion rules<br>
+  4. <strong>Cosmos DB per-container RU:</strong> 100 containers × 400 RU/s minimum = $2,300/month. Use database-level shared throughput<br>
+  5. <strong>Dev/test in production SKUs:</strong> Running Premium-tier services in dev environments. Use Dev/Test pricing or Serverless for non-prod</p></div>
+</section>
+
+<!-- ═══════════════════ QUICK REFERENCE ═══════════════════ -->
+<section id="ref" class="s-wrap reveal">
+  <div class="s-head">
+    <span class="s-num">🏆</span><span class="s-icon"></span>
+    <div><div class="s-title">Top 25 Facts Every Azure Pro Must Know</div><div class="s-desc">Memorize these. They come up in every interview, every exam, every production incident post-mortem.</div></div>
+  </div>
+
+  <div class="ref-grid">
+    <div class="ref-item"><div class="ref-num">01</div><div class="ref-fact">VMs in Availability Zones = SLA 99.99%</div><div class="ref-why">Always use zones for production VMs. Single VM with Premium SSD = 99.9% only.</div></div>
+    <div class="ref-item"><div class="ref-num">02</div><div class="ref-fact">Managed Identity = zero passwords for service-to-service auth</div><div class="ref-why">Security best practice — no secrets in code, config, or environment variables. DefaultAzureCredential works everywhere.</div></div>
+    <div class="ref-item"><div class="ref-num">03</div><div class="ref-fact">Azure Policy 'Deny' blocks non-compliant resource creation</div><div class="ref-why">Enforce governance before problems occur — reactive auditing is too late. Shift governance left.</div></div>
+    <div class="ref-item"><div class="ref-num">04</div><div class="ref-fact">Cosmos DB partition key MUST be high-cardinality</div><div class="ref-why">Wrong partition key = hot partition = 429 throttling errors = degraded performance for ALL users on that partition.</div></div>
+    <div class="ref-item"><div class="ref-num">05</div><div class="ref-fact">App Service Deployment Slots = zero-downtime blue/green</div><div class="ref-why">Swap staging→production in seconds. Roll back by swapping back. Slot settings (like connection strings) can be sticky.</div></div>
+    <div class="ref-item"><div class="ref-num">06</div><div class="ref-fact">Functions Consumption plan = cold start (1–3 sec)</div><div class="ref-why">Use Premium plan (pre-warmed) for latency-sensitive APIs. Consumption fine for async/background tasks.</div></div>
+    <div class="ref-item"><div class="ref-num">07</div><div class="ref-fact">Key Vault purge protection: once on, can't turn off</div><div class="ref-why">Enable for compliance — prevents permanent deletion during retention period even by vault owners.</div></div>
+    <div class="ref-item"><div class="ref-num">08</div><div class="ref-fact">Private Endpoint = PaaS access via VNet private IP</div><div class="ref-why">Traffic never traverses public internet. Essential for compliance-sensitive workloads. Disable public access too.</div></div>
+    <div class="ref-item"><div class="ref-num">09</div><div class="ref-fact">NSG is stateful — return traffic auto-allowed</div><div class="ref-why">Only need to define inbound rules for incoming traffic. NSG automatically allows return packets of established connections.</div></div>
+    <div class="ref-item"><div class="ref-num">10</div><div class="ref-fact">AKS control plane = FREE — you pay only for nodes</div><div class="ref-why">Azure manages API server, scheduler, etcd at no charge. EKS was free since 2024 too but historically charged $0.10/hr.</div></div>
+    <div class="ref-item"><div class="ref-num">11</div><div class="ref-fact">Blob Archive tier retrieval = hours (must rehydrate first)</div><div class="ref-why">Rehydration to Hot: Standard priority ~15hr, High priority ~1hr. Plan retrieval time. Not for data needed quickly.</div></div>
+    <div class="ref-item"><div class="ref-num">12</div><div class="ref-fact">Log Analytics uses KQL — Kusto Query Language</div><div class="ref-why">Learn KQL — used everywhere: Azure Monitor, Sentinel, Defender, Application Insights, ADX. Not SQL but similar.</div></div>
+    <div class="ref-item"><div class="ref-num">13</div><div class="ref-fact">Conditional Access requires Entra ID P1 or P2 license</div><div class="ref-why">Check licensing before recommending CA policies. P2 adds Identity Protection, PIM, Access Reviews.</div></div>
+    <div class="ref-item"><div class="ref-num">14</div><div class="ref-fact">ExpressRoute = private connection, NOT over internet</div><div class="ref-why">Traffic flows via partner provider's private circuit. Up to 100Gbps. Required for regulated industries (banking, healthcare).</div></div>
+    <div class="ref-item"><div class="ref-num">15</div><div class="ref-fact">Soft Delete = safety net for accidental deletion</div><div class="ref-why">Enable for VMs (Recovery Services Vault), Blob (30 days), Key Vault (90 days). No performance impact. No downside.</div></div>
+    <div class="ref-item"><div class="ref-num">16</div><div class="ref-fact">Azure Hybrid Benefit saves up to 55% on Windows VM licensing</div><div class="ref-why">Apply always if you have existing Windows Server or SQL Server licenses. Also applies to SQL MI, AKS node pools.</div></div>
+    <div class="ref-item"><div class="ref-num">17</div><div class="ref-fact">VNet Peering is NOT transitive</div><div class="ref-why">Spoke-A → Hub → Spoke-B requires Azure Firewall or Route Server in Hub. You must add UDR to force traffic through Hub.</div></div>
+    <div class="ref-item"><div class="ref-num">18</div><div class="ref-fact">Durable Functions = stateful serverless (orchestrator + activities)</div><div class="ref-why">For complex multi-step workflows, fan-out/fan-in, human approval, long-running processes. Uses Azure Storage for state.</div></div>
+    <div class="ref-item"><div class="ref-num">19</div><div class="ref-fact">Azure Front Door = global HTTP LB + WAF + CDN in one</div><div class="ref-why">One service for global web app delivery. Anycast routing, SSL offloading, WAF policies, caching, origin groups.</div></div>
+    <div class="ref-item"><div class="ref-num">20</div><div class="ref-fact">Deallocate VMs when not needed — Stop is NOT enough</div><div class="ref-why">'Stopped' VM still charges for compute. 'Deallocated' releases compute — only storage charges remain.</div></div>
+    <div class="ref-item"><div class="ref-num">21</div><div class="ref-fact">Azure SQL Hyperscale = up to 100TB, fast backups</div><div class="ref-why">Distributed storage architecture. Backups in seconds (not hours). Horizontal read scale via secondary replicas.</div></div>
+    <div class="ref-item"><div class="ref-num">22</div><div class="ref-fact">PIM = Just-in-time privileged access with approval</div><div class="ref-why">Limit standing admin access to zero. Request → Approve → Time-limited (e.g. 8hr) → Auto-expire. Audit trail of all activations.</div></div>
+    <div class="ref-item"><div class="ref-num">23</div><div class="ref-fact">Defender for Cloud Secure Score = your security posture %</div><div class="ref-why">Target 80%+. Track weekly. Each recommendation has a score impact — prioritize high-impact items first.</div></div>
+    <div class="ref-item"><div class="ref-num">24</div><div class="ref-fact">Azure Monitor Metrics = 93 days, Logs = 30–730 days</div><div class="ref-why">Plan long-term archival to Storage Account or Event Hub. Log Analytics ingestion costs ~$2.30/GB — control what you ingest.</div></div>
+    <div class="ref-item"><div class="ref-num">25</div><div class="ref-fact">WORM (Immutable Blob) = cannot delete or modify during compliance period</div><div class="ref-why">Required for SEC Rule 17a-4, FINRA, HIPAA, MiFID II retention. Time-based retention or legal hold policies.</div></div>
+  </div>
+
+  <!-- Master DO/DON'T Reference -->
+  <div class="svc-title" style="margin-top:40px;">📋 Master Do's &amp; Don'ts — All Services at a Glance</div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Service</th><th>✅ Always DO This</th><th>❌ NEVER Do This</th></tr></thead>
+    <tbody>
+      <tr><td>VMs</td><td>Managed Disks, Availability Zones, VMSS, Azure Hybrid Benefit, Bastion, JIT Access, AMA agent</td><td>Expose port 22/3389 to internet, unmanaged disks, single-AZ for prod, 'Stop' without Deallocating</td></tr>
+      <tr><td>Azure Functions</td><td>Managed Identity, Premium plan for VNet, Application Insights, Durable for stateful, output bindings</td><td>Hardcode connection strings, Consumption for latency-sensitive APIs, exceed 10 min without Durable</td></tr>
+      <tr><td>AKS</td><td>RBAC + Managed Identity, private cluster, Workload Identity, node autoscaler, separate node pools, Azure CNI Overlay</td><td>Expose K8s API to internet, workloads on system node pool, skip PodDisruptionBudgets</td></tr>
+      <tr><td>App Service</td><td>Deployment slots for zero-downtime, health checks, P1v3+ for prod, Key Vault refs for secrets</td><td>Store secrets in App Settings directly, use Free/Shared for prod, deploy during peak hours</td></tr>
+      <tr><td>Blob Storage</td><td>Lifecycle policies, Private Endpoints, disable public access, versioning + soft delete, ZRS minimum for prod</td><td>Public blob access without SAS, account keys in code, Archive for frequently accessed data, HTTP only</td></tr>
+      <tr><td>VNet</td><td>Hub-spoke topology, NSGs on all subnets, Private Endpoints for PaaS, DDoS Protection Standard for prod</td><td>Default subnets for everything, 0.0.0.0/0 inbound, overlapping CIDRs for peered VNets</td></tr>
+      <tr><td>Azure SQL</td><td>Failover Groups for geo-DR, Private Endpoints, Always Encrypted for PII, TDE, Automatic Tuning</td><td>SQL auth only (use Entra ID), expose to public internet, skip automated backups, ignore query store</td></tr>
+      <tr><td>Cosmos DB</td><td>High-cardinality partition key, Serverless for dev/test, multi-region for global, shared throughput at DB level</td><td>Low-cardinality partition keys, per-container RU for 100+ containers, ignore 429 errors, forget to index</td></tr>
+      <tr><td>Azure DevOps</td><td>Managed Identity for service connections, branch policies (PR required, build passing), Environment approvals</td><td>PAT tokens with full scope, direct pushes to main branch, skip test stages, hardcode credentials</td></tr>
+      <tr><td>Key Vault</td><td>Purge protection, RBAC (not Access Policies), Private Endpoint, 90-day soft delete, rotate secrets regularly</td><td>Share vault broadly, store non-sensitive config in KV (use App Config), log without masking secrets</td></tr>
+      <tr><td>Entra ID</td><td>Enforce MFA for all users, Conditional Access, PIM for privileged roles, Managed Identity for apps</td><td>Use Global Admin daily, service accounts with passwords, skip MFA for admin accounts, no access reviews</td></tr>
+      <tr><td>Azure Monitor</td><td>Centralize to one LAW per environment, alert on all critical metrics, App Insights for every app</td><td>Ignore Log Analytics ingestion cost, skip alerting setup, multiple workspaces without reason</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</div><!-- end .wrap -->
+
+<footer>
+  <div class="footer-badge">AZURE MASTERY — ULTRA-DEEP PRO COURSE</div>
+  <p>DevOps Edition &nbsp;·&nbsp; Compute · Storage · Networking · Databases · DevOps · Security &amp; Identity</p>
+  <p style="margin-top:8px">azure.microsoft.com &nbsp;·&nbsp; learn.microsoft.com &nbsp;·&nbsp; docs.microsoft.com</p>
+  <p style="margin-top:16px;color:var(--dim)">Build great things on the cloud. You've got this. 🚀</p>
+</footer>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const prog = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('progress').style.width = prog + '%';
+});
+
+// Scroll reveal
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('vis'), i * 80);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.04 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+document.querySelector('.hero').classList.add('vis');
+
+// Nav active link
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 150) current = s.id;
+  });
+  navLinks.forEach(a => {
+    a.style.color = a.href.includes(current) ? 'var(--electric)' : '';
+  });
+});
+</script>
+</body>
+</html>

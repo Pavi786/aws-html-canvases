@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybersecurity Mastery Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020b14;
+    --panel: #050f1c;
+    --border: #0aff9d22;
+    --green: #0aff9d;
+    --cyan: #00e5ff;
+    --red: #ff2d55;
+    --yellow: #ffd600;
+    --orange: #ff6d00;
+    --purple: #bf5af2;
+    --text: #c8e6ff;
+    --dim: #4a7a9b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Exo 2', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid scanline bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, #0aff9d08 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, #0aff9d05 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+  }
+
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  h1 {
+    font-family: 'Orbitron', monospace;
+    font-size: clamp(28px, 5vw, 58px);
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--green) 0%, var(--cyan) 50%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--dim);
+    font-size: 14px;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 2px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s forwards;
+  }
+
+  /* ROADMAP PATH */
+  .roadmap {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+  }
+
+  /* PHASE */
+  .phase {
+    opacity: 0;
+    animation: fadeUp 0.6s forwards;
+  }
+  .phase:nth-child(1) { animation-delay: 0.4s; }
+  .phase:nth-child(2) { animation-delay: 0.55s; }
+  .phase:nth-child(3) { animation-delay: 0.7s; }
+  .phase:nth-child(4) { animation-delay: 0.85s; }
+  .phase:nth-child(5) { animation-delay: 1.0s; }
+  .phase:nth-child(6) { animation-delay: 1.15s; }
+  .phase:nth-child(7) { animation-delay: 1.3s; }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .phase-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 3px;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  .phase-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  .phase-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--bg);
+    padding: 3px 8px;
+    border-radius: 2px;
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: default;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    opacity: 0.7;
+  }
+
+  .card-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .card-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+
+  .card-desc {
+    font-size: 12px;
+    color: #7aa8c8;
+    line-height: 1.6;
+  }
+
+  .card-skills {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .skill-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    background: #0aff9d11;
+    color: var(--green);
+    border: 1px solid #0aff9d22;
+    padding: 2px 7px;
+    border-radius: 2px;
+  }
+
+  /* Phase color themes */
+  .p1 { --accent: #0aff9d; }
+  .p2 { --accent: #00e5ff; }
+  .p3 { --accent: #ff6d00; }
+  .p4 { --accent: #ff2d55; }
+  .p5 { --accent: #bf5af2; }
+  .p6 { --accent: #ffd600; }
+  .p7 { --accent: #00e5ff; }
+
+  .p1 .phase-num { background: #0aff9d22; color: #0aff9d; border: 1px solid #0aff9d44; }
+  .p2 .phase-num { background: #00e5ff22; color: #00e5ff; border: 1px solid #00e5ff44; }
+  .p3 .phase-num { background: #ff6d0022; color: #ff6d00; border: 1px solid #ff6d0044; }
+  .p4 .phase-num { background: #ff2d5522; color: #ff2d55; border: 1px solid #ff2d5544; }
+  .p5 .phase-num { background: #bf5af222; color: #bf5af2; border: 1px solid #bf5af244; }
+  .p6 .phase-num { background: #ffd60022; color: #ffd600; border: 1px solid #ffd60044; }
+  .p7 .phase-num { background: #00e5ff22; color: #00e5ff; border: 1px solid #00e5ff44; }
+
+  .p1 .phase-badge { background: #0aff9d; }
+  .p2 .phase-badge { background: #00e5ff; }
+  .p3 .phase-badge { background: #ff6d00; }
+  .p4 .phase-badge { background: #ff2d55; }
+  .p5 .phase-badge { background: #bf5af2; }
+  .p6 .phase-badge { background: #ffd600; color: #111; }
+  .p7 .phase-badge { background: #00e5ff; }
+
+  .p1 .skill-tag { background: #0aff9d11; color: #0aff9d; border-color: #0aff9d33; }
+  .p2 .skill-tag { background: #00e5ff11; color: #00e5ff; border-color: #00e5ff33; }
+  .p3 .skill-tag { background: #ff6d0011; color: #ff6d00; border-color: #ff6d0033; }
+  .p4 .skill-tag { background: #ff2d5511; color: #ff2d55; border-color: #ff2d5533; }
+  .p5 .skill-tag { background: #bf5af211; color: #bf5af2; border-color: #bf5af233; }
+  .p6 .skill-tag { background: #ffd60011; color: #ffd600; border-color: #ffd60033; }
+  .p7 .skill-tag { background: #00e5ff11; color: #00e5ff; border-color: #00e5ff33; }
+
+  /* DIVIDER */
+  .divider {
+    text-align: center;
+    padding: 6px 0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: #1a3a2a;
+    letter-spacing: 4px;
+  }
+
+  /* CERTIFICATIONS */
+  .cert-section {
+    margin-top: 40px;
+    opacity: 0;
+    animation: fadeUp 0.6s 1.4s forwards;
+  }
+
+  .cert-title {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    color: var(--yellow);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cert-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, #ffd60044, transparent);
+  }
+
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .cert-card {
+    background: var(--panel);
+    border: 1px solid #ffd60022;
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+
+  .cert-card:hover { border-color: #ffd60066; }
+
+  .cert-level {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    color: var(--yellow);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .cert-name {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffd600cc;
+    margin-bottom: 4px;
+  }
+
+  .cert-body {
+    font-size: 10px;
+    color: var(--dim);
+    font-family: 'Share Tech Mono', monospace;
+  }
+
+  /* FOOTER */
+  footer {
+    margin-top: 50px;
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--dim);
+    opacity: 0;
+    animation: fadeUp 0.6s 1.5s forwards;
+    border-top: 1px solid #0aff9d11;
+    padding-top: 20px;
+    letter-spacing: 2px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* GLOW pulse on title */
+  h1 {
+    text-shadow: 0 0 80px #0aff9d22;
+  }
+
+  @media (max-width: 600px) {
+    .cards { grid-template-columns: 1fr; }
+    .cert-grid { grid-template-columns: repeat(2, 1fr); }
+    .phase-badge { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="tag">// MASTER ROADMAP v2.0 //</div>
+    <h1>CYBERSECURITY<br>MASTERY CANVAS</h1>
+    <div class="subtitle">[ YOUR PATH FROM ZERO → PRO → ELITE ]</div>
+  </header>
+
+  <div class="roadmap">
+
+    <!-- PHASE 1 -->
+    <div class="phase p1">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 01</span>
+        <span class="phase-title">FOUNDATIONS</span>
+        <span class="phase-badge">MONTHS 1–3</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">🌐</span>
+          <div class="card-title">Networking Fundamentals</div>
+          <div class="card-desc">Master how data flows. Without this, nothing else makes sense.</div>
+          <div class="card-skills">
+            <span class="skill-tag">TCP/IP</span><span class="skill-tag">DNS</span><span class="skill-tag">HTTP/S</span><span class="skill-tag">OSI Model</span><span class="skill-tag">Subnetting</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🐧</span>
+          <div class="card-title">Linux Mastery</div>
+          <div class="card-desc">Your hacking battlefield. Own the terminal like a native.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Bash</span><span class="skill-tag">File System</span><span class="skill-tag">Permissions</span><span class="skill-tag">Processes</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">💻</span>
+          <div class="card-title">Programming Basics</div>
+          <div class="card-desc">Read, write, and understand code to find and exploit flaws.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Python</span><span class="skill-tag">Bash Scripting</span><span class="skill-tag">PowerShell</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔐</span>
+          <div class="card-title">Cryptography Basics</div>
+          <div class="card-desc">Understand how encryption protects — and how it breaks.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Symmetric</span><span class="skill-tag">Asymmetric</span><span class="skill-tag">Hashing</span><span class="skill-tag">PKI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">▼ ▼ ▼</div>
+
+    <!-- PHASE 2 -->
+    <div class="phase p2">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 02</span>
+        <span class="phase-title">CORE SECURITY DOMAINS</span>
+        <span class="phase-badge">MONTHS 3–6</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">🛡️</span>
+          <div class="card-title">Network Security</div>
+          <div class="card-desc">Firewalls, IDS/IPS, VPNs, packet analysis — defend and dissect.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Wireshark</span><span class="skill-tag">Firewall Rules</span><span class="skill-tag">IDS/IPS</span><span class="skill-tag">VPN</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🖥️</span>
+          <div class="card-title">Endpoint Security</div>
+          <div class="card-desc">OS hardening, AV evasion, endpoint detection and response.</div>
+          <div class="card-skills">
+            <span class="skill-tag">EDR</span><span class="skill-tag">Hardening</span><span class="skill-tag">AV/AM</span><span class="skill-tag">DLP</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">☁️</span>
+          <div class="card-title">Cloud Security</div>
+          <div class="card-desc">AWS, Azure, GCP — misconfigs are the new attack surface.</div>
+          <div class="card-skills">
+            <span class="skill-tag">IAM</span><span class="skill-tag">S3 Buckets</span><span class="skill-tag">CSPM</span><span class="skill-tag">Zero Trust</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔑</span>
+          <div class="card-title">Identity & Access</div>
+          <div class="card-desc">Most breaches start with credential abuse. Master IAM.</div>
+          <div class="card-skills">
+            <span class="skill-tag">MFA</span><span class="skill-tag">OAuth</span><span class="skill-tag">LDAP/AD</span><span class="skill-tag">PAM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">▼ ▼ ▼</div>
+
+    <!-- PHASE 3 -->
+    <div class="phase p3">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 03</span>
+        <span class="phase-title">OFFENSIVE SECURITY (RED TEAM)</span>
+        <span class="phase-badge">MONTHS 6–10</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">🔍</span>
+          <div class="card-title">Reconnaissance</div>
+          <div class="card-desc">OSINT, passive & active recon. Know the target before striking.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Nmap</span><span class="skill-tag">Shodan</span><span class="skill-tag">theHarvester</span><span class="skill-tag">OSINT</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">💉</span>
+          <div class="card-title">Web App Pentesting</div>
+          <div class="card-desc">OWASP Top 10 in your sleep. Break web apps for fun and bounties.</div>
+          <div class="card-skills">
+            <span class="skill-tag">SQLi</span><span class="skill-tag">XSS</span><span class="skill-tag">SSRF</span><span class="skill-tag">Burp Suite</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">💥</span>
+          <div class="card-title">Exploitation</div>
+          <div class="card-desc">Buffer overflows, CVEs, public exploits — controlled destruction.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Metasploit</span><span class="skill-tag">ExploitDB</span><span class="skill-tag">BOF</span><span class="skill-tag">CVE Research</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🏰</span>
+          <div class="card-title">Active Directory Attacks</div>
+          <div class="card-desc">99% of enterprise orgs run AD. Own it, own everything.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Kerberoasting</span><span class="skill-tag">Pass-the-Hash</span><span class="skill-tag">BloodHound</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">👻</span>
+          <div class="card-title">Post-Exploitation</div>
+          <div class="card-desc">Persistence, lateral movement, privilege escalation, covering tracks.</div>
+          <div class="card-skills">
+            <span class="skill-tag">PrivEsc</span><span class="skill-tag">Lateral Mov</span><span class="skill-tag">C2 Frameworks</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">📡</span>
+          <div class="card-title">Network Attacks</div>
+          <div class="card-desc">MitM, ARP spoofing, sniffing, VLAN hopping — network domination.</div>
+          <div class="card-skills">
+            <span class="skill-tag">MitM</span><span class="skill-tag">ARP Spoof</span><span class="skill-tag">Responder</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">▼ ▼ ▼</div>
+
+    <!-- PHASE 4 -->
+    <div class="phase p4">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 04</span>
+        <span class="phase-title">DEFENSIVE SECURITY (BLUE TEAM)</span>
+        <span class="phase-badge">MONTHS 8–12</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">🔭</span>
+          <div class="card-title">SOC & SIEM</div>
+          <div class="card-desc">Security Operations Center ops. Monitor, detect, alert, respond.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Splunk</span><span class="skill-tag">ELK Stack</span><span class="skill-tag">Log Analysis</span><span class="skill-tag">SIEM Rules</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🚨</span>
+          <div class="card-title">Incident Response</div>
+          <div class="card-desc">Contain, eradicate, recover. Speed and precision under fire.</div>
+          <div class="card-skills">
+            <span class="skill-tag">IR Playbooks</span><span class="skill-tag">Triage</span><span class="skill-tag">Containment</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🧬</span>
+          <div class="card-title">Digital Forensics</div>
+          <div class="card-desc">Recover evidence, trace attacker steps, reconstruct timelines.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Autopsy</span><span class="skill-tag">Volatility</span><span class="skill-tag">Memory Forensics</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🦠</span>
+          <div class="card-title">Malware Analysis</div>
+          <div class="card-desc">Reverse-engineer malware: static, dynamic, and code analysis.</div>
+          <div class="card-skills">
+            <span class="skill-tag">IDA Pro</span><span class="skill-tag">Ghidra</span><span class="skill-tag">Sandboxing</span><span class="skill-tag">YARA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">▼ ▼ ▼</div>
+
+    <!-- PHASE 5 -->
+    <div class="phase p5">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 05</span>
+        <span class="phase-title">SPECIALIZED DOMAINS</span>
+        <span class="phase-badge">MONTHS 12–18</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">⚙️</span>
+          <div class="card-title">Reverse Engineering</div>
+          <div class="card-desc">Disassemble binaries, understand assembly, crack software logic.</div>
+          <div class="card-skills">
+            <span class="skill-tag">x86 ASM</span><span class="skill-tag">Ghidra</span><span class="skill-tag">GDB</span><span class="skill-tag">RE Tools</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">📱</span>
+          <div class="card-title">Mobile Security</div>
+          <div class="card-desc">Android & iOS attack surfaces, APK decompilation, traffic intercept.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Frida</span><span class="skill-tag">MobSF</span><span class="skill-tag">APKTool</span><span class="skill-tag">SSL Pinning</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🏭</span>
+          <div class="card-title">ICS/SCADA Security</div>
+          <div class="card-desc">Critical infrastructure — power grids, factories, real-world impact.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Modbus</span><span class="skill-tag">DNP3</span><span class="skill-tag">OT Security</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🤖</span>
+          <div class="card-title">AI & Security</div>
+          <div class="card-desc">Adversarial ML, prompt injection, AI-powered threat detection.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Adversarial ML</span><span class="skill-tag">LLM Attacks</span><span class="skill-tag">AI Defenses</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">▼ ▼ ▼</div>
+
+    <!-- PHASE 6 -->
+    <div class="phase p6">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 06</span>
+        <span class="phase-title">GRC & STRATEGY</span>
+        <span class="phase-badge">PARALLEL TRACK</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">📋</span>
+          <div class="card-title">Compliance & Frameworks</div>
+          <div class="card-desc">Speak the language of the business and regulators.</div>
+          <div class="card-skills">
+            <span class="skill-tag">NIST CSF</span><span class="skill-tag">ISO 27001</span><span class="skill-tag">SOC2</span><span class="skill-tag">GDPR</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">⚖️</span>
+          <div class="card-title">Risk Management</div>
+          <div class="card-desc">Quantify, prioritize, and communicate risk to leadership.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Risk Assessment</span><span class="skill-tag">CVSS</span><span class="skill-tag">BIA</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">📝</span>
+          <div class="card-title">Security Architecture</div>
+          <div class="card-desc">Design systems secure by default. Think before you build.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Threat Modeling</span><span class="skill-tag">Zero Trust</span><span class="skill-tag">STRIDE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">▼ ▼ ▼</div>
+
+    <!-- PHASE 7 -->
+    <div class="phase p7">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 07</span>
+        <span class="phase-title">ELITE PRACTITIONER</span>
+        <span class="phase-badge">ONGOING</span>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <span class="card-icon">🏆</span>
+          <div class="card-title">Bug Bounty Hunting</div>
+          <div class="card-desc">Real targets. Real money. Real validation. HackerOne, Bugcrowd.</div>
+          <div class="card-skills">
+            <span class="skill-tag">HackerOne</span><span class="skill-tag">Bugcrowd</span><span class="skill-tag">Intigriti</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🎯</span>
+          <div class="card-title">CTF Competitions</div>
+          <div class="card-desc">HackTheBox, TryHackMe, PicoCTF — gamify your learning.</div>
+          <div class="card-skills">
+            <span class="skill-tag">HackTheBox</span><span class="skill-tag">CTFtime</span><span class="skill-tag">TryHackMe</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔬</span>
+          <div class="card-title">Security Research</div>
+          <div class="card-desc">Discover 0-days, write CVEs, publish papers. Leave your mark.</div>
+          <div class="card-skills">
+            <span class="skill-tag">Vuln Research</span><span class="skill-tag">0-day</span><span class="skill-tag">CVE Authoring</span>
+          </div>
+        </div>
+        <div class="card">
+          <span class="card-icon">🌍</span>
+          <div class="card-title">Community & Brand</div>
+          <div class="card-desc">Blog, speak, mentor. The best are known. Build your reputation.</div>
+          <div class="card-skills">
+            <span class="skill-tag">GitHub</span><span class="skill-tag">Blogging</span><span class="skill-tag">Conferences</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CERTS -->
+  <div class="cert-section">
+    <div class="cert-title">🏅 CERTIFICATION ROADMAP</div>
+    <div class="cert-grid">
+      <div class="cert-card">
+        <div class="cert-level">ENTRY</div>
+        <div class="cert-name">CompTIA Security+</div>
+        <div class="cert-body">CompTIA</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">ENTRY</div>
+        <div class="cert-name">CEH</div>
+        <div class="cert-body">EC-Council</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">MID</div>
+        <div class="cert-name">OSCP</div>
+        <div class="cert-body">OffSec</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">MID</div>
+        <div class="cert-name">eJPT / eCPPT</div>
+        <div class="cert-body">eLearnSecurity</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">ADVANCED</div>
+        <div class="cert-name">CISSP</div>
+        <div class="cert-body">ISC²</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">ADVANCED</div>
+        <div class="cert-name">CRTO / CRTE</div>
+        <div class="cert-body">Zero-Point</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">ELITE</div>
+        <div class="cert-name">OSED / OSWE</div>
+        <div class="cert-body">OffSec</div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-level">ELITE</div>
+        <div class="cert-name">GREM / GXPN</div>
+        <div class="cert-body">GIAC / SANS</div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    [ HACK THE PLANET ] — KNOWLEDGE IS THE WEAPON — BUILD. BREAK. DEFEND. REPEAT. 🛡️
+  </footer>
+
+</div>
+</body>
+</html>
