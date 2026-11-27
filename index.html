@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pavithran's DevOps & Cloud Architecture Canvases</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-hover: #1f242c;
+            --border: #30363d;
+            --text-main: #f0f6fc;
+            --text-sub: #8b949e;
+            --accent: #58a6ff;
+            --accent-glow: rgba(88, 166, 255, 0.15);
+            --green: #238636;
+            --green-hover: #2ea043;
+            --tag-aws: #ff9900;
+            --tag-azure: #0078d4;
+            --tag-k8s: #326ce5;
+            --tag-linux: #fcc624;
+            --tag-sec: #f85149;
+            --tag-net: #a371f7;
+            --tag-dev: #3fb950;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+        .container { max-width: 1300px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding: 30px;
+            background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #58a6ff, #a371f7, #3fb950);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: var(--text-sub);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 15px;
+        }
+        .stats {
+            display: inline-flex;
+            gap: 15px;
+            padding: 8px 18px;
+            background: rgba(88, 166, 255, 0.08);
+            border: 1px solid var(--accent);
+            border-radius: 30px;
+            font-size: 0.95rem;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .search-box {
+            width: 100%;
+            padding: 16px 22px;
+            font-size: 1.05rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-main);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .search-box:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .filter-btn {
+            padding: 8px 16px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--accent);
+            color: #0d1117;
+            font-weight: 700;
+            border-color: var(--accent);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+        .card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.5);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 10px;
+        }
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid var(--border);
+        }
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        .card-filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 18px;
+            word-break: break-all;
+        }
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+        }
+        .btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-primary {
+            background: var(--green);
+            color: #ffffff;
+        }
+        .btn-primary:hover {
+            background: var(--green-hover);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+            border-color: var(--text-sub);
+        }
+        .empty-msg {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px;
+            color: var(--text-sub);
+            font-size: 1.2rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            padding-top: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DevOps & Cloud Interactive Canvases</h1>
+            <p class="subtitle">Complete library of 87 interactive cheat sheets, architecture blueprints, and deep-dive technical study canvases.</p>
+            <div class="stats">
+                <span>📚 87 Total Canvases</span>
+                <span>•</span>
+                <span>⚡ Live Web Pages</span>
+                <span>•</span>
+                <span>🌐 GitHub Hosted</span>
+            </div>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search any canvas (e.g. k8s, devops, linux, aws, azure, ssl, nmap)..." autofocus>
+            <div class="filters" id="filterContainer">
+                <button class="filter-btn active" data-cat="All">All Canvases (87)</button>
+                <button class="filter-btn" data-cat="AWS">AWS</button>
+                <button class="filter-btn" data-cat="Azure">Azure</button>
+                <button class="filter-btn" data-cat="Kubernetes">Kubernetes</button>
+                <button class="filter-btn" data-cat="Linux & OS">Linux & OS</button>
+                <button class="filter-btn" data-cat="DevOps">DevOps</button>
+                <button class="filter-btn" data-cat="Cybersecurity">Cybersecurity</button>
+                <button class="filter-btn" data-cat="Networking & DNS">Networking & DNS</button>
+                <button class="filter-btn" data-cat="Data & Databases">Databases</button>
+            </div>
+        </div>
+
+        <div class="grid" id="cardsGrid"></div>
+
+        <footer>
+            <p>Maintained by <a href="https://github.com/Pavi786" style="color: var(--accent); text-decoration: none; font-weight: 600;">@Pavi786</a> • Hosted on GitHub Pages</p>
+        </footer>
+    </div>
+
+    <script>
+        const cards = [{'name': 'AWS-.html', 'title': 'Aws ', 'category': 'AWS', 'url': 'AWS-.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/AWS-.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/AWS-.html'}, {'name': 'AWSSAACA3.html', 'title': 'Awssaaca3', 'category': 'AWS', 'url': 'AWSSAACA3.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/AWSSAACA3.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/AWSSAACA3.html'}, {'name': 'AZURE104.html', 'title': 'Azure104', 'category': 'Azure', 'url': 'AZURE104.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/AZURE104.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/AZURE104.html'}, {'name': 'AZure-.html', 'title': 'Azure ', 'category': 'Azure', 'url': 'AZure-.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/AZure-.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/AZure-.html'}, {'name': 'Aws-pro-lite.html', 'title': 'Aws Pro Lite', 'category': 'AWS', 'url': 'Aws-pro-lite.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/Aws-pro-lite.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/Aws-pro-lite.html'}, {'name': 'Azure-1.html', 'title': 'Azure 1', 'category': 'Azure', 'url': 'Azure-1.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/Azure-1.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/Azure-1.html'}, {'name': 'Azure-pro-lite.html', 'title': 'Azure Pro Lite', 'category': 'Azure', 'url': 'Azure-pro-lite.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/Azure-pro-lite.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/Azure-pro-lite.html'}, {'name': 'advanced-devops-expert.html', 'title': 'Advanced Devops Expert', 'category': 'DevOps', 'url': 'advanced-devops-expert.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/advanced-devops-expert.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/advanced-devops-expert.html'}, {'name': 'aws-deep-dive.html', 'title': 'Aws Deep Dive', 'category': 'AWS', 'url': 'aws-deep-dive.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/aws-deep-dive.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/aws-deep-dive.html'}, {'name': 'aws-devops-complete.html', 'title': 'Aws Devops Complete', 'category': 'AWS', 'url': 'aws-devops-complete.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/aws-devops-complete.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/aws-devops-complete.html'}, {'name': 'aws-devops-mega.html', 'title': 'Aws Devops Mega', 'category': 'AWS', 'url': 'aws-devops-mega.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/aws-devops-mega.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/aws-devops-mega.html'}, {'name': 'aws_azure_ml_canvas.html', 'title': 'Aws Azure Ml Canvas', 'category': 'Azure', 'url': 'aws_azure_ml_canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/aws_azure_ml_canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/aws_azure_ml_canvas.html'}, {'name': 'azure-deep-dive (1).html', 'title': 'Azure Deep Dive (1)', 'category': 'Azure', 'url': 'azure-deep-dive%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-deep-dive%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-deep-dive%20%281%29.html'}, {'name': 'azure-deep-dive.html', 'title': 'Azure Deep Dive', 'category': 'Azure', 'url': 'azure-deep-dive.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-deep-dive.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-deep-dive.html'}, {'name': 'azure-devops-canvas.html', 'title': 'Azure Devops Canvas', 'category': 'Azure', 'url': 'azure-devops-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-canvas.html'}, {'name': 'azure-devops-masterguide (1).html', 'title': 'Azure Devops Masterguide (1)', 'category': 'Azure', 'url': 'azure-devops-masterguide%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-masterguide%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-masterguide%20%281%29.html'}, {'name': 'azure-devops-masterguide (2).html', 'title': 'Azure Devops Masterguide (2)', 'category': 'Azure', 'url': 'azure-devops-masterguide%20%282%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-masterguide%20%282%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-masterguide%20%282%29.html'}, {'name': 'azure-devops-masterguide.html', 'title': 'Azure Devops Masterguide', 'category': 'Azure', 'url': 'azure-devops-masterguide.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-masterguide.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-masterguide.html'}, {'name': 'azure-devops-study-bible.html', 'title': 'Azure Devops Study Bible', 'category': 'Azure', 'url': 'azure-devops-study-bible.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-study-bible.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-devops-study-bible.html'}, {'name': 'azure-ultra-study-bible.html', 'title': 'Azure Ultra Study Bible', 'category': 'Azure', 'url': 'azure-ultra-study-bible.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure-ultra-study-bible.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure-ultra-study-bible.html'}, {'name': 'azure_mastery_canvas (1).html', 'title': 'Azure Mastery Canvas (1)', 'category': 'Azure', 'url': 'azure_mastery_canvas%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure_mastery_canvas%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure_mastery_canvas%20%281%29.html'}, {'name': 'azure_mastery_canvas.html', 'title': 'Azure Mastery Canvas', 'category': 'Azure', 'url': 'azure_mastery_canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/azure_mastery_canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/azure_mastery_canvas.html'}, {'name': 'blue-new.html', 'title': 'Blue New', 'category': 'General Study Canvases', 'url': 'blue-new.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/blue-new.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/blue-new.html'}, {'name': 'cloud_metropolis_canvas.html', 'title': 'Cloud Metropolis Canvas', 'category': 'General Study Canvases', 'url': 'cloud_metropolis_canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cloud_metropolis_canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cloud_metropolis_canvas.html'}, {'name': 'cybersecurity-devops-canvas (1).html', 'title': 'Cybersecurity Devops Canvas (1)', 'category': 'Cybersecurity', 'url': 'cybersecurity-devops-canvas%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-devops-canvas%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-devops-canvas%20%281%29.html'}, {'name': 'cybersecurity-devops-canvas.html', 'title': 'Cybersecurity Devops Canvas', 'category': 'Cybersecurity', 'url': 'cybersecurity-devops-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-devops-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-devops-canvas.html'}, {'name': 'cybersecurity-from-scratch.html', 'title': 'Cybersecurity From Scratch', 'category': 'Cybersecurity', 'url': 'cybersecurity-from-scratch.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-from-scratch.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-from-scratch.html'}, {'name': 'cybersecurity-layman-canvas.html', 'title': 'Cybersecurity Layman Canvas', 'category': 'Cybersecurity', 'url': 'cybersecurity-layman-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-layman-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-layman-canvas.html'}, {'name': 'cybersecurity-mastery-canvas.html', 'title': 'Cybersecurity Mastery Canvas', 'category': 'Cybersecurity', 'url': 'cybersecurity-mastery-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-mastery-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-mastery-canvas.html'}, {'name': 'cybersecurity-neat-canvas.html', 'title': 'Cybersecurity Neat Canvas', 'category': 'Cybersecurity', 'url': 'cybersecurity-neat-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-neat-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/cybersecurity-neat-canvas.html'}, {'name': 'demo-sec.html', 'title': 'Demo Sec', 'category': 'Cybersecurity', 'url': 'demo-sec.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/demo-sec.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/demo-sec.html'}, {'name': 'devops-dns-canvas.html', 'title': 'Devops Dns Canvas', 'category': 'Networking & DNS', 'url': 'devops-dns-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops-dns-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops-dns-canvas.html'}, {'name': 'devops-hero-mindset.html', 'title': 'Devops Hero Mindset', 'category': 'DevOps', 'url': 'devops-hero-mindset.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops-hero-mindset.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops-hero-mindset.html'}, {'name': 'devops-master-canvas-v2.html', 'title': 'Devops Master Canvas V2', 'category': 'DevOps', 'url': 'devops-master-canvas-v2.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops-master-canvas-v2.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops-master-canvas-v2.html'}, {'name': 'devops-master-canvas.html', 'title': 'Devops Master Canvas', 'category': 'DevOps', 'url': 'devops-master-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops-master-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops-master-canvas.html'}, {'name': 'devops-prove-yourself-canvas.html', 'title': 'Devops Prove Yourself Canvas', 'category': 'DevOps', 'url': 'devops-prove-yourself-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops-prove-yourself-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops-prove-yourself-canvas.html'}, {'name': 'devops-study-material.html', 'title': 'Devops Study Material', 'category': 'DevOps', 'url': 'devops-study-material.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops-study-material.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops-study-material.html'}, {'name': 'devops_dns_domain_guide.html', 'title': 'Devops Dns Domain Guide', 'category': 'Networking & DNS', 'url': 'devops_dns_domain_guide.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops_dns_domain_guide.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops_dns_domain_guide.html'}, {'name': 'devops_dns_domain_mastery_canvas.html', 'title': 'Devops Dns Domain Mastery Canvas', 'category': 'Networking & DNS', 'url': 'devops_dns_domain_mastery_canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops_dns_domain_mastery_canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops_dns_domain_mastery_canvas.html'}, {'name': 'devops_mastery_roadmap.html', 'title': 'Devops Mastery Roadmap', 'category': 'DevOps', 'url': 'devops_mastery_roadmap.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devops_mastery_roadmap.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devops_mastery_roadmap.html'}, {'name': 'devvvops.html', 'title': 'Devvvops', 'category': 'General Study Canvases', 'url': 'devvvops.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/devvvops.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/devvvops.html'}, {'name': 'dns-flow.html', 'title': 'Dns Flow', 'category': 'Networking & DNS', 'url': 'dns-flow.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/dns-flow.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/dns-flow.html'}, {'name': 'dns-ssl-tls-master-canvas.html', 'title': 'Dns Ssl Tls Master Canvas', 'category': 'Networking & DNS', 'url': 'dns-ssl-tls-master-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/dns-ssl-tls-master-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/dns-ssl-tls-master-canvas.html'}, {'name': 'dns.html', 'title': 'Dns', 'category': 'Networking & DNS', 'url': 'dns.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/dns.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/dns.html'}, {'name': 'docker-git-canvas.html', 'title': 'Docker Git Canvas', 'category': 'DevOps', 'url': 'docker-git-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/docker-git-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/docker-git-canvas.html'}, {'name': 'gcp_mastery_curriculum_navigator.html', 'title': 'Gcp Mastery Curriculum Navigator', 'category': 'General Study Canvases', 'url': 'gcp_mastery_curriculum_navigator.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/gcp_mastery_curriculum_navigator.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/gcp_mastery_curriculum_navigator.html'}, {'name': 'htmllllllllllllllllllll.html', 'title': 'Htmllllllllllllllllllll', 'category': 'General Study Canvases', 'url': 'htmllllllllllllllllllll.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/htmllllllllllllllllllll.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/htmllllllllllllllllllll.html'}, {'name': 'http-status-codes.html', 'title': 'Http Status Codes', 'category': 'Networking & DNS', 'url': 'http-status-codes.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/http-status-codes.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/http-status-codes.html'}, {'name': 'k8s-advanced-scheduling-canvas (1).html', 'title': 'K8S Advanced Scheduling Canvas (1)', 'category': 'Kubernetes', 'url': 'k8s-advanced-scheduling-canvas%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-advanced-scheduling-canvas%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-advanced-scheduling-canvas%20%281%29.html'}, {'name': 'k8s-advanced-scheduling-canvas.html', 'title': 'K8S Advanced Scheduling Canvas', 'category': 'Kubernetes', 'url': 'k8s-advanced-scheduling-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-advanced-scheduling-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-advanced-scheduling-canvas.html'}, {'name': 'k8s-ingress-canvas.html', 'title': 'K8S Ingress Canvas', 'category': 'Kubernetes', 'url': 'k8s-ingress-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-ingress-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-ingress-canvas.html'}, {'name': 'k8s-n.html', 'title': 'K8S N', 'category': 'Kubernetes', 'url': 'k8s-n.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-n.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/k8s-n.html'}, {'name': 'k8s.html', 'title': 'K8S', 'category': 'Kubernetes', 'url': 'k8s.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/k8s.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/k8s.html'}, {'name': 'k8s_masterclass.pptx.html', 'title': 'K8S Masterclass.Pptx', 'category': 'Kubernetes', 'url': 'k8s_masterclass.pptx.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/k8s_masterclass.pptx.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/k8s_masterclass.pptx.html'}, {'name': 'kubernetes-deep-dive.html', 'title': 'Kubernetes Deep Dive', 'category': 'Kubernetes', 'url': 'kubernetes-deep-dive.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/kubernetes-deep-dive.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/kubernetes-deep-dive.html'}, {'name': 'kubernetes-master-canvas-27pages (1).html', 'title': 'Kubernetes Master Canvas 27Pages (1)', 'category': 'Kubernetes', 'url': 'kubernetes-master-canvas-27pages%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/kubernetes-master-canvas-27pages%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/kubernetes-master-canvas-27pages%20%281%29.html'}, {'name': 'kubernetes-master-canvas-27pages.html', 'title': 'Kubernetes Master Canvas 27Pages', 'category': 'Kubernetes', 'url': 'kubernetes-master-canvas-27pages.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/kubernetes-master-canvas-27pages.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/kubernetes-master-canvas-27pages.html'}, {'name': 'linux-300-commands-ultraman.html', 'title': 'Linux 300 Commands Ultraman', 'category': 'Linux & OS', 'url': 'linux-300-commands-ultraman.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-300-commands-ultraman.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-300-commands-ultraman.html'}, {'name': 'linux-advanced-scenario-canvas.html', 'title': 'Linux Advanced Scenario Canvas', 'category': 'Linux & OS', 'url': 'linux-advanced-scenario-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-advanced-scenario-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-advanced-scenario-canvas.html'}, {'name': 'linux-devops-canvas.html', 'title': 'Linux Devops Canvas', 'category': 'Linux & OS', 'url': 'linux-devops-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-devops-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-devops-canvas.html'}, {'name': 'linux-devops-ultra-canvas.html', 'title': 'Linux Devops Ultra Canvas', 'category': 'Linux & OS', 'url': 'linux-devops-ultra-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-devops-ultra-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-devops-ultra-canvas.html'}, {'name': 'linux-investigation-canvas (1).html', 'title': 'Linux Investigation Canvas (1)', 'category': 'Linux & OS', 'url': 'linux-investigation-canvas%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-investigation-canvas%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-investigation-canvas%20%281%29.html'}, {'name': 'linux-investigation-canvas.html', 'title': 'Linux Investigation Canvas', 'category': 'Linux & OS', 'url': 'linux-investigation-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-investigation-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-investigation-canvas.html'}, {'name': 'linux-master-canvas-enhanced.html', 'title': 'Linux Master Canvas Enhanced', 'category': 'Linux & OS', 'url': 'linux-master-canvas-enhanced.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-master-canvas-enhanced.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-master-canvas-enhanced.html'}, {'name': 'linux-ssh-ultraman-v2.html', 'title': 'Linux Ssh Ultraman V2', 'category': 'Linux & OS', 'url': 'linux-ssh-ultraman-v2.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux-ssh-ultraman-v2.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux-ssh-ultraman-v2.html'}, {'name': 'linux.html', 'title': 'Linux', 'category': 'Linux & OS', 'url': 'linux.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/linux.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/linux.html'}, {'name': 'mas-new.html', 'title': 'Mas New', 'category': 'General Study Canvases', 'url': 'mas-new.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/mas-new.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/mas-new.html'}, {'name': 'master-off-all.html', 'title': 'Master Off All', 'category': 'General Study Canvases', 'url': 'master-off-all.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/master-off-all.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/master-off-all.html'}, {'name': 'mlops-canvas.html', 'title': 'Mlops Canvas', 'category': 'Data & Databases', 'url': 'mlops-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/mlops-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/mlops-canvas.html'}, {'name': 'mysql_pitr_commands.html', 'title': 'Mysql Pitr Commands', 'category': 'Data & Databases', 'url': 'mysql_pitr_commands.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/mysql_pitr_commands.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/mysql_pitr_commands.html'}, {'name': 'mysql_pitr_guide.html', 'title': 'Mysql Pitr Guide', 'category': 'Data & Databases', 'url': 'mysql_pitr_guide.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/mysql_pitr_guide.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/mysql_pitr_guide.html'}, {'name': 'mysql_pitr_poc.html', 'title': 'Mysql Pitr Poc', 'category': 'Data & Databases', 'url': 'mysql_pitr_poc.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/mysql_pitr_poc.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/mysql_pitr_poc.html'}, {'name': 'n-s-v.html', 'title': 'N S V', 'category': 'General Study Canvases', 'url': 'n-s-v.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/n-s-v.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/n-s-v.html'}, {'name': 'net.html', 'title': 'Net', 'category': 'Networking & DNS', 'url': 'net.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/net.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/net.html'}, {'name': 'nmap_mastery_canvas.html', 'title': 'Nmap Mastery Canvas', 'category': 'Cybersecurity', 'url': 'nmap_mastery_canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/nmap_mastery_canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/nmap_mastery_canvas.html'}, {'name': 'nsv.html', 'title': 'Nsv', 'category': 'General Study Canvases', 'url': 'nsv.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/nsv.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/nsv.html'}, {'name': 'output (Copy).html', 'title': 'Output (Copy)', 'category': 'General Study Canvases', 'url': 'output%20%28Copy%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/output%20%28Copy%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/output%20%28Copy%29.html'}, {'name': 'output.html', 'title': 'Output', 'category': 'General Study Canvases', 'url': 'output.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/output.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/output.html'}, {'name': 'preview (1).html', 'title': 'Preview (1)', 'category': 'General Study Canvases', 'url': 'preview%20%281%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/preview%20%281%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/preview%20%281%29.html'}, {'name': 'preview (2).html', 'title': 'Preview (2)', 'category': 'General Study Canvases', 'url': 'preview%20%282%29.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/preview%20%282%29.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/preview%20%282%29.html'}, {'name': 'saa-c03-complete-study-canvas.html', 'title': 'Saa C03 Complete Study Canvas', 'category': 'AWS', 'url': 'saa-c03-complete-study-canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/saa-c03-complete-study-canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/saa-c03-complete-study-canvas.html'}, {'name': 'ssl-tls-masterclass.html', 'title': 'Ssl Tls Masterclass', 'category': 'Networking & DNS', 'url': 'ssl-tls-masterclass.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/ssl-tls-masterclass.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/ssl-tls-masterclass.html'}, {'name': 'subfinder_mastery_canvas.html', 'title': 'Subfinder Mastery Canvas', 'category': 'Cybersecurity', 'url': 'subfinder_mastery_canvas.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/subfinder_mastery_canvas.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/subfinder_mastery_canvas.html'}, {'name': 'sysadmin.html', 'title': 'Sysadmin', 'category': 'Linux & OS', 'url': 'sysadmin.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/sysadmin.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/sysadmin.html'}, {'name': 'tools-dev.html', 'title': 'Tools Dev', 'category': 'General Study Canvases', 'url': 'tools-dev.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/tools-dev.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/tools-dev.html'}, {'name': 'win-.html', 'title': 'Win ', 'category': 'General Study Canvases', 'url': 'win-.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/win-.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/win-.html'}, {'name': '\ufeff97.html', 'title': '\ufeff97', 'category': 'General Study Canvases', 'url': '%EF%BB%BF97.html', 'preview': 'https://htmlpreview.github.io/?https://github.com/Pavi786/aws-html-canvases/blob/main/%EF%BB%BF97.html', 'github': 'https://github.com/Pavi786/aws-html-canvases/blob/main/%EF%BB%BF97.html'}];
+        let currentFilter = 'All';
+        let searchQuery = '';
+
+        const grid = document.getElementById('cardsGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        function render() {
+            const filtered = cards.filter(c => {
+                const matchesCat = currentFilter === 'All' || c.category === currentFilter;
+                const matchesSearch = c.title.toLowerCase().includes(searchQuery) ||
+                                      c.name.toLowerCase().includes(searchQuery) ||
+                                      c.category.toLowerCase().includes(searchQuery);
+                return matchesCat && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-msg">No canvases match your search criteria.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(c => `
+                <div class="card">
+                    <div>
+                        <div class="card-header">
+                            <span class="badge">${c.category}</span>
+                        </div>
+                        <h2 class="card-title">${c.title}</h2>
+                        <div class="card-filename">📄 ${c.name}</div>
+                    </div>
+                    <div class="card-actions">
+                        <a href="${c.url}" class="btn btn-primary" target="_blank">🌐 Open Canvas</a>
+                        <a href="${c.preview}" class="btn btn-secondary" target="_blank" title="HTMLPreview">🔍 Preview</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            render();
+        });
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.getAttribute('data-cat');
+                render();
+            });
+        });
+
+        render();
+    </script>
+</body>
+</html>
